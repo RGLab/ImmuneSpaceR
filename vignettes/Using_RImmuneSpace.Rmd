@@ -1,0 +1,93 @@
+<!--
+%\VignetteEngine{knitr::knitr}
+%\VignetteIndexEntry{An introduction to using the RImmuneSpace package}
+-->
+
+# A simple introduction on using the RImmuneSpace package
+
+This package provides a *thin* wrapper around `Rlabkey` and connects to the **ImmuneSpace* database, making it easier to fetch *datasets*, including gene expression data, hai, and so forth, from specific studies. 
+
+## Configuration
+
+You need three global variables set. These will typically be set by the LabKey system when a script is running on ImmuneSpace, but if you work remotely, you can set them in your global environment.
+
+```{r echo=TRUE}
+labkey.url.base="https://www.immunsepace.org"
+labkey.url.path="Studies/SDY269"
+labkey.user.email="gfinak at fhcrc.org"
+```
+
+The first is the URI to the ImmuneSpace system.
+The second is the path to the study you wish to access. In this case, we are going to access `SDY269`. All studies are under the `Studies` folder. Always.
+The third is your user email. This is used to track who generated a given report.
+
+Finally you'll need an `.netrc` file in your home directory that will contain a `machine` name (hostname of ImmuneSpace), and `login` and `password`. See [here](https://www.labkey.org/wiki/home/Documentation/page.view?name=netrc) for more information.
+
+A netrc file may look like this:
+```
+machine www.immunespace.org
+login myuser@domain.com
+password supersecretpassword
+```
+
+### Set up your netrc file now
+Put it in your home directory. 
+If you type:
+``` 
+ls ~/.netrc
+```
+at the command prompt, you should see it there. If it's not there, create one now. Make sure you have a valid login and password. If you don't have one, go to [ImmuneSpace](http://www.immunespace.org) now and set yourself up with an account. 
+
+## Instantiate a connection
+
+Let's instantiate a connection to ImmuneSpace. First, we need the configuration variables. These would normally be set up by LabKey when running locally on the ImmuneSpace server. Since we are running remotely, we need to define them.
+
+```{r,message=FALSE}
+require(RImmuneSpace)
+labkey.url.base="https://www.immunespace.org" 
+labkey.url.path="Studies/SDY269"
+labkey.email.user="gfinak at fhcrc.org"
+```
+
+We'll be looking at study `SDY269`. If you want to use a different study, change that string. The connections have state, so you can instantiate multiple connections to different studies simultaneously.
+
+```{r}
+sdy269<-new("ImmuneSpaceConnection")
+sdy269
+```
+
+The call to `new` instantiates the connection and it initializes itself using the `labkey.*` variables. Printing the object shows where it's connected, to what study, and the available data sets and gene expression matrices.
+
+## Fetching data sets and gene expression matrices
+
+We can grab a named data set easily enough.
+
+```{r}
+sdy269$getDataset("hai")
+```
+
+The *sdy269* object is an **S5** class, so it behaves like a true object. Functions (like `getDataset`) are members of the object, thus the `$` semantics to access member functions.
+The first time you retrieve a data set, it will contact the database. The data is cached locally, so the next time you call `getDataset` on the same dataset, it will retrieve the cached local copy. This is much faster. 
+
+We can grab a gene expression matrix
+
+```{r}
+sdy269$getGEMatrix("LAIV_2008")
+```
+
+The object contacts the DB and downloads the matrix file. This is stored and cached locally as a `data.table`. The next time you access it, it will be much faster since it won't need to contact the database again.
+
+## Errors
+If you try to grab a dataset that doesn't exist, the object should tell you by giving you an error.
+
+```{r}
+result<-try(sdy269$getDataset("mickey_mouse"))
+message(result[1])
+```
+
+If you encounter unusual errors or behaviour, get in touch with the package maintainer. This is very much a beta release, functionality will be added as required.
+
+## Future Enhancements
+
+As the schema stabilizes, we plan to implement automated merging of different data types within, and eventually across assays (using differen connections for example). 
+

@@ -4,10 +4,13 @@ Title: A Thin Wrapper around the ImmuneSpace Database
 Version: 0.1
 Date: 2014-06-11
 Author: Greg Finak
+VignetteBuilder: knitr
 Maintainer: Who to complain to <gfinak@fhcrc.org>
 Description: Provides a convenient API for accessing data sets within studies
     in the ImmuneSpace database
 License: GPL 2.0
+Suggests:
+    knitr
 Depends:
     methods,
     data.table,
