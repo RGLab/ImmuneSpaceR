@@ -1,24 +1,32 @@
 #'@docType package
 #'@title A Thin Wrapper Around Immunspace.
-#'@description RImmuneSpace provides a convenient API for accessing data sets within the ImmuneSpace database.
+#'@description ImmuneSpaceR provides a convenient API for accessing data sets within the ImmuneSpace database.
 #'
 #'@details Uses the Rlabkey package to connect to ImmuneSpace. Implements caching, and convenient methods for accessing data sets.
 #'
-#'@name RImmuneSpace-package
-#'@aliases RImmuneSpace
+#'@name ImmuneSpaceR-package
+#'@aliases ImmuneSpaceR
 #'@author Greg Finak
 #'@import data.table Rlabkey
 NULL
 
-#mycon<-new("ImmuneSpaceConnection")
-#mycon
-#mycon$listDatasets()
-# mycon$getDataset("hai")
-# mycon$getDataset("elisa_mbaa")
-# mycon$getDataset("demographics")
-# mycon$getDataset("gene_expression_files")
-# mycon$getDataset("cohort_membership")
-#mycon$getGEMatrix("LAIV_2008")
+#'@title CreateConnection
+#'@name CreateConnection
+#'@usage CreateConnnection(study="SDY269")
+#'@param study \code{"character"} vector naming the study.
+#'@description Constructor for \code{ImmuneSpaceConnection} class
+#'@details Instantiates and \code{ImmuneSpaceConnection} for \code{study}
+#'@export CreateConnection
+#'@return an instance of an \code{ImmuneSpaceConnection}
+CreateConnection = function(study=NULL){
+  if(is.null(study)){
+    stop("study cannot be NULL");
+  }
+  labkey.url.path<-get("labkey.url.path",.GlobalEnv)
+  labkey.url.path<-file.path(dirname(labkey.url.path),study)
+  assign("labkey.url.path",value = labkey.url.path,envir = .GlobalEnv)
+  new("ImmuneSpaceConnection")
+}
 
 #'@name ImmuneSpaceConnection
 #'@aliases ImmuneSpace
@@ -32,7 +40,7 @@ NULL
 #'The \code{.netrc} file should contain a \code{machine}, \code{login}, and \code{password} entry to allow access to ImmuneSpace,
 #'where \code{machine} is the host name like "www.immunespace.org".
 #'@usage new("ImmuneSpaceConnection")
-#'@seealso \code{\link{RImmuneSpace-package}} \code{\link{ImmuneSpaceConnection_getGEMatrix}}  \code{\link{ImmuneSpaceConnection_getDataset}}  \code{\link{ImmuneSpaceConnection_listDatasets}}
+#'@seealso \code{\link{ImmuneSpaceR-package}} \code{\link{ImmuneSpaceConnection_getGEMatrix}}  \code{\link{ImmuneSpaceConnection_getDataset}}  \code{\link{ImmuneSpaceConnection_listDatasets}}
 #'@exportClass ImmuneSpaceConnection
 #'@examples
 #'labkey.url.base="https://www.immunespace.org"
@@ -45,8 +53,11 @@ setRefClass(Class = "ImmuneSpaceConnection",fields = list(study="character",conf
             methods=list(
               initialize=function(){
                 .AutoConfig()
-                .GeneExpressionMatrices()
-                .GeneExpressionInputs()
+                gematrices_success<-try(.GeneExpressionMatrices(),silent=TRUE)
+                geinputs_success<-try(.GeneExpressionInputs(),silent=TRUE)
+                if(inherits(gematrices_success,"try-error")){
+                  message("No gene expression data")
+                }
               },
               .AutoConfig=function(){
                 labkey.url.base<-get("labkey.url.base",.GlobalEnv)

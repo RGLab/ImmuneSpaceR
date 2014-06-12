@@ -1,4 +1,4 @@
-Package: RImmuneSpace
+Package: ImmuneSpaceR
 Type: Package
 Title: A Thin Wrapper around the ImmuneSpace Database
 Version: 0.1

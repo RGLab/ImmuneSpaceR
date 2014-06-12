@@ -1,9 +1,9 @@
 <!--
 %\VignetteEngine{knitr::knitr}
-%\VignetteIndexEntry{An introduction to using the RImmuneSpace package}
+%\VignetteIndexEntry{An introduction to using the ImmuneSpaceR package}
 -->
 
-# A simple introduction on using the RImmuneSpace package
+# A simple introduction on using the ImmuneSpaceR package
 
 This package provides a *thin* wrapper around `Rlabkey` and connects to the **ImmuneSpace* database, making it easier to fetch *datasets*, including gene expression data, hai, and so forth, from specific studies. 
 
@@ -43,7 +43,7 @@ at the command prompt, you should see it there. If it's not there, create one no
 Let's instantiate a connection to ImmuneSpace. First, we need the configuration variables. These would normally be set up by LabKey when running locally on the ImmuneSpace server. Since we are running remotely, we need to define them.
 
 ```{r,message=FALSE}
-require(RImmuneSpace)
+require(ImmuneSpaceR)
 labkey.url.base="https://www.immunespace.org" 
 labkey.url.path="Studies/SDY269"
 labkey.email.user="gfinak at fhcrc.org"
@@ -52,11 +52,11 @@ labkey.email.user="gfinak at fhcrc.org"
 We'll be looking at study `SDY269`. If you want to use a different study, change that string. The connections have state, so you can instantiate multiple connections to different studies simultaneously.
 
 ```{r}
-sdy269<-new("ImmuneSpaceConnection")
+sdy269<-CreateConnection(study="SDY269")
 sdy269
 ```
 
-The call to `new` instantiates the connection and it initializes itself using the `labkey.*` variables. Printing the object shows where it's connected, to what study, and the available data sets and gene expression matrices.
+The call to `CreateConnection` instantiates the connection and it initializes itself using the `labkey.*` variables. The `study` parameter can be used to override the `labkey.url.path` string.  Printing the object shows where it's connected, to what study, and the available data sets and gene expression matrices.
 
 ## Fetching data sets and gene expression matrices
 
