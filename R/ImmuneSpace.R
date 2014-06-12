@@ -7,29 +7,48 @@
 #'@name ImmuneSpaceR-package
 #'@aliases ImmuneSpaceR
 #'@author Greg Finak
-#'@import data.table Rlabkey
+#'@import data.table Rlabkey methods
 NULL
 
 #'@title CreateConnection
 #'@name CreateConnection
-#'@usage CreateConnnection(study="SDY269")
 #'@param study \code{"character"} vector naming the study.
 #'@description Constructor for \code{ImmuneSpaceConnection} class
 #'@details Instantiates and \code{ImmuneSpaceConnection} for \code{study}
+#'The constructor will try to take the values of the various `labkey.*` parameters from the global environment.
+#'If they don't exist, it will use default values. These are assigned to `options`, which are then used by the \code{ImmuneSpaceConnection} class.
 #'@export CreateConnection
 #'@return an instance of an \code{ImmuneSpaceConnection}
 CreateConnection = function(study=NULL){
   if(is.null(study)){
     stop("study cannot be NULL");
   }
-  labkey.url.path<-get("labkey.url.path",.GlobalEnv)
-  labkey.url.path<-file.path(dirname(labkey.url.path),study)
-  assign("labkey.url.path",value = labkey.url.path,envir = .GlobalEnv)
+  
+  labkey.url.path<-try(get("labkey.url.path",.GlobalEnv),silent=TRUE)
+  if(inherits(labkey.url.path,"try-error")){
+    labkey.url.path<-paste0("/Studies/",study)
+  }else{
+    labkey.url.path<-file.path(dirname(labkey.url.path),study)
+  }
+  labkey.url.base<-try(get("labkey.url.base",.GlobalEnv),silent=TRUE)
+  if(inherits(labkey.url.base,"try-error"))
+    labkey.url.base<-"https://www.immunespace.org"
+  labkey.user.email<-try(get("labkey.user.email",.GlobalEnv),silent=TRUE)
+  if(inherits(labkey.user.email,"try-error"))
+    labkey.user.email="bozo at clowncollege.com"
+  
+  
+  options(labkey.url.base=labkey.url.base)
+  options(labkey.url.path=labkey.url.path)
+  options(labkey.user.email=labkey.user.email)
+  
   new("ImmuneSpaceConnection")
 }
 
 #'@name ImmuneSpaceConnection
+#'@aliases ImmuneSpaceConnection-class
 #'@aliases ImmuneSpace
+#'@rdname ImmuneSpaceConnection-class
 #'@docType class
 #'@title The ImmuneSpaceConnection class
 #'@description Instantiate this class to access a study
@@ -39,14 +58,13 @@ CreateConnection = function(study=NULL){
 #'The ImmunspaceConnection will initialize itself, and look for a \code{.netrc} file in \code{"~/"} the user's home directory.
 #'The \code{.netrc} file should contain a \code{machine}, \code{login}, and \code{password} entry to allow access to ImmuneSpace,
 #'where \code{machine} is the host name like "www.immunespace.org".
-#'@usage new("ImmuneSpaceConnection")
 #'@seealso \code{\link{ImmuneSpaceR-package}} \code{\link{ImmuneSpaceConnection_getGEMatrix}}  \code{\link{ImmuneSpaceConnection_getDataset}}  \code{\link{ImmuneSpaceConnection_listDatasets}}
 #'@exportClass ImmuneSpaceConnection
 #'@examples
 #'labkey.url.base="https://www.immunespace.org"
 #'labkey.url.path="/Studies/SDY269"
 #'labkey.user.email='gfinak at fhcrc.org'
-#'sdy269<-new("ImmuneSpaceConnection")
+#'sdy269<-CreateConnection("SDY269")
 #'sdy269
 #'@return An instance of an ImmuneSpaceConnection for a study in `labkey.url.path`
 setRefClass(Class = "ImmuneSpaceConnection",fields = list(study="character",config="list",available_datasets="data.table",data_cache="list"),
@@ -60,9 +78,11 @@ setRefClass(Class = "ImmuneSpaceConnection",fields = list(study="character",conf
                 }
               },
               .AutoConfig=function(){
-                labkey.url.base<-get("labkey.url.base",.GlobalEnv)
-                labkey.url.path<-get("labkey.url.path",.GlobalEnv)
-                labkey.user.email<-get("labkey.user.email",.GlobalEnv)
+                #should use options
+                labkey.url.base<-getOption("labkey.url.base")
+                labkey.url.path<-getOption("labkey.url.path")
+                labkey.user.email<-getOption("labkey.user.email")
+                
                 study<<-basename(labkey.url.path)
                 config<<-list(labkey.url.base=labkey.url.base,labkey.url.path=labkey.url.path,labkey.user.email=labkey.user.email)
                 .getDataSets();
@@ -165,7 +185,6 @@ setRefClass(Class = "ImmuneSpaceConnection",fields = list(study="character",conf
 ))
 
 #'@title get Gene Expression Matrix
-#'@usage getGEMatrix(x)
 #'@aliases getGEMatrix
 #'@param x \code{"character"} name of the Gene Expression Matrix
 #'@details Returns the gene expression matrix named 'x', downloads it if it is not already cached.
@@ -175,13 +194,12 @@ setRefClass(Class = "ImmuneSpaceConnection",fields = list(study="character",conf
 #'labkey.url.base="https://www.immunespace.org"
 #'labkey.url.path="/Studies/SDY269"
 #'labkey.user.email='gfinak at fhcrc.org'
-#'sdy269<-new("ImmuneSpaceConnection")
+#'sdy269<-CreateConnection("SDY269")
 #'sdy269$getGEMatrix("TIV_2008")
 NULL
 
 #'@title get a dataset
 #'@aliases getDataset
-#'@usage getDataset(x)
 #'@param x \code{"character"} name of the dataset
 #'@details Returns the dataset named 'x', downloads it if it is not already cached.
 #'@return a \code{data.table}
@@ -190,13 +208,12 @@ NULL
 #'labkey.url.base="https://www.immunespace.org"
 #'labkey.url.path="/Studies/SDY269"
 #'labkey.user.email='gfinak at fhcrc.org'
-#'sdy269<-new("ImmuneSpaceConnection")
+#'sdy269<-CreateConnection("SDY269")
 #'sdy269$getDataset("hai")
 NULL
 
 #'@title list available datasets
 #'@aliases listDatasets
-#'@usage listDatasets()
 #'@details Prints the names of the available datasets
 #'@return Doesn't return anything, just prints to console.
 #'@name ImmuneSpaceConnection_listDatasets
@@ -204,6 +221,6 @@ NULL
 #'labkey.url.base="https://www.immunespace.org"
 #'labkey.url.path="/Studies/SDY269"
 #'labkey.user.email='gfinak at fhcrc.org'
-#'sdy269<-new("ImmuneSpaceConnection")
+#'sdy269<-CreateConnection("SDY269")
 #'sdy269$listDatasets()
 NULL

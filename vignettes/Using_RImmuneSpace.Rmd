@@ -9,12 +9,12 @@ This package provides a *thin* wrapper around `Rlabkey` and connects to the **Im
 
 ## Configuration
 
-You need three global variables set. These will typically be set by the LabKey system when a script is running on ImmuneSpace, but if you work remotely, you can set them in your global environment.
+ImmuneSpaceR uses the `options` mechanism in R to find the values of three variables.  These will typically be set by the LabKey system when a script is running on ImmuneSpace, but if you work remotely, you can set them in your global environment, or ImmuneSpaceR will assign default values if they're missing. The defaults may or may not work for you, so it's best to set them. 
 
 ```{r echo=TRUE}
 labkey.url.base="https://www.immunsepace.org"
 labkey.url.path="Studies/SDY269"
-labkey.user.email="gfinak at fhcrc.org"
+labkey.user.email="unknown_user at not_a_real_domain.org"
 ```
 
 The first is the URI to the ImmuneSpace system.
@@ -56,7 +56,7 @@ sdy269<-CreateConnection(study="SDY269")
 sdy269
 ```
 
-The call to `CreateConnection` instantiates the connection and it initializes itself using the `labkey.*` variables. The `study` parameter can be used to override the `labkey.url.path` string.  Printing the object shows where it's connected, to what study, and the available data sets and gene expression matrices.
+The call to `CreateConnection` instantiates the connection and it initializes itself using the `labkey.*` variables, assigns them to `options`, and those are used by the connection. The `study` parameter can be used to override the `labkey.url.path`.  Printing the object shows where it's connected, to what study, and the available data sets and gene expression matrices.
 
 ## Fetching data sets and gene expression matrices
 

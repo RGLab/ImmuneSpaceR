@@ -3,9 +3,6 @@
 \alias{ImmuneSpaceConnection_listDatasets}
 \alias{listDatasets}
 \title{list available datasets}
-\usage{
-listDatasets()
-}
 \value{
 Doesn't return anything, just prints to console.
 }
@@ -19,7 +16,7 @@ Prints the names of the available datasets
 labkey.url.base="https://www.immunespace.org"
 labkey.url.path="/Studies/SDY269"
 labkey.user.email='gfinak at fhcrc.org'
-sdy269<-new("ImmuneSpaceConnection")
+sdy269<-CreateConnection("SDY269")
 sdy269$listDatasets()
 }
 

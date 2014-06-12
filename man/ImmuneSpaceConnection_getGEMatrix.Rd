@@ -3,9 +3,6 @@
 \alias{ImmuneSpaceConnection_getGEMatrix}
 \alias{getGEMatrix}
 \title{get Gene Expression Matrix}
-\usage{
-getGEMatrix(x)
-}
 \arguments{
 \item{x}{\code{"character"} name of the Gene Expression Matrix}
 }
@@ -22,7 +19,7 @@ Returns the gene expression matrix named 'x', downloads it if it is not already 
 labkey.url.base="https://www.immunespace.org"
 labkey.url.path="/Studies/SDY269"
 labkey.user.email='gfinak at fhcrc.org'
-sdy269<-new("ImmuneSpaceConnection")
+sdy269<-CreateConnection("SDY269")
 sdy269$getGEMatrix("TIV_2008")
 }
 

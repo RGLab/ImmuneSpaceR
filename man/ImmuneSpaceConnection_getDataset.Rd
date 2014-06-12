@@ -3,9 +3,6 @@
 \alias{ImmuneSpaceConnection_getDataset}
 \alias{getDataset}
 \title{get a dataset}
-\usage{
-getDataset(x)
-}
 \arguments{
 \item{x}{\code{"character"} name of the dataset}
 }
@@ -22,7 +19,7 @@ Returns the dataset named 'x', downloads it if it is not already cached.
 labkey.url.base="https://www.immunespace.org"
 labkey.url.path="/Studies/SDY269"
 labkey.user.email='gfinak at fhcrc.org'
-sdy269<-new("ImmuneSpaceConnection")
+sdy269<-CreateConnection("SDY269")
 sdy269$getDataset("hai")
 }
 

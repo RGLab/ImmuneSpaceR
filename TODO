@@ -1,1 +1,1 @@
-Clean up the documentation so that R CMD check passes.
+Make gene expression return an ExpressionSet

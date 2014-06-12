@@ -3,7 +3,7 @@
 \alias{CreateConnection}
 \title{CreateConnection}
 \usage{
-CreateConnnection(study="SDY269")
+CreateConnection(study = NULL)
 }
 \arguments{
 \item{study}{\code{"character"} vector naming the study.}
@@ -16,5 +16,7 @@ Constructor for \code{ImmuneSpaceConnection} class
 }
 \details{
 Instantiates and \code{ImmuneSpaceConnection} for \code{study}
+The constructor will try to take the values of the various `labkey.*` parameters from the global environment.
+If they don't exist, it will use default values. These are assigned to `options`, which are then used by the \code{ImmuneSpaceConnection} class.
 }
 
