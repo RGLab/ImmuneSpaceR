@@ -7,13 +7,13 @@
 \item{x}{\code{"character"} name of the Gene Expression Matrix}
 }
 \value{
-a \code{data.table}
+an \code{ExpressionSet}
 }
 \description{
 get Gene Expression Matrix
 }
 \details{
-Returns the gene expression matrix named 'x', downloads it if it is not already cached.
+Returns an `ExpressionSet` from the matrix named 'x', downloads it if it is not already cached.
 }
 \examples{
 labkey.url.base="https://www.immunespace.org"

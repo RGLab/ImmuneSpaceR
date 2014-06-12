@@ -242,8 +242,8 @@ setRefClass(Class = "ImmuneSpaceConnection",fields = list(study="character",conf
 #'@title get Gene Expression Matrix
 #'@aliases getGEMatrix
 #'@param x \code{"character"} name of the Gene Expression Matrix
-#'@details Returns the gene expression matrix named 'x', downloads it if it is not already cached.
-#'@return a \code{data.table}
+#'@details Returns an `ExpressionSet` from the matrix named 'x', downloads it if it is not already cached.
+#'@return an \code{ExpressionSet}
 #'@name ImmuneSpaceConnection_getGEMatrix
 #'@examples
 #'labkey.url.base="https://www.immunespace.org"
