@@ -20,14 +20,13 @@ NULL
 #'@export CreateConnection
 #'@return an instance of an \code{ImmuneSpaceConnection}
 CreateConnection = function(study=NULL){
-  if(is.null(study)){
-    stop("study cannot be NULL");
-  }
-  
   labkey.url.path<-try(get("labkey.url.path",.GlobalEnv),silent=TRUE)
   if(inherits(labkey.url.path,"try-error")){
+    if(is.null(study)){
+      stop("study cannot be NULL")
+    }
     labkey.url.path<-paste0("/Studies/",study)
-  }else{
+  }else if(!is.null(study)){
     labkey.url.path<-file.path(dirname(labkey.url.path),study)
   }
   labkey.url.base<-try(get("labkey.url.base",.GlobalEnv),silent=TRUE)
