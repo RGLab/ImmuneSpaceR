@@ -146,20 +146,21 @@ setRefClass(Class = "ImmuneSpaceConnection",fields = list(study="character",conf
               if(!is.null(data_cache[[constants$matrix_inputs]])){
                 data_cache[[constants$matrix_inputs]]
               }else{
-                ge<-data.table(labkey.selectRows(baseUrl = config$labkey.url.base,config$labkey.url.path,schemaName = "assay.ExpressionMatrix.matrix",queryName = "InputSamples",colNameOpt = "fieldname",viewName = "gene_expression_matrices",showHidden=TRUE))
+                ge<-labkey.selectRows(baseUrl = config$labkey.url.base,config$labkey.url.path,schemaName = "assay.ExpressionMatrix.matrix",queryName = "InputSamples",colNameOpt = "fieldname",viewName = "gene_expression_matrices",showHidden=TRUE)
                 setnames(ge,.munge(colnames(ge)))
                 data_cache[[constants$matrix_inputs]]<<-ge
               }
             },
             
             .GeneExpressionFeatures=function(matrix_name){
-              if(!any((data_cache[[constants$matrices]][,name]%in%matrix_name))){
+              if(!any((data_cache[[constants$matrices]][,"name"]%in%matrix_name))){
                 stop("Invalid gene expression matrix name");
               }
               annotation_set_id<-.getFeatureId(matrix_name)
               if(is.null(data_cache[[.mungeFeatureId(annotation_set_id)]])){
+                message("Downloading Features..")
                 featureAnnotationSetQuery=sprintf("SELECT * from FeatureAnnotation where FeatureAnnotationSetId='%s';",annotation_set_id);
-                features<-data.table(labkey.executeSql(config$labkey.url.base,config$labkey.url.path,schemaName = "Microarray",sql = featureAnnotationSetQuery ,colNameOpt = "fieldname"))
+                features<-labkey.executeSql(config$labkey.url.base,config$labkey.url.path,schemaName = "Microarray",sql = featureAnnotationSetQuery ,colNameOpt = "fieldname")
                 data_cache[[.mungeFeatureId(annotation_set_id)]]<<-features
               }
             },
@@ -168,7 +169,7 @@ setRefClass(Class = "ImmuneSpaceConnection",fields = list(study="character",conf
               if(!is.null(data_cache[[constants$matrices]])){
                 data_cache[[constants$matrices]]
               }else{
-                ge<-data.table(labkey.selectRows(baseUrl = config$labkey.url.base,config$labkey.url.path,schemaName = "assay.ExpressionMatrix.matrix",queryName = "Runs",colNameOpt = "fieldname",showHidden = TRUE, viewName = "Expression Matrices"))
+                ge<-labkey.selectRows(baseUrl = config$labkey.url.base,config$labkey.url.path,schemaName = "assay.ExpressionMatrix.matrix",queryName = "Runs",colNameOpt = "fieldname",showHidden = TRUE, viewName = "Expression Matrices")
                 setnames(ge,.munge(colnames(ge)))
                 data_cache[[constants$matrices]]<<-ge
               }
@@ -176,16 +177,19 @@ setRefClass(Class = "ImmuneSpaceConnection",fields = list(study="character",conf
             
             .downloadMatrix=function(x){
               if(is.null(data_cache[[x]])){
-                if(nrow(data_cache[[constants$matrices]][name%in%x,])==0){
+                if(nrow(subset(data_cache[[constants$matrices]],name%in%x))==0){
                   stop(sprintf("No matrix %s in study\n",x))
                 }
-                link<-URLdecode(file.path(gsub("www.","",gsub("http:","https:",gsub("/$","",config$labkey.url.base))),gsub("^/","",data_cache[[constants$matrices]][name%in%x,downloadlink])))
+                link<-URLdecode(file.path(gsub("www.","",gsub("http:","https:",gsub("/$","",config$labkey.url.base))),gsub("^/","",subset(data_cache[[constants$matrices]],name%in%x)[,"downloadlink"])))
                 opts<-curlOptions(.opts=list(netrc=TRUE,ssl.verifyhost=FALSE,httpauth=1L,ssl.verifypeer=FALSE,followlocation=TRUE,verbose=FALSE))
                 handle<-getCurlHandle(.opts=opts)
                 h<-basicTextGatherer()
+                message("Downloading matrix..")
                 curlPerform(url=link,curl=handle,writefunction=h$update)
-                con<-textConnection(h$value())
-                data_cache[[x]]<<-data.table(read.csv(con,sep="\t"))
+                fl<-tempfile()
+                write(h$value(),file=fl)
+                data_cache[[x]]<<-fread(fl,header=TRUE)
+                file.remove(fl)
               }else{
                 data_cache[[x]]
               }
@@ -195,44 +199,33 @@ setRefClass(Class = "ImmuneSpaceConnection",fields = list(study="character",conf
               if(x%in%names(data_cache)){
                 data_cache[[x]]              
               }else{
-                pb <- txtProgressBar(style=3)
-                setTxtProgressBar(pb,0.1)
                 .downloadMatrix(x)
-                setTxtProgressBar(pb,0.33)                
                 .GeneExpressionFeatures(x)
-                setTxtProgressBar(pb,0.75)
                 .ConstructExpressionSet(x)
-                setTxtProgressBar(pb,1)
-                close(pb)
                 data_cache[[x]]
               }
             },
           .ConstructExpressionSet=function(matrix_name){
             #matrix
+            message("Constructing ExpressionSet")
             matrix<-data_cache[[matrix_name]]
             #features
-            features<-data_cache[[.mungeFeatureId(.getFeatureId(matrix_name))]][,list(FeatureId,GeneSymbol)]
+            features<-data_cache[[.mungeFeatureId(.getFeatureId(matrix_name))]][,c("FeatureId","GeneSymbol")]
             #inputs
-            pheno<-data_cache[[constants$matrix_inputs]]
-            pheno<-unique(pheno[biosample_accession%in%colnames(matrix),list(biosample_accession,subject_accession,arm_name,study_time_collected)])
-            try(setnames(matrix,"X","FeatureId"),silent=TRUE)
-            rn<-matrix$FeatureId
-            matrix<-as.matrix(matrix[,-1L,with=FALSE])
-            rownames(matrix)<-rn
-            matrix<-matrix[order(rn),]#order matrix rows by probe name
-            features<-features[order(FeatureId),]#order feature info by probe name
-            features<-as.data.frame(features)
+            pheno<-unique(subset(data_cache[[constants$matrix_inputs]],biosample_accession%in%colnames(matrix))[,c("biosample_accession","subject_accession","arm_name","study_time_collected")])
+            try(setnames(matrix," ","FeatureId"),silent=TRUE)
+            setkey(matrix,FeatureId)
             rownames(features)<-features$FeatureId
-            pheno<-as.data.frame(pheno)
+            features<-features[matrix$FeatureId,]#order feature info
             rownames(pheno)<-pheno$biosample_accession
-            pheno<-pheno[colnames(matrix),]
+            pheno<-pheno[colnames(matrix)[-1L],]
             ad_pheno<-AnnotatedDataFrame(data=pheno)
             ad_features<-AnnotatedDataFrame(features)
-            es<-ExpressionSet(assayData=matrix,phenoData=ad_pheno,featureData=ad_features)
+            es<-ExpressionSet(assayData=as.matrix(matrix[,-1L,with=FALSE]),phenoData=ad_pheno,featureData=ad_features)
             data_cache[[matrix_name]]<<-es
           },
           .getFeatureId=function(matrix_name){
-            data_cache[[constants$matrices]][name==matrix_name,featureset]
+            subset(data_cache[[constants$matrices]],name%in%matrix_name)[,"featureset"]
           },
           .mungeFeatureId=function(annotation_set_id){
             return(sprintf("featureset_%s",annotation_set_id))
