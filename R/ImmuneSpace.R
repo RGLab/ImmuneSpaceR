@@ -33,6 +33,7 @@ CreateConnection = function(study=NULL){
   labkey.url.base<-try(get("labkey.url.base",.GlobalEnv),silent=TRUE)
   if(inherits(labkey.url.base,"try-error"))
     labkey.url.base<-"https://www.immunespace.org"
+  labkey.url.base<-gsub("http:","https:",labkey.url.base)
   labkey.user.email<-try(get("labkey.user.email",.GlobalEnv),silent=TRUE)
   if(inherits(labkey.user.email,"try-error"))
     labkey.user.email="unknown_user at not_a_domain.com"
@@ -101,7 +102,7 @@ setRefClass(Class = "ImmuneSpaceConnection",fields = list(study="character",conf
               if(!is.null(data_cache[[constants$matrices]])){
                 cat("Expression Matrices\n")
                 for(i in 1:nrow(data_cache[[constants$matrices]])){
-                  cat(sprintf("%s\n",data_cache[[constants$matrices]][i,name]))
+                  cat(sprintf("%s\n",data_cache[[constants$matrices]][i,"name"]))
                 }
               }
             },
@@ -133,7 +134,7 @@ setRefClass(Class = "ImmuneSpaceConnection",fields = list(study="character",conf
               if(!is.null(data_cache[[constants$matrices]])){
                 cat("Expression Matrices\n")
                 for(i in 1:nrow(data_cache[[constants$matrices]])){
-                  cat(sprintf("%s\n",data_cache[[constants$matrices]][i,name]))
+                  cat(sprintf("%s\n",data_cache[[constants$matrices]][i,"name"]))
                 }
               }
             },
