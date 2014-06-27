@@ -5,6 +5,7 @@ A thin wrapper around Rlabkey to access the ImmuneSpace database from R
 
 This package simplifies access to the HIPC ImmuneSpace database, for R programmers.
 
+
 It takes advantage of the standardization of the ImmuneSpace database to hide all the `Rlabkey` specific code away from the user.
 Study-specific datasets can be accessed via an object-oriented paradigm.
 
@@ -39,4 +40,8 @@ The study object *caches* data, so once it is retrieved, the next time you acces
 The package uses a simple S5 reference class to represent the connection to a study and get around some of R's copy-on-change behaviour.
 
 
+
+### Requirements
+
+The package requires a new version of `Rlabkey` available [here](https://github.com/RGLab/Rlabkey).
 
