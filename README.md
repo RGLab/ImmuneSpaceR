@@ -1,8 +1,13 @@
 ImmuneSpaceR
 ============
 
-## Instalation
+A thin wrapper around Rlabkey to access the ImmuneSpace database from R
+This package simplifies access to the HIPC ImmuneSpace database, for R programmers.
 
+It takes advantage of the standardization of the ImmuneSpace database to hide all the `Rlabkey` specific code away from the user.
+Study-specific datasets can be accessed via an object-oriented paradigm.
+
+## Instalation
 The package requires a new version of `Rlabkey` available [here](https://github.com/RGLab/Rlabkey).
 
 The package can be downloaded here and installed like any other R packages or installed directly from github using devtools.
@@ -11,16 +16,11 @@ The package can be downloaded here and installed like any other R packages or in
     install_github("RGLab/Rlabkey")
     install_github("RGLab/ImmuneSpaceR")
 
-A thin wrapper around Rlabkey to access the ImmuneSpace database from R
-
-This package simplifies access to the HIPC ImmuneSpace database, for R programmers.
 
 
-It takes advantage of the standardization of the ImmuneSpace database to hide all the `Rlabkey` specific code away from the user.
-Study-specific datasets can be accessed via an object-oriented paradigm.
-
+## Usage
 The general idea is that the user creates an instance of an `ImmuneSpaceConnection` class. 
-The instance configures itself to connect to a specific study, and datasets and gene expression matrices can be retrieved by name. 
+The instance configures itself to connect to a specific study, and datasets and gene expression matrices can be retrieved by name.
 
 For example:
 
