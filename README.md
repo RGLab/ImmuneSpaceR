@@ -1,6 +1,16 @@
 ImmuneSpaceR
 ============
 
+## Instalation
+
+The package requires a new version of `Rlabkey` available [here](https://github.com/RGLab/Rlabkey).
+
+The package can be downloaded here and installed like any other R packages or installed directly from github using devtools.
+
+    library(devtools)
+    install_github("RGLab/Rlabkey")
+    install_github("RGLab/ImmuneSpaceR")
+
 A thin wrapper around Rlabkey to access the ImmuneSpace database from R
 
 This package simplifies access to the HIPC ImmuneSpace database, for R programmers.
@@ -39,9 +49,4 @@ The study object *caches* data, so once it is retrieved, the next time you acces
 
 The package uses a simple S5 reference class to represent the connection to a study and get around some of R's copy-on-change behaviour.
 
-
-
-### Requirements
-
-The package requires a new version of `Rlabkey` available [here](https://github.com/RGLab/Rlabkey).
 
