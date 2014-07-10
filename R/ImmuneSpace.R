@@ -169,18 +169,22 @@ setRefClass(Class = "ImmuneSpaceConnection",fields = list(study="character",conf
               if(!is.null(data_cache[[constants$matrices]])){
                 data_cache[[constants$matrices]]
               }else{
-                ge<-labkey.selectRows(baseUrl = config$labkey.url.base,config$labkey.url.path,schemaName = "assay.ExpressionMatrix.matrix",queryName = "Runs",colNameOpt = "fieldname",showHidden = TRUE, viewName = "Expression Matrices")
+                ge<-labkey.selectRows(baseUrl = config$labkey.url.base,config$labkey.url.path,schemaName = "assay.ExpressionMatrix.matrix",queryName = "Runs",colNameOpt = "fieldname",showHidden = TRUE, viewName = "expression_matrices")
                 setnames(ge,.munge(colnames(ge)))
                 data_cache[[constants$matrices]]<<-ge
               }
             },
             
-            .downloadMatrix=function(x){
+            .downloadMatrix=function(x, summary = FALSE){
               if(is.null(data_cache[[x]])){
                 if(nrow(subset(data_cache[[constants$matrices]],name%in%x))==0){
                   stop(sprintf("No matrix %s in study\n",x))
                 }
-                link<-URLdecode(file.path(gsub("www.","",gsub("http:","https:",gsub("/$","",config$labkey.url.base))),gsub("^/","",subset(data_cache[[constants$matrices]],name%in%x)[,"downloadlink"])))
+                summary <- ifelse(summary, ".summary", "")
+                #link<-URLdecode(file.path(gsub("www.","",gsub("http:","https:",gsub("/$","",config$labkey.url.base))), paste0(gsub("^/","",subset(data_cache[[constants$matrices]],name%in%x)[,"downloadlink"]),summary)))
+                link<-URLdecode(file.path(gsub("www.","",gsub("http:","https:",gsub("/$","",config$labkey.url.base))),
+                                          "_webdav", config$labkey.url.path, "@files/analysis/exprs_matrices",
+                                          paste0(x, ".tsv", summary)))
                 opts<-curlOptions(.opts=list(netrc=TRUE,ssl.verifyhost=FALSE,httpauth=1L,ssl.verifypeer=FALSE,followlocation=TRUE,verbose=FALSE))
                 handle<-getCurlHandle(.opts=opts)
                 h<-basicTextGatherer()
@@ -195,17 +199,17 @@ setRefClass(Class = "ImmuneSpaceConnection",fields = list(study="character",conf
               }
             },
             
-            getGEMatrix=function(x){
+            getGEMatrix=function(x, summary = FALSE){
               if(x%in%names(data_cache)){
                 data_cache[[x]]              
               }else{
-                .downloadMatrix(x)
+                .downloadMatrix(x, summary)
                 .GeneExpressionFeatures(x)
-                .ConstructExpressionSet(x)
+                .ConstructExpressionSet(x, summary)
                 data_cache[[x]]
               }
             },
-          .ConstructExpressionSet=function(matrix_name){
+          .ConstructExpressionSet=function(matrix_name, summary){
             #matrix
             message("Constructing ExpressionSet")
             matrix<-data_cache[[matrix_name]]
@@ -213,15 +217,21 @@ setRefClass(Class = "ImmuneSpaceConnection",fields = list(study="character",conf
             features<-data_cache[[.mungeFeatureId(.getFeatureId(matrix_name))]][,c("FeatureId","GeneSymbol")]
             #inputs
             pheno<-unique(subset(data_cache[[constants$matrix_inputs]],biosample_accession%in%colnames(matrix))[,c("biosample_accession","subject_accession","arm_name","study_time_collected")])
-            try(setnames(matrix," ","FeatureId"),silent=TRUE)
-            setkey(matrix,FeatureId)
-            rownames(features)<-features$FeatureId
-            features<-features[matrix$FeatureId,]#order feature info
+            
+            if(summary){
+              fdata <- data.frame(FeatureId = matrix$gene_symbol, gene_symbol = matrix$gene_symbol, row.names = matrix$gene_symbol)
+              fdata <- AnnotatedDataFrame(fdata)
+            } else{
+              try(setnames(matrix," ","FeatureId"),silent=TRUE)
+              setkey(matrix,FeatureId)
+              rownames(features)<-features$FeatureId
+              features<-features[matrix$FeatureId,]#order feature info
+              fdata <- AnnotatedDataFrame(features)
+            }
             rownames(pheno)<-pheno$biosample_accession
             pheno<-pheno[colnames(matrix)[-1L],]
             ad_pheno<-AnnotatedDataFrame(data=pheno)
-            ad_features<-AnnotatedDataFrame(features)
-            es<-ExpressionSet(assayData=as.matrix(matrix[,-1L,with=FALSE]),phenoData=ad_pheno,featureData=ad_features)
+            es<-ExpressionSet(assayData=as.matrix(matrix[,-1L,with=FALSE]),phenoData=ad_pheno,featureData=fdata)
             data_cache[[matrix_name]]<<-es
           },
           .getFeatureId=function(matrix_name){
