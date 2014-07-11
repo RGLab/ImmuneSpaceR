@@ -1,0 +1,17 @@
+{
+    "contents" : "library(ImmuneSpaceR)\ncon <- CreateConnection(\"SDY269\")\nEM <- con$getGEMatrix(\"TIV_2008\")",
+    "created" : 1405117056133.000,
+    "dirty" : true,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "2087290523",
+    "id" : "EC1CAE4E",
+    "lastKnownWriteTime" : 141733920767,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "source_on_save" : false,
+    "type" : "r_source"
+}

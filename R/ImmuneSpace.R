@@ -84,9 +84,15 @@ setRefClass(Class = "ImmuneSpaceConnection",fields = list(study="character",conf
                 labkey.url.base<-getOption("labkey.url.base")
                 labkey.url.path<-getOption("labkey.url.path")
                 labkey.user.email<-getOption("labkey.user.email")
-                
+                curlOptions <- curlOptions(netrc=TRUE,ssl.verifyhost=FALSE,
+                                            httpauth=1L,ssl.verifypeer=FALSE,
+                                            followlocation=TRUE,verbose=FALSE,
+                                            ssl.cipher.list="ALL")
                 study<<-basename(labkey.url.path)
-                config<<-list(labkey.url.base=labkey.url.base,labkey.url.path=labkey.url.path,labkey.user.email=labkey.user.email)
+                config<<-list(labkey.url.base=labkey.url.base,
+                              labkey.url.path=labkey.url.path,
+                              labkey.user.email=labkey.user.email,
+                              curlOptions = curlOptions)
                 .getAvailableDataSets();
               },
               
@@ -185,7 +191,7 @@ setRefClass(Class = "ImmuneSpaceConnection",fields = list(study="character",conf
                 link<-URLdecode(file.path(gsub("www.","",gsub("http:","https:",gsub("/$","",config$labkey.url.base))),
                                           "_webdav", config$labkey.url.path, "@files/analysis/exprs_matrices",
                                           paste0(x, ".tsv", summary)))
-                opts<-curlOptions(.opts=list(netrc=TRUE,ssl.verifyhost=FALSE,httpauth=1L,ssl.verifypeer=FALSE,followlocation=TRUE,verbose=FALSE))
+                opts <- config$curlOptions
                 handle<-getCurlHandle(.opts=opts)
                 h<-basicTextGatherer()
                 message("Downloading matrix..")
