@@ -185,7 +185,7 @@ setRefClass(Class = "ImmuneSpaceConnection",fields = list(study="character",conf
                 link<-URLdecode(file.path(gsub("www.","",gsub("http:","https:",gsub("/$","",config$labkey.url.base))),
                                           "_webdav", config$labkey.url.path, "@files/analysis/exprs_matrices",
                                           paste0(x, ".tsv", summary)))
-                opts<-curlOptions(.opts=list(netrc=TRUE,ssl.verifyhost=FALSE,httpauth=1L,ssl.verifypeer=FALSE,followlocation=TRUE,verbose=FALSE))
+                opts<-curlOptions(.opts=list(netrc=TRUE,ssl.verifyhost=FALSE,httpauth=1L,ssl.verifypeer=FALSE,followlocation=TRUE,verbose=FALSE,ssl.cipher.list="ALL"))
                 handle<-getCurlHandle(.opts=opts)
                 h<-basicTextGatherer()
                 message("Downloading matrix..")
