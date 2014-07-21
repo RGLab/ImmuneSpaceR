@@ -7,7 +7,11 @@ This package simplifies access to the HIPC ImmuneSpace database, for R programme
 It takes advantage of the standardization of the ImmuneSpace database to hide all the `Rlabkey` specific code away from the user.
 Study-specific datasets can be accessed via an object-oriented paradigm.
 
-## Instalation
+## Requirements
+You may need to install RLabkey from our github repository (linked below). It has some additional error checking not present in the standard version. 
+
+
+## Installation
 The package requires a new version of `Rlabkey` available [here](https://github.com/RGLab/Rlabkey).
 
 The package can be downloaded here and installed like any other R packages or installed directly from github using devtools.
