@@ -87,6 +87,21 @@ message(result[1])
 
 If you encounter unusual errors or behaviour, get in touch with the package maintainer. This is very much a beta release, functionality will be added as required.
 
+## Quick plots
+A quick plot of a data set can be generated using the `quick_plot` function.
+
+`quick_plot` automatically chooses the type of plot. 
+
+#### heatmaps   
+```{r}
+quick_plot(sdy269$getDataset("elisa_mbaa"))
+```
+
+#### boxplots   
+```{r}
+quick_plot(sdy269$getDataset("hai"))
+```
+
 ## Future Enhancements
 
 As the schema stabilizes, we plan to implement automated merging of different data types within, and eventually across assays (using differen connections for example). 

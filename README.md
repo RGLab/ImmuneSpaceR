@@ -59,4 +59,12 @@ The study object *caches* data, so once it is retrieved, the next time you acces
 
 The package uses a simple S5 reference class to represent the connection to a study and get around some of R's copy-on-change behaviour.
 
+## Quick plots
+
+The `quick_plot` function uses ggplot2's qplot function to generate quick plots of data sets, leveraging the standardized data set tables. 
+
+```
+quick_plot(study$getDataset("hai"))
+```
+
 

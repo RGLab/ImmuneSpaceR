@@ -1,3 +1,21 @@
+#' Quick plot of a data set from a study
+#' 
+#' Generates a quick plot of a data set automatically. Based on ggplot2's qplot.
+#' @param dt \code{data.table} the data to be plotted.
+#' @param normalize_to_baseline \code{logical} defaults to \code{TRUE}.
+#' @param type \code{character} one of \code{c("auto","heatmap","boxplot")}. Heatmap chosen automatically if there are more than 5 analytes.
+#' @param ... additional arguments passed to qplot.
+#' @importFrom ggplot2 qplot
+#' @return \code{ggplot2} structure.
+#' @usage quick_plot(dt, normalize_to_baseline = TRUE, type="auto", ...)
+#' @export
+#' @examples
+#' \dontrun{ 
+#' study <- CreateConnection("SDY269")
+#' dt <- study$getDataset("elisa_mbaa")
+#' quick_plot(dt, normalize_to_baseline = F, type="auto")
+#' quick_plot(dt, normalize_to_baseline = F, type="boxplot")
+#' }
 quick_plot <- function(dt, normalize_to_baseline=TRUE, type="auto", ...)
 {
   # Add a dummy analyte for consistency
