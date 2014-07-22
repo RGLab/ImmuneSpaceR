@@ -114,7 +114,8 @@ setRefClass(Class = "ImmuneSpaceConnection",fields = list(study="character",conf
             
             .getAvailableDataSets=function(){
               if(length(available_datasets)==0){
-                available_datasets<<-data.table(labkey.selectRows(baseUrl = config$labkey.url.base,config$labkey.url.path,schemaName = "study",queryName = "DataSets"))[,list(Label,Name,Description,`Key Property Name`)]
+                dataset_filter <- makeFilter(c("showbydefault", "EQUAL", TRUE))
+                available_datasets<<-data.table(labkey.selectRows(baseUrl = config$labkey.url.base,config$labkey.url.path,schemaName = "study",queryName = "DataSets", colFilter = dataset_filter))[,list(Label,Name,Description,`Key Property Name`)]
               }
             },
             
