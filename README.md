@@ -28,7 +28,9 @@ The file should contain 3 rows with key/value separated by tabs, as follow:
 
     machine	www.immunespace.org  
     login   <user.login>  
-    password        <user.password>  
+    password  <user.password>  
+
+Please ensure that your machine name in the netrc file contains the "www" prefix as that is how the package connects to immunespace by default. A mismatch will lead to connection failures. 
 
 See `man netrc` for the official documentation.
 
