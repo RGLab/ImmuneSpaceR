@@ -273,7 +273,7 @@ setRefClass(Class = "ImmuneSpaceConnection",fields = list(study="character",conf
             }else{
               stop("Can't determine if we are running on immunespace (production) or posey (staging)")
             }
-            gsub(file.path(config$labkey.url.base,"_webdav"),file.path(LOCALPATH,PROCESS),urlpath)
+            gsub(file.path(gsub("/$","",labkey.url.base), "_webdav"), file.path(LOCALPATH,PROCESS), urlpath)
           }
 ))
 
