@@ -189,18 +189,28 @@ setRefClass(Class = "ImmuneSpaceConnection",fields = list(study="character",conf
                 }
                 summary <- ifelse(summary, ".summary", "")
                 #link<-URLdecode(file.path(gsub("www.","",gsub("http:","https:",gsub("/$","",config$labkey.url.base))), paste0(gsub("^/","",subset(data_cache[[constants$matrices]],name%in%x)[,"downloadlink"]),summary)))
-                link<-URLdecode(file.path(gsub("www.","",gsub("http:","https:",gsub("/$","",config$labkey.url.base))),
-                                          "_webdav", config$labkey.url.path, "@files/analysis/exprs_matrices",
+               
+                #shouldn't be removing the www reported by labkey. Fix your netrc entry instead
+                link<-URLdecode(file.path(gsub("http:","https:",gsub("/$","",config$labkey.url.base)), 
+                                          "_webdav", gsub("^/","",config$labkey.url.path), "@files/analysis/exprs_matrices",
                                           paste0(x, ".tsv", summary)))
-                opts <- config$curlOptions
-                handle<-getCurlHandle(.opts=opts)
-                h<-basicTextGatherer()
-                message("Downloading matrix..")
-                curlPerform(url=link,curl=handle,writefunction=h$update)
-                fl<-tempfile()
-                write(h$value(),file=fl)
-                data_cache[[x]]<<-fread(fl,header=TRUE)
-                file.remove(fl)
+                localpath<-.localStudyPath(link)
+                if(.isRunningRemotely(localpath)){
+                  fl<-localpath
+                  message("Reading local matrix")
+                  data_cache[[x]]<<-fread(fl,header=TRUE)                
+                }else{                
+                  opts <- config$curlOptions
+                  handle<-getCurlHandle(.opts=opts)
+                  h<-basicTextGatherer()
+                  message("Downloading matrix..")
+                  curlPerform(url=link,curl=handle,writefunction=h$update)
+                  fl<-tempfile()
+                  write(h$value(),file=fl)
+                  data_cache[[x]]<<-fread(fl,header=TRUE)
+                  file.remove(fl)
+                }
+
               }else{
                 data_cache[[x]]
               }
@@ -246,6 +256,24 @@ setRefClass(Class = "ImmuneSpaceConnection",fields = list(study="character",conf
           },
           .mungeFeatureId=function(annotation_set_id){
             return(sprintf("featureset_%s",annotation_set_id))
+          },
+          .isRunningRemotely=function(path){
+            file.exists(path)
+          },
+          .localStudyPath=function(urlpath){
+            LOCALPATH<-"/shared/silo_researcher/Gottardo_R/immunespace"
+            PRODUCTION_HOST<-"immunespace.org"
+            STAGING_HOST<-"posey.fhcrc.org"
+            PRODUCTION_PATH<-"production/files"
+            STAGING_PATH<-"staging/files"
+            if(grepl(PRODUCTION_HOST,urlpath)){
+              PROCESS<-PRODUCTION_PATH
+            }else if(grepl(STAGING_HOST,urlpath)){
+              PROCESS<-STAGING_PATH
+            }else{
+              stop("Can't determine if we are running on immunespace (production) or posey (staging)")
+            }
+            gsub(file.path(config$labkey.url.base,"_webdav"),file.path(LOCALPATH,PROCESS),urlpath)
           }
 ))
 
