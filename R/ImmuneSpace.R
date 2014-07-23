@@ -159,15 +159,19 @@ setRefClass(Class = "ImmuneSpaceConnection",fields = list(study="character",conf
               }
             },
             
-            .GeneExpressionFeatures=function(matrix_name){
+            .GeneExpressionFeatures=function(matrix_name,summary=FALSE){
               if(!any((data_cache[[constants$matrices]][,"name"]%in%matrix_name))){
                 stop("Invalid gene expression matrix name");
               }
-              annotation_set_id<-.getFeatureId(matrix_name)
+              annotation_set_id<-.getFeatureId(matrix_name)              
               if(is.null(data_cache[[.mungeFeatureId(annotation_set_id)]])){
-                message("Downloading Features..")
-                featureAnnotationSetQuery=sprintf("SELECT * from FeatureAnnotation where FeatureAnnotationSetId='%s';",annotation_set_id);
-                features<-labkey.executeSql(config$labkey.url.base,config$labkey.url.path,schemaName = "Microarray",sql = featureAnnotationSetQuery ,colNameOpt = "fieldname")
+                if(!summary){
+                  message("Downloading Features..")
+                  featureAnnotationSetQuery=sprintf("SELECT * from FeatureAnnotation where FeatureAnnotationSetId='%s';",annotation_set_id);
+                  features<-labkey.executeSql(config$labkey.url.base,config$labkey.url.path,schemaName = "Microarray",sql = featureAnnotationSetQuery ,colNameOpt = "fieldname")
+                }else{
+                  features<-data.frame(FeatureId=con$data_cache[[matrix_name]][,gene_symbol],GeneSymbol=con$data_cache[[matrix_name]][,gene_symbol])
+                }
                 data_cache[[.mungeFeatureId(annotation_set_id)]]<<-features
               }
             },
@@ -221,7 +225,9 @@ setRefClass(Class = "ImmuneSpaceConnection",fields = list(study="character",conf
                 data_cache[[x]]              
               }else{
                 .downloadMatrix(x, summary)
-                .GeneExpressionFeatures(x)
+                
+                  .GeneExpressionFeatures(x,summary)
+                
                 .ConstructExpressionSet(x, summary)
                 data_cache[[x]]
               }
@@ -231,7 +237,7 @@ setRefClass(Class = "ImmuneSpaceConnection",fields = list(study="character",conf
             message("Constructing ExpressionSet")
             matrix<-data_cache[[matrix_name]]
             #features
-            features<-data_cache[[.mungeFeatureId(.getFeatureId(matrix_name))]][,c("FeatureId","GeneSymbol")]
+              features<-data_cache[[.mungeFeatureId(.getFeatureId(matrix_name))]][,c("FeatureId","GeneSymbol")]
             #inputs
             pheno<-unique(subset(data_cache[[constants$matrix_inputs]],biosample_accession%in%colnames(matrix))[,c("biosample_accession","subject_accession","arm_name","study_time_collected")])
             
@@ -273,7 +279,7 @@ setRefClass(Class = "ImmuneSpaceConnection",fields = list(study="character",conf
             }else{
               stop("Can't determine if we are running on immunespace (production) or posey (staging)")
             }
-            gsub(file.path(gsub("/$","",labkey.url.base), "_webdav"), file.path(LOCALPATH,PROCESS), urlpath)
+            gsub(file.path(gsub("/$","",config$labkey.url.base), "_webdav"), file.path(LOCALPATH,PROCESS), urlpath)
           }
 ))
 
