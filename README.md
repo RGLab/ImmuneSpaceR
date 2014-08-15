@@ -40,14 +40,14 @@ The instance configures itself to connect to a specific study, and datasets and 
 
 For example:
 
-```
-study<-CreateConnection("SDY269)
+```R
+study <- CreateConnection("SDY269)
 ```
 
 will create an instance of study 269.  The user needs credentials stored in a `.netrc` file to access the database. 
 Datasets can be listed by:
 
-```
+```R
 study$listDatasets()
 ```
 
@@ -55,9 +55,9 @@ which will print names of available datasets and gene expression matrices.
 
 Gene expression matrices or data sets can be retreived by:
 
-```
+```R
 study$getGEMarix("name")
-#or
+# or
 study$getDataset("name")
 ```
 
@@ -69,7 +69,7 @@ The package uses a simple S5 reference class to represent the connection to a st
 
 The `quick_plot` function uses ggplot2's qplot function to generate quick plots of data sets, leveraging the standardized data set tables. 
 
-```
+```R
 quick_plot(study$getDataset("hai"))
 ```
 
