@@ -41,7 +41,7 @@ The instance configures itself to connect to a specific study, and datasets and 
 For example:
 
 ```R
-study <- CreateConnection("SDY269)
+study <- CreateConnection("SDY269")
 ```
 
 will create an instance of study 269.  The user needs credentials stored in a `.netrc` file to access the database. 
