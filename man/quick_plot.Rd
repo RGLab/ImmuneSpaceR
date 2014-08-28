@@ -10,7 +10,7 @@ quick_plot(dt, normalize_to_baseline = TRUE, type="auto", ...)
 
 \item{normalize_to_baseline}{\code{logical} defaults to \code{TRUE}.}
 
-\item{type}{\code{character} one of \code{c("auto","heatmap","boxplot")}. Heatmap chosen automatically if there are more than 5 analytes.}
+\item{type}{\code{character} one of \code{c("auto","heatmap","boxplot","line")}. Heatmap chosen automatically if there are more than 5 analytes.}
 
 \item{...}{additional arguments passed to qplot.}
 }
