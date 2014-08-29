@@ -21,8 +21,24 @@ quick_plot <- function(dt, normalize_to_baseline=TRUE, type="auto", ...)
   # Add a dummy analyte for consistency
   if(length(grep("analyte",colnames(dt)))==0)
     dt <- dt[,analyte:=""]
+
+  # What data? Guessing data type based on name
+  dt_name <- deparse(substitute(dt))
+
+  # Different datasets might need different treatments
+  if(tolower(dt_name) == "elispot")
+  {
+    dt <- dt[,value_reported:=spot_number_reported/cell_number_reported]
+  }
+
+  # Check that we have arm name (this is a temporary fix)
+  if(all(colnames(dt)!="arm_name"))
+  {
+    dt <- dt[,arm_name:=name]
+  }
+  
   # Compute summaries over all repeated measures (e.g. multiple virus strains)
-  dt_unique <- dt[,list(response=mean(log2(value_reported), na.rm=TRUE)),by="arm_name,subject_accession,analyte,study_time_collected"]
+  dt_unique <- dt[,list(response=mean(log2(value_reported), na.rm=TRUE)), by="arm_name,subject_accession,analyte,study_time_collected"]
   
   if(type=="auto" & length(unique(dt_unique$analyte))>5)
     type <- "heatmap"
@@ -46,8 +62,8 @@ quick_plot <- function(dt, normalize_to_baseline=TRUE, type="auto", ...)
   }
   else if(type=="heatmap")
   {
-    p <- qplot(as.factor(study_time_collected), analyte, data=dt_unique, facets=~arm_name,geom=c("raster"), ..., xlab = "time", fill=response) + scale_fill_gradient2(high = "#a50026", mid="#ffffbf", low="#313695")
+    p <- qplot(as.factor(study_time_collected), analyte, data=dt_unique, facets=~arm_name, geom=c("raster"), ..., xlab = "time", fill=response) + scale_fill_gradient2(high = "#a50026", mid="#ffffbf", low="#313695")
   }
-  p+theme_minimal()
+  p
 }
 
