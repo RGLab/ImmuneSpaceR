@@ -16,10 +16,11 @@ The package requires a new version of `Rlabkey` available [here](https://github.
 
 The package can be downloaded here and installed like any other R packages or installed directly from github using devtools.
 
+```R
     library(devtools)
     install_github("RGLab/Rlabkey")
     install_github("RGLab/ImmuneSpaceR")
-
+```
 
 The database is accessed with the user's credentials. A `.netrc` file storing login and password information is required.
 
