@@ -7,7 +7,7 @@
 #'@name ImmuneSpaceR-package
 #'@aliases ImmuneSpaceR
 #'@author Greg Finak
-#'@import data.table Rlabkey methods Biobase
+#'@import data.table Rlabkey methods Biobase gtools
 NULL
 
 #'@title CreateConnection
@@ -19,7 +19,7 @@ NULL
 #'If they don't exist, it will use default values. These are assigned to `options`, which are then used by the \code{ImmuneSpaceConnection} class.
 #'@export CreateConnection
 #'@return an instance of an \code{ImmuneSpaceConnection}
-CreateConnection = function(study=NULL){
+CreateConnection = function(study=NULL, verbose = FALSE){
   labkey.url.path<-try(get("labkey.url.path",.GlobalEnv),silent=TRUE)
   if(inherits(labkey.url.path,"try-error")){
     if(is.null(study)){
@@ -41,6 +41,7 @@ CreateConnection = function(study=NULL){
   options(labkey.url.base=labkey.url.base)
   options(labkey.url.path=labkey.url.path)
   options(labkey.user.email=labkey.user.email)
+  options(ISverbose = verbose)
   
   new("ImmuneSpaceConnection")
 }
@@ -55,7 +56,7 @@ CreateConnection = function(study=NULL){
 #'@details Uses global variables \code{labkey.url.base}, and \code{labkey.url.path}, to access a study.
 #'\code{labkey.url.base} should be \code{https://www.immunespace.org/}.
 #'\code{labkey.url.path} should be \code{/Studies/studyname}, where 'studyname' is the name of the study.
-#'The ImmunspaceConnection will initialize itself, and look for a \code{.netrc} file in \code{"~/"} the user's home directory.
+#'The ImmunespaceConnection will initialize itself, and look for a \code{.netrc} file in \code{"~/"} the user's home directory.
 #'The \code{.netrc} file should contain a \code{machine}, \code{login}, and \code{password} entry to allow access to ImmuneSpace,
 #'where \code{machine} is the host name like "www.immunespace.org".
 #'@seealso \code{\link{ImmuneSpaceR-package}} \code{\link{ImmuneSpaceConnection_getGEMatrix}}  \code{\link{ImmuneSpaceConnection_getDataset}}  \code{\link{ImmuneSpaceConnection_listDatasets}}
@@ -67,7 +68,10 @@ CreateConnection = function(study=NULL){
 #'sdy269<-CreateConnection("SDY269")
 #'sdy269
 #'@return An instance of an ImmuneSpaceConnection for a study in `labkey.url.path`
-setRefClass(Class = "ImmuneSpaceConnection",fields = list(study="character",config="list",available_datasets="data.table",data_cache="list",constants="list"),
+setRefClass(Class = "ImmuneSpaceConnection",
+            fields = list(study = "character", config="list",
+                          available_datasets = "data.table",
+                          data_cache="list",constants="list"),
             methods=list(
               initialize=function(){
                 constants<<-list(matrices="GE_matrices",matrix_inputs="GE_inputs")
@@ -84,6 +88,7 @@ setRefClass(Class = "ImmuneSpaceConnection",fields = list(study="character",conf
                 labkey.url.base<-getOption("labkey.url.base")
                 labkey.url.path<-getOption("labkey.url.path")
                 labkey.user.email<-getOption("labkey.user.email")
+                verbose <- getOption("ISverbose")
                 curlOptions <- curlOptions(netrc=TRUE,ssl.verifyhost=FALSE,
                                             httpauth=1L,ssl.verifypeer=FALSE,
                                             followlocation=TRUE,verbose=FALSE,
@@ -92,12 +97,14 @@ setRefClass(Class = "ImmuneSpaceConnection",fields = list(study="character",conf
                 config<<-list(labkey.url.base=labkey.url.base,
                               labkey.url.path=labkey.url.path,
                               labkey.user.email=labkey.user.email,
-                              curlOptions = curlOptions)
+                              curlOptions = curlOptions,
+                              verbose = verbose)
+                .checkStudy(config$verbose)
                 .getAvailableDataSets();
               },
               
             show=function(){
-              cat(sprintf("Immunspace Connection to study %s\n",study))
+              cat(sprintf("Immunespace Connection to study %s\n",study))
               cat(sprintf("URL: %s\n",file.path(gsub("/$","",config$labkey.url.base),gsub("^/","",config$labkey.url.path))))
               cat(sprintf("User: %s\n",config$labkey.user.email))
               cat("Available datasets\n")
@@ -112,6 +119,20 @@ setRefClass(Class = "ImmuneSpaceConnection",fields = list(study="character",conf
               }
             },
             
+            .checkStudy = function(verbose = FALSE){
+              if(length(available_datasets)==0){
+                validStudies <- mixedsort(grep("^SDY", basename(lsFolders(getSession(config$labkey.url.base, "Studies"))), value = TRUE))
+                req_study <- basename(config$labkey.url.path) 
+                if(!req_study %in% validStudies){
+                  if(!verbose){
+                    stop(paste0(req_study, " is not a valid study"))
+                  } else{
+                    stop(paste0(req_study, " is not a valid study\nValid studies: ",
+                                paste(validStudies, collapse=", ")))
+                  }
+                }
+              }
+            },
             .getAvailableDataSets=function(){
               if(length(available_datasets)==0){
                 dataset_filter <- makeFilter(c("showbydefault", "EQUAL", TRUE))
@@ -119,14 +140,18 @@ setRefClass(Class = "ImmuneSpaceConnection",fields = list(study="character",conf
               }
             },
             
-            getDataset=function(x,reload=FALSE){
+            getDataset=function(x, original_view = FALSE, reload=FALSE){
               if(nrow(available_datasets[Name%in%x])==0){
                 stop(sprintf("Invalid data set: %s",x))
               }else{
                 if(!is.null(data_cache[[x]])&!reload){
                   data_cache[[x]]
                 }else{
-                  data_cache[[x]]<<-data.table(labkey.selectRows(baseUrl = config$labkey.url.base,config$labkey.url.path,schemaName = "study",queryName = x,colNameOpt = "fieldname")) 
+                  viewName <- NULL
+                  if(original_view){
+                    viewName <- "full"
+                  }
+                  data_cache[[x]] <<- data.table(labkey.selectRows(baseUrl = config$labkey.url.base,config$labkey.url.path,schemaName = "study", queryName = x, viewName = viewName, colNameOpt = "fieldname")) 
                   setnames(data_cache[[x]],.munge(colnames(data_cache[[x]])))
                   data_cache[[x]]
                 }                
@@ -280,6 +305,26 @@ setRefClass(Class = "ImmuneSpaceConnection",fields = list(study="character",conf
               stop("Can't determine if we are running on immunespace (production) or posey (staging)")
             }
             gsub(file.path(gsub("/$","",config$labkey.url.base), "_webdav"), file.path(LOCALPATH,PROCESS), urlpath)
+          },
+          listGEAnalysis = function(){
+            GEA <- labkey.selectRows(config$labkey.url.base, config$labkey.url.path,
+                                     "gene_expression", "gene_expression_analysis",
+                                     colNameOpt = "rname")
+            print(GEA)
+          },
+          getGEAnalysis = function(analysis_accession){
+            "Get gene expression analysis resluts from a connection"
+            if(missing(analysis_accession)){
+              stop("Missing analysis_accession argument.
+                   Use listGEAnalysis to get a list of available 
+                   analysis_accession numbers")
+            }
+            AA_filter <- makeFilter(c("analysis_accession", "IN", analysis_accession))
+            GEAR <- labkey.selectRows(config$labkey.url.base, config$labkey.url.path,
+                                     "gene_expression", "gene_expression_analysis_results",
+                                     colFilter = AA_filter)
+            colnames(GEAR) <- .munge(colnames(GEAR))
+            return(GEAR)
           }
 ))
 
@@ -299,7 +344,11 @@ NULL
 
 #'@title get a dataset
 #'@aliases getDataset
-#'@param x \code{"character"} name of the dataset
+#'@param x A \code{character}. The name of the dataset
+#'@param original_view A \code{logical}. If set to TRUE, download the ImmPort view. Else,
+#'  download the default grid view.
+#'@param reload A \code{logical}. Clear the cache. If set to TRUE, download the 
+#'  dataset, whether a cached versio exist or not.
 #'@details Returns the dataset named 'x', downloads it if it is not already cached.
 #'@return a \code{data.table}
 #'@name ImmuneSpaceConnection_getDataset
@@ -322,4 +371,18 @@ NULL
 #'labkey.user.email='gfinak at fhcrc.org'
 #'sdy269<-CreateConnection("SDY269")
 #'sdy269$listDatasets()
+NULL
+
+
+#'@title list available gene expression analysis
+#'@aliases listGEAnalysis
+#'@details Prints the table of differential expression analysis
+#'@return A \code{data.frame}. The list of gene expression analysis.
+#'@name ImmuneSpaceConnection_listGEAnalysis
+#'@examples
+#'labkey.url.base="https://www.immunespace.org"
+#'labkey.url.path="/Studies/SDY269"
+#'labkey.user.email='gfinak at fhcrc.org'
+#'sdy269<-CreateConnection("SDY269")
+#'sdy269$listGEAnalysis()
 NULL
