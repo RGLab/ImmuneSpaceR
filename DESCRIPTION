@@ -16,4 +16,9 @@ Depends:
     data.table,
     Rlabkey,
     ggplot2,
-    Biobase
+    Biobase,
+    gtools,
+    reshape2,
+    grid,
+    RColorBrewer,
+    pheatmap

@@ -16,8 +16,8 @@
 #' quick_plot(dt, normalize_to_baseline = F, type="auto")
 #' quick_plot(dt, normalize_to_baseline = F, type="boxplot")
 #' }
-quick_plot <- function(dt, normalize_to_baseline=TRUE, type="auto", ...)
-{
+quick_plot <- function(dt, normalize_to_baseline=TRUE, type="auto", ...){
+  ## Add =/= behaviour when all study_time_collected = 0
   # Add a dummy analyte for consistency
   if(length(grep("analyte",colnames(dt)))==0)
     dt <- dt[,analyte:=""]
@@ -26,14 +26,12 @@ quick_plot <- function(dt, normalize_to_baseline=TRUE, type="auto", ...)
   dt_name <- deparse(substitute(dt))
 
   # Different datasets might need different treatments
-  if(tolower(dt_name) == "elispot")
-  {
+  if(tolower(dt_name) == "elispot"){
     dt <- dt[,value_reported:=spot_number_reported/cell_number_reported]
   }
 
   # Check that we have arm name (this is a temporary fix)
-  if(all(colnames(dt)!="arm_name"))
-  {
+  if(all(colnames(dt)!="arm_name")){
     dt <- dt[,arm_name:=name]
   }
   
