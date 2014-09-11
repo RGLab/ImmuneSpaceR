@@ -327,7 +327,8 @@ setRefClass(Class = "ImmuneSpaceConnection",
             return(GEAR)
           },
           quick_plot = function(dataset, normalize_to_baseline = TRUE,
-                                type = "auto", filter = NULL, text_size = 15, ...){
+                                type = "auto", filter = NULL,
+                                facet = "grid", text_size = 15, ...){
             ggthemr("solarized")
             palette <- rev(brewer.pal(n = 11, name = "RdYlBu"))
             addPar <- c("gender", "age_reported", "race")
@@ -377,11 +378,23 @@ setRefClass(Class = "ImmuneSpaceConnection",
             }
             
             #dt: analyte, subject, timepoint, response, arm + addPar
+            if(facet == "grid"){
+              facet <- facet_grid(aes(analyte, name), scales = "free")
+            } else if(facet == "wrap"){
+              facet <- facet_wrap(~name + analyte, scales = "free")
+            }
             if(type == "heatmap"){
+              dt <- dt[, study_time_collected := as.factor(dt$study_time_collected)]
               mat <- acast(dt, analyte ~ name + study_time_collected + subject_accession, value.var = "response")
               anno <- data.frame(unique(dt[, annoCols, with = FALSE]))
               rownames(anno) <- paste(anno$name, anno$study_time_collected, anno$subject_accession, sep = "_")
               anno <- anno[, c("study_time_collected", "name")]
+              anno$study_time_collected <- as.factor(anno$study_time_collected)
+              nFac <- length(levels(anno$study_time_collected))
+              anno_palette <- brewer.pal(name = "Greys", n = length(unique(anno$study_time_collected)))[1:nFac]
+              names(anno_palette) <- levels(anno$study_time_collected)
+              anno_color <- list(study_time_collected = anno_palette)
+             
               max <- max(abs(mat))
               show_rnames <- TRUE
               if(scale == "none"){
@@ -390,16 +403,16 @@ setRefClass(Class = "ImmuneSpaceConnection",
                 breaks <- NA
               }
               cluster_rows <- ifelse(nrow(mat) > 2, TRUE, FALSE)
-              p <- list(mat = mat, annotation = anno, show_colnames = FALSE,
+              p <- pheatmap(mat = mat, annotation = anno, show_colnames = FALSE,
                             show_rownames = show_rnames, cluster_cols = FALSE,
                             cluster_rows = cluster_rows, color = palette,
-                            scale = scale, breaks = breaks, fontsize = text_size)
-              do.call("pheatmap", p)
+                            scale = scale, breaks = breaks,
+                            fontsize = text_size, annotation_color = anno_color)
+              #do.call("pheatmap", p)
             } else if(type == "boxplot"){
               p <- ggplot(data = dt, aes(as.factor(study_time_collected), response)) +
-                geom_boxplot() + geom_jitter(...) +
-                facet_grid(aes(analyte, name)) + 
-                xlab("Time") + ylab(ylab) +
+                geom_boxplot() + geom_jitter(aes_string(...)) +
+                xlab("Time") + ylab(ylab) + facet +
                 theme(text = element_text(size = text_size))
               print(p)
             } else if(type == "line"){
@@ -407,21 +420,15 @@ setRefClass(Class = "ImmuneSpaceConnection",
 #                          facets = analyte~name, geom=c("line", "point"),
 #                          xlab = "time", ylab = ylab, group = subject_accession,
 #                          ...)
-              p <- ggplot(data = dt, aes(study_time_collected, response)) +
-                geom_line(...) + geom_point(...) +
+              p <- ggplot(data = dt, aes(study_time_collected, response, group = subject_accession)) +
+                geom_line(aes_string(...)) + geom_point(aes_string(...)) +
                 facet_grid(aes(analyte, name)) + 
                 xlab("Time") + ylab(ylab) +
                 theme(text = element_text(size = text_size))
               print(p)
-#               error_string <- "Lineplot has not been enabled yet"
-#               data <- data.frame(x = 0, y = 0, err = error_string)
-#               p <- ggplot(data = data) + geom_text(aes(x, y, label = err))
             } else{#} if(type == "error"){
-              #grid.text(error_string)
-              #grid.newpage()
-              #grid.text(
-              error_string <- "The datset you are trying to visualize does not follow HIPC standards.
-                        Please use the built-in LabKey charts for this data."
+              #error_string <- "The datset you are trying to visualize does not follow HIPC standards.
+              #          Please use the built-in LabKey charts for this data."
               data <- data.frame(x = 0, y = 0, err = error_string)
               p <- ggplot(data = data) + geom_text(aes(x, y, label = err))
               print(p)

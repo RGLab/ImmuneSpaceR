@@ -18,7 +18,9 @@ Depends:
     ggplot2,
     Biobase,
     gtools,
+    gplots,
     reshape2,
     grid,
     RColorBrewer,
-    pheatmap
+    pheatmap,
+    ggthemr
