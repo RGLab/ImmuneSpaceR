@@ -140,7 +140,7 @@ setRefClass(Class = "ImmuneSpaceConnection",
               }
             },
             
-            getDataset=function(x, original_view = FALSE, reload=FALSE){
+            getDataset=function(x, original_view = FALSE, reload=FALSE, ...){
               if(nrow(available_datasets[Name%in%x])==0){
                 stop(sprintf("Invalid data set: %s",x))
               }else{
@@ -151,7 +151,7 @@ setRefClass(Class = "ImmuneSpaceConnection",
                   if(original_view){
                     viewName <- "full"
                   }
-                  data_cache[[x]] <<- data.table(labkey.selectRows(baseUrl = config$labkey.url.base,config$labkey.url.path,schemaName = "study", queryName = x, viewName = viewName, colNameOpt = "fieldname")) 
+                  data_cache[[x]] <<- data.table(labkey.selectRows(baseUrl = config$labkey.url.base,config$labkey.url.path,schemaName = "study", queryName = x, viewName = viewName, colNameOpt = "fieldname", ...)) 
                   setnames(data_cache[[x]],.munge(colnames(data_cache[[x]])))
                   data_cache[[x]]
                 }                
@@ -326,21 +326,30 @@ setRefClass(Class = "ImmuneSpaceConnection",
             colnames(GEAR) <- .munge(colnames(GEAR))
             return(GEAR)
           },
-          quick_plot = function(dataset, normalize_to_baseline = TRUE, type = "auto", ...){
+          quick_plot = function(dataset, normalize_to_baseline = TRUE,
+                                type = "auto", filter = NULL, ...){
             palette <- rev(brewer.pal(n = 11, name = "RdYlBu"))
             addPar <- c("gender", "age_reported", "race")
             annoCols <- c("name", "subject_accession", "study_time_collected", addPar)
             toKeep <- c("response", "analyte", annoCols)
             
             e <- try({
-              dt <- con$getDataset(dataset, reload = TRUE)
+              dt <- con$getDataset(dataset, reload = TRUE, colFilter = filter)
               if(length(grep("analyte",colnames(dt)))==0){
+                if(type == "auto"){
+                  type <- "boxplot"
+                }
                 dt <- dt[, analyte := ""]
+              } else{
+                if(type == "auto"){
+                  type <- "heatmap"
+                }
               }
               if(dataset == "elispot"){
                 dt <- dt[, value_reported := (spot_number_reported +1) / cell_number_reported]
               } else if(dataset == "pcr"){
                 if(all(is.na(dt[, threshold_cycles]))){
+                  plot(1:10)
                   stop("PCR results cannot be displayed for studies that do not use threshold cycles")
                 }
                 dt <- dt[, analyte := entrez_gene_id]
@@ -360,7 +369,7 @@ setRefClass(Class = "ImmuneSpaceConnection",
               }
             })
             
-            if(inherits(e, "try-eror")){
+            if(inherits(e, "try-error")){
               type <- "error"
               error_string <- attr(e, "condition")$message
             }
@@ -379,22 +388,37 @@ setRefClass(Class = "ImmuneSpaceConnection",
                 breaks <- NA
               }
               cluster_rows <- ifelse(nrow(mat) > 2, TRUE, FALSE)
-              p <- pheatmap(mat, annotation = anno, show_colnames = FALSE,
+              p <- list(mat = mat, annotation = anno, show_colnames = FALSE,
                             show_rownames = show_rnames, cluster_cols = FALSE,
                             cluster_rows = cluster_rows, color = palette,
                             scale = scale, breaks = breaks)
+              do.call("pheatmap", p)
             } else if(type == "boxplot"){
               p <- qplot(as.factor(study_time_collected), response, data = dt,
                          facets = analyte~name, geom = c("boxplot", "jitter"),
-                         xlab = "time", ylab = ylab, color = study_time_collected)
+                         xlab = "time", ylab = ylab, 
+                         color = study_time_collected, ...)
               print(p)
-            } else if(type == "error"){
+            } else if(type == "line"){
+              p <- qplot(study_time_collected, response, data = dt,
+                         facets = analyte~name, geom=c("line", "point"),
+                         xlab = "time", ylab = ylab, group = subject_accession,
+                         ...)
+              print(p)
+#               error_string <- "Lineplot has not been enabled yet"
+#               data <- data.frame(x = 0, y = 0, err = error_string)
+#               p <- ggplot(data = data) + geom_text(aes(x, y, label = err))
+            } else{#} if(type == "error"){
               #grid.text(error_string)
-              grid.newpage()
-              grid.text("The datset you are trying to visualize does not follow HIPC standards.
-                        Please use the built-in LabKey charts for this data.")
-              #ggplot() + geom_text(aes(x = 1, y = 1, label = error_string))
+              #grid.newpage()
+              #grid.text(
+              error_string <- "The datset you are trying to visualize does not follow HIPC standards.
+                        Please use the built-in LabKey charts for this data."
+              data <- data.frame(x = 0, y = 0, err = error_string)
+              p <- ggplot(data = data) + geom_text(aes(x, y, label = err))
+              print(p)
             }
+            return(p)
           }
 ))
 

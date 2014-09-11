@@ -1,12 +1,17 @@
-# library(ggplot2)
-# library(pheatmap)
-# library(reshape2)
-# library(Rlabkey)
-# palette <- rev(brewer.pal(n = 11, name = "RdYlBu"))
-# addPar <- c("gender", "age_reported", "race")
-# annoCols <- c("name", "subject_accession", "study_time_collected", addPar)
-# toKeep <- c("response", "analyte", annoCols)
-# 
+# con <- CreateConnection("SDY269")
+# dataset <- "pcr"
+#filter <- makeFilter(c("arm_accession", "IN", "LAIV group 2008"))
+# #                     c("gender", "IN", "Male"))
+# con$quick_plot(dataset, normalize_to_baseline = TRUE, filter = filter)
+# # library(ggplot2)
+# # library(pheatmap)
+# # library(reshape2)
+# # library(Rlabkey)
+# # palette <- rev(brewer.pal(n = 11, name = "RdYlBu"))
+# # addPar <- c("gender", "age_reported", "race")
+# # annoCols <- c("name", "subject_accession", "study_time_collected", addPar)
+# # toKeep <- c("response", "analyte", annoCols)
+# # 
 # e <- try({
 # dt <- con$getDataset(dataset, reload = TRUE)
 # if(length(grep("analyte",colnames(dt)))==0){
