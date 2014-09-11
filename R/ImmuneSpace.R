@@ -397,7 +397,7 @@ setRefClass(Class = "ImmuneSpaceConnection",
               p <- qplot(as.factor(study_time_collected), response, data = dt,
                          facets = analyte~name, geom = c("boxplot", "jitter"),
                          xlab = "time", ylab = ylab, 
-                         color = study_time_collected, ...)
+                         group = study_time_collected, ...)
               print(p)
             } else if(type == "line"){
               p <- qplot(study_time_collected, response, data = dt,
