@@ -327,7 +327,8 @@ setRefClass(Class = "ImmuneSpaceConnection",
             return(GEAR)
           },
           quick_plot = function(dataset, normalize_to_baseline = TRUE,
-                                type = "auto", filter = NULL, ...){
+                                type = "auto", filter = NULL, text_size = 15, ...){
+            ggthemr("solarized")
             palette <- rev(brewer.pal(n = 11, name = "RdYlBu"))
             addPar <- c("gender", "age_reported", "race")
             annoCols <- c("name", "subject_accession", "study_time_collected", addPar)
@@ -336,15 +337,16 @@ setRefClass(Class = "ImmuneSpaceConnection",
             e <- try({
               dt <- con$getDataset(dataset, reload = TRUE, colFilter = filter)
               if(length(grep("analyte",colnames(dt)))==0){
-                if(type == "auto"){
-                  type <- "boxplot"
-                }
                 dt <- dt[, analyte := ""]
-              } else{
-                if(type == "auto"){
+              }
+              if(type == "auto"){
+                if(length(unique(dt$analyte)) < 10){
+                  type <- "boxplot"
+                } else{
                   type <- "heatmap"
                 }
               }
+              
               if(dataset == "elispot"){
                 dt <- dt[, value_reported := (spot_number_reported +1) / cell_number_reported]
               } else if(dataset == "pcr"){
@@ -391,19 +393,25 @@ setRefClass(Class = "ImmuneSpaceConnection",
               p <- list(mat = mat, annotation = anno, show_colnames = FALSE,
                             show_rownames = show_rnames, cluster_cols = FALSE,
                             cluster_rows = cluster_rows, color = palette,
-                            scale = scale, breaks = breaks)
+                            scale = scale, breaks = breaks, fontsize = text_size)
               do.call("pheatmap", p)
             } else if(type == "boxplot"){
-              p <- qplot(as.factor(study_time_collected), response, data = dt,
-                         facets = analyte~name, geom = c("boxplot", "jitter"),
-                         xlab = "time", ylab = ylab, 
-                         group = study_time_collected, ...)
+              p <- ggplot(data = dt, aes(as.factor(study_time_collected), response)) +
+                geom_boxplot() + geom_jitter(...) +
+                facet_grid(aes(analyte, name)) + 
+                xlab("Time") + ylab(ylab) +
+                theme(text = element_text(size = text_size))
               print(p)
             } else if(type == "line"){
-              p <- qplot(study_time_collected, response, data = dt,
-                         facets = analyte~name, geom=c("line", "point"),
-                         xlab = "time", ylab = ylab, group = subject_accession,
-                         ...)
+#               p <- qplot(study_time_collected, response, data = dt,
+#                          facets = analyte~name, geom=c("line", "point"),
+#                          xlab = "time", ylab = ylab, group = subject_accession,
+#                          ...)
+              p <- ggplot(data = dt, aes(study_time_collected, response)) +
+                geom_line(...) + geom_point(...) +
+                facet_grid(aes(analyte, name)) + 
+                xlab("Time") + ylab(ylab) +
+                theme(text = element_text(size = text_size))
               print(p)
 #               error_string <- "Lineplot has not been enabled yet"
 #               data <- data.frame(x = 0, y = 0, err = error_string)
