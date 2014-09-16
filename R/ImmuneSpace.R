@@ -330,7 +330,6 @@ setRefClass(Class = "ImmuneSpaceConnection",
                                 type = "auto", filter = NULL,
                                 facet = "grid", text_size = 15, ...){
             ggthemr("solarized")
-            palette <- rev(brewer.pal(n = 11, name = "RdYlBu"))
             addPar <- c("gender", "age_reported", "race")
             annoCols <- c("name", "subject_accession", "study_time_collected", addPar)
             toKeep <- c("response", "analyte", annoCols)
@@ -349,15 +348,15 @@ setRefClass(Class = "ImmuneSpaceConnection",
               }
               
               if(dataset == "elispot"){
-                dt <- dt[, value_reported := (spot_number_reported +1) / cell_number_reported]
+                dt <- dt[, value_reported := (spot_number_reported) / cell_number_reported]
               } else if(dataset == "pcr"){
                 if(all(is.na(dt[, threshold_cycles]))){
-                  plot(1:10)
                   stop("PCR results cannot be displayed for studies that do not use threshold cycles")
                 }
                 dt <- dt[, analyte := entrez_gene_id]
               }
-              dt <- dt[, response := mean(log2(value_reported), na.rm = TRUE),
+              dt <- dt[, response := ifelse(value_reported <0, 0, value_reported)]
+              dt <- dt[, response := mean(log2(response+1), na.rm = TRUE),
                        by = "name,subject_accession,analyte,study_time_collected"]
               dt <- unique(dt[, toKeep, with = FALSE])
               
@@ -370,6 +369,7 @@ setRefClass(Class = "ImmuneSpaceConnection",
                 ylab <- "Response (log2)"
                 scale <- "row"
               }
+              palette <- ISpalette(max(dt$response, na.rm = TRUE) - min(dt$response, na.rm = TRUE))
             })
             
             if(inherits(e, "try-error")){
@@ -395,10 +395,10 @@ setRefClass(Class = "ImmuneSpaceConnection",
               names(anno_palette) <- levels(anno$study_time_collected)
               anno_color <- list(study_time_collected = anno_palette)
              
-              max <- max(abs(mat))
+              max <- max(abs(mat), na.rm = TRUE)
               show_rnames <- TRUE
               if(scale == "none"){
-                breaks <- seq(-max, max, length.out = length(palette) + 1)
+                breaks <- seq(-max, max, length.out = length(palette))
               } else{
                 breaks <- NA
               }
@@ -416,10 +416,6 @@ setRefClass(Class = "ImmuneSpaceConnection",
                 theme(text = element_text(size = text_size))
               print(p)
             } else if(type == "line"){
-#               p <- qplot(study_time_collected, response, data = dt,
-#                          facets = analyte~name, geom=c("line", "point"),
-#                          xlab = "time", ylab = ylab, group = subject_accession,
-#                          ...)
               p <- ggplot(data = dt, aes(study_time_collected, response, group = subject_accession)) +
                 geom_line(aes_string(...)) + geom_point(aes_string(...)) +
                 facet_grid(aes(analyte, name)) + 
