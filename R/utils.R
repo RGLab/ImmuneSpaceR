@@ -1,7 +1,7 @@
 #' @importFrom gplots colorpanel
 #' @export
 ISpalette <- function(n){
-  colorpanel(n, low = "#dc322f", mid = "#fdf6e3", high = "#268bd2")
+  colorpanel(n, low = "#268bd2", mid = "#fdf6e3", high = "#dc322f")
 }
 ###' Quick plot of a data set from a study
 ###' 

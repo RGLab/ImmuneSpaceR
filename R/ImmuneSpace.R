@@ -99,7 +99,7 @@ setRefClass(Class = "ImmuneSpaceConnection",
                               labkey.user.email=labkey.user.email,
                               curlOptions = curlOptions,
                               verbose = verbose)
-                .checkStudy(config$verbose)
+                #.checkStudy(config$verbose)
                 .getAvailableDataSets();
               },
               
@@ -120,6 +120,7 @@ setRefClass(Class = "ImmuneSpaceConnection",
             },
             
             .checkStudy = function(verbose = FALSE){
+              browser()
               if(length(available_datasets)==0){
                 validStudies <- mixedsort(grep("^SDY", basename(lsFolders(getSession(config$labkey.url.base, "Studies"))), value = TRUE))
                 req_study <- basename(config$labkey.url.path) 
@@ -326,18 +327,96 @@ setRefClass(Class = "ImmuneSpaceConnection",
             colnames(GEAR) <- .munge(colnames(GEAR))
             return(GEAR)
           },
+          .qpHeatmap = function(dt, normalize_to_baseline, legend, text_size){
+              contrast <- "study_time_collected"
+              annoCols <- c("name", "subject_accession", contrast, "Gender", "Age", "Race")
+              palette <- ISpalette(20)
+
+              expr <- parse(text = paste0(contrast, ":=as.factor(", contrast, ")"))
+              dt <- dt[, eval(expr)]
+              #No need to order by legend. This should be done after.
+              if(!is.null(legend)){
+                dt <- dt[order(name, study_time_collected, get(legend))]
+              } else{
+                dt <- dt[order(name, study_time_collected)]
+              }
+              form <- as.formula(paste("analyte ~ name +", contrast, "+ subject_accession"))
+              mat <- acast(data = dt, formula = form, value.var = "response") #drop = FALSE yields NAs
+              if(ncol(mat) > 2 & nrow(mat) > 1){
+                mat <- mat[rowSums(apply(mat, 2, is.na)) < ncol(mat),, drop = FALSE]
+              }
+
+              # Annotations:
+              anno <- data.frame(unique(dt[, annoCols, with = FALSE]))
+              rownames(anno) <- paste(anno$name, anno[, contrast], anno$subject_accession, sep = "_")
+              expr <- parse(text = c(rev(legend), contrast, "name"))
+              anno <- anno[with(anno, order(eval(expr))),]
+              anno <- anno[, c(rev(legend), contrast, "name")] #Select and order the annotation rows
+              anno[, contrast] <- as.factor(anno[, contrast])
+              anno_color <- colorpanel(n = length(levels(anno[,contrast])), low = "white", high = "black")
+              names(anno_color) <- levels(anno[, contrast])
+              anno_color <- list(anno_color)
+              if(contrast == "study_time_collected"){
+                setnames(anno, c("name", contrast), c("Arm Name", "Time"))
+                contrast <- "Time"
+              }
+              names(anno_color) <- contrast
+              if("Age" %in% legend){
+                anno_color$Age <- c("yellow", "red")
+              }
+              mat <- mat[, rownames(anno), drop = FALSE]
+              
+              # pheatmap parameters
+              if(normalize_to_baseline){
+                scale <- "none"                                                 
+                max <- max(abs(mat), na.rm = TRUE)
+                breaks <- seq(-max, max, length.out = length(palette))
+              } else{                                                           
+                scale <- "row"                                                  
+                breaks <- NA
+              }   
+
+              show_rnames <- ifelse(nrow(mat) < 50, TRUE, FALSE)
+              cluster_rows <- ifelse(nrow(mat) > 2 & ncol(mat) > 2, TRUE, FALSE)
+
+              e <- try({
+                p <- pheatmap(mat = mat, annotation = anno, show_colnames = FALSE,
+                              show_rownames = show_rnames, cluster_cols = FALSE,
+                              cluster_rows = cluster_rows, color = palette,
+                              scale = scale, breaks = breaks,
+                              fontsize = text_size, annotation_color = anno_color)
+              })
+              if(inherits(e, "try-error")){
+                p <- pheatmap(mat = mat, annotation = anno, show_colnames = FALSE,
+                              show_rownames = show_rnames, cluster_cols = FALSE,
+                              cluster_rows = FALSE, color = palette,
+                              scale = scale, breaks = breaks,
+                              fontsize = text_size, annotation_color = anno_color)
+              }
+              return(p)
+          },
           quick_plot = function(dataset, normalize_to_baseline = TRUE,
                                 type = "auto", filter = NULL,
-                                facet = "grid", text_size = 15, ...){
+                                facet = "grid", text_size = 15, 
+                                legend = NULL, ...){
             ggthemr("solarized")
-            addPar <- c("gender", "age_reported", "race")
+            addPar <- c("Gender", "Age", "Race")
             annoCols <- c("name", "subject_accession", "study_time_collected", addPar)
             toKeep <- c("response", "analyte", annoCols)
+            logT <- TRUE #By default, log transform the value_reported
+            message_out <- ""
+            extras <- list(...)
             
             e <- try({
               dt <- con$getDataset(dataset, reload = TRUE, colFilter = filter)
-              if(length(grep("analyte",colnames(dt)))==0){
-                dt <- dt[, analyte := ""]
+              setnames(dt, c("gender", "age_reported", "race"), addPar)
+              #if(length(grep("analyte",colnames(dt)))==0){
+              if(!"analyte" %in% colnames(dt)){
+                if("analyte_name" %in% colnames(dt)){
+                  dt <- dt[, analyte := analyte_name]
+                } else{
+                  dt <- dt[, analyte := ""]
+                }
               }
               if(type == "auto"){
                 if(length(unique(dt$analyte)) < 10){
@@ -351,25 +430,32 @@ setRefClass(Class = "ImmuneSpaceConnection",
                 dt <- dt[, value_reported := (spot_number_reported) / cell_number_reported]
               } else if(dataset == "pcr"){
                 if(all(is.na(dt[, threshold_cycles]))){
-                  stop("PCR results cannot be displayed for studies that do not use threshold cycles")
+                  stop("PCR results cannot be displayed for studies that do not use threshold cycles.
+                       Use LabKey Quick Chart interface to plot this dataset.")
                 }
+                dt <- dt[, value_reported := threshold_cycles]
                 dt <- dt[, analyte := entrez_gene_id]
+                logT <- FALSE #Threshold cycle is already log transformed
+              } else if(dataset == "mbaa"){
+                dt <- dt[, value_reported := as.numeric(concentration_value)]
               }
               dt <- dt[, response := ifelse(value_reported <0, 0, value_reported)]
-              dt <- dt[, response := mean(log2(response+1), na.rm = TRUE),
-                       by = "name,subject_accession,analyte,study_time_collected"]
+              if(logT){
+                dt <- dt[, response := mean(log2(response+1), na.rm = TRUE),
+                         by = "name,subject_accession,analyte,study_time_collected"]
+              } else{
+                dt <- dt[, response := mean(response, na.rm = TRUE),
+                         by = "name,subject_accession,analyte,study_time_collected"]
+              }
               dt <- unique(dt[, toKeep, with = FALSE])
               
               if(normalize_to_baseline){
                 dt <- dt[,response:=response-response[study_time_collected==0],
                          by="name,subject_accession,analyte"][study_time_collected!=0]
                 ylab <- "Response normalized to baseline"
-                scale <- "none"
               } else{
                 ylab <- "Response (log2)"
-                scale <- "row"
               }
-              palette <- ISpalette(max(dt$response, na.rm = TRUE) - min(dt$response, na.rm = TRUE))
             })
             
             if(inherits(e, "try-error")){
@@ -384,52 +470,37 @@ setRefClass(Class = "ImmuneSpaceConnection",
               facet <- facet_wrap(~name + analyte, scales = "free")
             }
             if(type == "heatmap"){
-              dt <- dt[, study_time_collected := as.factor(dt$study_time_collected)]
-              mat <- acast(dt, analyte ~ name + study_time_collected + subject_accession, value.var = "response")
-              anno <- data.frame(unique(dt[, annoCols, with = FALSE]))
-              rownames(anno) <- paste(anno$name, anno$study_time_collected, anno$subject_accession, sep = "_")
-              anno <- anno[, c("study_time_collected", "name")]
-              anno$study_time_collected <- as.factor(anno$study_time_collected)
-              nFac <- length(levels(anno$study_time_collected))
-              anno_palette <- brewer.pal(name = "Greys", n = length(unique(anno$study_time_collected)))[1:nFac]
-              names(anno_palette) <- levels(anno$study_time_collected)
-              anno_color <- list(study_time_collected = anno_palette)
-             
-              max <- max(abs(mat), na.rm = TRUE)
-              show_rnames <- TRUE
-              if(scale == "none"){
-                breaks <- seq(-max, max, length.out = length(palette))
-              } else{
-                breaks <- NA
-              }
-              cluster_rows <- ifelse(nrow(mat) > 2, TRUE, FALSE)
-              p <- pheatmap(mat = mat, annotation = anno, show_colnames = FALSE,
-                            show_rownames = show_rnames, cluster_cols = FALSE,
-                            cluster_rows = cluster_rows, color = palette,
-                            scale = scale, breaks = breaks,
-                            fontsize = text_size, annotation_color = anno_color)
-              #do.call("pheatmap", p)
+              p <- .qpHeatmap(dt, normalize_to_baseline, legend, text_size)
             } else if(type == "boxplot"){
               p <- ggplot(data = dt, aes(as.factor(study_time_collected), response)) +
-                geom_boxplot() + geom_jitter(aes_string(...)) +
+                geom_boxplot(outlier.size = 0) +
                 xlab("Time") + ylab(ylab) + facet +
-                theme(text = element_text(size = text_size))
+                theme(text = element_text(size = text_size),
+                      axis.text.x = element_text(angle = 45))
+              if(!is.null(extras[["size"]])){
+                p <- p + geom_jitter(aes_string(...))
+              } else{
+                p <- p + geom_jitter(size = 3, aes_string(...))
+              }
               print(p)
             } else if(type == "line"){
               p <- ggplot(data = dt, aes(study_time_collected, response, group = subject_accession)) +
-                geom_line(aes_string(...)) + geom_point(aes_string(...)) +
-                facet_grid(aes(analyte, name)) + 
-                xlab("Time") + ylab(ylab) +
-                theme(text = element_text(size = text_size))
+                geom_line(aes_string(...)) + 
+                xlab("Time") + ylab(ylab) + facet +
+                theme(text = element_text(size = text_size),
+                      axis.text.x = element_text(angle = 45))
+              if(!is.null(extras[["size"]])){
+                p <- p + geom_point(aes_string(...))
+              } else{
+                p <- p + geom_point(size = 3, aes_string(...))
+              }
               print(p)
             } else{#} if(type == "error"){
-              #error_string <- "The datset you are trying to visualize does not follow HIPC standards.
-              #          Please use the built-in LabKey charts for this data."
               data <- data.frame(x = 0, y = 0, err = error_string)
-              p <- ggplot(data = data) + geom_text(aes(x, y, label = err))
+              p <- ggplot(data = data) + geom_text(aes(x, y, label = err), size = text_size)
               print(p)
             }
-            return(p)
+            return(message_out)
           }
 ))
 
