@@ -36,13 +36,13 @@ CreateConnection = function(study=NULL, verbose = FALSE){
   labkey.user.email<-try(get("labkey.user.email",.GlobalEnv),silent=TRUE)
   if(inherits(labkey.user.email,"try-error"))
     labkey.user.email="unknown_user at not_a_domain.com"
-  
-  
+
+
   options(labkey.url.base=labkey.url.base)
   options(labkey.url.path=labkey.url.path)
   options(labkey.user.email=labkey.user.email)
   options(ISverbose = verbose)
-  
+
   new("ImmuneSpaceConnection")
 }
 
@@ -62,10 +62,10 @@ CreateConnection = function(study=NULL, verbose = FALSE){
 #'@seealso \code{\link{ImmuneSpaceR-package}} \code{\link{ImmuneSpaceConnection_getGEMatrix}}  \code{\link{ImmuneSpaceConnection_getDataset}}  \code{\link{ImmuneSpaceConnection_listDatasets}}
 #'@exportClass ImmuneSpaceConnection
 #'@examples
-#'labkey.url.base="https://www.immunespace.org"
-#'labkey.url.path="/Studies/SDY269"
-#'labkey.user.email='gfinak at fhcrc.org'
-#'sdy269<-CreateConnection("SDY269")
+#'labkey.url.base <- "https://www.immunespace.org"
+#'labkey.url.path <- "/Studies/SDY269"
+#'labkey.user.email <- 'gfinak at fhcrc.org'
+#'sdy269 <- CreateConnection("SDY269")
 #'sdy269
 #'@return An instance of an ImmuneSpaceConnection for a study in `labkey.url.path`
 setRefClass(Class = "ImmuneSpaceConnection",
@@ -89,10 +89,11 @@ setRefClass(Class = "ImmuneSpaceConnection",
                 labkey.url.path<-getOption("labkey.url.path")
                 labkey.user.email<-getOption("labkey.user.email")
                 verbose <- getOption("ISverbose")
-                curlOptions <- curlOptions(netrc=TRUE,ssl.verifyhost=FALSE,
-                                            httpauth=1L,ssl.verifypeer=FALSE,
-                                            followlocation=TRUE,verbose=FALSE,
-                                            ssl.cipher.list="ALL")
+                if(gsub("https://", "", labkey.url.base) == "www.immunespace.org"){
+                  curlOptions <- labkey.setCurlOptions(ssl.verifyhost = 2, ssl.cipher.list="ALL")
+                } else{
+                  curlOptions <- labkey.setCurlOptions(ssl.verifyhost = 2, sslversion=1)
+                }
                 study<<-basename(labkey.url.path)
                 config<<-list(labkey.url.base=labkey.url.base,
                               labkey.url.path=labkey.url.path,
@@ -119,11 +120,12 @@ setRefClass(Class = "ImmuneSpaceConnection",
               }
             },
             
+            # There is something odd with Rlabkey::labkey.getFolders (permissions set to 0)
             .checkStudy = function(verbose = FALSE){
               browser()
               if(length(available_datasets)==0){
                 validStudies <- mixedsort(grep("^SDY", basename(lsFolders(getSession(config$labkey.url.base, "Studies"))), value = TRUE))
-                req_study <- basename(config$labkey.url.path) 
+                req_study <- basename(config$labkey.url.path)
                 if(!req_study %in% validStudies){
                   if(!verbose){
                     stop(paste0(req_study, " is not a valid study"))
@@ -152,10 +154,10 @@ setRefClass(Class = "ImmuneSpaceConnection",
                   if(original_view){
                     viewName <- "full"
                   }
-                  data_cache[[x]] <<- data.table(labkey.selectRows(baseUrl = config$labkey.url.base,config$labkey.url.path,schemaName = "study", queryName = x, viewName = viewName, colNameOpt = "fieldname", ...)) 
+                  data_cache[[x]] <<- data.table(labkey.selectRows(baseUrl = config$labkey.url.base,config$labkey.url.path,schemaName = "study", queryName = x, viewName = viewName, colNameOpt = "fieldname", ...))
                   setnames(data_cache[[x]],.munge(colnames(data_cache[[x]])))
                   data_cache[[x]]
-                }                
+                }
               }
             },
             
@@ -189,7 +191,7 @@ setRefClass(Class = "ImmuneSpaceConnection",
               if(!any((data_cache[[constants$matrices]][,"name"]%in%matrix_name))){
                 stop("Invalid gene expression matrix name");
               }
-              annotation_set_id<-.getFeatureId(matrix_name)              
+              annotation_set_id<-.getFeatureId(matrix_name)
               if(is.null(data_cache[[.mungeFeatureId(annotation_set_id)]])){
                 if(!summary){
                   message("Downloading Features..")
@@ -221,15 +223,15 @@ setRefClass(Class = "ImmuneSpaceConnection",
                 #link<-URLdecode(file.path(gsub("www.","",gsub("http:","https:",gsub("/$","",config$labkey.url.base))), paste0(gsub("^/","",subset(data_cache[[constants$matrices]],name%in%x)[,"downloadlink"]),summary)))
                
                 #shouldn't be removing the www reported by labkey. Fix your netrc entry instead
-                link<-URLdecode(file.path(gsub("http:","https:",gsub("/$","",config$labkey.url.base)), 
+                link<-URLdecode(file.path(gsub("http:","https:",gsub("/$","",config$labkey.url.base)),
                                           "_webdav", gsub("^/","",config$labkey.url.path), "@files/analysis/exprs_matrices",
                                           paste0(x, ".tsv", summary)))
                 localpath<-.localStudyPath(link)
-                if(.isRunningRemotely(localpath)){
+                if(.isRunningLocally(localpath)){
                   fl<-localpath
                   message("Reading local matrix")
-                  data_cache[[x]]<<-fread(fl,header=TRUE)                
-                }else{                
+                  data_cache[[x]]<<-fread(fl,header=TRUE)
+                }else{
                   opts <- config$curlOptions
                   handle<-getCurlHandle(.opts=opts)
                   h<-basicTextGatherer()
@@ -248,12 +250,10 @@ setRefClass(Class = "ImmuneSpaceConnection",
             
             getGEMatrix=function(x, summary = FALSE){
               if(x%in%names(data_cache)){
-                data_cache[[x]]              
+                data_cache[[x]]
               }else{
                 .downloadMatrix(x, summary)
-                
-                  .GeneExpressionFeatures(x,summary)
-                
+                .GeneExpressionFeatures(x,summary)
                 .ConstructExpressionSet(x, summary)
                 data_cache[[x]]
               }
@@ -289,7 +289,7 @@ setRefClass(Class = "ImmuneSpaceConnection",
           .mungeFeatureId=function(annotation_set_id){
             return(sprintf("featureset_%s",annotation_set_id))
           },
-          .isRunningRemotely=function(path){
+          .isRunningLocally=function(path){
             file.exists(path)
           },
           .localStudyPath=function(urlpath){
@@ -317,7 +317,7 @@ setRefClass(Class = "ImmuneSpaceConnection",
             "Get gene expression analysis resluts from a connection"
             if(missing(analysis_accession)){
               stop("Missing analysis_accession argument.
-                   Use listGEAnalysis to get a list of available 
+                   Use listGEAnalysis to get a list of available
                    analysis_accession numbers")
             }
             AA_filter <- makeFilter(c("analysis_accession", "IN", analysis_accession))
@@ -327,11 +327,14 @@ setRefClass(Class = "ImmuneSpaceConnection",
             colnames(GEAR) <- .munge(colnames(GEAR))
             return(GEAR)
           },
+          clear_cache = function(){
+            con$data_cache[grep("^GE", names(con$data_cache), invert = TRUE)] <- NULL
+          },
           .qpHeatmap = function(dt, normalize_to_baseline, legend, text_size){
               contrast <- "study_time_collected"
               annoCols <- c("name", "subject_accession", contrast, "Gender", "Age", "Race")
               palette <- ISpalette(20)
-
+              
               expr <- parse(text = paste0(contrast, ":=as.factor(", contrast, ")"))
               dt <- dt[, eval(expr)]
               #No need to order by legend. This should be done after.
@@ -374,7 +377,7 @@ setRefClass(Class = "ImmuneSpaceConnection",
               } else{                                                           
                 scale <- "row"                                                  
                 breaks <- NA
-              }   
+              }
 
               show_rnames <- ifelse(nrow(mat) < 50, TRUE, FALSE)
               cluster_rows <- ifelse(nrow(mat) > 2 & ncol(mat) > 2, TRUE, FALSE)
@@ -397,7 +400,7 @@ setRefClass(Class = "ImmuneSpaceConnection",
           },
           quick_plot = function(dataset, normalize_to_baseline = TRUE,
                                 type = "auto", filter = NULL,
-                                facet = "grid", text_size = 15, 
+                                facet = "grid", text_size = 15,
                                 legend = NULL, ...){
             ggthemr("solarized")
             addPar <- c("Gender", "Age", "Race")
@@ -410,7 +413,6 @@ setRefClass(Class = "ImmuneSpaceConnection",
             e <- try({
               dt <- con$getDataset(dataset, reload = TRUE, colFilter = filter)
               setnames(dt, c("gender", "age_reported", "race"), addPar)
-              #if(length(grep("analyte",colnames(dt)))==0){
               if(!"analyte" %in% colnames(dt)){
                 if("analyte_name" %in% colnames(dt)){
                   dt <- dt[, analyte := analyte_name]
@@ -426,6 +428,7 @@ setRefClass(Class = "ImmuneSpaceConnection",
                 }
               }
               
+              # Datasets
               if(dataset == "elispot"){
                 dt <- dt[, value_reported := (spot_number_reported) / cell_number_reported]
               } else if(dataset == "pcr"){
@@ -437,7 +440,15 @@ setRefClass(Class = "ImmuneSpaceConnection",
                 dt <- dt[, analyte := entrez_gene_id]
                 logT <- FALSE #Threshold cycle is already log transformed
               } else if(dataset == "mbaa"){
-                dt <- dt[, value_reported := as.numeric(concentration_value)]
+                if(all(dt$concentration_value ==0) || all(is.na(dt$concentration_value))){
+                  if(any(!is.na(dt$mfi)) && any(dt$mfi != 0)){
+                    dt <- dt[, value_reported := as.numeric(mfi)]
+                  }else{
+                    stop("Plotting MBAA requires either concentration or MFI values")
+                  }
+                } else{
+                  dt <- dt[, value_reported := as.numeric(concentration_value)]
+                }
               }
               dt <- dt[, response := ifelse(value_reported <0, 0, value_reported)]
               if(logT){
@@ -463,7 +474,7 @@ setRefClass(Class = "ImmuneSpaceConnection",
               error_string <- attr(e, "condition")$message
             }
             
-            #dt: analyte, subject, timepoint, response, arm + addPar
+            # Plot
             if(facet == "grid"){
               facet <- facet_grid(aes(analyte, name), scales = "free")
             } else if(facet == "wrap"){
