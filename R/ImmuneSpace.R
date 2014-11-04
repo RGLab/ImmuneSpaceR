@@ -239,7 +239,11 @@ setRefClass(Class = "ImmuneSpaceConnection",
                   curlPerform(url=link,curl=handle,writefunction=h$update)
                   fl<-tempfile()
                   write(h$value(),file=fl)
-                  data_cache[[x]]<<-fread(fl,header=TRUE)
+                  EM <- fread(fl,header=TRUE)
+                  if(nrow(EM) == 0){
+                    stop("The downloaded matrix has 0 rows. Something went wrong")
+                  }
+                  data_cache[[x]] <<-EM
                   file.remove(fl)
                 }
 
@@ -296,12 +300,16 @@ setRefClass(Class = "ImmuneSpaceConnection",
             LOCALPATH<-"/shared/silo_researcher/Gottardo_R/immunespace"
             PRODUCTION_HOST<-"immunespace.org"
             STAGING_HOST<-"posey.fhcrc.org"
+            TEST_HOST<-"test.immunespace.org"
             PRODUCTION_PATH<-"production/files"
             STAGING_PATH<-"staging/files"
             if(grepl(PRODUCTION_HOST,urlpath)){
               PROCESS<-PRODUCTION_PATH
             }else if(grepl(STAGING_HOST,urlpath)){
               PROCESS<-STAGING_PATH
+            }else if(grepl(TEST_HOST,urlpath)){
+              LOCAL_PATH <- "/share/files"
+              PROCESS <- ""
             }else{
               stop("Can't determine if we are running on immunespace (production) or posey (staging)")
             }
