@@ -298,7 +298,7 @@ setRefClass(Class = "ImmuneSpaceConnection",
           },
           .localStudyPath=function(urlpath){
             LOCALPATH<-"/shared/silo_researcher/Gottardo_R/immunespace"
-            PRODUCTION_HOST<-"immunespace.org"
+            PRODUCTION_HOST<-"www.immunespace.org"
             STAGING_HOST<-"posey.fhcrc.org"
             TEST_HOST<-"test.immunespace.org"
             PRODUCTION_PATH<-"production/files"
