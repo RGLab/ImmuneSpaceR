@@ -316,7 +316,7 @@ setRefClass(Class = "ImmuneSpaceConnection",
             }else if(grepl(STAGING_HOST,urlpath)){
               PROCESS<-STAGING_PATH
             }else if(grepl(TEST_HOST,urlpath)){
-              LOCAL_PATH <- "/share/files"
+              LOCALPATH <- "/share/files"
               PROCESS <- ""
             }else{
               stop("Can't determine if we are running on immunespace (production) or posey (staging)")
@@ -344,7 +344,7 @@ setRefClass(Class = "ImmuneSpaceConnection",
             return(GEAR)
           },
           clear_cache = function(){
-            con$data_cache[grep("^GE", names(con$data_cache), invert = TRUE)] <- NULL
+            data_cache[grep("^GE", names(data_cache), invert = TRUE)] <<- NULL
           },
           .qpHeatmap = function(dt, normalize_to_baseline, legend, text_size){
               contrast <- "study_time_collected"
