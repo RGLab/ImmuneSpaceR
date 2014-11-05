@@ -33,6 +33,8 @@ CreateConnection = function(study=NULL, verbose = FALSE){
   if(inherits(labkey.url.base,"try-error"))
     labkey.url.base<-"https://www.immunespace.org"
   labkey.url.base<-gsub("http:","https:",labkey.url.base)
+  if(length(grep("^https://", labkey.url.base)) == 0)
+    labkey.url.base <- paste0("https://", labkey.url.base)
   labkey.user.email<-try(get("labkey.user.email",.GlobalEnv),silent=TRUE)
   if(inherits(labkey.user.email,"try-error"))
     labkey.user.email="unknown_user at not_a_domain.com"
@@ -192,6 +194,10 @@ setRefClass(Class = "ImmuneSpaceConnection",
                 stop("Invalid gene expression matrix name");
               }
               annotation_set_id<-.getFeatureId(matrix_name)
+              #.lksession <- list()
+              #.lksession[["curlOptions"]] <- config$curlOptions
+              #.lksession[["curlOptions"]]$httpauth <- 1L
+              #print(.lksession[["curlOptions"]])
               if(is.null(data_cache[[.mungeFeatureId(annotation_set_id)]])){
                 if(!summary){
                   message("Downloading Features..")
@@ -233,6 +239,8 @@ setRefClass(Class = "ImmuneSpaceConnection",
                   data_cache[[x]]<<-fread(fl,header=TRUE)
                 }else{
                   opts <- config$curlOptions
+                  opts$netrc <- 1L
+                  opts$httpauth <- 1L
                   handle<-getCurlHandle(.opts=opts)
                   h<-basicTextGatherer()
                   message("Downloading matrix..")
