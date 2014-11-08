@@ -99,7 +99,6 @@ setRefClass(Class = "ImmuneSpaceConnection",
                               labkey.user.email=labkey.user.email,
                               curlOptions = curlOptions,
                               verbose = verbose)
-                #.checkStudy(config$verbose)
                 .getAvailableDataSets();
               },
               
@@ -118,22 +117,7 @@ setRefClass(Class = "ImmuneSpaceConnection",
                 }
               }
             },
-            
-            .checkStudy = function(verbose = FALSE){
-              browser()
-              if(length(available_datasets)==0){
-                validStudies <- mixedsort(grep("^SDY", basename(lsFolders(getSession(config$labkey.url.base, "Studies"))), value = TRUE))
-                req_study <- basename(config$labkey.url.path) 
-                if(!req_study %in% validStudies){
-                  if(!verbose){
-                    stop(paste0(req_study, " is not a valid study"))
-                  } else{
-                    stop(paste0(req_study, " is not a valid study\nValid studies: ",
-                                paste(validStudies, collapse=", ")))
-                  }
-                }
-              }
-            },
+
             .getAvailableDataSets=function(){
               if(length(available_datasets)==0){
                 dataset_filter <- makeFilter(c("showbydefault", "EQUAL", TRUE))
