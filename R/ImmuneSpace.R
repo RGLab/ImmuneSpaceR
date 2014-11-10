@@ -160,7 +160,7 @@ CreateConnection = function(study=NULL, verbose = FALSE){
               facet <- facet_wrap(~name + analyte, scales = "free")
             }
             if(type == "heatmap"){
-              p <- .qpHeatmap(dt, normalize_to_baseline, legend, text_size)
+              p <- .self$.qpHeatmap(dt, normalize_to_baseline, legend, text_size)
             } else if(type == "boxplot"){
               p <- ggplot(data = dt, aes(as.factor(study_time_collected), response)) +
                 geom_boxplot(outlier.size = 0) +
@@ -194,260 +194,284 @@ CreateConnection = function(study=NULL, verbose = FALSE){
           }
 ))
 
-
-.AutoConfig=function(){
-  #should use options
-  labkey.url.base<-getOption("labkey.url.base")
-  labkey.url.path<-getOption("labkey.url.path")
-  labkey.user.email<-getOption("labkey.user.email")
-  verbose <- getOption("ISverbose")
-  if(gsub("https://", "", labkey.url.base) == "www.immunespace.org"){
-    curlOptions <- labkey.setCurlOptions(ssl.verifyhost = 2, ssl.cipher.list="ALL")
-  } else{
-    curlOptions <- labkey.setCurlOptions(ssl.verifyhost = 2, sslversion=1)
+.ISCon$methods(
+  .AutoConfig=function(){
+    #should use options
+    labkey.url.base<-getOption("labkey.url.base")
+    labkey.url.path<-getOption("labkey.url.path")
+    labkey.user.email<-getOption("labkey.user.email")
+    verbose <- getOption("ISverbose")
+    if(gsub("https://", "", labkey.url.base) == "www.immunespace.org"){
+      curlOptions <- labkey.setCurlOptions(ssl.verifyhost = 2, ssl.cipher.list="ALL")
+    } else{
+      curlOptions <- labkey.setCurlOptions(ssl.verifyhost = 2, sslversion=1)
+    }
+    study<<-basename(labkey.url.path)
+    config<<-list(labkey.url.base=labkey.url.base,
+        labkey.url.path=labkey.url.path,
+        labkey.user.email=labkey.user.email,
+        curlOptions = curlOptions,
+        verbose = verbose)
+    #.checkStudy(config$verbose)
+    .self$.getAvailableDataSets();
   }
-  study<<-basename(labkey.url.path)
-  config<<-list(labkey.url.base=labkey.url.base,
-      labkey.url.path=labkey.url.path,
-      labkey.user.email=labkey.user.email,
-      curlOptions = curlOptions,
-      verbose = verbose)
-  #.checkStudy(config$verbose)
-  .getAvailableDataSets();
-}
+)
 
-# There is something odd with Rlabkey::labkey.getFolders (permissions set to 0)
-.checkStudy = function(verbose = FALSE){
-  browser()
-  if(length(available_datasets)==0){
-    validStudies <- mixedsort(grep("^SDY", basename(lsFolders(getSession(config$labkey.url.base, "Studies"))), value = TRUE))
-    req_study <- basename(config$labkey.url.path)
-    if(!req_study %in% validStudies){
-      if(!verbose){
-        stop(paste0(req_study, " is not a valid study"))
-      } else{
-        stop(paste0(req_study, " is not a valid study\nValid studies: ",
-                paste(validStudies, collapse=", ")))
+.ISCon$methods(
+  # There is something odd with Rlabkey::labkey.getFolders (permissions set to 0)
+  .checkStudy = function(verbose = FALSE){
+    browser()
+    if(length(available_datasets)==0){
+      validStudies <- mixedsort(grep("^SDY", basename(lsFolders(getSession(config$labkey.url.base, "Studies"))), value = TRUE))
+      req_study <- basename(config$labkey.url.path)
+      if(!req_study %in% validStudies){
+        if(!verbose){
+          stop(paste0(req_study, " is not a valid study"))
+        } else{
+          stop(paste0(req_study, " is not a valid study\nValid studies: ",
+                  paste(validStudies, collapse=", ")))
+        }
       }
     }
   }
-}
-.getAvailableDataSets=function(){
-  if(length(available_datasets)==0){
-    dataset_filter <- makeFilter(c("showbydefault", "EQUAL", TRUE))
-    available_datasets<<-data.table(labkey.selectRows(baseUrl = config$labkey.url.base,config$labkey.url.path,schemaName = "study",queryName = "DataSets", colFilter = dataset_filter))[,list(Label,Name,Description,`Key Property Name`)]
-  }
-}
+)
 
-
-
-.munge=function(x){
-  tolower(gsub(" ","_",basename(x)))
-}
-
-.GeneExpressionInputs=function(){
-  if(!is.null(data_cache[[constants$matrix_inputs]])){
-    data_cache[[constants$matrix_inputs]]
-  }else{
-    ge<-labkey.selectRows(baseUrl = config$labkey.url.base,config$labkey.url.path,schemaName = "assay.ExpressionMatrix.matrix",queryName = "InputSamples",colNameOpt = "fieldname",viewName = "gene_expression_matrices",showHidden=TRUE)
-    setnames(ge,.munge(colnames(ge)))
-    data_cache[[constants$matrix_inputs]]<<-ge
-  }
-}
-
-.GeneExpressionFeatures=function(matrix_name,summary=FALSE){
-  if(!any((data_cache[[constants$matrices]][,"name"]%in%matrix_name))){
-    stop("Invalid gene expression matrix name");
-  }
-  annotation_set_id<-.getFeatureId(matrix_name)
-  #.lksession <- list()
-  #.lksession[["curlOptions"]] <- config$curlOptions
-  #.lksession[["curlOptions"]]$httpauth <- 1L
-  #print(.lksession[["curlOptions"]])
-  if(is.null(data_cache[[.mungeFeatureId(annotation_set_id)]])){
-    if(!summary){
-      message("Downloading Features..")
-      featureAnnotationSetQuery=sprintf("SELECT * from FeatureAnnotation where FeatureAnnotationSetId='%s';",annotation_set_id);
-      features<-labkey.executeSql(config$labkey.url.base,config$labkey.url.path,schemaName = "Microarray",sql = featureAnnotationSetQuery ,colNameOpt = "fieldname")
-    }else{
-      features<-data.frame(FeatureId=con$data_cache[[matrix_name]][,gene_symbol],GeneSymbol=con$data_cache[[matrix_name]][,gene_symbol])
+.ISCon$methods(
+  .getAvailableDataSets=function(){
+    if(length(available_datasets)==0){
+      dataset_filter <- makeFilter(c("showbydefault", "EQUAL", TRUE))
+      available_datasets<<-data.table(labkey.selectRows(baseUrl = config$labkey.url.base,config$labkey.url.path,schemaName = "study",queryName = "DataSets", colFilter = dataset_filter))[,list(Label,Name,Description,`Key Property Name`)]
     }
-    data_cache[[.mungeFeatureId(annotation_set_id)]]<<-features
   }
-}
+)
 
-.GeneExpressionMatrices=function(){
-  if(!is.null(data_cache[[constants$matrices]])){
-    data_cache[[constants$matrices]]
-  }else{
-    ge<-labkey.selectRows(baseUrl = config$labkey.url.base,config$labkey.url.path,schemaName = "assay.ExpressionMatrix.matrix",queryName = "Runs",colNameOpt = "fieldname",showHidden = TRUE, viewName = "expression_matrices")
-    setnames(ge,.munge(colnames(ge)))
-    data_cache[[constants$matrices]]<<-ge
+.ISCon$methods(
+  .munge=function(x){
+    tolower(gsub(" ","_",basename(x)))
   }
-}
-
-.downloadMatrix=function(x, summary = FALSE){
-  if(is.null(data_cache[[x]])){
-    if(nrow(subset(data_cache[[constants$matrices]],name%in%x))==0){
-      stop(sprintf("No matrix %s in study\n",x))
-    }
-    summary <- ifelse(summary, ".summary", "")
-    #link<-URLdecode(file.path(gsub("www.","",gsub("http:","https:",gsub("/$","",config$labkey.url.base))), paste0(gsub("^/","",subset(data_cache[[constants$matrices]],name%in%x)[,"downloadlink"]),summary)))
-    
-    #shouldn't be removing the www reported by labkey. Fix your netrc entry instead
-    link<-URLdecode(file.path(gsub("http:","https:",gsub("/$","",config$labkey.url.base)),
-            "_webdav", gsub("^/","",config$labkey.url.path), "@files/analysis/exprs_matrices",
-            paste0(x, ".tsv", summary)))
-    localpath<-.localStudyPath(link)
-    if(.isRunningLocally(localpath)){
-      fl<-localpath
-      message("Reading local matrix")
-      data_cache[[x]]<<-fread(fl,header=TRUE)
+)
+.ISCon$methods(
+  .GeneExpressionInputs=function(){
+    if(!is.null(data_cache[[constants$matrix_inputs]])){
+      data_cache[[constants$matrix_inputs]]
     }else{
-      opts <- config$curlOptions
-      opts$netrc <- 1L
-      opts$httpauth <- 1L
-      handle<-getCurlHandle(.opts=opts)
-      h<-basicTextGatherer()
-      message("Downloading matrix..")
-      curlPerform(url=link,curl=handle,writefunction=h$update)
-      fl<-tempfile()
-      write(h$value(),file=fl)
-      EM <- fread(fl,header=TRUE)
-      if(nrow(EM) == 0){
-        stop("The downloaded matrix has 0 rows. Something went wrong")
+      ge<-labkey.selectRows(baseUrl = config$labkey.url.base,config$labkey.url.path,schemaName = "assay.ExpressionMatrix.matrix",queryName = "InputSamples",colNameOpt = "fieldname",viewName = "gene_expression_matrices",showHidden=TRUE)
+      setnames(ge,.self$.munge(colnames(ge)))
+      data_cache[[constants$matrix_inputs]]<<-ge
+    }
+  }
+)
+
+.ISCon$methods(
+  .GeneExpressionFeatures=function(matrix_name,summary=FALSE){
+    if(!any((data_cache[[constants$matrices]][,"name"]%in%matrix_name))){
+      stop("Invalid gene expression matrix name");
+    }
+    annotation_set_id<-.self$.getFeatureId(matrix_name)
+    #.lksession <- list()
+    #.lksession[["curlOptions"]] <- config$curlOptions
+    #.lksession[["curlOptions"]]$httpauth <- 1L
+    #print(.lksession[["curlOptions"]])
+    if(is.null(data_cache[[.self$.mungeFeatureId(annotation_set_id)]])){
+      if(!summary){
+        message("Downloading Features..")
+        featureAnnotationSetQuery=sprintf("SELECT * from FeatureAnnotation where FeatureAnnotationSetId='%s';",annotation_set_id);
+        features<-labkey.executeSql(config$labkey.url.base,config$labkey.url.path,schemaName = "Microarray",sql = featureAnnotationSetQuery ,colNameOpt = "fieldname")
+      }else{
+        features<-data.frame(FeatureId=con$data_cache[[matrix_name]][,gene_symbol],GeneSymbol=con$data_cache[[matrix_name]][,gene_symbol])
       }
-      data_cache[[x]] <<-EM
-      file.remove(fl)
+      data_cache[[.self$.mungeFeatureId(annotation_set_id)]]<<-features
+    }
+  }
+)
+
+.ISCon$methods(
+  .GeneExpressionMatrices=function(){
+    if(!is.null(data_cache[[constants$matrices]])){
+      data_cache[[constants$matrices]]
+    }else{
+      ge<-labkey.selectRows(baseUrl = config$labkey.url.base,config$labkey.url.path,schemaName = "assay.ExpressionMatrix.matrix",queryName = "Runs",colNameOpt = "fieldname",showHidden = TRUE, viewName = "expression_matrices")
+      setnames(ge,.self$.munge(colnames(ge)))
+      data_cache[[constants$matrices]]<<-ge
+    }
+  }
+)
+
+.ISCon$methods(
+  .downloadMatrix=function(x, summary = FALSE){
+    if(is.null(data_cache[[x]])){
+      if(nrow(subset(data_cache[[constants$matrices]],name%in%x))==0){
+        stop(sprintf("No matrix %s in study\n",x))
+      }
+      summary <- ifelse(summary, ".summary", "")
+      #link<-URLdecode(file.path(gsub("www.","",gsub("http:","https:",gsub("/$","",config$labkey.url.base))), paste0(gsub("^/","",subset(data_cache[[constants$matrices]],name%in%x)[,"downloadlink"]),summary)))
+      
+      #shouldn't be removing the www reported by labkey. Fix your netrc entry instead
+      link<-URLdecode(file.path(gsub("http:","https:",gsub("/$","",config$labkey.url.base)),
+              "_webdav", gsub("^/","",config$labkey.url.path), "@files/analysis/exprs_matrices",
+              paste0(x, ".tsv", summary)))
+      localpath<-.self$.localStudyPath(link)
+      if(.self$.isRunningLocally(localpath)){
+        fl<-localpath
+        message("Reading local matrix")
+        data_cache[[x]]<<-fread(fl,header=TRUE)
+      }else{
+        opts <- config$curlOptions
+        opts$netrc <- 1L
+        opts$httpauth <- 1L
+        handle<-getCurlHandle(.opts=opts)
+        h<-basicTextGatherer()
+        message("Downloading matrix..")
+        curlPerform(url=link,curl=handle,writefunction=h$update)
+        fl<-tempfile()
+        write(h$value(),file=fl)
+        EM <- fread(fl,header=TRUE)
+        if(nrow(EM) == 0){
+          stop("The downloaded matrix has 0 rows. Something went wrong")
+        }
+        data_cache[[x]] <<-EM
+        file.remove(fl)
+      }
+      
+    }else{
+      data_cache[[x]]
+    }
+  }
+)
+
+.ISCon$methods(
+  .ConstructExpressionSet=function(matrix_name, summary){
+    #matrix
+    message("Constructing ExpressionSet")
+    matrix<-data_cache[[matrix_name]]
+    #features
+    features<-data_cache[[.self$.mungeFeatureId(.self$.getFeatureId(matrix_name))]][,c("FeatureId","GeneSymbol")]
+    #inputs
+    pheno<-unique(subset(data_cache[[constants$matrix_inputs]],biosample_accession%in%colnames(matrix))[,c("biosample_accession","subject_accession","arm_name","study_time_collected")])
+    
+    if(summary){
+      fdata <- data.frame(FeatureId = matrix$gene_symbol, gene_symbol = matrix$gene_symbol, row.names = matrix$gene_symbol)
+      fdata <- AnnotatedDataFrame(fdata)
+    } else{
+      try(setnames(matrix," ","FeatureId"),silent=TRUE)
+      setkey(matrix,FeatureId)
+      rownames(features)<-features$FeatureId
+      features<-features[matrix$FeatureId,]#order feature info
+      fdata <- AnnotatedDataFrame(features)
+    }
+    rownames(pheno)<-pheno$biosample_accession
+    pheno<-pheno[colnames(matrix)[-1L],]
+    ad_pheno<-AnnotatedDataFrame(data=pheno)
+    es<-ExpressionSet(assayData=as.matrix(matrix[,-1L,with=FALSE]),phenoData=ad_pheno,featureData=fdata)
+    data_cache[[matrix_name]]<<-es
+  }
+)
+.ISCon$methods(
+  .getFeatureId=function(matrix_name){
+    subset(data_cache[[constants$matrices]],name%in%matrix_name)[,"featureset"]
+  }
+)
+.ISCon$methods(
+  .mungeFeatureId=function(annotation_set_id){
+    return(sprintf("featureset_%s",annotation_set_id))
+  }
+)
+.ISCon$methods(
+  .isRunningLocally=function(path){
+    file.exists(path)
+  }
+)
+.ISCon$methods(
+  .localStudyPath=function(urlpath){
+    LOCALPATH<-"/shared/silo_researcher/Gottardo_R/immunespace"
+    PRODUCTION_HOST<-"www.immunespace.org"
+    STAGING_HOST<-"posey.fhcrc.org"
+    TEST_HOST<-"test.immunespace.org"
+    PRODUCTION_PATH<-"production/files"
+    STAGING_PATH<-"staging/files"
+    if(grepl(PRODUCTION_HOST,urlpath)){
+      PROCESS<-PRODUCTION_PATH
+    }else if(grepl(STAGING_HOST,urlpath)){
+      PROCESS<-STAGING_PATH
+    }else if(grepl(TEST_HOST,urlpath)){
+      LOCALPATH <- "/share/files"
+      PROCESS <- ""
+    }else{
+      stop("Can't determine if we are running on immunespace (production) or posey (staging)")
+    }
+    gsub(file.path(gsub("/$","",config$labkey.url.base), "_webdav"), file.path(LOCALPATH,PROCESS), urlpath)
+  }
+)
+.ISCon$methods(
+  .qpHeatmap = function(dt, normalize_to_baseline, legend, text_size){
+    contrast <- "study_time_collected"
+    annoCols <- c("name", "subject_accession", contrast, "Gender", "Age", "Race")
+    palette <- ISpalette(20)
+    
+    expr <- parse(text = paste0(contrast, ":=as.factor(", contrast, ")"))
+    dt <- dt[, eval(expr)]
+    #No need to order by legend. This should be done after.
+    if(!is.null(legend)){
+      dt <- dt[order(name, study_time_collected, get(legend))]
+    } else{
+      dt <- dt[order(name, study_time_collected)]
+    }
+    form <- as.formula(paste("analyte ~ name +", contrast, "+ subject_accession"))
+    mat <- acast(data = dt, formula = form, value.var = "response") #drop = FALSE yields NAs
+    if(ncol(mat) > 2 & nrow(mat) > 1){
+      mat <- mat[rowSums(apply(mat, 2, is.na)) < ncol(mat),, drop = FALSE]
     }
     
-  }else{
-    data_cache[[x]]
+    # Annotations:
+    anno <- data.frame(unique(dt[, annoCols, with = FALSE]))
+    rownames(anno) <- paste(anno$name, anno[, contrast], anno$subject_accession, sep = "_")
+    expr <- parse(text = c(rev(legend), contrast, "name"))
+    anno <- anno[with(anno, order(eval(expr))),]
+    anno <- anno[, c(rev(legend), contrast, "name")] #Select and order the annotation rows
+    anno[, contrast] <- as.factor(anno[, contrast])
+    anno_color <- colorpanel(n = length(levels(anno[,contrast])), low = "white", high = "black")
+    names(anno_color) <- levels(anno[, contrast])
+    anno_color <- list(anno_color)
+    if(contrast == "study_time_collected"){
+      setnames(anno, c("name", contrast), c("Arm Name", "Time"))
+      contrast <- "Time"
+    }
+    names(anno_color) <- contrast
+    if("Age" %in% legend){
+      anno_color$Age <- c("yellow", "red")
+    }
+    mat <- mat[, rownames(anno), drop = FALSE]
+    
+    # pheatmap parameters
+    if(normalize_to_baseline){
+      scale <- "none"                                                 
+      max <- max(abs(mat), na.rm = TRUE)
+      breaks <- seq(-max, max, length.out = length(palette))
+    } else{                                                           
+      scale <- "row"                                                  
+      breaks <- NA
+    }
+    
+    show_rnames <- ifelse(nrow(mat) < 50, TRUE, FALSE)
+    cluster_rows <- ifelse(nrow(mat) > 2 & ncol(mat) > 2, TRUE, FALSE)
+    
+    e <- try({
+          p <- pheatmap(mat = mat, annotation = anno, show_colnames = FALSE,
+              show_rownames = show_rnames, cluster_cols = FALSE,
+              cluster_rows = cluster_rows, color = palette,
+              scale = scale, breaks = breaks,
+              fontsize = text_size, annotation_color = anno_color)
+        })
+    if(inherits(e, "try-error")){
+      p <- pheatmap(mat = mat, annotation = anno, show_colnames = FALSE,
+          show_rownames = show_rnames, cluster_cols = FALSE,
+          cluster_rows = FALSE, color = palette,
+          scale = scale, breaks = breaks,
+          fontsize = text_size, annotation_color = anno_color)
+    }
+    return(p)
   }
-}
-
-.ConstructExpressionSet=function(matrix_name, summary){
-  #matrix
-  message("Constructing ExpressionSet")
-  matrix<-data_cache[[matrix_name]]
-  #features
-  features<-data_cache[[.mungeFeatureId(.getFeatureId(matrix_name))]][,c("FeatureId","GeneSymbol")]
-  #inputs
-  pheno<-unique(subset(data_cache[[constants$matrix_inputs]],biosample_accession%in%colnames(matrix))[,c("biosample_accession","subject_accession","arm_name","study_time_collected")])
-  
-  if(summary){
-    fdata <- data.frame(FeatureId = matrix$gene_symbol, gene_symbol = matrix$gene_symbol, row.names = matrix$gene_symbol)
-    fdata <- AnnotatedDataFrame(fdata)
-  } else{
-    try(setnames(matrix," ","FeatureId"),silent=TRUE)
-    setkey(matrix,FeatureId)
-    rownames(features)<-features$FeatureId
-    features<-features[matrix$FeatureId,]#order feature info
-    fdata <- AnnotatedDataFrame(features)
-  }
-  rownames(pheno)<-pheno$biosample_accession
-  pheno<-pheno[colnames(matrix)[-1L],]
-  ad_pheno<-AnnotatedDataFrame(data=pheno)
-  es<-ExpressionSet(assayData=as.matrix(matrix[,-1L,with=FALSE]),phenoData=ad_pheno,featureData=fdata)
-  data_cache[[matrix_name]]<<-es
-}
-.getFeatureId=function(matrix_name){
-  subset(data_cache[[constants$matrices]],name%in%matrix_name)[,"featureset"]
-}
-.mungeFeatureId=function(annotation_set_id){
-  return(sprintf("featureset_%s",annotation_set_id))
-}
-.isRunningLocally=function(path){
-  file.exists(path)
-}
-.localStudyPath=function(urlpath){
-  LOCALPATH<-"/shared/silo_researcher/Gottardo_R/immunespace"
-  PRODUCTION_HOST<-"www.immunespace.org"
-  STAGING_HOST<-"posey.fhcrc.org"
-  TEST_HOST<-"test.immunespace.org"
-  PRODUCTION_PATH<-"production/files"
-  STAGING_PATH<-"staging/files"
-  if(grepl(PRODUCTION_HOST,urlpath)){
-    PROCESS<-PRODUCTION_PATH
-  }else if(grepl(STAGING_HOST,urlpath)){
-    PROCESS<-STAGING_PATH
-  }else if(grepl(TEST_HOST,urlpath)){
-    LOCALPATH <- "/share/files"
-    PROCESS <- ""
-  }else{
-    stop("Can't determine if we are running on immunespace (production) or posey (staging)")
-  }
-  gsub(file.path(gsub("/$","",config$labkey.url.base), "_webdav"), file.path(LOCALPATH,PROCESS), urlpath)
-}
-
-.qpHeatmap = function(dt, normalize_to_baseline, legend, text_size){
-  contrast <- "study_time_collected"
-  annoCols <- c("name", "subject_accession", contrast, "Gender", "Age", "Race")
-  palette <- ISpalette(20)
-  
-  expr <- parse(text = paste0(contrast, ":=as.factor(", contrast, ")"))
-  dt <- dt[, eval(expr)]
-  #No need to order by legend. This should be done after.
-  if(!is.null(legend)){
-    dt <- dt[order(name, study_time_collected, get(legend))]
-  } else{
-    dt <- dt[order(name, study_time_collected)]
-  }
-  form <- as.formula(paste("analyte ~ name +", contrast, "+ subject_accession"))
-  mat <- acast(data = dt, formula = form, value.var = "response") #drop = FALSE yields NAs
-  if(ncol(mat) > 2 & nrow(mat) > 1){
-    mat <- mat[rowSums(apply(mat, 2, is.na)) < ncol(mat),, drop = FALSE]
-  }
-  
-  # Annotations:
-  anno <- data.frame(unique(dt[, annoCols, with = FALSE]))
-  rownames(anno) <- paste(anno$name, anno[, contrast], anno$subject_accession, sep = "_")
-  expr <- parse(text = c(rev(legend), contrast, "name"))
-  anno <- anno[with(anno, order(eval(expr))),]
-  anno <- anno[, c(rev(legend), contrast, "name")] #Select and order the annotation rows
-  anno[, contrast] <- as.factor(anno[, contrast])
-  anno_color <- colorpanel(n = length(levels(anno[,contrast])), low = "white", high = "black")
-  names(anno_color) <- levels(anno[, contrast])
-  anno_color <- list(anno_color)
-  if(contrast == "study_time_collected"){
-    setnames(anno, c("name", contrast), c("Arm Name", "Time"))
-    contrast <- "Time"
-  }
-  names(anno_color) <- contrast
-  if("Age" %in% legend){
-    anno_color$Age <- c("yellow", "red")
-  }
-  mat <- mat[, rownames(anno), drop = FALSE]
-  
-  # pheatmap parameters
-  if(normalize_to_baseline){
-    scale <- "none"                                                 
-    max <- max(abs(mat), na.rm = TRUE)
-    breaks <- seq(-max, max, length.out = length(palette))
-  } else{                                                           
-    scale <- "row"                                                  
-    breaks <- NA
-  }
-  
-  show_rnames <- ifelse(nrow(mat) < 50, TRUE, FALSE)
-  cluster_rows <- ifelse(nrow(mat) > 2 & ncol(mat) > 2, TRUE, FALSE)
-  
-  e <- try({
-        p <- pheatmap(mat = mat, annotation = anno, show_colnames = FALSE,
-            show_rownames = show_rnames, cluster_cols = FALSE,
-            cluster_rows = cluster_rows, color = palette,
-            scale = scale, breaks = breaks,
-            fontsize = text_size, annotation_color = anno_color)
-      })
-  if(inherits(e, "try-error")){
-    p <- pheatmap(mat = mat, annotation = anno, show_colnames = FALSE,
-        show_rownames = show_rnames, cluster_cols = FALSE,
-        cluster_rows = FALSE, color = palette,
-        scale = scale, breaks = breaks,
-        fontsize = text_size, annotation_color = anno_color)
-  }
-  return(p)
-}
+)
 #'@title get Gene Expression Matrix
 #'@aliases getGEMatrix
 #'@param x \code{"character"} name of the Gene Expression Matrix
@@ -465,9 +489,9 @@ CreateConnection = function(study=NULL, verbose = FALSE){
   if(x%in%names(data_cache)){
     data_cache[[x]]
   }else{
-    .downloadMatrix(x, summary)
-    .GeneExpressionFeatures(x,summary)
-    .ConstructExpressionSet(x, summary)
+    .self$.downloadMatrix(x, summary)
+    .self$.GeneExpressionFeatures(x,summary)
+    .self$.ConstructExpressionSet(x, summary)
     data_cache[[x]]
   }
 }
@@ -502,7 +526,7 @@ CreateConnection = function(study=NULL, verbose = FALSE){
             viewName <- "full"
           }
           data_cache[[x]] <<- data.table(labkey.selectRows(baseUrl = config$labkey.url.base,config$labkey.url.path,schemaName = "study", queryName = x, viewName = viewName, colNameOpt = "fieldname", ...))
-          setnames(data_cache[[x]],.munge(colnames(data_cache[[x]])))
+          setnames(data_cache[[x]],.self$.munge(colnames(data_cache[[x]])))
           data_cache[[x]]
         }
       }
@@ -564,7 +588,7 @@ CreateConnection = function(study=NULL, verbose = FALSE){
     GEAR <- labkey.selectRows(config$labkey.url.base, config$labkey.url.path,
         "gene_expression", "gene_expression_analysis_results",
         colFilter = AA_filter)
-    colnames(GEAR) <- .munge(colnames(GEAR))
+    colnames(GEAR) <- .self$.munge(colnames(GEAR))
     return(GEAR)
   }
 )
@@ -594,9 +618,9 @@ CreateConnection = function(study=NULL, verbose = FALSE){
 .ISCon$methods(
   initialize=function(){
     constants<<-list(matrices="GE_matrices",matrix_inputs="GE_inputs")
-    .AutoConfig()
-    gematrices_success<-try(.GeneExpressionMatrices(),silent=TRUE)
-    geinputs_success<-try(.GeneExpressionInputs(),silent=TRUE)
+    .self$.AutoConfig()
+    gematrices_success<-try(.self$.GeneExpressionMatrices(),silent=TRUE)
+    geinputs_success<-try(.self$.GeneExpressionInputs(),silent=TRUE)
     if(inherits(gematrices_success,"try-error")){
       message("No gene expression data")
     }
