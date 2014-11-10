@@ -13,6 +13,7 @@ NULL
 #'@title CreateConnection
 #'@name CreateConnection
 #'@param study \code{"character"} vector naming the study.
+#' @param verbose \code{"logical"} wehther to print the extra details for troubleshooting. 
 #'@description Constructor for \code{ImmuneSpaceConnection} class
 #'@details Instantiates and \code{ImmuneSpaceConnection} for \code{study}
 #'The constructor will try to take the values of the various `labkey.*` parameters from the global environment.
