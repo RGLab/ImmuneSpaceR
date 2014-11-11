@@ -1,3 +1,16 @@
+CreateConnection = function(study = NULL, verbose = FALSE){
+  if(length(study) <= 1)
+    .CreateConnection(study = study, verbose = verbose)
+  else
+  {
+    conList <- sapply(study, .CreateConnection, verbose = verbose)
+    .ISConList(connections = conList)
+  }
+    
+  
+}
+
+
 #' @importFrom gplots colorpanel
 #' @export
 ISpalette <- function(n){

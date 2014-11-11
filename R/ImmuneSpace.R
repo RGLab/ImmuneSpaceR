@@ -20,7 +20,7 @@ NULL
 #'If they don't exist, it will use default values. These are assigned to `options`, which are then used by the \code{ImmuneSpaceConnection} class.
 #'@export CreateConnection
 #'@return an instance of an \code{ImmuneSpaceConnection}
-CreateConnection = function(study=NULL, verbose = FALSE){
+.CreateConnection = function(study = NULL, verbose = FALSE){
   labkey.url.path<-try(get("labkey.url.path",.GlobalEnv),silent=TRUE)
   if(inherits(labkey.url.path,"try-error")){
     if(is.null(study)){
@@ -46,7 +46,7 @@ CreateConnection = function(study=NULL, verbose = FALSE){
   options(labkey.user.email=labkey.user.email)
   options(ISverbose = verbose)
 
-  new("ImmuneSpaceConnection")
+  .ISCon()
 }
 
 #'@name ImmuneSpaceConnection
@@ -195,7 +195,7 @@ CreateConnection = function(study=NULL, verbose = FALSE){
 ))
 
 .ISCon$methods(
-  .AutoConfig=function(){
+  AutoConfig=function(){
     #should use options
     labkey.url.base<-getOption("labkey.url.base")
     labkey.url.path<-getOption("labkey.url.path")
@@ -240,7 +240,13 @@ CreateConnection = function(study=NULL, verbose = FALSE){
   .getAvailableDataSets=function(){
     if(length(available_datasets)==0){
       dataset_filter <- makeFilter(c("showbydefault", "EQUAL", TRUE))
-      available_datasets<<-data.table(labkey.selectRows(baseUrl = config$labkey.url.base,config$labkey.url.path,schemaName = "study",queryName = "DataSets", colFilter = dataset_filter))[,list(Label,Name,Description,`Key Property Name`)]
+      df <- labkey.selectRows(baseUrl = config$labkey.url.base
+                        , config$labkey.url.path
+                        , schemaName = "study"
+                        , queryName = "DataSets"
+                        , colFilter = dataset_filter)
+      
+      available_datasets <<- data.table(df)[,list(Label,Name,Description,`Key Property Name`)]
     }
   }
 )
@@ -574,7 +580,7 @@ CreateConnection = function(study=NULL, verbose = FALSE){
       GEA <- labkey.selectRows(config$labkey.url.base, config$labkey.url.path,
           "gene_expression", "gene_expression_analysis",
           colNameOpt = "rname")
-      print(GEA)
+      GEA
     })
 .ISCon$methods(
   getGEAnalysis = function(analysis_accession){
@@ -618,11 +624,11 @@ CreateConnection = function(study=NULL, verbose = FALSE){
 .ISCon$methods(
   initialize=function(){
     constants<<-list(matrices="GE_matrices",matrix_inputs="GE_inputs")
-    .self$.AutoConfig()
-    gematrices_success<-try(.self$.GeneExpressionMatrices(),silent=TRUE)
-    geinputs_success<-try(.self$.GeneExpressionInputs(),silent=TRUE)
-    if(inherits(gematrices_success,"try-error")){
-      message("No gene expression data")
-    }
+    AutoConfig()
+#     gematrices_success<-try(.GeneExpressionMatrices(),silent=TRUE)
+#     geinputs_success<-try(.GeneExpressionInputs(),silent=TRUE)
+#     if(inherits(gematrices_success,"try-error")){
+#       message("No gene expression data")
+#     }
   }
 )
