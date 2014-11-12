@@ -23,4 +23,5 @@ Depends:
     grid,
     RColorBrewer,
     pheatmap,
-    ggthemr
+    ggthemr,
+    plyr

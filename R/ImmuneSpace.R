@@ -625,7 +625,10 @@ NULL
 )
 
 .ISCon$methods(
-  initialize=function(){
+  initialize=function(...){
+    #invoke the default init routine in case it needs to be invoked 
+    #(e.g. when using $new(object) to construct the new object based on the exiting object)
+    callSuper(...)
     constants<<-list(matrices="GE_matrices",matrix_inputs="GE_inputs")
     AutoConfig()
     gematrices_success<-try(GeneExpressionMatrices(),silent=TRUE)

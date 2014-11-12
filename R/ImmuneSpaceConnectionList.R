@@ -33,7 +33,7 @@
   show=function(){
     cat(length(connections), "Immunespace Connections:\n\t")
     cat(studyNames(),sep = "\n\t")
-    cat("use study('xxx') method to access each individual ImmuneSpaceConnection object.")
+    cat("use ""study('xxx')"" method to access the individual study.")
     }
 )
 .ISConList$methods(
@@ -41,6 +41,7 @@
     connections[[name]]
   })
 
+#' @importFrom plyr ldply
 .ISConList$methods(
   listDatasets=function(){
 #       browser()
@@ -105,20 +106,34 @@
 
 .ISConList$methods(
   getGEMatrix=function(x, merge = TRUE, ...){
-#     browser()
-    eSetList <- unlist(lapply(connections, function(con){
+    
+    esList <- unlist(lapply(connections, function(con){
       
                       unlist(lapply(x, function(thisName){
                         
-                            eSet <- try(con$getGEMatrix(x = thisName, ...), silent = T)  
-                            if(class(eSet) == "try-error")
+                            es <- try(con$getGEMatrix(x = thisName, ...), silent = T)  
+                            if(class(es) == "try-error")
                               NULL
-                            else
-                              eSet
+                            else{
+                              
+                              pData(es)[, "cohort"] <- thisName
+                              pData(es)[, "study"] <- con$study
+                              es
+                            }
+                              
                           }))
                     }))
-    
-    
-    
+    message("combining eSets...")
+    #find common features
+    fnList <- lapply(esList, function(es)featureNames(es))
+    fnCommon <- Reduce(intersect, fnList)
+    #subset by common features before combining
+    esList <- lapply(esList, function(es){
+      es <- es[fnCommon,]
+      pData(featureData(es)) <- droplevels(pData(featureData(es)))#prevent warnings during combining
+      es
+      })
+   Reduce(combine, esList)
+  
   }
 )                                                    
