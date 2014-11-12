@@ -90,7 +90,7 @@ NULL
             extras <- list(...)
             
             e <- try({
-              dt <- con$getDataset(dataset, reload = TRUE, colFilter = filter)
+              dt <- getDataset(dataset, reload = TRUE, colFilter = filter)
               setnames(dt, c("gender", "age_reported", "race"), addPar)
               if(!"analyte" %in% colnames(dt)){
                 if("analyte_name" %in% colnames(dt)){
@@ -257,7 +257,7 @@ NULL
   }
 )
 .ISCon$methods(
-  .GeneExpressionInputs=function(){
+  GeneExpressionInputs=function(){
     if(!is.null(data_cache[[constants$matrix_inputs]])){
       data_cache[[constants$matrix_inputs]]
     }else{
@@ -269,7 +269,7 @@ NULL
 )
 
 .ISCon$methods(
-  .GeneExpressionFeatures=function(matrix_name,summary=FALSE){
+  GeneExpressionFeatures=function(matrix_name,summary=FALSE){
     if(!any((data_cache[[constants$matrices]][,"name"]%in%matrix_name))){
       stop("Invalid gene expression matrix name");
     }
@@ -284,7 +284,7 @@ NULL
         featureAnnotationSetQuery=sprintf("SELECT * from FeatureAnnotation where FeatureAnnotationSetId='%s';",annotation_set_id);
         features<-labkey.executeSql(config$labkey.url.base,config$labkey.url.path,schemaName = "Microarray",sql = featureAnnotationSetQuery ,colNameOpt = "fieldname")
       }else{
-        features<-data.frame(FeatureId=con$data_cache[[matrix_name]][,gene_symbol],GeneSymbol=con$data_cache[[matrix_name]][,gene_symbol])
+        features<-data.frame(FeatureId=data_cache[[matrix_name]][,gene_symbol],GeneSymbol=data_cache[[matrix_name]][,gene_symbol])
       }
       data_cache[[.self$.mungeFeatureId(annotation_set_id)]]<<-features
     }
@@ -292,7 +292,7 @@ NULL
 )
 
 .ISCon$methods(
-  .GeneExpressionMatrices=function(){
+  GeneExpressionMatrices=function(){
     if(!is.null(data_cache[[constants$matrices]])){
       data_cache[[constants$matrices]]
     }else{
@@ -304,7 +304,7 @@ NULL
 )
 
 .ISCon$methods(
-  .downloadMatrix=function(x, summary = FALSE){
+  downloadMatrix=function(x, summary = FALSE){
     if(is.null(data_cache[[x]])){
       if(nrow(subset(data_cache[[constants$matrices]],name%in%x))==0){
         stop(sprintf("No matrix %s in study\n",x))
@@ -346,7 +346,7 @@ NULL
 )
 
 .ISCon$methods(
-  .ConstructExpressionSet=function(matrix_name, summary){
+  ConstructExpressionSet=function(matrix_name, summary){
     #matrix
     message("Constructing ExpressionSet")
     matrix<-data_cache[[matrix_name]]
@@ -495,9 +495,9 @@ NULL
   if(x%in%names(data_cache)){
     data_cache[[x]]
   }else{
-    .self$.downloadMatrix(x, summary)
-    .self$.GeneExpressionFeatures(x,summary)
-    .self$.ConstructExpressionSet(x, summary)
+    downloadMatrix(x, summary)
+    GeneExpressionFeatures(x,summary)
+    ConstructExpressionSet(x, summary)
     data_cache[[x]]
   }
 }
@@ -522,7 +522,8 @@ NULL
 .ISCon$methods(
     getDataset = function(x, original_view = FALSE, reload=FALSE, ...){
       if(nrow(available_datasets[Name%in%x])==0){
-        stop(sprintf("Invalid data set: %s",x))
+        warning(study, " has invalid data set: ",x)
+        NULL
       }else{
         if(!is.null(data_cache[[x]])&!reload){
           data_cache[[x]]
@@ -552,13 +553,15 @@ NULL
 #'sdy269$listDatasets()
 .ISCon$methods(
     listDatasets=function(){
+      cat("datasets\n")
+      
       for(i in 1:nrow(available_datasets)){
         cat(sprintf("\t%s\n",available_datasets[i,Name]))
       }
       if(!is.null(data_cache[[constants$matrices]])){
         cat("Expression Matrices\n")
         for(i in 1:nrow(data_cache[[constants$matrices]])){
-          cat(sprintf("%s\n",data_cache[[constants$matrices]][i,"name"]))
+          cat(sprintf("\t%s\n",data_cache[[constants$matrices]][i,"name"]))
         }
       }
     })
@@ -615,7 +618,7 @@ NULL
       if(!is.null(data_cache[[constants$matrices]])){
         cat("Expression Matrices\n")
         for(i in 1:nrow(data_cache[[constants$matrices]])){
-          cat(sprintf("%s\n",data_cache[[constants$matrices]][i,"name"]))
+          cat(sprintf("\t%s\n",data_cache[[constants$matrices]][i,"name"]))
         }
       }
     }
@@ -625,10 +628,10 @@ NULL
   initialize=function(){
     constants<<-list(matrices="GE_matrices",matrix_inputs="GE_inputs")
     AutoConfig()
-#     gematrices_success<-try(.GeneExpressionMatrices(),silent=TRUE)
-#     geinputs_success<-try(.GeneExpressionInputs(),silent=TRUE)
-#     if(inherits(gematrices_success,"try-error")){
-#       message("No gene expression data")
-#     }
+    gematrices_success<-try(GeneExpressionMatrices(),silent=TRUE)
+    geinputs_success<-try(GeneExpressionInputs(),silent=TRUE)
+    if(inherits(gematrices_success,"try-error")){
+      message("No gene expression data")
+    }
   }
 )

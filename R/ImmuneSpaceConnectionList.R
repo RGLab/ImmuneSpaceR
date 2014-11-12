@@ -27,16 +27,13 @@
     names(connections)
   })
 
-.ISConList$methods(
-  size = function(){
-    length(connections)
-  })
+
 
 .ISConList$methods(
   show=function(){
-    cat(size(), "Immunespace Connections:\n")
-    cat(studyNames(),sep = "\n")
-    cat("use study('xxx') method to access each connection object.")
+    cat(length(connections), "Immunespace Connections:\n\t")
+    cat(studyNames(),sep = "\n\t")
+    cat("use study('xxx') method to access each individual ImmuneSpaceConnection object.")
     }
 )
 .ISConList$methods(
@@ -47,6 +44,7 @@
 .ISConList$methods(
   listDatasets=function(){
 #       browser()
+      cat("Datasets\n")
       # get ds from each con
       dsList <- lapply(connections, function(con)con$available_datasets[, Name])
       # get union set from all cons
@@ -61,13 +59,66 @@
       print(df)
       
     
-#       cat("Expression Matrices\n")
-#       connections[[2]]$data_cache[[con$constants$matrices]][,"name"]))
+      cat("\nExpression Matrices\n")
+      for(con in connections)
+      {
+          mat_name <- con$constants$matrices
+          gem_names <- con$data_cache[[mat_name]][,"name"]
+          cat("\tStudy:", con$study, "\n\t\t\t")
+          cat(gem_names, sep = "\n\t\t\t")
+      }
+    
       
     
   })
 
 .ISConList$methods(
-  listGEAnalysis = function(){
-    ldply(connections, function(con)con$listGEAnalysis(), .id = "study")
+  listGEAnalysis = function(merge = TRUE){
+    GEA_list <- lapply(connections, function(con)con$listGEAnalysis())
+    if(merge)
+      ldply(GEA_list, function(gea)gea,.id = "study")
+    else
+      GEA_list
       })
+
+.ISConList$methods(
+    getDataset = function(x, merge = TRUE, ...){
+    
+    dsList <- lapply(connections, function(con){
+                  ds <- con$getDataset(x = x, ...)
+                  if(!is.null(ds))
+                    ds[, study:= con$study]
+                  ds
+      })
+    if(merge)
+      rbindlist(dsList)
+    else
+      dsList
+  })
+
+.ISConList$methods(
+  clear_cache = function(){
+    for(con in connections)
+      con$clear_cache()
+  }
+)
+
+.ISConList$methods(
+  getGEMatrix=function(x, merge = TRUE, ...){
+#     browser()
+    eSetList <- unlist(lapply(connections, function(con){
+      
+                      unlist(lapply(x, function(thisName){
+                        
+                            eSet <- try(con$getGEMatrix(x = thisName, ...), silent = T)  
+                            if(class(eSet) == "try-error")
+                              NULL
+                            else
+                              eSet
+                          }))
+                    }))
+    
+    
+    
+  }
+)                                                    
