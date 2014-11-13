@@ -538,7 +538,15 @@ NULL
           if(original_view){
             viewName <- "full"
           }
-          data_cache[[x]] <<- data.table(labkey.selectRows(baseUrl = config$labkey.url.base,config$labkey.url.path,schemaName = "study", queryName = x, viewName = viewName, colNameOpt = "fieldname", ...))
+          
+          data_cache[[x]] <<- data.table(labkey.selectRows(baseUrl = config$labkey.url.base
+                                                           ,config$labkey.url.path
+                                                           ,schemaName = "study"
+                                                           , queryName = x
+                                                           , viewName = viewName
+                                                           , colNameOpt = "fieldname"
+                                                           , ...)
+          )
           setnames(data_cache[[x]],.self$.munge(colnames(data_cache[[x]])))
           data_cache[[x]]
         }
