@@ -11,7 +11,7 @@ CreateConnection(study = NULL, verbose = FALSE)
 \item{verbose}{\code{"logical"} wehther to print the extra details for troubleshooting.}
 }
 \value{
-an instance of an \code{ImmuneSpaceConnection}
+an instance of an \code{ImmuneSpaceConnection} or \code{ImmuneSpaceConnectionList}
 }
 \description{
 Constructor for \code{ImmuneSpaceConnection} class

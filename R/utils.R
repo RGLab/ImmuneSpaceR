@@ -7,7 +7,7 @@
 #'The constructor will try to take the values of the various `labkey.*` parameters from the global environment.
 #'If they don't exist, it will use default values. These are assigned to `options`, which are then used by the \code{ImmuneSpaceConnection} class.
 #'@export CreateConnection
-#'@return an instance of an \code{ImmuneSpaceConnection}
+#'@return an instance of an \code{ImmuneSpaceConnection} or \code{ImmuneSpaceConnectionList}
 CreateConnection = function(study = NULL, verbose = FALSE){
   # try to parse labkey options from global environment 
   # which really should have been done through option()/getOption() mechanism
@@ -71,6 +71,7 @@ CreateConnection = function(study = NULL, verbose = FALSE){
 #' 
 #' @param file the file name to be saved to or loaded from
 #' @return ImmuneSpaceConnection or ImmuneSpaceConnectionList object
+#'@export
 loadConnection <- function(file){
   con <- readRDS(file = file)
   conType <- class(con)
@@ -93,6 +94,7 @@ loadConnection <- function(file){
 #' Save an ImmuneSpaceConnection/ImmuneSpaceConnectionList object to disk
 #' 
 #' @rdname loadConnection
+#' @export
 saveConnection <- function(con, file){
   saveRDS(con, file = file)
 }

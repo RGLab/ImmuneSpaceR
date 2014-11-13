@@ -10,7 +10,13 @@
 #'@import data.table Rlabkey methods Biobase gtools
 NULL
 
-.CreateConnection = function(study = NULL, ...){
+.CreateConnection = function(study = NULL
+                             , labkey.url.base
+                             , labkey.url.path
+                             , labkey.user.email
+                             , curlOptions
+                             , verbose
+                             , ...){
   labkey.url.path<-try(get("labkey.url.path",.GlobalEnv),silent=TRUE)
   if(inherits(labkey.url.path,"try-error")){
     if(is.null(study)){
@@ -20,8 +26,13 @@ NULL
   }else if(!is.null(study)){
     labkey.url.path <- file.path(dirname(labkey.url.path),study)
   }
+  config <- list(labkey.url.base = labkey.url.base,
+                  labkey.url.path = labkey.url.path,
+                  labkey.user.email = labkey.user.email,
+                  curlOptions = curlOptions,
+                  verbose = verbose)
   
-  .ISCon(labkey.url.path = labkey.url.path, ...)
+  .ISCon(config = config)
 }
 
 #'@name ImmuneSpaceConnection
@@ -331,6 +342,32 @@ NULL
     data_cache[[matrix_name]]<<-es
   }
 )
+#'@title get Gene Expression Matrix
+#'@aliases getGEMatrix
+#'@param x \code{"character"} name of the Gene Expression Matrix
+#'@details Returns an `ExpressionSet` from the matrix named 'x', downloads it if it is not already cached.
+#'@return an \code{ExpressionSet}
+#'@name ImmuneSpaceConnection_getGEMatrix
+#'@examples
+#'labkey.url.base="https://www.immunespace.org"
+#'labkey.url.path="/Studies/SDY269"
+#'labkey.user.email='gfinak at fhcrc.org'
+#'sdy269<-CreateConnection("SDY269")
+#'sdy269$getGEMatrix("TIV_2008")
+.ISCon$methods(
+  getGEMatrix=function(x, summary = FALSE, reload=FALSE){
+    if(x%in%names(data_cache)&&!reload){
+      data_cache[[x]]
+    }else{
+      
+      data_cache[[x]] <<- NULL #clear cache for reloading
+      downloadMatrix(x, summary)
+      GeneExpressionFeatures(x,summary)
+      ConstructExpressionSet(x, summary)
+      data_cache[[x]]
+    }
+  }
+)
 .ISCon$methods(
   .getFeatureId=function(matrix_name){
     subset(data_cache[[constants$matrices]],name%in%matrix_name)[,"featureset"]
@@ -437,30 +474,7 @@ NULL
     return(p)
   }
 )
-#'@title get Gene Expression Matrix
-#'@aliases getGEMatrix
-#'@param x \code{"character"} name of the Gene Expression Matrix
-#'@details Returns an `ExpressionSet` from the matrix named 'x', downloads it if it is not already cached.
-#'@return an \code{ExpressionSet}
-#'@name ImmuneSpaceConnection_getGEMatrix
-#'@examples
-#'labkey.url.base="https://www.immunespace.org"
-#'labkey.url.path="/Studies/SDY269"
-#'labkey.user.email='gfinak at fhcrc.org'
-#'sdy269<-CreateConnection("SDY269")
-#'sdy269$getGEMatrix("TIV_2008")
-.ISCon$methods(
-    getGEMatrix=function(x, summary = FALSE){
-  if(x%in%names(data_cache)){
-    data_cache[[x]]
-  }else{
-    downloadMatrix(x, summary)
-    GeneExpressionFeatures(x,summary)
-    ConstructExpressionSet(x, summary)
-    data_cache[[x]]
-  }
-}
-)
+
 
 #'@title get a dataset
 #'@aliases getDataset
@@ -593,12 +607,8 @@ NULL
 )
 
 .ISCon$methods(
-  initialize=function(labkey.url.base
-                      , labkey.url.path
-                      , labkey.user.email
-                      , curlOptions
-                      , verbose
-                      , ...){
+  initialize=function(..., config = NULL){
+    
     #invoke the default init routine in case it needs to be invoked 
     #(e.g. when using $new(object) to construct the new object based on the exiting object)
     callSuper(...)
@@ -607,11 +617,8 @@ NULL
     
     study <<- basename(labkey.url.path)
     
-    config <<- list(labkey.url.base = labkey.url.base,
-                    labkey.url.path = labkey.url.path,
-                    labkey.user.email = labkey.user.email,
-                    curlOptions = curlOptions,
-                    verbose = verbose)
+    if(!is.null(config))
+    config <<- config
     
     getAvailableDataSets()
     

@@ -17,11 +17,13 @@
 .ISConList <- setRefClass(Class = "ImmuneSpaceConnectionList", fields = list(connections="list"))
 
 #' print names of the studies associated with the connection list.
+#' @name studyNames
 #' @examples
-#' \dontrun{
-#' cons <- CreateConnection(c("SDY269", "SDY180"))
-#' cons$studies
-#' }
+#' #\dontrun{
+#' #cons <- CreateConnection(c("SDY269", "SDY180"))
+#' #cons$studyNames()
+#' #}
+#' 
 .ISConList$methods(
   studyNames = function(){
     names(connections)
@@ -129,6 +131,7 @@
                               
                           }))
                     }))
+    
     message("combining eSets...")
     #find common features
     fnList <- lapply(esList, function(es)featureNames(es))
