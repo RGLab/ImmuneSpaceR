@@ -33,7 +33,7 @@
   show=function(){
     cat(length(connections), "Immunespace Connections:\n\t")
     cat(studyNames(),sep = "\n\t")
-    cat("use ""study('xxx')"" method to access the individual study.")
+    cat("use 'study('xxx')' method to access the individual study.")
     }
 )
 .ISConList$methods(
@@ -101,6 +101,12 @@
   clear_cache = function(){
     for(con in connections)
       con$clear_cache()
+  }
+)
+.ISConList$methods(
+  quick_plot = function(...){
+    .quick_plot(.self, ...)
+     
   }
 )
 

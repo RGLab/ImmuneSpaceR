@@ -74,125 +74,131 @@ NULL
 .ISCon <- setRefClass(Class = "ImmuneSpaceConnection",
             fields = list(study = "character", config="list",
                           available_datasets = "data.table",
-                          data_cache="list",constants="list"),
-            methods=list(
-              
-          quick_plot = function(dataset, normalize_to_baseline = TRUE,
-                                type = "auto", filter = NULL,
-                                facet = "grid", text_size = 15,
-                                legend = NULL, ...){
-            ggthemr("solarized")
-            addPar <- c("Gender", "Age", "Race")
-            annoCols <- c("name", "subject_accession", "study_time_collected", addPar)
-            toKeep <- c("response", "analyte", annoCols)
-            logT <- TRUE #By default, log transform the value_reported
-            message_out <- ""
-            extras <- list(...)
-            
-            e <- try({
-              dt <- getDataset(dataset, reload = TRUE, colFilter = filter)
-              setnames(dt, c("gender", "age_reported", "race"), addPar)
-              if(!"analyte" %in% colnames(dt)){
-                if("analyte_name" %in% colnames(dt)){
-                  dt <- dt[, analyte := analyte_name]
-                } else{
-                  dt <- dt[, analyte := ""]
-                }
-              }
-              if(type == "auto"){
-                if(length(unique(dt$analyte)) < 10){
-                  type <- "boxplot"
-                } else{
-                  type <- "heatmap"
-                }
-              }
-              
-              # Datasets
-              if(dataset == "elispot"){
-                dt <- dt[, value_reported := (spot_number_reported) / cell_number_reported]
-              } else if(dataset == "pcr"){
-                if(all(is.na(dt[, threshold_cycles]))){
-                  stop("PCR results cannot be displayed for studies that do not use threshold cycles.
-                       Use LabKey Quick Chart interface to plot this dataset.")
-                }
-                dt <- dt[, value_reported := threshold_cycles]
-                dt <- dt[, analyte := entrez_gene_id]
-                logT <- FALSE #Threshold cycle is already log transformed
-              } else if(dataset == "mbaa"){
-                if(all(dt$concentration_value ==0) || all(is.na(dt$concentration_value))){
-                  if(any(!is.na(dt$mfi)) && any(dt$mfi != 0)){
-                    dt <- dt[, value_reported := as.numeric(mfi)]
-                  }else{
-                    stop("Plotting MBAA requires either concentration or MFI values")
-                  }
-                } else{
-                  dt <- dt[, value_reported := as.numeric(concentration_value)]
-                }
-              }
-              dt <- dt[, response := ifelse(value_reported <0, 0, value_reported)]
-              if(logT){
-                dt <- dt[, response := mean(log2(response+1), na.rm = TRUE),
-                         by = "name,subject_accession,analyte,study_time_collected"]
-              } else{
-                dt <- dt[, response := mean(response, na.rm = TRUE),
-                         by = "name,subject_accession,analyte,study_time_collected"]
-              }
-              dt <- unique(dt[, toKeep, with = FALSE])
-              
-              if(normalize_to_baseline){
-                dt <- dt[,response:=response-response[study_time_collected==0],
-                         by="name,subject_accession,analyte"][study_time_collected!=0]
-                ylab <- "Response normalized to baseline"
-              } else{
-                ylab <- "Response (log2)"
-              }
-            })
-            
-            if(inherits(e, "try-error")){
-              type <- "error"
-              error_string <- attr(e, "condition")$message
+                          data_cache="list",constants="list")
+          
+      )
+
+.ISCon$methods(
+  quick_plot = function(...){
+    .quick_plot(.self, ...)
+  }
+)
+  .quick_plot <- function(con, dataset, normalize_to_baseline = TRUE,
+                        type = "auto", filter = NULL,
+                        facet = "grid", text_size = 15,
+                        legend = NULL, ...){
+    ggthemr("solarized")
+    addPar <- c("Gender", "Age", "Race")
+    annoCols <- c("name", "subject_accession", "study_time_collected", addPar)
+    toKeep <- c("response", "analyte", annoCols)
+    logT <- TRUE #By default, log transform the value_reported
+    message_out <- ""
+    extras <- list(...)
+    
+    e <- try({
+      dt <- con$getDataset(dataset, reload = TRUE, colFilter = filter)
+      setnames(dt, c("gender", "age_reported", "race"), addPar)
+      if(!"analyte" %in% colnames(dt)){
+        if("analyte_name" %in% colnames(dt)){
+          dt <- dt[, analyte := analyte_name]
+        } else{
+          dt <- dt[, analyte := ""]
+        }
+      }
+      if(type == "auto"){
+        if(length(unique(dt$analyte)) < 10){
+          type <- "boxplot"
+        } else{
+          type <- "heatmap"
+        }
+      }
+      
+      # Datasets
+      if(dataset == "elispot"){
+        dt <- dt[, value_reported := (spot_number_reported) / cell_number_reported]
+      } else if(dataset == "pcr"){
+        if(all(is.na(dt[, threshold_cycles]))){
+          stop("PCR results cannot be displayed for studies that do not use threshold cycles.
+               Use LabKey Quick Chart interface to plot this dataset.")
+        }
+        dt <- dt[, value_reported := threshold_cycles]
+        dt <- dt[, analyte := entrez_gene_id]
+        logT <- FALSE #Threshold cycle is already log transformed
+        } else if(dataset == "mbaa"){
+          if(all(dt$concentration_value ==0) || all(is.na(dt$concentration_value))){
+            if(any(!is.na(dt$mfi)) && any(dt$mfi != 0)){
+              dt <- dt[, value_reported := as.numeric(mfi)]
+            }else{
+              stop("Plotting MBAA requires either concentration or MFI values")
             }
-            
-            # Plot
-            if(facet == "grid"){
-              facet <- facet_grid(aes(analyte, name), scales = "free")
-            } else if(facet == "wrap"){
-              facet <- facet_wrap(~name + analyte, scales = "free")
-            }
-            if(type == "heatmap"){
-              p <- .self$.qpHeatmap(dt, normalize_to_baseline, legend, text_size)
-            } else if(type == "boxplot"){
-              p <- ggplot(data = dt, aes(as.factor(study_time_collected), response)) +
-                geom_boxplot(outlier.size = 0) +
-                xlab("Time") + ylab(ylab) + facet +
-                theme(text = element_text(size = text_size),
-                      axis.text.x = element_text(angle = 45))
-              if(!is.null(extras[["size"]])){
-                p <- p + geom_jitter(aes_string(...))
-              } else{
-                p <- p + geom_jitter(size = 3, aes_string(...))
-              }
-              print(p)
-            } else if(type == "line"){
-              p <- ggplot(data = dt, aes(study_time_collected, response, group = subject_accession)) +
-                geom_line(aes_string(...)) + 
-                xlab("Time") + ylab(ylab) + facet +
-                theme(text = element_text(size = text_size),
-                      axis.text.x = element_text(angle = 45))
-              if(!is.null(extras[["size"]])){
-                p <- p + geom_point(aes_string(...))
-              } else{
-                p <- p + geom_point(size = 3, aes_string(...))
-              }
-              print(p)
-            } else{#} if(type == "error"){
-              data <- data.frame(x = 0, y = 0, err = error_string)
-              p <- ggplot(data = data) + geom_text(aes(x, y, label = err), size = text_size)
-              print(p)
-            }
-            return(message_out)
+          } else{
+            dt <- dt[, value_reported := as.numeric(concentration_value)]
           }
-))
+        }
+      dt <- dt[, response := ifelse(value_reported <0, 0, value_reported)]
+      if(logT){
+        dt <- dt[, response := mean(log2(response+1), na.rm = TRUE),
+                 by = "name,subject_accession,analyte,study_time_collected"]
+      } else{
+        dt <- dt[, response := mean(response, na.rm = TRUE),
+                 by = "name,subject_accession,analyte,study_time_collected"]
+      }
+      dt <- unique(dt[, toKeep, with = FALSE])
+      
+      if(normalize_to_baseline){
+        dt <- dt[,response:=response-response[study_time_collected==0],
+                 by="name,subject_accession,analyte"][study_time_collected!=0]
+        ylab <- "Response normalized to baseline"
+      } else{
+        ylab <- "Response (log2)"
+      }
+    })
+    
+    if(inherits(e, "try-error")){
+      type <- "error"
+      error_string <- attr(e, "condition")$message
+    }
+    
+    # Plot
+    if(facet == "grid"){
+      facet <- facet_grid(aes(analyte, name), scales = "free")
+    } else if(facet == "wrap"){
+      facet <- facet_wrap(~name + analyte, scales = "free")
+    }
+    if(type == "heatmap"){
+      p <- .self$.qpHeatmap(dt, normalize_to_baseline, legend, text_size)
+    } else if(type == "boxplot"){
+      p <- ggplot(data = dt, aes(as.factor(study_time_collected), response)) +
+        geom_boxplot(outlier.size = 0) +
+        xlab("Time") + ylab(ylab) + facet +
+        theme(text = element_text(size = text_size),
+              axis.text.x = element_text(angle = 45))
+      if(!is.null(extras[["size"]])){
+        p <- p + geom_jitter(aes_string(...))
+      } else{
+        p <- p + geom_jitter(size = 3, aes_string(...))
+      }
+      print(p)
+    } else if(type == "line"){
+      p <- ggplot(data = dt, aes(study_time_collected, response, group = subject_accession)) +
+        geom_line(aes_string(...)) + 
+        xlab("Time") + ylab(ylab) + facet +
+        theme(text = element_text(size = text_size),
+              axis.text.x = element_text(angle = 45))
+      if(!is.null(extras[["size"]])){
+        p <- p + geom_point(aes_string(...))
+      } else{
+        p <- p + geom_point(size = 3, aes_string(...))
+      }
+      print(p)
+    } else{#} if(type == "error"){
+      data <- data.frame(x = 0, y = 0, err = error_string)
+      p <- ggplot(data = data) + geom_text(aes(x, y, label = err), size = text_size)
+      print(p)
+    }
+    return(message_out)
+  }
+
 
 .ISCon$methods(
   AutoConfig=function(){
@@ -213,7 +219,7 @@ NULL
         curlOptions = curlOptions,
         verbose = verbose)
     #.checkStudy(config$verbose)
-    .self$.getAvailableDataSets();
+    getAvailableDataSets();
   }
 )
 
@@ -237,7 +243,7 @@ NULL
 )
 
 .ISCon$methods(
-  .getAvailableDataSets=function(){
+  getAvailableDataSets=function(){
     if(length(available_datasets)==0){
       dataset_filter <- makeFilter(c("showbydefault", "EQUAL", TRUE))
       df <- labkey.selectRows(baseUrl = config$labkey.url.base
