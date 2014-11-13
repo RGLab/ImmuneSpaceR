@@ -10,43 +10,18 @@
 #'@import data.table Rlabkey methods Biobase gtools
 NULL
 
-#'@title CreateConnection
-#'@name CreateConnection
-#'@param study \code{"character"} vector naming the study.
-#' @param verbose \code{"logical"} wehther to print the extra details for troubleshooting. 
-#'@description Constructor for \code{ImmuneSpaceConnection} class
-#'@details Instantiates and \code{ImmuneSpaceConnection} for \code{study}
-#'The constructor will try to take the values of the various `labkey.*` parameters from the global environment.
-#'If they don't exist, it will use default values. These are assigned to `options`, which are then used by the \code{ImmuneSpaceConnection} class.
-#'@export CreateConnection
-#'@return an instance of an \code{ImmuneSpaceConnection}
-.CreateConnection = function(study = NULL, verbose = FALSE){
+.CreateConnection = function(study = NULL, ...){
   labkey.url.path<-try(get("labkey.url.path",.GlobalEnv),silent=TRUE)
   if(inherits(labkey.url.path,"try-error")){
     if(is.null(study)){
       stop("study cannot be NULL")
     }
-    labkey.url.path<-paste0("/Studies/",study)
+    labkey.url.path <- paste0("/Studies/",study)
   }else if(!is.null(study)){
-    labkey.url.path<-file.path(dirname(labkey.url.path),study)
+    labkey.url.path <- file.path(dirname(labkey.url.path),study)
   }
-  labkey.url.base<-try(get("labkey.url.base",.GlobalEnv),silent=TRUE)
-  if(inherits(labkey.url.base,"try-error"))
-    labkey.url.base<-"https://www.immunespace.org"
-  labkey.url.base<-gsub("http:","https:",labkey.url.base)
-  if(length(grep("^https://", labkey.url.base)) == 0)
-    labkey.url.base <- paste0("https://", labkey.url.base)
-  labkey.user.email<-try(get("labkey.user.email",.GlobalEnv),silent=TRUE)
-  if(inherits(labkey.user.email,"try-error"))
-    labkey.user.email="unknown_user at not_a_domain.com"
-
-
-  options(labkey.url.base=labkey.url.base)
-  options(labkey.url.path=labkey.url.path)
-  options(labkey.user.email=labkey.user.email)
-  options(ISverbose = verbose)
-
-  .ISCon()
+  
+  .ISCon(labkey.url.path = labkey.url.path, ...)
 }
 
 #'@name ImmuneSpaceConnection
@@ -200,28 +175,6 @@ NULL
   }
 
 
-.ISCon$methods(
-  AutoConfig=function(){
-    #should use options
-    labkey.url.base<-getOption("labkey.url.base")
-    labkey.url.path<-getOption("labkey.url.path")
-    labkey.user.email<-getOption("labkey.user.email")
-    verbose <- getOption("ISverbose")
-    if(gsub("https://", "", labkey.url.base) == "www.immunespace.org"){
-      curlOptions <- labkey.setCurlOptions(ssl.verifyhost = 2, ssl.cipher.list="ALL")
-    } else{
-      curlOptions <- labkey.setCurlOptions(ssl.verifyhost = 2, sslversion=1)
-    }
-    study<<-basename(labkey.url.path)
-    config<<-list(labkey.url.base=labkey.url.base,
-        labkey.url.path=labkey.url.path,
-        labkey.user.email=labkey.user.email,
-        curlOptions = curlOptions,
-        verbose = verbose)
-    #.checkStudy(config$verbose)
-    getAvailableDataSets();
-  }
-)
 
 .ISCon$methods(
   # There is something odd with Rlabkey::labkey.getFolders (permissions set to 0)
@@ -599,6 +552,7 @@ NULL
           colNameOpt = "rname")
       GEA
     })
+
 .ISCon$methods(
   getGEAnalysis = function(analysis_accession){
     "Get gene expression analysis resluts from a connection"
@@ -639,12 +593,28 @@ NULL
 )
 
 .ISCon$methods(
-  initialize=function(...){
+  initialize=function(labkey.url.base
+                      , labkey.url.path
+                      , labkey.user.email
+                      , curlOptions
+                      , verbose
+                      , ...){
     #invoke the default init routine in case it needs to be invoked 
     #(e.g. when using $new(object) to construct the new object based on the exiting object)
     callSuper(...)
-    constants<<-list(matrices="GE_matrices",matrix_inputs="GE_inputs")
-    AutoConfig()
+    
+    constants <<- list(matrices="GE_matrices",matrix_inputs="GE_inputs")
+    
+    study <<- basename(labkey.url.path)
+    
+    config <<- list(labkey.url.base = labkey.url.base,
+                    labkey.url.path = labkey.url.path,
+                    labkey.user.email = labkey.user.email,
+                    curlOptions = curlOptions,
+                    verbose = verbose)
+    
+    getAvailableDataSets()
+    
     gematrices_success<-try(GeneExpressionMatrices(),silent=TRUE)
     geinputs_success<-try(GeneExpressionInputs(),silent=TRUE)
     if(inherits(gematrices_success,"try-error")){
