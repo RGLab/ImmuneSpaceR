@@ -480,9 +480,10 @@ NULL
 #'@aliases getDataset
 #'@param x A \code{character}. The name of the dataset
 #'@param original_view A \code{logical}. If set to TRUE, download the ImmPort view. Else,
-#'  download the default grid view.
+#'  download the default grid view. Note: Once data is cached, changing value of this argument won't have effect on the subsequent calls
+#'  unless \code{reload} is set to 'TRUE'.
 #'@param reload A \code{logical}. Clear the cache. If set to TRUE, download the 
-#'  dataset, whether a cached versio exist or not.
+#'  dataset, whether a cached version exist or not.
 #'@details Returns the dataset named 'x', downloads it if it is not already cached.
 #'@return a \code{data.table}
 #'@name ImmuneSpaceConnection_getDataset
