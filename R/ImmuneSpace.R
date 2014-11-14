@@ -615,10 +615,12 @@ NULL
     
     constants <<- list(matrices="GE_matrices",matrix_inputs="GE_inputs")
     
-    study <<- basename(labkey.url.path)
-    
     if(!is.null(config))
-    config <<- config
+      config <<- config
+    
+    study <<- basename(config$labkey.url.path)
+    
+    
     
     getAvailableDataSets()
     
