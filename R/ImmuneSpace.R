@@ -7,7 +7,7 @@
 #'@name ImmuneSpaceR-package
 #'@aliases ImmuneSpaceR
 #'@author Greg Finak
-#'@import data.table Rlabkey methods Biobase gtools
+#'@import data.table Rlabkey methods Biobase gtools digest
 NULL
 
 #'@title CreateConnection
@@ -148,16 +148,17 @@ setRefClass(Class = "ImmuneSpaceConnection",
               if(nrow(available_datasets[Name%in%x])==0){
                 stop(sprintf("Invalid data set: %s",x))
               }else{
-                if(!is.null(data_cache[[x]])&!reload){
-                  data_cache[[x]]
+		hash_key = digest(c(x,original_view))
+                if(!is.null(data_cache[[hash_key]])&!reload){
+                  data_cache[[hash_key]]
                 }else{
                   viewName <- NULL
                   if(original_view){
                     viewName <- "full"
                   }
-                  data_cache[[x]] <<- data.table(labkey.selectRows(baseUrl = config$labkey.url.base,config$labkey.url.path,schemaName = "study", queryName = x, viewName = viewName, colNameOpt = "fieldname", ...))
-                  setnames(data_cache[[x]],.munge(colnames(data_cache[[x]])))
-                  data_cache[[x]]
+                  data_cache[[hash_key]] <<- data.table(labkey.selectRows(baseUrl = config$labkey.url.base,config$labkey.url.path,schemaName = "study", queryName = x, viewName = viewName, colNameOpt = "fieldname", ...))
+                  setnames(data_cache[[hash_key]],.munge(colnames(data_cache[[hash_key]])))
+                  data_cache[[hash_key]]
                 }
               }
             },
