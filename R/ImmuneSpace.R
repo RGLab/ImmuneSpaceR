@@ -498,9 +498,14 @@ setRefClass(Class = "ImmuneSpaceConnection",
             }
             if(type == "heatmap"){
               p <- .qpHeatmap(dt, normalize_to_baseline, legend, text_size)
-            } else if(type == "boxplot"){
+            } else if(type %in% c("boxplot","violin")){
+              if(type == "violin"){
+                geom_type <- geom_violin() #+ stat_summary(fun.y="median", geom="point")
+              } else{
+                geom_type <- geom_boxplot(outlier.size = 0)
+              }
               p <- ggplot(data = dt, aes(as.factor(study_time_collected), response)) +
-                geom_boxplot(outlier.size = 0) +
+                geom_type +
                 xlab("Time") + ylab(ylab) + facet +
                 theme(text = element_text(size = text_size),
                       axis.text.x = element_text(angle = 45))
@@ -512,7 +517,7 @@ setRefClass(Class = "ImmuneSpaceConnection",
               print(p)
             } else if(type == "line"){
               p <- ggplot(data = dt, aes(study_time_collected, response, group = subject_accession)) +
-                geom_line(aes_string(...)) + 
+                geom_line(size = 1, aes_string(...)) + 
                 xlab("Time") + ylab(ylab) + facet +
                 theme(text = element_text(size = text_size),
                       axis.text.x = element_text(angle = 45))
