@@ -89,6 +89,7 @@
     
     dsList <- lapply(connections, function(con){
                   ds <- con$getDataset(x = x, ...)
+                  ds <- data.table::copy(ds)#making copy to avoid changing the original connection since both con and ds are references
                   if(!is.null(ds))
                     ds[, study:= con$study]
                   ds
