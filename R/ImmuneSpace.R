@@ -7,7 +7,7 @@
 #'@name ImmuneSpaceR-package
 #'@aliases ImmuneSpaceR
 #'@author Greg Finak
-#'@import data.table Rlabkey methods Biobase gtools
+#'@import data.table Rlabkey methods Biobase
 NULL
 
 .CreateConnection = function(study = NULL
@@ -69,6 +69,10 @@ NULL
     .quick_plot(.self, ...)
   }
 )
+
+# @importFrom ggthemr ggthemr
+# @import ggthemr Currently we have to depend on ggthemr because it depends on ggplot2
+#' @importFrom ggplot2 facet_grid facet_wrap
   .quick_plot <- function(con, dataset, normalize_to_baseline = TRUE,
                         type = "auto", filter = NULL,
                         facet = "grid", text_size = 15,
@@ -167,6 +171,7 @@ NULL
 
 
 
+# @importFrom gtools mixedsort
 .ISCon$methods(
   # There is something odd with Rlabkey::labkey.getFolders (permissions set to 0)
   .checkStudy = function(verbose = FALSE){
@@ -224,10 +229,6 @@ NULL
       stop("Invalid gene expression matrix name");
     }
     annotation_set_id<-.self$.getFeatureId(matrix_name)
-    #.lksession <- list()
-    #.lksession[["curlOptions"]] <- config$curlOptions
-    #.lksession[["curlOptions"]]$httpauth <- 1L
-    #print(.lksession[["curlOptions"]])
     if(is.null(data_cache[[.self$.mungeFeatureId(annotation_set_id)]])){
       if(!summary){
         message("Downloading Features..")
@@ -253,6 +254,7 @@ NULL
   }
 )
 
+#' @importFrom RCurl getCurlHandle curlPerform basicTextGatherer
 .ISCon$methods(
   downloadMatrix=function(x, summary = FALSE){
     if(is.null(data_cache[[x]])){
@@ -385,6 +387,7 @@ NULL
   }
 )
 
+#' @importFrom pheatmap pheatmap
 .qpHeatmap = function(dt, normalize_to_baseline, legend, text_size){
   contrast <- "study_time_collected"
   annoCols <- c("name", "subject_accession", contrast, "Gender", "Age", "Race")
@@ -454,6 +457,9 @@ NULL
   return(p)
 }
 
+
+#' @importFrom ggplot2 ggplot geom_violin geom_boxplot geom_jitter
+#' @importFrom ggplot2 theme element_text aes_string aes xlab ylab
 .qpBoxplotViolin <- function(dt, type, facet, ylab, text_size, extras, ...){
   if(type == "violin"){
     geom_type <- geom_violin() #+ stat_summary(fun.y="median", geom="point")
@@ -471,6 +477,8 @@ NULL
   print(p)
 }
 
+#' @importFrom ggplot2 ggplot geom_line geom_point
+#' @importFrom ggplot2 theme element_text aes_string aes xlab ylab
 .qpLineplot <- function(dt, facet, ylab, text_size, extras, ...){
   p <- ggplot(data = dt, aes(study_time_collected, response, group = subject_accession)) +
   geom_line(size = 1, aes_string(...)) +                                            

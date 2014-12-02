@@ -7,4 +7,4 @@ labkey.email.user="wjiang2@fhcrc.org"
 
 # internal unit tests
 #expectRes <<- readRDS("~/rglab/workspace/ImmuneSpaceR/misc/expectRes.rds")
-#test_file("~/rglab/workspace/ImmuneSpaceR/inst/tests/test-IScon.R")
+#test_file("../inst/tests/test-IScon.R")

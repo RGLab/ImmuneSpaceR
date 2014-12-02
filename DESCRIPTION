@@ -12,16 +12,14 @@ License: GPL-2
 Suggests:
     knitr
 Depends:
+    ggthemr
+Imports:
     methods,
     data.table,
+    RCurl,
     Rlabkey,
-    ggplot2,
     Biobase,
-    gtools,
-    gplots,
-    reshape2,
-    grid,
-    RColorBrewer,
     pheatmap,
-    ggthemr,
+    ggplot2,
+    gplots,
     plyr
