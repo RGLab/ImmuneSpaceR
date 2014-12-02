@@ -33,7 +33,7 @@ test_that("getDataset",{
 test_that("getGEMatrix",{
       thisRes <- multiSdy$getGEMatrix(c("TIV_2007", "Saline_group1", "LAIV_2008"), summary = TRUE)
       name <- "getGE_multi"
-      expect_equal(expectRes[[name]], thisRes)
+      expect_equivalent(expectRes[[name]], thisRes)
             
     })
 

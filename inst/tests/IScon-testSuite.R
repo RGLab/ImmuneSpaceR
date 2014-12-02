@@ -53,10 +53,10 @@ test_that("getGEMatrix",{
     if(isSubset)#result of multi-study version is a subset of original
     {
       name <- "getGE_269_subset"
-      expect_equal(expectRes[[name]], thisRes)
+      expect_equivalent(expectRes[[name]], thisRes)
     }else{
       name <- "getGE_269"
-      expect_equal(expectRes[[name]], thisRes)
+      expect_equivalent(expectRes[[name]], thisRes)
     }
      
     })
