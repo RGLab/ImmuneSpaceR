@@ -1,72 +1,106 @@
+#'@title CreateConnection
+#'@name CreateConnection
+#'@param study \code{"character"} vector naming the study.
+#' @param verbose \code{"logical"} wehther to print the extra details for troubleshooting. 
+#'@description Constructor for \code{ImmuneSpaceConnection} class
+#'@details Instantiates and \code{ImmuneSpaceConnection} for \code{study}
+#'The constructor will try to take the values of the various `labkey.*` parameters from the global environment.
+#'If they don't exist, it will use default values. These are assigned to `options`, which are then used by the \code{ImmuneSpaceConnection} class.
+#'@export CreateConnection
+#'@return an instance of an \code{ImmuneSpaceConnection} or \code{ImmuneSpaceConnectionList}
+CreateConnection = function(study = NULL, verbose = FALSE){
+  # try to parse labkey options from global environment 
+  # which really should have been done through option()/getOption() mechanism
+  # Here we do this to be compatible to labkey online report system 
+  # that automatically assigns these variables in global environment
+  labkey.url.base<-try(get("labkey.url.base",.GlobalEnv),silent=TRUE)
+  if(inherits(labkey.url.base,"try-error"))
+    labkey.url.base<-"https://www.immunespace.org"
+  labkey.url.base<-gsub("http:","https:",labkey.url.base)
+  if(length(grep("^https://", labkey.url.base)) == 0)
+    labkey.url.base <- paste0("https://", labkey.url.base)
+  labkey.user.email<-try(get("labkey.user.email",.GlobalEnv),silent=TRUE)
+  if(inherits(labkey.user.email,"try-error"))
+    labkey.user.email="unknown_user at not_a_domain.com"
+  
+  # set options to avoid the dealing with .GlobalEnv
+  
+  
+  
+  
+  # set curoption for Rlabkey package
+  #
+  # Rlabkey stores the Curl options in its package environment through labkey.setCurlOptions call.
+  # So in theory we need to reset it prior to each Rlabkey query 
+  # because  multiple connections created by user indiviudally (not as ImmuneSystemConnectionList)
+  # may have different different urls and ssl settings. 
+  # (Ideally labkey.selectRows should optionally parse the options from its argument besides package environment)
+  # 
+  # for now we assume they all share the same setting and init it only once here
+  if(gsub("https://", "", labkey.url.base) == "www.immunespace.org"){ 
+    curlOptions <- labkey.setCurlOptions(ssl.verifyhost = 2, ssl.cipher.list="ALL")
+  } else{
+    curlOptions <- labkey.setCurlOptions(ssl.verifyhost = 2, sslversion=1)
+  }
+  
+  if(length(study) <= 1)
+    .CreateConnection(study = study
+                      , labkey.url.base=labkey.url.base
+                      , labkey.user.email=labkey.user.email
+                      , verbose = verbose
+                      , curlOptions = curlOptions
+                      )
+  else
+  {
+    conList <- sapply(study
+                      , .CreateConnection
+                      , labkey.url.base=labkey.url.base
+                      , labkey.user.email=labkey.user.email
+                      , verbose = verbose
+                      , curlOptions = curlOptions
+                      )
+    
+    .ISConList(connections = conList)
+  }
+    
+  
+}
+#' Load an ImmuneSpaceConnection/ImmuneSpaceConnectionList object from disk
+#' 
+#' @rdname loadConnection
+#' 
+#' @param file the file name to be saved to or loaded from
+#' @return ImmuneSpaceConnection or ImmuneSpaceConnectionList object
+#'@export
+loadConnection <- function(file){
+  con <- readRDS(file = file)
+  conType <- class(con)
+  if(conType == 'ImmuneSpaceConnection') 
+    labkey.url.base <- con$config$labkey.url.base
+  else if(conType == 'ImmuneSpaceConnectionList')
+    labkey.url.base <- con$connections[[1]]$config$labkey.url.base
+  else
+    stop("invalid ImmuneSpaceConnection object!")
+  
+  #init labkey.setCurlOptions
+  if(gsub("https://", "", labkey.url.base) == "www.immunespace.org"){
+    labkey.setCurlOptions(ssl.verifyhost = 2, ssl.cipher.list="ALL")
+  } else{
+    labkey.setCurlOptions(ssl.verifyhost = 2, sslversion=1)
+  }
+  con
+}
+
+#' Save an ImmuneSpaceConnection/ImmuneSpaceConnectionList object to disk
+#' 
+#' @rdname loadConnection
+#' @export
+saveConnection <- function(con, file){
+  saveRDS(con, file = file)
+}
+
 #' @importFrom gplots colorpanel
 #' @export
 ISpalette <- function(n){
   colorpanel(n, low = "#268bd2", mid = "#fdf6e3", high = "#dc322f")
 }
-###' Quick plot of a data set from a study
-###' 
-###' Generates a quick plot of a data set automatically. Based on ggplot2's qplot.
-###' @param dt \code{data.table} the data to be plotted.
-###' @param normalize_to_baseline \code{logical} defaults to \code{TRUE}.
-###' @param type \code{character} one of \code{c("auto","heatmap","boxplot","line")}. Heatmap chosen automatically if there are more than 5 analytes.
-###' @param ... additional arguments passed to qplot.
-###' @importFrom ggplot2 qplot
-###' @return \code{ggplot2} structure.
-###' @usage quick_plot(dt, normalize_to_baseline = TRUE, type="auto", ...)
-###' @export
-###' @examples
-###' \dontrun{ 
-###' study <- CreateConnection("SDY269")
-###' dt <- study$getDataset("elisa_mbaa")
-###' quick_plot(dt, normalize_to_baseline = F, type="auto")
-###' quick_plot(dt, normalize_to_baseline = F, type="boxplot")
-###' }
-##quick_plot <- function(dt, normalize_to_baseline=TRUE, type="auto", ...){
-##  ## Add =/= behaviour when all study_time_collected = 0
-##  # Add a dummy analyte for consistency
-##  if(length(grep("analyte",colnames(dt)))==0)
-##    dt <- dt[,analyte:=""]
-##
-##  # What data? Guessing data type based on name
-##  dt_name <- deparse(substitute(dt))
-##
-##  # Different datasets might need different treatments
-##  if(tolower(dt_name) == "elispot"){
-##    dt <- dt[,value_reported:=spot_number_reported/cell_number_reported]
-##  }
-##
-##  # Check that we have arm name (this is a temporary fix)
-##  if(all(colnames(dt)!="arm_name")){
-##    dt <- dt[,arm_name:=name]
-##  }
-##  
-##  # Compute summaries over all repeated measures (e.g. multiple virus strains)
-##  dt_unique <- dt[,list(response=mean(log2(value_reported), na.rm=TRUE)), by="arm_name,subject_accession,analyte,study_time_collected"]
-##  
-##  if(type=="auto" & length(unique(dt_unique$analyte))>5)
-##    type <- "heatmap"
-##  else if(type=="auto")
-##    type <- "boxplot"
-##  
-##  # Compute fold changes
-##  if(normalize_to_baseline==TRUE)
-##  {
-##    # Remove the time zero response
-##    dt_unique <- dt_unique[,response:=response-response[study_time_collected==0],by="arm_name,subject_accession,analyte"][study_time_collected!=0]
-##  }
-##  
-##  if(type=="boxplot")
-##  {
-##    p <- qplot(as.factor(study_time_collected), response, data=dt_unique, facets=analyte~arm_name,geom=c("boxplot","jitter"), ..., xlab = "time", ylab="response (log2)")
-##  }
-##  else if(type=="line")
-##  {
-##    p <- qplot(as.factor(study_time_collected), response, data=dt_unique, facets=analyte~arm_name,geom=c("line","point"), ..., xlab = "time", ylab="response (log2)", group=subject_accession)  
-##  }
-##  else if(type=="heatmap")
-##  {
-##    p <- qplot(as.factor(study_time_collected), analyte, data=dt_unique, facets=~arm_name, geom=c("raster"), ..., xlab = "time", fill=response) + scale_fill_gradient2(high = "#a50026", mid="#ffffbf", low="#313695")
-##  }
-##  p
-##}
-##
