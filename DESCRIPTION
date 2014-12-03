@@ -22,4 +22,5 @@ Imports:
     pheatmap,
     ggplot2,
     gplots,
+    reshape2,
     plyr

@@ -38,7 +38,7 @@ CreateConnection = function(study = NULL, verbose = FALSE){
   # 
   # for now we assume they all share the same setting and init it only once here
   if(gsub("https://", "", labkey.url.base) == "www.immunespace.org"){ 
-    curlOptions <- labkey.setCurlOptions(ssl.verifyhost = 2, ssl.cipher.list="ALL")
+    curlOptions <- labkey.setCurlOptions(ssl.verifyhost = 2, ssl.cipher.list="ALL") #only for gedney. Remove ater roll-out
   } else{
     curlOptions <- labkey.setCurlOptions(ssl.verifyhost = 2, sslversion=1)
   }

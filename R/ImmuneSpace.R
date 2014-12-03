@@ -388,6 +388,7 @@ NULL
 )
 
 #' @importFrom pheatmap pheatmap
+#' @importFrom reshape2 acast
 .qpHeatmap = function(dt, normalize_to_baseline, legend, text_size){
   contrast <- "study_time_collected"
   annoCols <- c("name", "subject_accession", contrast, "Gender", "Age", "Race")
