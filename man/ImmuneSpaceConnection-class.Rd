@@ -20,11 +20,6 @@ The ImmunespaceConnection will initialize itself, and look for a \code{.netrc} f
 The \code{.netrc} file should contain a \code{machine}, \code{login}, and \code{password} entry to allow access to ImmuneSpace,
 where \code{machine} is the host name like "www.immunespace.org".
 }
-\section{Methods}{
-
-\describe{
-\item{\code{getGEAnalysis(analysis_accession)}}{Get gene expression analysis resluts from a connection}
-}}
 \examples{
 labkey.url.base <- "https://www.immunespace.org"
 labkey.url.path <- "/Studies/SDY269"

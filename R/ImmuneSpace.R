@@ -581,25 +581,39 @@ NULL
 #'sdy269$listGEAnalysis()
 .ISCon$methods(
     listGEAnalysis = function(){
-      GEA <- labkey.selectRows(config$labkey.url.base, config$labkey.url.path,
-          "gene_expression", "gene_expression_analysis",
-          colNameOpt = "rname")
-      GEA
+      GEA <- data.table(labkey.selectRows(config$labkey.url.base,
+                                          config$labkey.url.path,
+                                          "gene_expression",
+                                          "gene_expression_analysis",
+                                          colNameOpt = "rname"))
+      return(GEA)
     })
 
+#' Get gene expression analysis
+#' 
+#' Download the result of a Gene epxression analysis experiment from the
+#' gene_expression schema.
+#' 
+#' @param analysis_accession A \code{character}. The name of a Gene expression
+#'  analysis accession number.
+#'  
+#' @return A \code{data.table} containing the requested gene expression analysis
+#'  results.
+#' 
+#' @import data.table
+#' @aliases getGEAnalysis
+#' @name ImmuneSpaceConnection_getGEAnalysis
 .ISCon$methods(
   getGEAnalysis = function(analysis_accession){
-    "Get gene expression analysis resluts from a connection"
     if(missing(analysis_accession)){
-      stop("Missing analysis_accession argument.
-              Use listGEAnalysis to get a list of available
-              analysis_accession numbers")
+      stop("Missing analysis_accession argument. Use listGEAnalysis to get a
+            list of available analysis_accession numbers")
     }
     AA_filter <- makeFilter(c("analysis_accession", "IN", analysis_accession))
-    GEAR <- labkey.selectRows(config$labkey.url.base, config$labkey.url.path,
+    GEAR <- data.table(labkey.selectRows(config$labkey.url.base, config$labkey.url.path,
         "gene_expression", "gene_expression_analysis_results",
-        colFilter = AA_filter)
-    colnames(GEAR) <- .self$.munge(colnames(GEAR))
+        colFilter = AA_filter, colNameOpt = "rname"))
+    #colnames(GEAR) <- .self$.munge(colnames(GEAR))
     return(GEAR)
   }
 )
