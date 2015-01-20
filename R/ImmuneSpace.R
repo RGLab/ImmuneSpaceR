@@ -305,17 +305,22 @@ NULL
     #features
     features<-data_cache[[.self$.mungeFeatureId(.self$.getFeatureId(matrix_name))]][,c("FeatureId","GeneSymbol")]
     #inputs
-    pheno<-unique(subset(data_cache[[constants$matrix_inputs]],biosample_accession%in%colnames(matrix))[,c("biosample_accession","subject_accession","arm_name","study_time_collected")])
+    pheno<-unique(subset(data_cache[[constants$matrix_inputs]],biosample_accession%in%colnames(matrix))[,c("biosample_accession","subject_accession","arm_name","study_time_collected", "study_time_collected_unit")])
     
     if(summary){
       fdata <- data.frame(FeatureId = matrix$gene_symbol, gene_symbol = matrix$gene_symbol, row.names = matrix$gene_symbol)
       fdata <- AnnotatedDataFrame(fdata)
     } else{
       try(setnames(matrix," ","FeatureId"),silent=TRUE)
-      setkey(matrix,FeatureId)
-      rownames(features)<-features$FeatureId
-      features<-features[matrix$FeatureId,]#order feature info
-      fdata <- AnnotatedDataFrame(features)
+      fdata <- data.table(FeatureId = matrix$FeatureId)
+      fdata <- merge(fdata, features, by = "FeatureId", all.x = TRUE)
+      fdata <- as.data.frame(fdata)
+      rownames(fdata) <- fdata$FeatureId
+      fdata <- AnnotatedDataFrame(fdata)
+      #setkey(matrix,FeatureId)
+      #rownames(features)<-features$FeatureId
+      #features<-features[matrix$FeatureId,]#order feature info
+      #fdata <- AnnotatedDataFrame(features)
     }
     rownames(pheno)<-pheno$biosample_accession
     pheno<-pheno[colnames(matrix)[-1L],]

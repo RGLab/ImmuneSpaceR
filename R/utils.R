@@ -46,8 +46,7 @@ CreateConnection = function(study = NULL, verbose = FALSE){
                       , verbose = verbose
                       , curlOptions = curlOptions
                       )
-  else
-  {
+  else{
     conList <- sapply(study
                       , .CreateConnection
                       , labkey.url.base=labkey.url.base
