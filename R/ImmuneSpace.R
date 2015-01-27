@@ -343,15 +343,23 @@ NULL
 #'sdy269$getGEMatrix("TIV_2008")
 .ISCon$methods(
   getGEMatrix=function(x, summary = FALSE, reload=FALSE){
-    if(x%in%names(data_cache)&&!reload){
-      data_cache[[x]]
-    }else{
-      
-      data_cache[[x]] <<- NULL #clear cache for reloading
-      downloadMatrix(x, summary)
-      GeneExpressionFeatures(x,summary)
-      ConstructExpressionSet(x, summary)
-      data_cache[[x]]
+    if(length(x) > 1){
+      data_cache[x] <<- NULL
+      lapply(x, downloadMatrix, summary)
+      lapply(x, GeneExpressionFeatures,summary)
+      lapply(x, ConstructExpressionSet, summary)
+      return(Reduce(f=combine, data_cache[x]))
+    } else{
+      if (x %in% names(data_cache) && !reload) {
+        data_cache[[x]]
+      }
+      else {
+        data_cache[[x]] <<- NULL
+        downloadMatrix(x, summary)
+        GeneExpressionFeatures(x, summary)
+        ConstructExpressionSet(x, summary)
+        data_cache[[x]]
+      }
     }
   }
 )
