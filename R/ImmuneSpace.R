@@ -1,8 +1,10 @@
 #'@docType package
 #'@title A Thin Wrapper Around ImmuneSpace.
-#'@description ImmuneSpaceR provides a convenient API for accessing data sets within the ImmuneSpace database.
+#'@description ImmuneSpaceR provides a convenient API for accessing data sets
+#'within the ImmuneSpace database.
 #'
-#'@details Uses the Rlabkey package to connect to ImmuneSpace. Implements caching, and convenient methods for accessing data sets.
+#'@details Uses the Rlabkey package to connect to ImmuneSpace. Implements
+#'caching, and convenient methods for accessing data sets.
 #'
 #'@name ImmuneSpaceR-package
 #'@aliases ImmuneSpaceR
@@ -622,7 +624,7 @@ NULL
       stop("Missing analysis_accession argument. Use listGEAnalysis to get a
             list of available analysis_accession numbers")
     }
-    AA_filter <- makeFilter(c("analysis_accession", "IN", analysis_accession))
+    AA_filter <- makeFilter(c("analysis_accession", "IN", paste(analysis_accession, collapse=";")))
     GEAR <- data.table(labkey.selectRows(config$labkey.url.base, config$labkey.url.path,
         "gene_expression", "gene_expression_analysis_results",
         colFilter = AA_filter, colNameOpt = "rname"))
@@ -630,6 +632,31 @@ NULL
     return(GEAR)
   }
 )
+
+#' Get HAI response at peak immunogenicity
+#' 
+#' Peak immunogenicity is defined as the timepoint with the maximum average fold
+#' change to baseline. It is calculated per cohort.
+#' 
+#' @return A \code{data.table} with columns subject_accession, response and arm name
+#' 
+#' @aliases getHAIResponse
+#' @name ImmuneSpaceConnection_getHAIResponse
+.ISCon$methods(
+  getHAIResponse = function(reload){
+    hai <- .self$getDataset("hai", reload = TRUE)
+    hai <- hai[, list(name, study_time_collected, study_time_collected_unit,
+                        response = value_reported/mean(value_reported[study_time_collected<=0])),
+                 by = "virus_strain,subject_accession"]
+    hai <- hai[, mr := mean(response), by="study_time_collected"]
+    hai <- hai[, ma := max(mr), by = "name"]
+    peak <- unique(hai[mr ==ma, list(study_time_collected, name)])
+    hai <- merge(hai, peak, by=c("study_time_collected", "name"))
+    hai <- hai[, list(response=log2(max(response)), name), by="subject_accession"]   
+    return(hai)    
+  }
+)
+
 .ISCon$methods(
   clear_cache = function(){
     data_cache[grep("^GE", names(data_cache), invert = TRUE)] <<- NULL
