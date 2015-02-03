@@ -71,7 +71,7 @@ The package uses a simple S5 reference class to represent the connection to a st
 The `quick_plot` function uses ggplot2's qplot function to generate quick plots of data sets, leveraging the standardized data set tables. 
 
 ```R
-quick_plot(study$getDataset("hai"))
+study$quick_plot("hai")
 ```
 
 
