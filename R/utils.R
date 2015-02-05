@@ -90,6 +90,15 @@ saveConnection <- function(con, file){
   saveRDS(con, file = file)
 }
 
+#' ImmuneSpace palette
+#' 
+#' Create a color gradient of the selected length that matches the ImmuneSpace
+#' theme.
+#' 
+#' @param n A \code{numeric}. The length of the desired palette.
+#' @return A \code{character} vector colors in hexadecimal code of length
+#'  \code{n}.
+#' 
 #' @importFrom gplots colorpanel
 #' @export
 ISpalette <- function(n){

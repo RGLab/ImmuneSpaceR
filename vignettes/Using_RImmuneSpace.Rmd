@@ -77,6 +77,12 @@ sdy269$getGEMatrix("LAIV_2008")
 
 The object contacts the DB and downloads the matrix file. This is stored and cached locally as a `data.table`. The next time you access it, it will be much faster since it won't need to contact the database again.
 
+It is also possible to call this function using multiple matrix names. In this
+case, all the matrices are downloaded and combined into a single `ExpressionSet`.
+```{r}
+sdy269$getGEMatrix(c("TIV_2008", "LAIV_2008"))
+```
+
 ## Errors
 If you try to grab a dataset that doesn't exist, the object should tell you by giving you an error.
 
@@ -90,17 +96,17 @@ If you encounter unusual errors or behaviour, get in touch with the package main
 ## Quick plots
 A quick plot of a data set can be generated using the `quick_plot` function.
 
-`quick_plot` automatically chooses the type of plot. 
+`quick_plot` automatically chooses the type of plot depending on the selected 
+dataset.
 
-#### heatmaps   
 ```{r}
-quick_plot(sdy269$getDataset("elisa_mbaa"))
+sdy269$quick_plot("elisa_mbaa")
+ 
+sdy269$quick_plot("hai")
 ```
 
-#### boxplots   
-```{r}
-quick_plot(sdy269$getDataset("hai"))
-```
+However, the `type` argument can be used to select from "boxplot", "heatmap",
+"violin" and "line".
 
 ## Future Enhancements
 

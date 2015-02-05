@@ -10,7 +10,8 @@ Description: Provides a convenient API for accessing data sets within studies
     in the ImmuneSpace database
 License: GPL-2
 Suggests:
-    knitr
+    knitr,
+    testthat
 Depends:
     ggthemr
 Imports:

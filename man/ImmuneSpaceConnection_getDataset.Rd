@@ -7,9 +7,12 @@
 \arguments{
 \item{x}{A \code{character}. The name of the dataset}
 
-\item{original_view}{A \code{logical}. If set to TRUE, download the ImmPort view. Else,
-download the default grid view. Note: Once data is cached, changing value of this argument won't have effect on the subsequent calls
+\item{original_view}{A \code{logical}. If set to TRUE, download the ImmPort
+view. Else, download the default grid view. Note: Once data is cached,
+changing value of this argument won't have effect on the subsequent calls
 unless \code{reload} is set to 'TRUE'.}
+
+\item{...}{Arguments to be passed to the underlying \code{labkey.selectRows}.}
 
 \item{reload}{A \code{logical}. Clear the cache. If set to TRUE, download the
 dataset, whether a cached version exist or not.}
@@ -21,7 +24,9 @@ a \code{data.table}
 get a dataset
 }
 \details{
-Returns the dataset named 'x', downloads it if it is not already cached.
+Returns the dataset named 'x', downloads it if it is not already cached. Note
+that if additional arguments (...) are passed, the dataset will not be
+reloaded.
 }
 \examples{
 labkey.url.base="https://www.immunespace.org"

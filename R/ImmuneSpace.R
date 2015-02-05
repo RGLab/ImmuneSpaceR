@@ -88,7 +88,7 @@ NULL
     extras <- list(...)
     
     e <- try({
-      dt <- con$getDataset(dataset, reload = TRUE, colFilter = filter)
+      dt <- con$getDataset(dataset, colFilter = filter)
       setnames(dt, c("gender", "age_reported", "race"), addPar)
       if(!"analyte" %in% colnames(dt)){
         if("analyte_name" %in% colnames(dt)){
@@ -227,7 +227,9 @@ NULL
 
 .ISCon$methods(
   GeneExpressionFeatures=function(matrix_name,summary=FALSE){
-    if(!any((data_cache[[constants$matrices]][,"name"]%in%matrix_name))){
+    cache_name <- paste0(matrix_name, ifelse(summary, "_sum", ""))
+#     if(!any((data_cache[[constants$matrices]][,"name"] %in% cache_name))){
+    if(!matrix_name %in% data_cache[[constants$matrices]][,"name"]){
       stop("Invalid gene expression matrix name");
     }
     annotation_set_id<-.self$.getFeatureId(matrix_name)
@@ -236,8 +238,10 @@ NULL
         message("Downloading Features..")
         featureAnnotationSetQuery=sprintf("SELECT * from FeatureAnnotation where FeatureAnnotationSetId='%s';",annotation_set_id);
         features<-labkey.executeSql(config$labkey.url.base,config$labkey.url.path,schemaName = "Microarray",sql = featureAnnotationSetQuery ,colNameOpt = "fieldname")
+        setnames(features, "GeneSymbol", "gene_symbol")
       }else{
-        features<-data.frame(FeatureId=data_cache[[matrix_name]][,gene_symbol],GeneSymbol=data_cache[[matrix_name]][,gene_symbol])
+        features<-data.frame(FeatureId=data_cache[[cache_name]][,gene_symbol],
+                             gene_symbol=data_cache[[cache_name]][,gene_symbol])
       }
       data_cache[[.self$.mungeFeatureId(annotation_set_id)]]<<-features
     }
@@ -259,22 +263,22 @@ NULL
 #' @importFrom RCurl getCurlHandle curlPerform basicTextGatherer
 .ISCon$methods(
   downloadMatrix=function(x, summary = FALSE){
-    if(is.null(data_cache[[x]])){
+    cache_name <- paste0(x, ifelse(summary, "_sum", ""))
+#     if(is.null(data_cache[[x]])){
+    if(is.null(data_cache[[cache_name]])){
       if(nrow(subset(data_cache[[constants$matrices]],name%in%x))==0){
         stop(sprintf("No matrix %s in study\n",x))
       }
       summary <- ifelse(summary, ".summary", "")
-      #link<-URLdecode(file.path(gsub("www.","",gsub("http:","https:",gsub("/$","",config$labkey.url.base))), paste0(gsub("^/","",subset(data_cache[[constants$matrices]],name%in%x)[,"downloadlink"]),summary)))
-      
-      #shouldn't be removing the www reported by labkey. Fix your netrc entry instead
-      link<-URLdecode(file.path(gsub("http:","https:",gsub("/$","",config$labkey.url.base)),
-              "_webdav", gsub("^/","",config$labkey.url.path), "@files/analysis/exprs_matrices",
+      link<-URLdecode(file.path(gsub("http:","https:", gsub("/$","",config$labkey.url.base)),
+                                "_webdav", gsub("^/","",config$labkey.url.path), "@files/analysis/exprs_matrices",
               paste0(x, ".tsv", summary)))
-      localpath<-.self$.localStudyPath(link)
+      localpath <- .self$.localStudyPath(link)
       if(.self$.isRunningLocally(localpath)){
         fl<-localpath
         message("Reading local matrix")
-        data_cache[[x]]<<-fread(fl,header=TRUE)
+#         data_cache[[x]]<<-fread(fl,header=TRUE)
+        data_cache[[cache_name]]<<-fread(fl,header=TRUE)
       }else{
         opts <- config$curlOptions
         opts$netrc <- 1L
@@ -289,23 +293,24 @@ NULL
         if(nrow(EM) == 0){
           stop("The downloaded matrix has 0 rows. Something went wrong")
         }
-        data_cache[[x]] <<-EM
+        data_cache[[cache_name]] <<-EM
         file.remove(fl)
       }
       
     }else{
-      data_cache[[x]]
+      data_cache[[cache_name]]
     }
   }
 )
 
 .ISCon$methods(
   ConstructExpressionSet=function(matrix_name, summary){
+    cache_name <- paste0(matrix_name, ifelse(summary, "_sum", ""))
     #matrix
     message("Constructing ExpressionSet")
-    matrix<-data_cache[[matrix_name]]
+    matrix<-data_cache[[cache_name]]
     #features
-    features<-data_cache[[.self$.mungeFeatureId(.self$.getFeatureId(matrix_name))]][,c("FeatureId","GeneSymbol")]
+    features<-data_cache[[.self$.mungeFeatureId(.self$.getFeatureId(matrix_name))]][,c("FeatureId","gene_symbol")]
     #inputs
     pheno<-unique(subset(data_cache[[constants$matrix_inputs]],biosample_accession%in%colnames(matrix))[,c("biosample_accession","subject_accession","arm_name","study_time_collected", "study_time_collected_unit")])
     
@@ -328,7 +333,7 @@ NULL
     pheno<-pheno[colnames(matrix)[-1L],]
     ad_pheno<-AnnotatedDataFrame(data=pheno)
     es<-ExpressionSet(assayData=as.matrix(matrix[,-1L,with=FALSE]),phenoData=ad_pheno,featureData=fdata)
-    data_cache[[matrix_name]]<<-es
+    data_cache[[cache_name]]<<-es
   }
 )
 #'@title get Gene Expression Matrix
@@ -345,22 +350,23 @@ NULL
 #'sdy269$getGEMatrix("TIV_2008")
 .ISCon$methods(
   getGEMatrix=function(x, summary = FALSE, reload=FALSE){
+    cache_name <- paste0(x, ifelse(summary, "_sum", ""))
     if(length(x) > 1){
-      data_cache[x] <<- NULL
+      data_cache[cache_name] <<- NULL
       lapply(x, downloadMatrix, summary)
       lapply(x, GeneExpressionFeatures,summary)
       lapply(x, ConstructExpressionSet, summary)
-      return(Reduce(f=combine, data_cache[x]))
+      return(Reduce(f=combine, data_cache[cache_name]))
     } else{
-      if (x %in% names(data_cache) && !reload) {
-        data_cache[[x]]
+      if (cache_name %in% names(data_cache) && !reload) {
+        data_cache[[cache_name]]
       }
       else {
-        data_cache[[x]] <<- NULL
+        data_cache[[cache_name]] <<- NULL
         downloadMatrix(x, summary)
         GeneExpressionFeatures(x, summary)
         ConstructExpressionSet(x, summary)
-        data_cache[[x]]
+        data_cache[[cache_name]]
       }
     }
   }
@@ -513,12 +519,17 @@ NULL
 #'@title get a dataset
 #'@aliases getDataset
 #'@param x A \code{character}. The name of the dataset
-#'@param original_view A \code{logical}. If set to TRUE, download the ImmPort view. Else,
-#'  download the default grid view. Note: Once data is cached, changing value of this argument won't have effect on the subsequent calls
-#'  unless \code{reload} is set to 'TRUE'.
+#'@param original_view A \code{logical}. If set to TRUE, download the ImmPort
+#' view. Else, download the default grid view. Note: Once data is cached,
+#' changing value of this argument won't have effect on the subsequent calls
+#' unless \code{reload} is set to 'TRUE'.
+#'@param ... Arguments to be passed to the underlying \code{labkey.selectRows}.
 #'@param reload A \code{logical}. Clear the cache. If set to TRUE, download the 
 #'  dataset, whether a cached version exist or not.
-#'@details Returns the dataset named 'x', downloads it if it is not already cached.
+#'@details
+#'Returns the dataset named 'x', downloads it if it is not already cached. Note
+#'that if additional arguments (...) are passed, the dataset will not be
+#'reloaded.
 #'@return a \code{data.table}
 #'@name ImmuneSpaceConnection_getDataset
 #'@examples
@@ -533,15 +544,16 @@ NULL
         warning(study, " has invalid data set: ",x)
         NULL
       }else{
-        if(!is.null(data_cache[[x]])&!reload){
-          data_cache[[x]]
+        cache_name <- paste0(x, ifelse(original_view, "_full", ""))
+        if((!is.null(data_cache[[cache_name]]) & !reload) | length(list(...)) > 0){
+          data_cache[[cache_name]]
         }else{
           viewName <- NULL
           if(original_view){
             viewName <- "full"
           }
           
-          data_cache[[x]] <<- data.table(labkey.selectRows(baseUrl = config$labkey.url.base
+          data_cache[[cache_name]] <<- data.table(labkey.selectRows(baseUrl = config$labkey.url.base
                                                            ,config$labkey.url.path
                                                            ,schemaName = "study"
                                                            , queryName = x
@@ -549,8 +561,9 @@ NULL
                                                            , colNameOpt = "fieldname"
                                                            , ...)
           )
-          setnames(data_cache[[x]],.self$.munge(colnames(data_cache[[x]])))
-          data_cache[[x]]
+          setnames(data_cache[[cache_name]],
+                   .self$.munge(colnames(data_cache[[cache_name]])))
+          data_cache[[cache_name]]
         }
       }
     })
