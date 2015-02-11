@@ -88,7 +88,7 @@ NULL
     extras <- list(...)
     
     e <- try({
-      dt <- con$getDataset(dataset, colFilter = filter)
+      dt <- con$getDataset(dataset, colFilter = filter, reload = TRUE)
       setnames(dt, c("gender", "age_reported", "race"), addPar)
       if(!"analyte" %in% colnames(dt)){
         if("analyte_name" %in% colnames(dt)){
@@ -575,7 +575,7 @@ NULL
         NULL
       }else{
         cache_name <- paste0(x, ifelse(original_view, "_full", ""))
-        if((!is.null(data_cache[[cache_name]]) & !reload) | length(list(...)) > 0){
+        if(!is.null(data_cache[[cache_name]]) & !reload & length(list(...)) == 0){
           data_cache[[cache_name]]
         }else{
           viewName <- NULL
