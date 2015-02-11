@@ -218,7 +218,7 @@ NULL
     if(!is.null(data_cache[[constants$matrix_inputs]])){
       data_cache[[constants$matrix_inputs]]
     }else{
-      ge<-labkey.selectRows(baseUrl = config$labkey.url.base,config$labkey.url.path,schemaName = "assay.ExpressionMatrix.matrix",queryName = "InputSamples",colNameOpt = "fieldname",viewName = "gene_expression_matrices",showHidden=TRUE)
+      ge<-data.table(labkey.selectRows(baseUrl = config$labkey.url.base,config$labkey.url.path,schemaName = "assay.ExpressionMatrix.matrix",queryName = "InputSamples",colNameOpt = "fieldname",viewName = "gene_expression_matrices",showHidden=TRUE))
       setnames(ge,.self$.munge(colnames(ge)))
       data_cache[[constants$matrix_inputs]]<<-ge
     }
@@ -229,7 +229,7 @@ NULL
   GeneExpressionFeatures=function(matrix_name,summary=FALSE){
     cache_name <- paste0(matrix_name, ifelse(summary, "_sum", ""))
 #     if(!any((data_cache[[constants$matrices]][,"name"] %in% cache_name))){
-    if(!matrix_name %in% data_cache[[constants$matrices]][,"name"]){
+    if(!matrix_name %in% data_cache[[constants$matrices]][, name]){
       stop("Invalid gene expression matrix name");
     }
     annotation_set_id<-.self$.getFeatureId(matrix_name)
@@ -253,7 +253,14 @@ NULL
     if(!is.null(data_cache[[constants$matrices]])){
       data_cache[[constants$matrices]]
     }else{
-      ge<-labkey.selectRows(baseUrl = config$labkey.url.base,config$labkey.url.path,schemaName = "assay.ExpressionMatrix.matrix",queryName = "Runs",colNameOpt = "fieldname",showHidden = TRUE, viewName = "expression_matrices")
+      ge<-data.table(
+        labkey.selectRows(baseUrl = config$labkey.url.base,
+                          config$labkey.url.path,
+                          schemaName = "assay.ExpressionMatrix.matrix",
+                          queryName = "Runs",
+                          colNameOpt = "fieldname",
+                          showHidden = TRUE,
+                          viewName = "expression_matrices"))
       setnames(ge,.self$.munge(colnames(ge)))
       data_cache[[constants$matrices]]<<-ge
     }
@@ -312,7 +319,18 @@ NULL
     #features
     features<-data_cache[[.self$.mungeFeatureId(.self$.getFeatureId(matrix_name))]][,c("FeatureId","gene_symbol")]
     #inputs
-    pheno<-unique(subset(data_cache[[constants$matrix_inputs]],biosample_accession%in%colnames(matrix))[,c("biosample_accession","subject_accession","arm_name","study_time_collected", "study_time_collected_unit")])
+    #pheno<-unique(data_cache[[constants$matrix_inputs]][biosample_accession %in% colnames(matrix)][, c("biosample_accession","subject_accession","arm_name","study_time_collected", "study_time_collected_unit")])
+    pheno_filter <- makeFilter(c("Run/DataOutputs/Name", "EQUAL", paste0(matrix_name, ".tsv")),
+                               c("Biosample/biosample_accession", "IN", paste(colnames(matrix), collapse = ";")))
+    pheno <- unique(data.table(labkey.selectRows(
+      config$labkey.url.base, config$labkey.url.path,
+      "assay.ExpressionMatrix.matrix", "InputSamples", "gene_expression_matrices",
+      colNameOpt = "rname", colFilter = pheno_filter)))
+    setnames(pheno, colnames(pheno), gsub("^biosample_", "", .self$.munge(colnames(pheno))))
+    pheno <- pheno[, list(biosample_accession, subject_accession, arm_name,
+                          study_time_collected, study_time_collected_unit)]
+    #colnames(pheno) <- gsub("^biosample_", "", .self$.munge(colnames(pheno)))
+    
     
     if(summary){
       fdata <- data.frame(FeatureId = matrix$gene_symbol, gene_symbol = matrix$gene_symbol, row.names = matrix$gene_symbol)
@@ -329,13 +347,15 @@ NULL
       #features<-features[matrix$FeatureId,]#order feature info
       #fdata <- AnnotatedDataFrame(features)
     }
-    rownames(pheno)<-pheno$biosample_accession
+    pheno <- data.frame(pheno)
+    rownames(pheno) <- pheno$biosample_accession
     pheno<-pheno[colnames(matrix)[-1L],]
     ad_pheno<-AnnotatedDataFrame(data=pheno)
     es<-ExpressionSet(assayData=as.matrix(matrix[,-1L,with=FALSE]),phenoData=ad_pheno,featureData=fdata)
     data_cache[[cache_name]]<<-es
   }
 )
+
 #'@title get Gene Expression Matrix
 #'@aliases getGEMatrix
 #'@param x \code{"character"} name of the Gene Expression Matrix
@@ -349,7 +369,17 @@ NULL
 #'sdy269<-CreateConnection("SDY269")
 #'sdy269$getGEMatrix("TIV_2008")
 .ISCon$methods(
-  getGEMatrix=function(x, summary = FALSE, reload=FALSE){
+  getGEMatrix=function(x = NULL, cohort = NULL, summary = FALSE, reload=FALSE){
+    cohort_name <- cohort #can't use cohort = cohort in d.t
+    if(!is.null(cohort_name)){
+      if(all(cohort_name %in% data_cache$GE_matrices$cohort)){
+        x <- data_cache$GE_matrices[cohort == cohort_name, name]
+      } else{
+        validCohorts <- data_cache$GE_matrices[, cohort]
+        stop(paste("No expression matrix for the given cohort.",
+                   "Valid cohorts:", paste(validCohorts, collapse = ", ")))
+      }
+    }
     cache_name <- paste0(x, ifelse(summary, "_sum", ""))
     if(length(x) > 1){
       data_cache[cache_name] <<- NULL
@@ -373,7 +403,7 @@ NULL
 )
 .ISCon$methods(
   .getFeatureId=function(matrix_name){
-    subset(data_cache[[constants$matrices]],name%in%matrix_name)[,"featureset"]
+    subset(data_cache[[constants$matrices]],name%in%matrix_name)[, featureset]
   }
 )
 .ISCon$methods(
@@ -590,7 +620,7 @@ NULL
       if(!is.null(data_cache[[constants$matrices]])){
         cat("Expression Matrices\n")
         for(i in 1:nrow(data_cache[[constants$matrices]])){
-          cat(sprintf("\t%s\n",data_cache[[constants$matrices]][i,"name"]))
+          cat(sprintf("\t%s\n",data_cache[[constants$matrices]][i, name]))
         }
       }
     })
@@ -687,7 +717,7 @@ NULL
       if(!is.null(data_cache[[constants$matrices]])){
         cat("Expression Matrices\n")
         for(i in 1:nrow(data_cache[[constants$matrices]])){
-          cat(sprintf("\t%s\n",data_cache[[constants$matrices]][i,"name"]))
+          cat(sprintf("\t%s\n",data_cache[[constants$matrices]][i, name]))
         }
       }
     }
@@ -712,7 +742,7 @@ NULL
     getAvailableDataSets()
     
     gematrices_success<-try(GeneExpressionMatrices(),silent=TRUE)
-    geinputs_success<-try(GeneExpressionInputs(),silent=TRUE)
+    #geinputs_success<-try(GeneExpressionInputs(),silent=TRUE)
     if(inherits(gematrices_success,"try-error")){
       message("No gene expression data")
     }
