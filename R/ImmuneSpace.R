@@ -88,7 +88,7 @@ NULL
     extras <- list(...)
     
     e <- try({
-      dt <- con$getDataset(dataset, colFilter = filter, reload = TRUE)
+      dt <- copy(con$getDataset(dataset, colFilter = filter, reload = TRUE))
       setnames(dt, c("gender", "age_reported", "race"), addPar)
       if(!"analyte" %in% colnames(dt)){
         if("analyte_name" %in% colnames(dt)){
@@ -126,6 +126,9 @@ NULL
           } else{
             dt <- dt[, value_reported := as.numeric(concentration_value)]
           }
+        } else if(dataset == "fcs_analyzed_result"){
+          dt <- dt[, value_reported := as.numeric(population_cell_number)]
+          dt <- dt[, analyte := population_name_reported]
         }
       dt <- dt[, response := ifelse(value_reported <0, 0, value_reported)]
       if(logT){
@@ -175,9 +178,7 @@ NULL
 
 # @importFrom gtools mixedsort
 .ISCon$methods(
-  # There is something odd with Rlabkey::labkey.getFolders (permissions set to 0)
-  .checkStudy = function(verbose = FALSE){
-    browser()
+  checkStudy=function(verbose = FALSE){
     if(length(available_datasets)==0){
       validStudies <- mixedsort(grep("^SDY", basename(lsFolders(getSession(config$labkey.url.base, "Studies"))), value = TRUE))
       req_study <- basename(config$labkey.url.path)
@@ -289,7 +290,7 @@ NULL
       }else{
         opts <- config$curlOptions
         opts$netrc <- 1L
-        opts$httpauth <- 1L
+        #opts$httpauth <- 1L
         handle<-getCurlHandle(.opts=opts)
         h<-basicTextGatherer()
         message("Downloading matrix..")
@@ -738,10 +739,9 @@ NULL
     study <<- basename(config$labkey.url.path)
     
     
-    
     getAvailableDataSets()
     
-    gematrices_success<-try(GeneExpressionMatrices(),silent=TRUE)
+    gematrices_success <- try(GeneExpressionMatrices(), silent=TRUE)
     #geinputs_success<-try(GeneExpressionInputs(),silent=TRUE)
     if(inherits(gematrices_success,"try-error")){
       message("No gene expression data")

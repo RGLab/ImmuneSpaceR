@@ -37,7 +37,7 @@ CreateConnection = function(study = NULL, verbose = FALSE){
   # (Ideally labkey.selectRows should optionally parse the options from its argument besides package environment)
   # 
   # for now we assume they all share the same setting and init it only once here
-  curlOptions <- labkey.setCurlOptions(ssl.verifyhost = 2, sslversion=1)
+  curlOptions <- labkey.setCurlOptions(ssl.verifyhost = 2, sslversion = 1)
   
   if(length(study) <= 1)
     .CreateConnection(study = study
