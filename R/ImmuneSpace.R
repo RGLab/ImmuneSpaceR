@@ -756,7 +756,7 @@ NULL
     constants <<- list(matrices="GE_matrices",matrix_inputs="GE_inputs")
     
     if(!is.null(config))
-      config <<- configls
+      config <<- config
     
     study <<- basename(config$labkey.url.path)
     
