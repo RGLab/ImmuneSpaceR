@@ -250,21 +250,43 @@ NULL
 )
 
 .ISCon$methods(
-  GeneExpressionMatrices=function(){
+  GeneExpressionMatrices=function(verbose = FALSE){
     if(!is.null(data_cache[[constants$matrices]])){
       data_cache[[constants$matrices]]
     }else{
-      ge<-data.table(
-        labkey.selectRows(baseUrl = config$labkey.url.base,
-                          config$labkey.url.path,
-                          schemaName = "assay.ExpressionMatrix.matrix",
-                          queryName = "Runs",
-                          colNameOpt = "fieldname",
-                          showHidden = TRUE,
-                          viewName = "expression_matrices"))
-      setnames(ge,.self$.munge(colnames(ge)))
-      data_cache[[constants$matrices]]<<-ge
+      if(verbose){
+        ge <- try(data.table(
+          labkey.selectRows(baseUrl = config$labkey.url.base,
+                            config$labkey.url.path,
+                            schemaName = "assay.ExpressionMatrix.matrix",
+                            queryName = "Runs",
+                            colNameOpt = "fieldname",
+                            showHidden = TRUE,
+                            viewName = "expression_matrices")),
+        )
+      } else {
+        suppressWarnings(
+          ge <- try(data.table(
+            labkey.selectRows(baseUrl = config$labkey.url.base,
+                              config$labkey.url.path,
+                              schemaName = "assay.ExpressionMatrix.matrix",
+                              queryName = "Runs",
+                              colNameOpt = "fieldname",
+                              showHidden = TRUE,
+                              viewName = "expression_matrices")),
+          )
+        )
+      }
+      if(inherits(ge, "try-error") || nrow(ge) == 0){
+        #No assay or no runs
+        message("No gene expression data")
+        data_cache[[constants$matrices]] <<- NULL
+      } else{
+        setnames(ge,.self$.munge(colnames(ge)))
+        data_cache[[constants$matrices]]<<-ge
+      }
     }
+    return(data_cache[[constants$matrices]])
   }
 )
 
@@ -734,17 +756,18 @@ NULL
     constants <<- list(matrices="GE_matrices",matrix_inputs="GE_inputs")
     
     if(!is.null(config))
-      config <<- config
+      config <<- configls
     
     study <<- basename(config$labkey.url.path)
     
-    
     getAvailableDataSets()
+
+    gematrices_success <- GeneExpressionMatrices(verbose = FALSE)
     
-    gematrices_success <- try(GeneExpressionMatrices(), silent=TRUE)
+    # gematrices_success <- try(GeneExpressionMatrices(), silent=TRUE)
     #geinputs_success<-try(GeneExpressionInputs(),silent=TRUE)
-    if(inherits(gematrices_success,"try-error")){
-      message("No gene expression data")
-    }
+#     if(inherits(gematrices_success,"try-error")){
+#       message("No gene expression data")
+#     }
   }
 )
