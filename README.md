@@ -24,12 +24,25 @@ The package can be downloaded here and installed like any other R packages or in
 
 The database is accessed with the user's credentials. A `.netrc` file storing login and password information is required.
 
-Create a file named .netrc in the home directory of the computer running R.
-The file should contain 3 rows with key/value separated by tabs, as follow:  
+Create netrc file in the computer running R.
 
-    machine	www.immunespace.org  
-    login   <user.login>  
-    password  <user.password>  
+* On a UNIX system this file should be named `.netrc` (**dot** `netrc`) 
+* On windows it sould be named `_netrc` (**underscore** `netrc`). 
+* The file should be located in the users home directory and the permissions
+on the file should be unreadable for everybody except the owner.To determine home directory, run `Sys.getenv("HOME")` in R.
+
+The following three lines must be included in the .netrc or _netrc file either separated by white space
+(spaces, tabs, or newlines) or commas.
+
+ machine `remote-machine-name` <br/>
+ login `user-email`<br/>
+ password `user-password`v<br/>
+
+One example would be:<br/>
+ machine `ww.immunespace.org`<br/>
+ login   `readonly@rglab.org`<br/>
+ password        `JFB4C9h`<br/>
+Multiple such blocks can exist in one file.
 
 Please ensure that your machine name in the netrc file contains the "www" prefix as that is how the package connects to immunespace by default. A mismatch will lead to connection failures. 
 
