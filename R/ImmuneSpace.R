@@ -63,8 +63,7 @@ NULL
             fields = list(study = "character", config="list",
                           available_datasets = "data.table",
                           data_cache="list",constants="list")
-          
-      )
+)
 
 .ISCon$methods(
   quick_plot = function(...){
@@ -95,13 +94,6 @@ NULL
           dt <- dt[, analyte := analyte_name]
         } else{
           dt <- dt[, analyte := ""]
-        }
-      }
-      if(type == "auto"){
-        if(length(unique(dt$analyte)) < 10){
-          type <- "boxplot"
-        } else{
-          type <- "heatmap"
         }
       }
       
@@ -146,6 +138,13 @@ NULL
         ylab <- "Response normalized to baseline"
       } else{
         ylab <- "Response (log2)"
+      }
+      if(type == "auto"){
+        if(length(unique(dt$analyte)) < 10){
+          type <- "boxplot"
+        } else{
+          type <- "heatmap"
+        }
       }
     })
     
@@ -211,7 +210,11 @@ NULL
 
 .ISCon$methods(
   .munge=function(x){
-    tolower(gsub(" ","_",basename(x)))
+    new <- tolower(gsub(" ","_",basename(x)))
+    idx <- which(duplicated(new) | duplicated(new, fromLast = TRUE))
+    if(length(idx)>0)
+      new[idx] <- .munge(gsub("(.*)/.*$", "\\1", x[idx]))
+    return(new)
   }
 )
 .ISCon$methods(
@@ -300,9 +303,10 @@ NULL
         stop(sprintf("No matrix %s in study\n",x))
       }
       summary <- ifelse(summary, ".summary", "")
-      link<-URLdecode(file.path(gsub("http:","https:", gsub("/$","",config$labkey.url.base)),
-                                "_webdav", gsub("^/","",config$labkey.url.path), "@files/analysis/exprs_matrices",
-              paste0(x, ".tsv", summary)))
+      link <- URLdecode(file.path(gsub("http:","https:", gsub("/$","",config$labkey.url.base)),
+                                  "_webdav", gsub("^/","",config$labkey.url.path),
+                                  "@files/analysis/exprs_matrices",
+                                  paste0(x, ".tsv", summary)))
       localpath <- .self$.localStudyPath(link)
       if(.self$.isRunningLocally(localpath)){
         fl<-localpath
@@ -520,14 +524,14 @@ NULL
             show_rownames = show_rnames, cluster_cols = FALSE,
             cluster_rows = cluster_rows, color = palette,
             scale = scale, breaks = breaks,
-            fontsize = text_size, annotation_color = anno_color)
+            fontsize = text_size, annotation_colors = anno_color)
       })
   if(inherits(e, "try-error")){
     p <- pheatmap(mat = mat, annotation = anno, show_colnames = FALSE,
         show_rownames = show_rnames, cluster_cols = FALSE,
         cluster_rows = FALSE, color = palette,
         scale = scale, breaks = breaks,
-        fontsize = text_size, annotation_color = anno_color)
+        fontsize = text_size, annotation_colors = anno_color)
   }
   return(p)
 }
@@ -746,6 +750,35 @@ NULL
     }
 )
 
+#'@title get Gene Expression Files
+#'@param files A \code{character}. The name of the files to download
+#'@param destdir A \code{character}. The destination directory
+#'
+#'@details getGEFiles makes calls to base function \code{download.file} which
+#' in turn makes system calls to curl.
+#'@return An \code{integer} vector of the same length as the \code{files}
+#' parameter. See the Value section of \code{?download.file} for more
+#' information.
+#'
+#'@name ImmuneSpaceConnection_getGEMatrix
+#'@aliases getGEFiles
+#'
+#'@examples
+#'#Downloads CEL files in the current directory
+#'sdy269<-CreateConnection("SDY269")
+#'sdy269$getGEFiles(c("GSM733843.CEL", "GSM733844.CEL"))
+.ISCon$methods(
+  getGEFiles=function(files, destdir = "."){
+    links <- paste0(config$labkey.url.base, "/_webdav/",
+                    config$labkey.url.path,
+                    "/%40files/rawdata/gene_expression/", files)
+    sapply(links, function(x){
+      download.file(url = links[1], destfile = file.path(destdir, basename(x)),
+                    method = "curl", extra = "-n")
+    })
+  }
+)
+
 .ISCon$methods(
   initialize=function(..., config = NULL){
     
@@ -764,10 +797,5 @@ NULL
 
     gematrices_success <- GeneExpressionMatrices(verbose = FALSE)
     
-    # gematrices_success <- try(GeneExpressionMatrices(), silent=TRUE)
-    #geinputs_success<-try(GeneExpressionInputs(),silent=TRUE)
-#     if(inherits(gematrices_success,"try-error")){
-#       message("No gene expression data")
-#     }
   }
 )

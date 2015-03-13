@@ -1,7 +1,7 @@
 Package: ImmuneSpaceR
 Type: Package
 Title: A Thin Wrapper around the ImmuneSpace Database
-Version: 0.2.5
+Version: 0.2.6
 Date: 2014-06-11
 Author: Greg Finak
 VignetteBuilder: knitr
@@ -18,7 +18,7 @@ Imports:
     methods,
     data.table,
     RCurl,
-    Rlabkey,
+    Rlabkey (>= 2.1.127),
     Biobase,
     pheatmap,
     ggplot2,

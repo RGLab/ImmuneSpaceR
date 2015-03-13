@@ -1,7 +1,6 @@
 # 
 #  Global variables
 #
-labkey.url.base <- "test.immunespace.org"
 demo <- c("age_reported", "gender", "race")
 idCols <- c("subject_accession")
 common_cols <- c(demo, idCols)
@@ -13,7 +12,6 @@ nabCols     <- data.frame(name = c("value_reported", "virus_strain"),
                           type = c("numeric", "character"))
 hlaCols     <- data.frame(name = c("allele_1", "allele_2", "locus_name"),
                           type = c("character", "character", "character"))
-#                           type = c("numeric", "numeric", "character"))
 elisaCols   <- data.frame(name = c("value_reported", "analyte"),
                           type = c("numeric", "character"))
 elispotCols <- data.frame(name = c("spot_number_reported", "analyte"),
@@ -23,11 +21,14 @@ pcrCols     <- data.frame(name = c("value_reported", "entrez_gene_id"),
 gefCols     <- data.frame(name = c("file_info_name", "arm_name"),
                           type = c("character", "character"))
 mbaaCols    <- data.frame(name = c("analyte_name", "concentration_value"))
-farCols     <- data.frame(name = c(#"population_cell_number",
+farCols     <- data.frame(name = c(#"population_cell_number", # declared as VARCHAR(500)
   "population_definition_reported"),
                           type = c(#"numeric",
                             "character"))
-
+fcsCols     <- data.frame(name = c("file_info_name"),
+                          type = c("character"))
+fccCols     <- data.frame(name = c("sample_file", "control_file"),
+                          type = c("character", "character"))
 
 test_dataset <- function(con, name, common_cols, specif_cols){
   x <- con$getDataset(name, reload = TRUE)
@@ -60,7 +61,7 @@ test_EM <- function(con, name, cohort = NULL){
   expect_false(any(is.na(fData(EMsum)$gene_symbol)))
   
   # Download by cohort name
-#   con$clear_cache()
+#  con$clear_cache()
 #   con$getGEMatrix(cohort = cohort)
 #   con$getGEMatrix(cohort = cohort, summary = TRUE)
 }
