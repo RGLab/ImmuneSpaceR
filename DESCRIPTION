@@ -22,6 +22,7 @@ Imports:
     Biobase,
     pheatmap,
     ggplot2,
+    gtools,
     gplots,
     reshape2,
     plyr

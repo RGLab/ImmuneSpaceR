@@ -175,19 +175,17 @@ NULL
 
 
 
-# @importFrom gtools mixedsort
+#' @importFrom gtools mixedsort
 .ISCon$methods(
   checkStudy=function(verbose = FALSE){
-    if(length(available_datasets)==0){
-      validStudies <- mixedsort(grep("^SDY", basename(lsFolders(getSession(config$labkey.url.base, "Studies"))), value = TRUE))
-      req_study <- basename(config$labkey.url.path)
-      if(!req_study %in% validStudies){
-        if(!verbose){
-          stop(paste0(req_study, " is not a valid study"))
-        } else{
-          stop(paste0(req_study, " is not a valid study\nValid studies: ",
-                  paste(validStudies, collapse=", ")))
-        }
+    validStudies <- mixedsort(grep("^SDY", basename(lsFolders(getSession(config$labkey.url.base, "Studies"))), value = TRUE))
+    req_study <- basename(config$labkey.url.path)
+    if(!req_study %in% validStudies){
+      if(!verbose){
+        stop(paste0(req_study, " is not a valid study"))
+      } else{
+        stop(paste0(req_study, " is not a valid study\nValid studies: ",
+                    paste(validStudies, collapse=", ")))
       }
     }
   }
@@ -364,7 +362,7 @@ NULL
       fdata <- AnnotatedDataFrame(fdata)
     } else{
       try(setnames(matrix," ","FeatureId"),silent=TRUE)
-      fdata <- data.table(FeatureId = matrix$FeatureId)
+      fdata <- data.table(FeatureId = as.character(matrix$FeatureId))
       fdata <- merge(fdata, features, by = "FeatureId", all.x = TRUE)
       fdata <- as.data.frame(fdata)
       rownames(fdata) <- fdata$FeatureId
@@ -790,8 +788,11 @@ NULL
     
     if(!is.null(config))
       config <<- config
-    
+
     study <<- basename(config$labkey.url.path)
+    if(config$verbose){
+      checkStudy(config$verbose)
+    }
     
     getAvailableDataSets()
 
