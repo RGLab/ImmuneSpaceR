@@ -11,6 +11,9 @@ saveConnection(con, file)
 }
 \arguments{
 \item{file}{the file name to be saved to or loaded from}
+
+\item{con}{An \code{ImmuneSpaceConnection}. The connection to save to file.
+ To be loaded later using \code{loadConnection}.}
 }
 \value{
 ImmuneSpaceConnection or ImmuneSpaceConnectionList object

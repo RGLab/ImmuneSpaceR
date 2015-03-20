@@ -84,6 +84,9 @@ loadConnection <- function(file){
 
 #' Save an ImmuneSpaceConnection/ImmuneSpaceConnectionList object to disk
 #' 
+#' @param con An \code{ImmuneSpaceConnection}. The connection to save to file. 
+#'  To be loaded later using \code{loadConnection}.
+#' 
 #' @rdname loadConnection
 #' @export
 saveConnection <- function(con, file){

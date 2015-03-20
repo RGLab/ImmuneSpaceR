@@ -13,12 +13,16 @@ An instance of an ImmuneSpaceConnection for a study in `labkey.url.path`
 Instantiate this class to access a study
 }
 \details{
-Uses global variables \code{labkey.url.base}, and \code{labkey.url.path}, to access a study.
-\code{labkey.url.base} should be \code{https://www.immunespace.org/}.
-\code{labkey.url.path} should be \code{/Studies/studyname}, where 'studyname' is the name of the study.
-The ImmunespaceConnection will initialize itself, and look for a \code{.netrc} file in \code{"~/"} the user's home directory.
-The \code{.netrc} file should contain a \code{machine}, \code{login}, and \code{password} entry to allow access to ImmuneSpace,
-where \code{machine} is the host name like "www.immunespace.org".
+Uses global variables \code{labkey.url.base}, and \code{labkey.url.path}, to
+access a study. \code{labkey.url.base} should be
+\code{https://www.immunespace.org/}. \code{labkey.url.path} should be
+\code{/Studies/studyname}, where 'studyname' is the accession number of the
+study.
+The ImmunespaceConnection will initialize itself, and look for a
+\code{.netrc} file in \code{"~/"} the user's home directory. The
+\code{.netrc} file should contain a \code{machine}, \code{login}, and
+\code{password} entry to allow access to ImmuneSpace, where \code{machine} is
+the host name like "www.immunespace.org".
 }
 \examples{
 labkey.url.base <- "https://www.immunespace.org"

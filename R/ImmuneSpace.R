@@ -44,12 +44,18 @@ NULL
 #'@docType class
 #'@title The ImmuneSpaceConnection class
 #'@description Instantiate this class to access a study
-#'@details Uses global variables \code{labkey.url.base}, and \code{labkey.url.path}, to access a study.
-#'\code{labkey.url.base} should be \code{https://www.immunespace.org/}.
-#'\code{labkey.url.path} should be \code{/Studies/studyname}, where 'studyname' is the name of the study.
-#'The ImmunespaceConnection will initialize itself, and look for a \code{.netrc} file in \code{"~/"} the user's home directory.
-#'The \code{.netrc} file should contain a \code{machine}, \code{login}, and \code{password} entry to allow access to ImmuneSpace,
-#'where \code{machine} is the host name like "www.immunespace.org".
+#'@details
+#' Uses global variables \code{labkey.url.base}, and \code{labkey.url.path}, to
+#' access a study. \code{labkey.url.base} should be
+#' \code{https://www.immunespace.org/}. \code{labkey.url.path} should be
+#' \code{/Studies/studyname}, where 'studyname' is the accession number of the
+#' study.
+#' The ImmunespaceConnection will initialize itself, and look for a
+#' \code{.netrc} file in \code{"~/"} the user's home directory. The
+#' \code{.netrc} file should contain a \code{machine}, \code{login}, and
+#' \code{password} entry to allow access to ImmuneSpace, where \code{machine} is
+#' the host name like "www.immunespace.org".
+#' 
 #'@seealso \code{\link{ImmuneSpaceR-package}} \code{\link{ImmuneSpaceConnection_getGEMatrix}}  \code{\link{ImmuneSpaceConnection_getDataset}}  \code{\link{ImmuneSpaceConnection_listDatasets}}
 #'@exportClass ImmuneSpaceConnection
 #'@examples
@@ -170,7 +176,6 @@ NULL
       p <- ggplot(data = data) + geom_text(aes(x, y, label = err), size = text_size)
       print(p)
     }
-    return(message_out)
   }
 
 
@@ -596,7 +601,13 @@ NULL
 .ISCon$methods(
     getDataset = function(x, original_view = FALSE, reload=FALSE, ...){
       if(nrow(available_datasets[Name%in%x])==0){
-        warning(study, " has invalid data set: ",x)
+        wstring <- paste0(study, " has invalid data set: ",x)
+        if(config$verbose){
+          wstring <- paste0(wstring, "\n",
+                            "Vali datasets for ", study, ": ",
+                            paste(available_datasets$Name, collapse = ", "), ".")
+        }
+        warning(wstring)
         NULL
       }else{
         cache_name <- paste0(x, ifelse(original_view, "_full", ""))
