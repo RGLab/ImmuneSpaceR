@@ -86,7 +86,7 @@ NULL
                         legend = NULL, ...){
     ggthemr("solarized")
     addPar <- c("Gender", "Age", "Race")
-    annoCols <- c("name", "subject_accession", "study_time_collected", addPar)
+    annoCols <- c("arm_name", "subject_accession", "study_time_collected", addPar)
     toKeep <- c("response", "analyte", annoCols)
     logT <- TRUE #By default, log transform the value_reported
     message_out <- ""
@@ -131,16 +131,16 @@ NULL
       dt <- dt[, response := ifelse(value_reported <0, 0, value_reported)]
       if(logT){
         dt <- dt[, response := mean(log2(response+1), na.rm = TRUE),
-                 by = "name,subject_accession,analyte,study_time_collected"]
+                 by = "arm_name,subject_accession,analyte,study_time_collected"]
       } else{
         dt <- dt[, response := mean(response, na.rm = TRUE),
-                 by = "name,subject_accession,analyte,study_time_collected"]
+                 by = "arm_name,subject_accession,analyte,study_time_collected"]
       }
       dt <- unique(dt[, toKeep, with = FALSE])
       
       if(normalize_to_baseline){
         dt <- dt[,response:=response-response[study_time_collected==0],
-                 by="name,subject_accession,analyte"][study_time_collected!=0]
+                 by="arm_name,subject_accession,analyte"][study_time_collected!=0]
         ylab <- "Response normalized to baseline"
       } else{
         ylab <- "Response (log2)"
@@ -161,9 +161,9 @@ NULL
     
     # Plot
     if(facet == "grid"){
-      facet <- facet_grid(aes(analyte, name), scales = "free")
+      facet <- facet_grid(aes(analyte, arm_name), scales = "free")
     } else if(facet == "wrap"){
-      facet <- facet_wrap(~name + analyte, scales = "free")
+      facet <- facet_wrap(~arm_name + analyte, scales = "free")
     }
     if(type == "heatmap"){
       p <- .qpHeatmap(dt, normalize_to_baseline, legend, text_size)
@@ -173,7 +173,7 @@ NULL
       .qpLineplot(dt, facet, ylab, text_size, extras, ...)
     } else{#} if(type == "error"){
       data <- data.frame(x = 0, y = 0, err = error_string)
-      p <- ggplot(data = data) + geom_text(aes(x, y, label = err), size = text_size)
+      p <- ggplot(data = data) + geom_text(aes(x, y, label = err), size = 10)
       print(p)
     }
   }
@@ -624,7 +624,7 @@ NULL
                                                            ,schemaName = "study"
                                                            , queryName = x
                                                            , viewName = viewName
-                                                           , colNameOpt = "fieldname"
+                                                           , colNameOpt = "caption"
                                                            , ...)
           )
           setnames(data_cache[[cache_name]],
