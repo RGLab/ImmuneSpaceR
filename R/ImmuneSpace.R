@@ -173,7 +173,8 @@ NULL
       .qpLineplot(dt, facet, ylab, text_size, extras, ...)
     } else{#} if(type == "error"){
       data <- data.frame(x = 0, y = 0, err = error_string)
-      p <- ggplot(data = data) + geom_text(aes(x, y, label = err), size = 10)
+      p <- ggplot(data = data) + geom_text(aes(x, y, label = err), size = 10) +
+        theme(line = element_blank(), text = element_blank())
       print(p)
     }
   }
@@ -472,18 +473,18 @@ NULL
 #' @importFrom reshape2 acast
 .qpHeatmap = function(dt, normalize_to_baseline, legend, text_size){
   contrast <- "study_time_collected"
-  annoCols <- c("name", "subject_accession", contrast, "Gender", "Age", "Race")
+  annoCols <- c("arm_name", "subject_accession", contrast, "Gender", "Age", "Race")
   palette <- ISpalette(20)
   
   expr <- parse(text = paste0(contrast, ":=as.factor(", contrast, ")"))
   dt <- dt[, eval(expr)]
   #No need to order by legend. This should be done after.
   if(!is.null(legend)){
-    dt <- dt[order(name, study_time_collected, get(legend))]
+    dt <- dt[order(arm_name, study_time_collected, get(legend))]
   } else{
-    dt <- dt[order(name, study_time_collected)]
+    dt <- dt[order(arm_name, study_time_collected)]
   }
-  form <- as.formula(paste("analyte ~ name +", contrast, "+ subject_accession"))
+  form <- as.formula(paste("analyte ~ arm_name +", contrast, "+ subject_accession"))
   mat <- acast(data = dt, formula = form, value.var = "response") #drop = FALSE yields NAs
   if(ncol(mat) > 2 & nrow(mat) > 1){
     mat <- mat[rowSums(apply(mat, 2, is.na)) < ncol(mat),, drop = FALSE]
@@ -491,16 +492,16 @@ NULL
   
   # Annotations:
   anno <- data.frame(unique(dt[, annoCols, with = FALSE]))
-  rownames(anno) <- paste(anno$name, anno[, contrast], anno$subject_accession, sep = "_")
-  expr <- parse(text = c(rev(legend), contrast, "name"))
+  rownames(anno) <- paste(anno$arm_name, anno[, contrast], anno$subject_accession, sep = "_")
+  expr <- parse(text = c(rev(legend), contrast, "arm_name"))
   anno <- anno[with(anno, order(eval(expr))),]
-  anno <- anno[, c(rev(legend), contrast, "name")] #Select and order the annotation rows
+  anno <- anno[, c(rev(legend), contrast, "arm_name")] #Select and order the annotation rows
   anno[, contrast] <- as.factor(anno[, contrast])
   anno_color <- colorpanel(n = length(levels(anno[,contrast])), low = "white", high = "black")
   names(anno_color) <- levels(anno[, contrast])
   anno_color <- list(anno_color)
   if(contrast == "study_time_collected"){
-    setnames(anno, c("name", contrast), c("Arm Name", "Time"))
+    setnames(anno, c("arm_name", contrast), c("Arm Name", "Time"))
     contrast <- "Time"
   }
   names(anno_color) <- contrast
