@@ -29,19 +29,16 @@ Create netrc file in the computer running R.
 * On a UNIX system this file should be named `.netrc` (**dot** `netrc`) 
 * On windows it sould be named `_netrc` (**underscore** `netrc`). 
 * The file should be located in the users home directory and the permissions
-on the file should be unreadable for everybody except the owner.To determine home directory, run `Sys.getenv("HOME")` in R.
+on the file should be unreadable for everybody except the owner.To determine
+home directory, run `Sys.getenv("HOME")` in R.
 
-The following three lines must be included in the .netrc or _netrc file either separated by white space
-(spaces, tabs, or newlines) or commas.
+The following three lines must be included in the .netrc or _netrc file either
+separated by white space (spaces, tabs, or newlines) or commas.
 
  machine `remote-machine-name` <br/>
  login `user-email`<br/>
  password `user-password`v<br/>
 
-One example would be:<br/>
- machine `ww.immunespace.org`<br/>
- login   `readonly@rglab.org`<br/>
- password        `JFB4C9h`<br/>
 Multiple such blocks can exist in one file.
 
 Please ensure that your machine name in the netrc file contains the "www" prefix as that is how the package connects to immunespace by default. A mismatch will lead to connection failures. 
@@ -86,5 +83,6 @@ The `quick_plot` function uses ggplot2's qplot function to generate quick plots 
 ```R
 study$quick_plot("hai")
 ```
+![](./inst/img/qpHai.png)
 
 

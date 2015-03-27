@@ -16,7 +16,6 @@ NULL
   }
 )
 
-
 #' makeMatrix
 #' 
 #' Create a standard expression matrix from a given set of files.
@@ -36,25 +35,32 @@ NULL
       message("There are more than one cohort selected in this HIPCMatrix run")
     }
     
+    inputFiles <- file.path(labkey.file.root, "rawdata/gene_expression", inputFiles)
     # Filetypes
+    # After this step norm_exprs is a matrix with features as rownames and expsample as colnames
     if(length(ext) > 1){
       stop(paste("There is more than one file extension:", paste(ext, collapse = ",")))
     } else if(ext == "CEL"){
-      process_CEL(gef, inputFiles)
+      norm_exprs <- .process_CEL(gef, inputFiles)
     } else if(ext == "tsv"){
-      #process_TSV(gef, inputFiles)
+      norm_exprs <- .process_TSV(gef, inputFiles)
     }
-    return(cohort)
+    if(!is(norm_exprs, "data.table")){
+      norm_exprs <- data.table(norm_exprs, keep.rownames = TRUE)
+      setnames(norm_exprs, "rn", "feature_id")
+    }
+    # This step should eventually be removed as we move from biosample to expsample
+    norm_exprs <- .es2bs(.self, norm_exprs)
+    return(norm_exprs)
   }
 )
-    
 
 # Process CEL files
 # @param gef A \code{data.table} the gene_expression_files table or a subset of
 #  it.
 # @param inputFiles A \code{character}. The filenames.
 # @return A \code{matrix} with biosample_accession as cols and feature_id as rownames
-process_CEL <- function(gef, inputFiles){
+.process_CEL <- function(con, gef, inputFiles){
   library(affy)
   affybatch <- ReadAffy(filenames = inputFiles)                                 
   eset <- rma(affybatch)                                                        
@@ -64,37 +70,39 @@ process_CEL <- function(gef, inputFiles){
   }
 }
 
+# This will work for files that follow the standards from immport
+# Eventually, all tsv files should be rewritten to follow this standard.
+# @return A matrix with biosample_accession as cols and feature_id as rownames
+#' @importFrom lumi lumiN
+#' @importFrom reshape2 acast
+.process_TSV <- function(gef, inputFiles){
+  exprs <- fread(inputFiles, header = TRUE)
+  exprs <- .clean_colnames(exprs)
+  if(!all(c("target_id", "raw_signal") %in% colnames(exprs))){
+    stop("The file does not follow HIPC standards.")
+  }
+  try(setnames(exprs, "experiment_sample_accession", "expsample_accession"))
+  exprs <- acast(exprs, formula = "target_id ~ expsample_accession", value.var = "raw_signal")
+  eset <- new("ExpressionSet", exprs = exprs)
+  eset <- lumiN(eset, method = "quantile")
+  norm_exprs <- log2(pmax(exprs(eset), 1))
+  norm_exprs <- norm_exprs[, c(colnames(norm_exprs) %in% gef$expsample_accession)]
+  return(norm_exprs)
+}
 
+.clean_colnames <- function(table){
+  setnames(table, tolower(chartr(" ", "_", names(table))))
+}
 
-
-
-
-
-
-
-
-
-
-
-
-# 
-# input_csv <- "~/Dropbox (Gottardo Lab)/ImmPort/Microarray_values_noPGP.csv"
-# sdy <- "SDY296"
-# 
-# library(Rlabkey)
-# library(ImmuneSpaceR)
-# con <- CreateConnection(sdy)
-# data <- fread(input_csv)
-# setnames(data, tolower(gsub(" ", "_", colnames(data))))
-# 
-# pdata <- con$getDataset("gene_expression_files", original_view = TRUE)
-# 
-# 
-# es <- data.table(labkey.selectRows("test.immunespace.org", paste0("Studies/", sdy), "immport",
-#                              "expsample", colNameOpt="rname"))
-# es2f <- data.table(labkey.selectRows("test.immunespace.org", paste0("Studies/", sdy), "immport",
-#                                    "expsample_2_file_info", colNameOpt="rname"))
-# 
-# #Merge expsample_accession w/ data
-# #acast data and put it in exprs of an eSet
-# #dcast.data.table(data, formula="target_id ~ experiment_sample_user-defined_id", value.var = "raw_signal")
+#' @importFrom Rlabkey makeFilter
+.es2bs <- function(con, table){
+  ess <- grep("^ES", colnames(table), value = TRUE)
+  esFilter <- makeFilter(c("expsample_accession", "IN", paste0(ess, collapse = ";")))
+  bs2es <- data.table(labkey.selectRows(con$config$labkey.url.base,
+                                        con$config$labkey.url.path,
+                                        "immport", "biosample_2_expsample",
+                                        colFilter = esFilter,
+                                        colNameOpt = "rname"))
+  bss <- bs2es[match(ess, bs2es$expsample_accession), biosample_accession]
+  setnames(table, ess, bss)
+}
