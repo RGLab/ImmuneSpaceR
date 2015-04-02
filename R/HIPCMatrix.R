@@ -94,7 +94,6 @@ NULL
   setnames(table, tolower(chartr(" ", "_", names(table))))
 }
 
-#' @importFrom Rlabkey makeFilter
 .es2bs <- function(con, table){
   ess <- grep("^ES", colnames(table), value = TRUE)
   esFilter <- makeFilter(c("expsample_accession", "IN", paste0(ess, collapse = ";")))

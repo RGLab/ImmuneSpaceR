@@ -449,18 +449,14 @@ NULL
 )
 .ISCon$methods(
   .localStudyPath=function(urlpath){
-    LOCALPATH<-"/shared/silo_researcher/Gottardo_R/immunespace"
+    #LOCALPATH<-"/shared/silo_researcher/Gottardo_R/immunespace"
+    LOCALPATH<-"/share/files/"
     PRODUCTION_HOST<-"www.immunespace.org"
-    STAGING_HOST<-"posey.fhcrc.org"
     TEST_HOST<-"test.immunespace.org"
-    PRODUCTION_PATH<-"production/files"
-    STAGING_PATH<-"staging/files"
-    if(grepl(PRODUCTION_HOST,urlpath)){
+    PRODUCTION_PATH<-""
+    if(grepl(PRODUCTION_HOST, urlpath)){
       PROCESS<-PRODUCTION_PATH
-    }else if(grepl(STAGING_HOST,urlpath)){
-      PROCESS<-STAGING_PATH
-    }else if(grepl(TEST_HOST,urlpath)){
-      LOCALPATH <- "/share/files"
+    }else if(grepl(TEST_HOST, urlpath)){
       PROCESS <- ""
     }else{
       stop("Can't determine if we are running on immunespace (production) or posey (staging)")
