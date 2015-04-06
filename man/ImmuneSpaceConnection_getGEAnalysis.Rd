@@ -5,8 +5,7 @@
 \alias{getGEAnalysis}
 \title{Get gene expression analysis}
 \arguments{
-\item{analysis_accession}{A \code{character}. The name of a Gene expression
- analysis accession number.}
+\item{...}{A \code{list} of arguments to be passed to \code{labkey.selectRows}.}
 }
 \value{
 A \code{data.table} containing the requested gene expression analysis

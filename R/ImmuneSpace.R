@@ -80,6 +80,8 @@ NULL
 # @importFrom ggthemr ggthemr
 # @import ggthemr Currently we have to depend on ggthemr because it depends on ggplot2
 #' @importFrom ggplot2 facet_grid facet_wrap
+#' @importFrom Biobase pData
+#' @importFrom reshape2 melt
   .quick_plot <- function(con, dataset, normalize_to_baseline = TRUE,
                         type = "auto", filter = NULL,
                         facet = "grid", text_size = 15,
@@ -93,13 +95,14 @@ NULL
     extras <- list(...)
     
     e <- try({
-      dt <- copy(con$getDataset(dataset, colFilter = filter, reload = TRUE))
-      setnames(dt, c("gender", "age_reported", "race"), addPar)
-      if(!"analyte" %in% colnames(dt)){
-        if("analyte_name" %in% colnames(dt)){
-          dt <- dt[, analyte := analyte_name]
-        } else{
-          dt <- dt[, analyte := ""]
+      if(dataset != "gene_expression_analysis_results"){
+        dt <- copy(con$getDataset(dataset, colFilter = filter, reload = TRUE))
+        if(!"analyte" %in% colnames(dt)){
+          if("analyte_name" %in% colnames(dt)){
+            dt <- dt[, analyte := analyte_name]
+          } else{
+            dt <- dt[, analyte := ""]
+          }
         }
       }
       
@@ -127,6 +130,20 @@ NULL
         } else if(dataset == "fcs_analyzed_result"){
           dt <- dt[, value_reported := as.numeric(population_cell_number)]
           dt <- dt[, analyte := population_name_reported]
+        } else if(dataset == "gene_expression_analysis_results"){
+          logT <- FALSE #Matrices are already log2 transformed
+          dt <- copy(con$getGEAnalysis(colFilter = filter))
+          uarm <- unique(dt$arm_name)
+          ugenes <- unique(dt$gene_symbol)
+          ugenes <- ugenes[ ugenes != "NA"]
+          EM <- con$getGEMatrix(cohort = uarm, summary = TRUE)
+          EM <- EM[ugenes,]
+          pd <- data.table(pData(EM))
+          demo <- con$getDataset("demographics")
+          dt <- data.table(melt(exprs(EM)))
+          setnames(dt, c("analyte", "biosample_accession", "value_reported"))
+          dt <- merge(dt, pd, by = "biosample_accession", all.x = TRUE) # Add s_t_c, s_t_c_u, arm 
+          dt <- merge(dt, demo, by = "subject_accession", all.x = TRUE) # Add race, gender, age
         }
       dt <- dt[, response := ifelse(value_reported <0, 0, value_reported)]
       if(logT){
@@ -136,6 +153,8 @@ NULL
         dt <- dt[, response := mean(response, na.rm = TRUE),
                  by = "arm_name,subject_accession,analyte,study_time_collected"]
       }
+      setnames(dt, c("gender", "age_reported", "race"), addPar)
+      setkeyv(dt, toKeep)
       dt <- unique(dt[, toKeep, with = FALSE])
       
       if(normalize_to_baseline){
@@ -545,6 +564,7 @@ NULL
   } else{
     geom_type <- geom_boxplot(outlier.size = 0)
   }
+  print(head(dt))
   p <- ggplot(data = dt, aes(as.factor(study_time_collected), response)) +
   geom_type + xlab("Time") + ylab(ylab) + facet + 
   theme(text = element_text(size = text_size), axis.text.x = element_text(angle = 45))
@@ -685,8 +705,7 @@ NULL
 #' Download the result of a Gene epxression analysis experiment from the
 #' gene_expression schema.
 #' 
-#' @param analysis_accession A \code{character}. The name of a Gene expression
-#'  analysis accession number.
+#' @param ... A \code{list} of arguments to be passed to \code{labkey.selectRows}.
 #'  
 #' @return A \code{data.table} containing the requested gene expression analysis
 #'  results.
@@ -695,16 +714,10 @@ NULL
 #' @aliases getGEAnalysis
 #' @name ImmuneSpaceConnection_getGEAnalysis
 .ISCon$methods(
-  getGEAnalysis = function(analysis_accession){
-    if(missing(analysis_accession)){
-      stop("Missing analysis_accession argument. Use listGEAnalysis to get a
-            list of available analysis_accession numbers")
-    }
-    AA_filter <- makeFilter(c("analysis_accession", "IN", paste(analysis_accession, collapse=";")))
+  getGEAnalysis = function(...){
     GEAR <- data.table(labkey.selectRows(config$labkey.url.base, config$labkey.url.path,
-        "gene_expression", "gene_expression_analysis_results",
-        colFilter = AA_filter, colNameOpt = "rname"))
-    #colnames(GEAR) <- .self$.munge(colnames(GEAR))
+        "gene_expression", "gene_expression_analysis_results",  colNameOpt = "fieldname", ...))
+    setnames(GEAR, .self$.munge(colnames(GEAR)))
     return(GEAR)
   }
 )
