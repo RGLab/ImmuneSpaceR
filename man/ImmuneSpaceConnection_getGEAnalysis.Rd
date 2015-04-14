@@ -2,7 +2,6 @@
 % Please edit documentation in R/ImmuneSpace.R
 \name{ImmuneSpaceConnection_getGEAnalysis}
 \alias{ImmuneSpaceConnection_getGEAnalysis}
-\alias{getGEAnalysis}
 \title{Get gene expression analysis}
 \arguments{
 \item{...}{A \code{list} of arguments to be passed to \code{labkey.selectRows}.}
@@ -14,5 +13,16 @@ A \code{data.table} containing the requested gene expression analysis
 \description{
 Download the result of a Gene epxression analysis experiment from the
 gene_expression schema.
+
+con$getGEAnalysis(...)
+}
+\examples{
+labkey.url.base = "https://www.immunespace.org"
+labkey.url.path = "/Studies/SDY269"
+sdy269 <- CreateConnection("SDY269")
+sdy269$listGEAnalysis()
+}
+\seealso{
+labkey.selectRows
 }
 

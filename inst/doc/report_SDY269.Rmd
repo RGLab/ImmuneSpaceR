@@ -4,7 +4,7 @@
 -->
 # Correlating HAI with flow cytometry and ELISPOT results in SDY269
 
-ImmuneSpaceR code produces consistent results, regardless of whether it is being executed from a module or UI based report on the server or on a local machine. This vignette reproduces a report available on <a href="https://www.immunespace.org/reports/Studies/SDY269/runReport.view?reportId=module%3ASDY269%2Freports%2Fschemas%2Fhai_flow_elispot.Rmd&redirectUrl=%2Fproject%2FStudies%2FSDY269%2Fbegin.view%3FpageId%3DReports">www.immunespace.org</a> using the same code.
+ImmuneSpaceR code produces consistent results, regardless of whether it is being executed from a module or a UI based report on the server or on a local machine. This vignette reproduces a report available on <a href="https://www.immunespace.org/reports/Studies/SDY269/runReport.view?reportId=module%3ASDY269%2Freports%2Fschemas%2Fhai_flow_elispot.Rmd&redirectUrl=%2Fproject%2FStudies%2FSDY269%2Fbegin.view%3FpageId%3DReports">www.immunespace.org</a> using the same code.
 
 ### Summary
 This report investigate the association between the number influenza-specific cells measured by ELISPOT measured at day 7 with the number of plasmablast measured by flow cytometry and day 7 and the HAI response measured at day 28 (log-fold day28/day0). It basically reproduces Figure 1 d-e) of <a href="http://www.ncbi.nlm.nih.gov/pmc/articles/PMC3140559/" target="_BLANK"> Nakaya et al. (2011)</a> published as part of the original study.

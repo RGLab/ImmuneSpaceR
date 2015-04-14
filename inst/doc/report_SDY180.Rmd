@@ -43,16 +43,11 @@ dt_fcs19 <- dt_fcs19[,arm_name:=gsub("Study g", "G", arm_name),]
 
 #### Compute the median
 ```{r data-summary}
-dt_fcs19_median <- dt_fcs19[, .(median_cell_reported = median(as.double(population_cell_number) + 1,
-                   na.rm=TRUE)), by = .(arm_name,study_time_collected,population_name_reported)]
+dt_fcs19_median <- dt_fcs19[,.(median_cell_reported=median(as.double(population_cell_number)+1,na.rm=TRUE)),by=.(arm_name,study_time_collected,population_name_reported)]
 ```
 
 #### Flow cytometry vs. elispot
 ```{r, dev='CairoPNG'}
-ggplot(dt_fcs19, aes(x = as.factor(study_time_collected), y = as.double(population_cell_number) + 1)) +
-  geom_boxplot() + geom_jitter() + scale_y_log10() + facet_grid(arm_name~population_name_reported, 
-  scale = "free") + xlab("Time") + ylab(expression(paste("Number of cells/", mu, "l"))) + 
-  geom_line(data = dt_fcs19_median, aes(x = as.factor(study_time_collected), y = as.double(median_cell_reported),
-  group = 1), color = "black", size = 1.2) + labs(title = "Plasma cell abundance after vaccination")
+ggplot(dt_fcs19, aes(x=as.factor(study_time_collected), y=as.double(population_cell_number)+1))+geom_boxplot()+geom_jitter()+scale_y_log10()+facet_grid(arm_name~population_name_reported, scale="free")+xlab("Time")+ylab(expression(paste("Number of cells/",mu,"l")))+geom_line(data=dt_fcs19_median,aes(x=as.factor(study_time_collected), y=as.double(median_cell_reported),group=1),color="black",size=1.2)+labs(title="Plasma cell abundance after vaccination")
 ```
 

@@ -2,22 +2,22 @@
 % Please edit documentation in R/ImmuneSpace.R
 \name{ImmuneSpaceConnection_listDatasets}
 \alias{ImmuneSpaceConnection_listDatasets}
-\alias{listDatasets}
-\title{list available datasets}
+\title{List available datasets}
 \value{
 Doesn't return anything, just prints to console.
 }
 \description{
-list available datasets
+List the datasets available in the study or studies of the connection.
+
+con$listDatasets()
 }
 \details{
 Prints the names of the available datasets
 }
 \examples{
-labkey.url.base="https://www.immunespace.org"
-labkey.url.path="/Studies/SDY269"
-labkey.user.email='gfinak at fhcrc.org'
-sdy269<-CreateConnection("SDY269")
+labkey.url.base = "https://www.immunespace.org"
+labkey.url.path = "/Studies/SDY269"
+sdy269 <- CreateConnection("SDY269")
 sdy269$listDatasets()
 }
 

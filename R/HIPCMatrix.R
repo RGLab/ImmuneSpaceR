@@ -60,8 +60,8 @@ NULL
 #  it.
 # @param inputFiles A \code{character}. The filenames.
 # @return A \code{matrix} with biosample_accession as cols and feature_id as rownames
+#' @importFrom affy ReadAffy rma
 .process_CEL <- function(con, gef, inputFiles){
-  library(affy)
   affybatch <- ReadAffy(filenames = inputFiles)                                 
   eset <- rma(affybatch)                                                        
   norm_exprs <- exprs(eset)                                                     
@@ -73,7 +73,7 @@ NULL
 # This will work for files that follow the standards from immport
 # Eventually, all tsv files should be rewritten to follow this standard.
 # @return A matrix with biosample_accession as cols and feature_id as rownames
-#' @importFrom lumi lumiN
+# @importFrom lumi lumiN
 #' @importFrom reshape2 acast
 .process_TSV <- function(gef, inputFiles){
   exprs <- fread(inputFiles, header = TRUE)
@@ -84,7 +84,7 @@ NULL
   try(setnames(exprs, "experiment_sample_accession", "expsample_accession"))
   exprs <- acast(exprs, formula = "target_id ~ expsample_accession", value.var = "raw_signal")
   eset <- new("ExpressionSet", exprs = exprs)
-  eset <- lumiN(eset, method = "quantile")
+  eset <- lumi::lumiN(eset, method = "quantile") #In Suggests to reduce laod time (13 secs for lumi alone)
   norm_exprs <- log2(pmax(exprs(eset), 1))
   norm_exprs <- norm_exprs[, c(colnames(norm_exprs) %in% gef$expsample_accession)]
   return(norm_exprs)

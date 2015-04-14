@@ -56,7 +56,12 @@ NULL
 #' \code{password} entry to allow access to ImmuneSpace, where \code{machine} is
 #' the host name like "www.immunespace.org".
 #' 
-#'@seealso \code{\link{ImmuneSpaceR-package}} \code{\link{ImmuneSpaceConnection_getGEMatrix}}  \code{\link{ImmuneSpaceConnection_getDataset}}  \code{\link{ImmuneSpaceConnection_listDatasets}}
+#'@seealso \code{\link{ImmuneSpaceR-package}} 
+#'\code{\link{ImmuneSpaceConnection_getGEMatrix}}
+#'\code{\link{ImmuneSpaceConnection_getDataset}}
+#'\code{\link{ImmuneSpaceConnection_listDatasets}}
+#'\code{\link{ImmuneSpaceConnection_getGEAnalysis}}
+#'\code{\link{ImmuneSpaceConnection_listGEAnalysis}}
 #'@exportClass ImmuneSpaceConnection
 #'@examples
 #'labkey.url.base <- "https://www.immunespace.org"
@@ -124,29 +129,6 @@ NULL
 )
 
 .ISCon$methods(
-  GeneExpressionFeatures=function(matrix_name,summary=FALSE){
-    cache_name <- paste0(matrix_name, ifelse(summary, "_sum", ""))
-#     if(!any((data_cache[[constants$matrices]][,"name"] %in% cache_name))){
-    if(!matrix_name %in% data_cache[[constants$matrices]][, name]){
-      stop("Invalid gene expression matrix name");
-    }
-    annotation_set_id<-.self$.getFeatureId(matrix_name)
-    if(is.null(data_cache[[.self$.mungeFeatureId(annotation_set_id)]])){
-      if(!summary){
-        message("Downloading Features..")
-        featureAnnotationSetQuery=sprintf("SELECT * from FeatureAnnotation where FeatureAnnotationSetId='%s';",annotation_set_id);
-        features<-labkey.executeSql(config$labkey.url.base,config$labkey.url.path,schemaName = "Microarray",sql = featureAnnotationSetQuery ,colNameOpt = "fieldname")
-        setnames(features, "GeneSymbol", "gene_symbol")
-      }else{
-        features<-data.frame(FeatureId=data_cache[[cache_name]][,gene_symbol],
-                             gene_symbol=data_cache[[cache_name]][,gene_symbol])
-      }
-      data_cache[[.self$.mungeFeatureId(annotation_set_id)]]<<-features
-    }
-  }
-)
-
-.ISCon$methods(
   GeneExpressionMatrices=function(verbose = FALSE){
     if(!is.null(data_cache[[constants$matrices]])){
       data_cache[[constants$matrices]]
@@ -187,151 +169,6 @@ NULL
   }
 )
 
-#' @importFrom RCurl getCurlHandle curlPerform basicTextGatherer
-.ISCon$methods(
-  downloadMatrix=function(x, summary = FALSE){
-    cache_name <- paste0(x, ifelse(summary, "_sum", ""))
-#     if(is.null(data_cache[[x]])){
-    if(is.null(data_cache[[cache_name]])){
-      if(nrow(subset(data_cache[[constants$matrices]],name%in%x))==0){
-        stop(sprintf("No matrix %s in study\n",x))
-      }
-      summary <- ifelse(summary, ".summary", "")
-      link <- URLdecode(file.path(gsub("http:","https:", gsub("/$","",config$labkey.url.base)),
-                                  "_webdav", gsub("^/","",config$labkey.url.path),
-                                  "@files/analysis/exprs_matrices",
-                                  paste0(x, ".tsv", summary)))
-      localpath <- .self$.localStudyPath(link)
-      if(.self$.isRunningLocally(localpath)){
-        fl<-localpath
-        message("Reading local matrix")
-#         data_cache[[x]]<<-fread(fl,header=TRUE)
-        data_cache[[cache_name]]<<-fread(fl,header=TRUE)
-      }else{
-        opts <- config$curlOptions
-        opts$netrc <- 1L
-        #opts$httpauth <- 1L
-        handle<-getCurlHandle(.opts=opts)
-        h<-basicTextGatherer()
-        message("Downloading matrix..")
-        curlPerform(url=link,curl=handle,writefunction=h$update)
-        fl<-tempfile()
-        write(h$value(),file=fl)
-        EM <- fread(fl,header=TRUE)
-        if(nrow(EM) == 0){
-          stop("The downloaded matrix has 0 rows. Something went wrong")
-        }
-        data_cache[[cache_name]] <<-EM
-        file.remove(fl)
-      }
-      
-    }else{
-      data_cache[[cache_name]]
-    }
-  }
-)
-
-.ISCon$methods(
-  ConstructExpressionSet=function(matrix_name, summary){
-    cache_name <- paste0(matrix_name, ifelse(summary, "_sum", ""))
-    #matrix
-    message("Constructing ExpressionSet")
-    matrix<-data_cache[[cache_name]]
-    #features
-    features<-data_cache[[.self$.mungeFeatureId(.self$.getFeatureId(matrix_name))]][,c("FeatureId","gene_symbol")]
-    #inputs
-    #pheno<-unique(data_cache[[constants$matrix_inputs]][biosample_accession %in% colnames(matrix)][, c("biosample_accession","subject_accession","arm_name","study_time_collected", "study_time_collected_unit")])
-    pheno_filter <- makeFilter(c("Run/DataOutputs/Name", "EQUAL", paste0(matrix_name, ".tsv")),
-                               c("Biosample/biosample_accession", "IN", paste(colnames(matrix), collapse = ";")))
-    pheno <- unique(data.table(labkey.selectRows(
-      config$labkey.url.base, config$labkey.url.path,
-      "assay.ExpressionMatrix.matrix", "InputSamples", "gene_expression_matrices",
-      colNameOpt = "rname", colFilter = pheno_filter)))
-    setnames(pheno, colnames(pheno), gsub("^biosample_", "", .self$.munge(colnames(pheno))))
-    pheno <- pheno[, list(biosample_accession, subject_accession, arm_name,
-                          study_time_collected, study_time_collected_unit)]
-    #colnames(pheno) <- gsub("^biosample_", "", .self$.munge(colnames(pheno)))
-    
-    
-    if(summary){
-      fdata <- data.frame(FeatureId = matrix$gene_symbol, gene_symbol = matrix$gene_symbol, row.names = matrix$gene_symbol)
-      fdata <- AnnotatedDataFrame(fdata)
-    } else{
-      try(setnames(matrix," ","FeatureId"),silent=TRUE)
-      fdata <- data.table(FeatureId = as.character(matrix$FeatureId))
-      fdata <- merge(fdata, features, by = "FeatureId", all.x = TRUE)
-      fdata <- as.data.frame(fdata)
-      rownames(fdata) <- fdata$FeatureId
-      fdata <- AnnotatedDataFrame(fdata)
-      #setkey(matrix,FeatureId)
-      #rownames(features)<-features$FeatureId
-      #features<-features[matrix$FeatureId,]#order feature info
-      #fdata <- AnnotatedDataFrame(features)
-    }
-    pheno <- data.frame(pheno)
-    rownames(pheno) <- pheno$biosample_accession
-    pheno<-pheno[colnames(matrix)[-1L],]
-    ad_pheno<-AnnotatedDataFrame(data=pheno)
-    es<-ExpressionSet(assayData=as.matrix(matrix[,-1L,with=FALSE]),phenoData=ad_pheno,featureData=fdata)
-    data_cache[[cache_name]]<<-es
-  }
-)
-
-#'@title get Gene Expression Matrix
-#'@aliases getGEMatrix
-#'@param x \code{"character"} name of the Gene Expression Matrix
-#'@details Returns an `ExpressionSet` from the matrix named 'x', downloads it if it is not already cached.
-#'@return an \code{ExpressionSet}
-#'@name ImmuneSpaceConnection_getGEMatrix
-#'@examples
-#'labkey.url.base="https://www.immunespace.org"
-#'labkey.url.path="/Studies/SDY269"
-#'labkey.user.email='gfinak at fhcrc.org'
-#'sdy269<-CreateConnection("SDY269")
-#'sdy269$getGEMatrix("TIV_2008")
-.ISCon$methods(
-  getGEMatrix=function(x = NULL, cohort = NULL, summary = FALSE, reload=FALSE){
-    cohort_name <- cohort #can't use cohort = cohort in d.t
-    if(!is.null(cohort_name)){
-      if(all(cohort_name %in% data_cache$GE_matrices$cohort)){
-        x <- data_cache$GE_matrices[cohort == cohort_name, name]
-      } else{
-        validCohorts <- data_cache$GE_matrices[, cohort]
-        stop(paste("No expression matrix for the given cohort.",
-                   "Valid cohorts:", paste(validCohorts, collapse = ", ")))
-      }
-    }
-    cache_name <- paste0(x, ifelse(summary, "_sum", ""))
-    if(length(x) > 1){
-      data_cache[cache_name] <<- NULL
-      lapply(x, downloadMatrix, summary)
-      lapply(x, GeneExpressionFeatures,summary)
-      lapply(x, ConstructExpressionSet, summary)
-      return(Reduce(f=combine, data_cache[cache_name]))
-    } else{
-      if (cache_name %in% names(data_cache) && !reload) {
-        data_cache[[cache_name]]
-      }
-      else {
-        data_cache[[cache_name]] <<- NULL
-        downloadMatrix(x, summary)
-        GeneExpressionFeatures(x, summary)
-        ConstructExpressionSet(x, summary)
-        data_cache[[cache_name]]
-      }
-    }
-  }
-)
-.ISCon$methods(
-  .getFeatureId=function(matrix_name){
-    subset(data_cache[[constants$matrices]],name%in%matrix_name)[, featureset]
-  }
-)
-.ISCon$methods(
-  .mungeFeatureId=function(annotation_set_id){
-    return(sprintf("featureset_%s",annotation_set_id))
-  }
-)
 .ISCon$methods(
   .isRunningLocally=function(path){
     file.exists(path)
@@ -339,47 +176,47 @@ NULL
 )
 .ISCon$methods(
   .localStudyPath=function(urlpath){
-    #LOCALPATH<-"/shared/silo_researcher/Gottardo_R/immunespace"
-    LOCALPATH<-"/share/files/"
-    PRODUCTION_HOST<-"www.immunespace.org"
-    TEST_HOST<-"test.immunespace.org"
-    PRODUCTION_PATH<-""
-    #if(grepl(PRODUCTION_HOST, urlpath)){
-    #  PROCESS<-PRODUCTION_PATH
-    #}else if(grepl(TEST_HOST, urlpath)){
-    #  PROCESS <- ""
-    #}else{
-    #  stop("Can't determine if we are running on immunespace (production) or posey (staging)")
-    #}
-    #gsub(file.path(gsub("/$","",config$labkey.url.base), "_webdav"), file.path(LOCALPATH,PROCESS), urlpath)
+    LOCALPATH <- "/share/files/"
+    PRODUCTION_HOST <- "www.immunespace.org"
+    TEST_HOST <- "test.immunespace.org"
     gsub(file.path(gsub("/$","",config$labkey.url.base), "_webdav"), file.path(LOCALPATH), urlpath)
   }
 )
 
-#'@title get a dataset
-#'@aliases getDataset
-#'@param x A \code{character}. The name of the dataset
-#'@param original_view A \code{logical}. If set to TRUE, download the ImmPort
-#' view. Else, download the default grid view. Note: Once data is cached,
-#' changing value of this argument won't have effect on the subsequent calls
-#' unless \code{reload} is set to 'TRUE'.
-#'@param ... Arguments to be passed to the underlying \code{labkey.selectRows}.
-#'@param reload A \code{logical}. Clear the cache. If set to TRUE, download the 
+#' @title Get a dataset
+#' 
+#' @description 
+#' Downloads a dataset and cache the result in the connection object.
+#' 
+#' con$getDataset(x, original_view = FALSE, reload = FALSE, ...)
+#' 
+#' @param x A \code{character}. The name of the dataset.
+#' @param original_view A \code{logical}. If set to TRUE, download the ImmPort
+#'  view. Else, download the default grid view. Note: Once data is cached,
+#'  changing value of this argument won't have effect on the subsequent calls
+#'  unless \code{reload} is set to 'TRUE'.
+#' @param reload A \code{logical}. Clear the cache. If set to TRUE, download the 
 #'  dataset, whether a cached version exist or not.
-#'@details
-#'Returns the dataset named 'x', downloads it if it is not already cached. Note
-#'that if additional arguments (...) are passed, the dataset will not be
-#'reloaded.
-#'@return a \code{data.table}
-#'@name ImmuneSpaceConnection_getDataset
-#'@examples
-#'labkey.url.base="https://www.immunespace.org"
-#'labkey.url.path="/Studies/SDY269"
-#'labkey.user.email='gfinak at fhcrc.org'
-#'sdy269<-CreateConnection("SDY269")
-#'sdy269$getDataset("hai")
+#' @param ... Arguments to be passed to the underlying \code{labkey.selectRows}.
+#' @details
+#' Returns the dataset named 'x', downloads it if it is not already cached. Note
+#' that if additional arguments (...) are passed, the dataset will be reloaded,
+#' even if a cached copy exist.
+#' 
+#' @return a \code{data.table}
+#' @name ImmuneSpaceConnection_getDataset
+#' @examples
+#' labkey.url.base = "https://www.immunespace.org"
+#' labkey.url.path = "/Studies/SDY269"
+#' sdy269 <- CreateConnection("SDY269")
+#' sdy269$getDataset("hai")
 .ISCon$methods(
     getDataset = function(x, original_view = FALSE, reload=FALSE, ...){
+      "Get a dataset form the connection\n
+      original_view: A logical. If set tot TRUE, download the ImmPort view.
+      Else, download the default grid view.\n
+      reload: A logical. Clear the cache. If set to TRUE, download the dataset,
+      whether a cached version exist or not."
       if(nrow(available_datasets[Name%in%x])==0){
         wstring <- paste0(study, " has invalid data set: ",x)
         if(config$verbose){
@@ -415,19 +252,24 @@ NULL
     })
 
 
-#'@title list available datasets
-#'@aliases listDatasets
-#'@details Prints the names of the available datasets
-#'@return Doesn't return anything, just prints to console.
-#'@name ImmuneSpaceConnection_listDatasets
-#'@examples
-#'labkey.url.base="https://www.immunespace.org"
-#'labkey.url.path="/Studies/SDY269"
-#'labkey.user.email='gfinak at fhcrc.org'
-#'sdy269<-CreateConnection("SDY269")
-#'sdy269$listDatasets()
+#' List available datasets
+#' 
+#' @description 
+#' List the datasets available in the study or studies of the connection.
+#'  
+#' con$listDatasets()
+#'  
+#' @details Prints the names of the available datasets
+#' @return Doesn't return anything, just prints to console.
+#' @name ImmuneSpaceConnection_listDatasets
+#' @examples
+#' labkey.url.base = "https://www.immunespace.org"
+#' labkey.url.path = "/Studies/SDY269"
+#' sdy269 <- CreateConnection("SDY269")
+#' sdy269$listDatasets()
 .ISCon$methods(
     listDatasets=function(){
+      "List the datasets available in the study or studies of the connection."
       cat("datasets\n")
       
       for(i in 1:nrow(available_datasets)){
@@ -442,19 +284,24 @@ NULL
     })
 
 
-#'@title list available gene expression analysis
-#'@aliases listGEAnalysis
-#'@details Prints the table of differential expression analysis
-#'@return A \code{data.frame}. The list of gene expression analysis.
-#'@name ImmuneSpaceConnection_listGEAnalysis
-#'@examples
-#'labkey.url.base="https://www.immunespace.org"
-#'labkey.url.path="/Studies/SDY269"
-#'labkey.user.email='gfinak at fhcrc.org'
-#'sdy269<-CreateConnection("SDY269")
-#'sdy269$listGEAnalysis()
+#' @title List available gene expression analysis
+#'
+#' @description 
+#' List the available gene expression analysis runs.
+#' 
+#' con$listGEAnalysis() 
+#'
+#' @details Prints the table of differential expression analysis
+#' @return A \code{data.frame}. The list of gene expression analysis.
+#' @name ImmuneSpaceConnection_listGEAnalysis
+#' @examples
+#' labkey.url.base="https://www.immunespace.org"
+#' labkey.url.path="/Studies/SDY269"
+#' sdy269<-CreateConnection("SDY269")
+#' sdy269$listGEAnalysis()
 .ISCon$methods(
     listGEAnalysis = function(){
+      "List available gene expression analysis for the connection."
       GEA <- data.table(labkey.selectRows(config$labkey.url.base,
                                           config$labkey.url.path,
                                           "gene_expression",
@@ -463,10 +310,13 @@ NULL
       return(GEA)
     })
 
-#' Get gene expression analysis
+#' @title Get gene expression analysis
 #' 
+#' @description 
 #' Download the result of a Gene epxression analysis experiment from the
 #' gene_expression schema.
+#' 
+#' con$getGEAnalysis(...)
 #' 
 #' @param ... A \code{list} of arguments to be passed to \code{labkey.selectRows}.
 #'  
@@ -474,10 +324,17 @@ NULL
 #'  results.
 #' 
 #' @import data.table
-#' @aliases getGEAnalysis
+#' @seealso labkey.selectRows
 #' @name ImmuneSpaceConnection_getGEAnalysis
+#' @examples
+#' 
+#' labkey.url.base = "https://www.immunespace.org"
+#' labkey.url.path = "/Studies/SDY269"
+#' sdy269 <- CreateConnection("SDY269")
+#' sdy269$listGEAnalysis()
 .ISCon$methods(
   getGEAnalysis = function(...){
+    "Downloads data from the gene expression analysis results table"
     GEAR <- data.table(labkey.selectRows(config$labkey.url.base, config$labkey.url.path,
         "gene_expression", "gene_expression_analysis_results",  colNameOpt = "fieldname", ...))
     setnames(GEAR, .self$.munge(colnames(GEAR)))
@@ -485,15 +342,15 @@ NULL
   }
 )
 
-#' Get HAI response at peak immunogenicity
-#' 
-#' Peak immunogenicity is defined as the timepoint with the maximum average fold
-#' change to baseline. It is calculated per cohort.
-#' 
-#' @return A \code{data.table} with columns subject_accession, response and arm name
-#' 
-#' @aliases getHAIResponse
-#' @name ImmuneSpaceConnection_getHAIResponse
+# Get HAI response at peak immunogenicity
+# 
+# Peak immunogenicity is defined as the timepoint with the maximum average fold
+# change to baseline. It is calculated per cohort.
+# 
+# @return A \code{data.table} with columns subject_accession, response and arm name
+# 
+# @aliases getHAIResponse
+# @name ImmuneSpaceConnection_getHAIResponse
 .ISCon$methods(
   getHAIResponse = function(reload){
     hai <- .self$getDataset("hai", reload = TRUE)
@@ -532,25 +389,27 @@ NULL
     }
 )
 
-#'@title get Gene Expression Files
-#'@param files A \code{character}. The name of the files to download
-#'@param destdir A \code{character}. The destination directory
-#'
-#'@details getGEFiles makes calls to base function \code{download.file} which
-#' in turn makes system calls to curl.
-#'@return An \code{integer} vector of the same length as the \code{files}
-#' parameter. See the Value section of \code{?download.file} for more
-#' information.
-#'
-#'@name ImmuneSpaceConnection_getGEMatrix
-#'@aliases getGEFiles
-#'
-#'@examples
-#'#Downloads CEL files in the current directory
-#'sdy269<-CreateConnection("SDY269")
-#'sdy269$getGEFiles(c("GSM733843.CEL", "GSM733844.CEL"))
+#' @title get Gene Expression Files
+#' @param files A \code{character}. The name of the files to download
+#' @param destdir A \code{character}. The destination directory
+#' 
+#' @details getGEFiles makes calls to base function \code{download.file} which
+#'  in turn makes system calls to curl.
+#' @return An \code{integer} vector of the same length as the \code{files}
+#'  parameter. See the Value section of \code{?download.file} for more
+#'  information.
+#' 
+#' @name ImmuneSpaceConnection_getGEFiles
+#' 
+#' @examples
+#' #Downloads CEL files in the current directory
+#' sdy269<-CreateConnection("SDY269")
+#' sdy269$getGEFiles(c("GSM733843.CEL", "GSM733844.CEL"))
 .ISCon$methods(
   getGEFiles=function(files, destdir = "."){
+    "Download gene expression raw data files.\n
+    files: A character. Filenames as shown on the gene_expression_files dataset.\n
+    destdir: A character. The loacal path to store the downloaded files."
     links <- paste0(config$labkey.url.base, "/_webdav/",
                     config$labkey.url.path,
                     "/%40files/rawdata/gene_expression/", files)

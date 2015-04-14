@@ -24,6 +24,36 @@ The ImmunespaceConnection will initialize itself, and look for a
 \code{password} entry to allow access to ImmuneSpace, where \code{machine} is
 the host name like "www.immunespace.org".
 }
+\section{Methods}{
+
+\describe{
+\item{\code{getDataset(x, original_view = FALSE, reload = FALSE, ...)}}{Get a dataset form the connection
+
+      original_view: A logical. If set tot TRUE, download the ImmPort view.
+      Else, download the default grid view.
+
+      reload: A logical. Clear the cache. If set to TRUE, download the dataset,
+      whether a cached version exist or not.}
+
+\item{\code{getGEAnalysis(...)}}{Downloads data from the gene expression analysis results table}
+
+\item{\code{getGEFiles(files, destdir = ".")}}{Download gene expression raw data files.
+
+    files: A character. Filenames as shown on the gene_expression_files dataset.
+
+    destdir: A character. The loacal path to store the downloaded files.}
+
+\item{\code{getGEMatrix(x = NULL, cohort = NULL, summary = FALSE, reload = FALSE)}}{Downloads a s normalized gene expression matrix from ImmuneSpace.
+
+    `x': A `character'. The name of the gene expression matrix to download.
+
+    `cohort': A `character'. The name of a cohort that has an associated gene
+    expression matrix. Note that if `cohort' isn't NULL, then `x' is ignored.}
+
+\item{\code{listDatasets()}}{List the datasets available in the study or studies of the connection.}
+
+\item{\code{listGEAnalysis()}}{List available gene expression analysis for the connection.}
+}}
 \examples{
 labkey.url.base <- "https://www.immunespace.org"
 labkey.url.path <- "/Studies/SDY269"
@@ -32,6 +62,11 @@ sdy269 <- CreateConnection("SDY269")
 sdy269
 }
 \seealso{
-\code{\link{ImmuneSpaceR-package}} \code{\link{ImmuneSpaceConnection_getGEMatrix}}  \code{\link{ImmuneSpaceConnection_getDataset}}  \code{\link{ImmuneSpaceConnection_listDatasets}}
+\code{\link{ImmuneSpaceR-package}}
+\code{\link{ImmuneSpaceConnection_getGEMatrix}}
+\code{\link{ImmuneSpaceConnection_getDataset}}
+\code{\link{ImmuneSpaceConnection_listDatasets}}
+\code{\link{ImmuneSpaceConnection_getGEAnalysis}}
+\code{\link{ImmuneSpaceConnection_listGEAnalysis}}
 }
 

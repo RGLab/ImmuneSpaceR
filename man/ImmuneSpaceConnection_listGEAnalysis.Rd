@@ -2,13 +2,14 @@
 % Please edit documentation in R/ImmuneSpace.R
 \name{ImmuneSpaceConnection_listGEAnalysis}
 \alias{ImmuneSpaceConnection_listGEAnalysis}
-\alias{listGEAnalysis}
-\title{list available gene expression analysis}
+\title{List available gene expression analysis}
 \value{
 A \code{data.frame}. The list of gene expression analysis.
 }
 \description{
-list available gene expression analysis
+List the available gene expression analysis runs.
+
+con$listGEAnalysis()
 }
 \details{
 Prints the table of differential expression analysis
@@ -16,7 +17,6 @@ Prints the table of differential expression analysis
 \examples{
 labkey.url.base="https://www.immunespace.org"
 labkey.url.path="/Studies/SDY269"
-labkey.user.email='gfinak at fhcrc.org'
 sdy269<-CreateConnection("SDY269")
 sdy269$listGEAnalysis()
 }

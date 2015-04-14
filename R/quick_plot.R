@@ -8,8 +8,9 @@ NULL
 )
 
 # @importFrom ggthemr ggthemr
-# @import ggthemr Currently we have to depend on ggthemr because it depends on ggplot2
-#' @importFrom ggplot2 facet_grid facet_wrap
+#Currently we have to depend on ggthemr because it depends on ggplot2
+#' @import ggthemr 
+#' @importFrom ggplot2 facet_grid facet_wrap geom_text element_blank
 #' @importFrom Biobase pData
 #' @importFrom reshape2 melt
   .quick_plot <- function(con, dataset, normalize_to_baseline = TRUE,
