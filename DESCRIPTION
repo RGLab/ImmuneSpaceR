@@ -35,5 +35,6 @@ Collate:
     'NOTES.R'
     'getGEMatrix.R'
     'quick_plot.R'
+    'tmp_getDataToPlot.R'
     'utils.R'
     'zzz.R'
