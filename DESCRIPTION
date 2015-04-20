@@ -1,7 +1,7 @@
 Package: ImmuneSpaceR
 Type: Package
 Title: A Thin Wrapper around the ImmuneSpace Database
-Version: 0.2.14
+Version: 0.2.15
 Date: 2014-06-11
 Author: Greg Finak
 VignetteBuilder: knitr
@@ -35,6 +35,5 @@ Collate:
     'NOTES.R'
     'getGEMatrix.R'
     'quick_plot.R'
-    'tmp_getDataToPlot.R'
     'utils.R'
     'zzz.R'
