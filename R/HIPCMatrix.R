@@ -68,6 +68,7 @@ NULL
   if (all(file_ext(colnames(norm_exprs)) == "CEL")) {#If filenames used as samplenames
     colnames(norm_exprs) <- gef[match(colnames(norm_exprs), gef$file_info_name), biosample_accession]
   }
+  return(norm_exprs)
 }
 
 # This will work for files that follow the standards from immport
