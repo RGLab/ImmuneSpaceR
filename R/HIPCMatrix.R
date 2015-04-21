@@ -97,12 +97,15 @@ NULL
 
 .es2bs <- function(con, table){
   ess <- grep("^ES", colnames(table), value = TRUE)
-  esFilter <- makeFilter(c("expsample_accession", "IN", paste0(ess, collapse = ";")))
-  bs2es <- data.table(labkey.selectRows(con$config$labkey.url.base,
-                                        con$config$labkey.url.path,
-                                        "immport", "biosample_2_expsample",
-                                        colFilter = esFilter,
-                                        colNameOpt = "rname"))
-  bss <- bs2es[match(ess, bs2es$expsample_accession), biosample_accession]
-  setnames(table, ess, bss)
+  if(length(ess) > 0){
+    esFilter <- makeFilter(c("expsample_accession", "IN", paste0(ess, collapse = ";")))
+    bs2es <- data.table(labkey.selectRows(con$config$labkey.url.base,
+                                          con$config$labkey.url.path,
+                                          "immport", "biosample_2_expsample",
+                                          colFilter = esFilter,
+                                          colNameOpt = "rname"))
+    bss <- bs2es[match(ess, bs2es$expsample_accession), biosample_accession]
+    setnames(table, ess, bss)
+  }
+  return(table)
 }
