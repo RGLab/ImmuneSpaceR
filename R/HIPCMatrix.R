@@ -35,13 +35,13 @@ NULL
       message("There are more than one cohort selected in this HIPCMatrix run")
     }
     
-    inputFiles <- file.path(labkey.file.root, "rawdata/gene_expression", inputFiles)
+    inputFiles <- file.path("/share/files/", config$labkey.url.path, "@files/rawdata/gene_expression", inputFiles)
     # Filetypes
     # After this step norm_exprs is a matrix with features as rownames and expsample as colnames
     if(length(ext) > 1){
       stop(paste("There is more than one file extension:", paste(ext, collapse = ",")))
     } else if(ext == "CEL"){
-      norm_exprs <- .process_CEL(gef, inputFiles)
+      norm_exprs <- .process_CEL(con, gef, inputFiles)
     } else if(ext == "tsv"){
       norm_exprs <- .process_TSV(gef, inputFiles)
     }
