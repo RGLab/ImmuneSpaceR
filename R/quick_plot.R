@@ -32,7 +32,7 @@ NULL
   # Datasets
   e <- try({
     dt <- .getDataToPlot(con, dataset, filter = filter)
-    dt <- standardize_time(dt, keep_units = TRUE)
+    dt <- .standardize_time(dt)
     if(logT){
       dt <- dt[, response := mean(log2(response+1), na.rm = TRUE),
                by = "arm_name,subject_accession,analyte,time_str"]
@@ -89,35 +89,30 @@ NULL
 #  study_time_collected_unit columns
 # @value Returns a data.table with an additional time_str column of ordered
 #  factors
-standardize_time <- function(data, keep_units = TRUE){
-  data <- data[, study_time_collected_unit := gsub("s$", "", tolower(data$study_time_collected_unit))]
-  if(!all(unique(data$study_time_collected_unit) %in% c("hour", "day"))){
-    stop("Time should be expressed in Days or Hours")
-  }
-  if(keep_units){
-    data <- data[, stcu := gsub("s$", "", tolower(data$study_time_collected_unit))]
+.standardize_time <- function(data){
+  data <- data[, stcu := gsub("s$", "", tolower(data$study_time_collected_unit))]
+  if(length(unique(data$stcu)) > 1){
+    if(!all(unique(data$stcu) %in% c("hour", "day"))){
+      stop("Time should be expressed in Days or Hours")
+    }
     data <- data[, stc := study_time_collected]
     data <- data[stcu == "day", stc := stc * 24]
     # Merge equivalent TP
-    data <- data[, stcu := ifelse(abs(stc) < 24, "hour", "day")]
+    data <- data[, stcu := ifelse(abs(stc) < 24, "Hour", "Day")]
     # Get levels 
     ut <- sort(unique(data$stc))
-    levs <- ifelse(abs(ut) < 24, paste(ut, "hour"), paste(ut/24, "day"))
+    levs <- ifelse(abs(ut) < 24, paste("Hour", ut), paste("Day", ut/24))
     # Concatenate time and unit
     data <- data[, stc := ifelse(abs(stc) < 24, stc, stc/24)]
-    data <- data[, time_str := factor(paste(stc, stcu), levels = levs)]
+    data <- data[, time_str := factor(paste(stcu, stc), levels = levs)]
     # Cleanup
     data <- data[, c("study_time_collected", "study_time_collected_unit") := 
                    list(stc, stcu)]
     data <- data[, c("stc", "stcu") := NULL]
   } else{
-    data <- data[study_time_collected_unit == "day", study_time_collected := study_time_collected * 24]
-    if(max(abs(data$study_time_collected)) > 24){
-      data[, study_time_collected_unit := "Days"]
-      data[, study_time_collected := study_time_collected/24]
-    } else{
-      data[, study_time_collected_unit := "Hours"]
-    }
+    ut <- sort(unique(data$study_time_collected))
+    levs <- paste(unique(data$study_time_collected_unit), ut)
+    data <- data[, time_str := factor(paste(study_time_collected_unit, study_time_collected), levels = levs)]
   }
   return(data)
 }
@@ -264,9 +259,9 @@ standardize_time <- function(data, keep_units = TRUE){
   dt <- dt[, response := ifelse(value_reported <0, 0, value_reported)]
   dt <- dt[, out_cols, with = FALSE]
   setnames(dt, demo_cols, c("Gender", "Age", "Race"))
-  if(nrow(dt) != nrow(unique(dt))){
-    print(paste("There are: ", nrow(dt) - nrow(unique(dt)), " duplicates."))
-  }
+  #if(nrow(dt) != nrow(unique(dt))){
+  #  print(paste("There are: ", nrow(dt) - nrow(unique(dt)), " duplicates."))
+  #}
   return(dt)
 }
 

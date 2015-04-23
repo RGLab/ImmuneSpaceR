@@ -1,4 +1,4 @@
-# glbalVariables to remove RCC NOTES due to data.table scoping
+# globalVariables to remove RCC NOTES due to data.table scoping
 globalVariables(c("biosample_accession",
                 "study_time_collected",
                 "study_time_collected_unit",
