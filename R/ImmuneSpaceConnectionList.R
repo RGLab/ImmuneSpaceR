@@ -101,6 +101,18 @@
   })
 
 .ISConList$methods(
+  getGEAnalysis = function(...){
+    geaList <- lapply(connections, function(con){
+      gea <- data.table::copy(con$getGEAnalysis(...))
+      if(!is.null(gea)){
+        gea[, study := con$study]
+      }
+      gea
+    })
+    rbindlist(geaList)
+  })
+
+.ISConList$methods(
   clear_cache = function(){
     for(con in connections)
       con$clear_cache()
