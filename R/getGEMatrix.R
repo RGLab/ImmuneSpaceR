@@ -112,7 +112,7 @@ NULL
 #' @description 
 #' Downloads a normalized gene expression matrix from ImmuneSpace.
 #'
-#' con$getGEMatrix*x = NULL, cohort = NULL, summary = FALSE, reload = FALSE)
+#' con$getGEMatrix(x = NULL, cohort = NULL, summary = FALSE, reload = FALSE)
 #'
 #' @param x  A \code{character}. The name of the Gene Expression Matrix to download.
 #' @param cohort A \code{character}. The name of a cohort that has an associated
@@ -133,7 +133,7 @@ NULL
 #' sdy269$getGEMatrix("TIV_2008")
 .ISCon$methods(
   getGEMatrix=function(x = NULL, cohort = NULL, summary = FALSE, reload=FALSE){
-    "Downloads a s normalized gene expression matrix from ImmuneSpace.\n
+    "Downloads a normalized gene expression matrix from ImmuneSpace.\n
     `x': A `character'. The name of the gene expression matrix to download.\n
     `cohort': A `character'. The name of a cohort that has an associated gene
     expression matrix. Note that if `cohort' isn't NULL, then `x' is ignored."
