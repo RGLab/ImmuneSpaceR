@@ -23,7 +23,7 @@ An \code{ExpressionSet}.
 \description{
 Downloads a normalized gene expression matrix from ImmuneSpace.
 
-con$getGEMatrix*x = NULL, cohort = NULL, summary = FALSE, reload = FALSE)
+con$getGEMatrix(x = NULL, cohort = NULL, summary = FALSE, reload = FALSE)
 }
 \examples{
 labkey.url.base = "https://www.immunespace.org"

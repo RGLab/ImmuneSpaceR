@@ -43,7 +43,7 @@ the host name like "www.immunespace.org".
 
     destdir: A character. The loacal path to store the downloaded files.}
 
-\item{\code{getGEMatrix(x = NULL, cohort = NULL, summary = FALSE, reload = FALSE)}}{Downloads a s normalized gene expression matrix from ImmuneSpace.
+\item{\code{getGEMatrix(x = NULL, cohort = NULL, summary = FALSE, reload = FALSE)}}{Downloads a normalized gene expression matrix from ImmuneSpace.
 
     `x': A `character'. The name of the gene expression matrix to download.
 

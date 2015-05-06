@@ -251,6 +251,7 @@ NULL
     EM <- EM[ugenes,]
     pd <- data.table(pData(EM))
     demo <- con$getDataset("demographics")
+    demo <- unique(demo[, c("subject_accession", demo_cols), with = FALSE])
     dt <- data.table(melt(exprs(EM)))
     setnames(dt, c("analyte", "biosample_accession", "value_reported"))
     dt <- merge(dt, pd, by = "biosample_accession", all.x = TRUE) # Add s_t_c, s_t_c_u, arm 

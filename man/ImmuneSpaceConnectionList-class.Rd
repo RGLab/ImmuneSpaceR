@@ -12,6 +12,13 @@ An instance of an ImmuneSpaceConnection for a study in `labkey.url.path`
 \description{
 Instantiate this class to access a list of studies
 }
+\section{Methods}{
+
+\describe{
+\item{\code{getGEMatrix(x = NULL, cohort = NULL, summary = TRUE)}}{Download and combines the selected normalized gene expression matrices
+
+    Note: For multi study connections, the summary argument is set to TRUE}
+}}
 \examples{
 labkey.url.base <- "https://www.immunespace.org"
 labkey.url.path <- "/Studies/SDY269"
