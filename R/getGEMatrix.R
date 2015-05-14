@@ -82,9 +82,13 @@ NULL
     pheno <- unique(data.table(labkey.selectRows(
       config$labkey.url.base, config$labkey.url.path,
       "assay.ExpressionMatrix.matrix", "InputSamples", "gene_expression_matrices",
-      colNameOpt = "rname", colFilter = pheno_filter)))
-    setnames(pheno, colnames(pheno), gsub("^biosample_", "", .self$.munge(colnames(pheno))))
-    pheno <- pheno[, list(biosample_accession, subject_accession, arm_name,
+      colNameOpt = "caption", colFilter = pheno_filter)))
+    #setnames(pheno, colnames(pheno), gsub("^biosample_", "", .self$.munge(colnames(pheno))))
+    setnames(pheno, .self$.munge(colnames(pheno)))
+
+    #pheno <- pheno[, list(biosample_accession, subject_accession, arm_name,
+    pheno <- pheno[, list(biosample_accession, subject_accession, cohort,
+
                           study_time_collected, study_time_collected_unit)]
     
     if(summary){

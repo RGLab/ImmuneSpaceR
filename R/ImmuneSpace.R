@@ -38,12 +38,25 @@ NULL
 }
 
 #'@name ImmuneSpaceConnection
-#'@aliases ImmuneSpaceConnection-class
 #'@aliases ImmuneSpace
 #'@rdname ImmuneSpaceConnection-class
 #'@docType class
 #'@title The ImmuneSpaceConnection class
-#'@description Instantiate this class to access a study
+#'
+#'@description
+#'A connection respresents a study or a set of studies available on ImmuneSpace.
+#'It provides function to download and display the data within these studies.
+#'
+#'@field study A \code{character}. The study accession number.
+#'@field config A \code{list}. Stores configuration of the connection object 
+#'such as URL, path and username.
+#'@field available_datasets A \code{data.table}. The table of datasets available
+#'in the connection object.
+#'@field data_cache A \code{list}. Stores the data to avoid downloading the same
+#'tables multiple times.
+#'@field constants A \code{list}. Used to store information regarding 
+#'gene-expression data.
+#'
 #'@details
 #' Uses global variables \code{labkey.url.base}, and \code{labkey.url.path}, to
 #' access a study. \code{labkey.url.base} should be
@@ -56,24 +69,23 @@ NULL
 #' \code{password} entry to allow access to ImmuneSpace, where \code{machine} is
 #' the host name like "www.immunespace.org".
 #' 
-#'@seealso \code{\link{ImmuneSpaceR-package}} 
-#'\code{\link{ImmuneSpaceConnection_getGEMatrix}}
-#'\code{\link{ImmuneSpaceConnection_getDataset}}
-#'\code{\link{ImmuneSpaceConnection_listDatasets}}
-#'\code{\link{ImmuneSpaceConnection_getGEAnalysis}}
-#'\code{\link{ImmuneSpaceConnection_listGEAnalysis}}
+#'@seealso 
+#' \code{\link{CreateConnection}}
+#' \code{\link{ImmuneSpaceR-package}} 
+#' \code{\link{ImmuneSpaceConnection_getGEMatrix}}
+#' \code{\link{ImmuneSpaceConnection_getDataset}}
+#' \code{\link{ImmuneSpaceConnection_listDatasets}}
+#' \code{\link{ImmuneSpaceConnection_getGEAnalysis}}
+#' \code{\link{ImmuneSpaceConnection_listGEAnalysis}}
 #'@exportClass ImmuneSpaceConnection
 #'@examples
-#'labkey.url.base <- "https://www.immunespace.org"
-#'labkey.url.path <- "/Studies/SDY269"
-#'labkey.user.email <- 'gfinak at fhcrc.org'
-#'sdy269 <- CreateConnection("SDY269")
-#'sdy269
+#' sdy269 <- CreateConnection("SDY269")
+#' sdy269
 #'@return An instance of an ImmuneSpaceConnection for a study in `labkey.url.path`
 .ISCon <- setRefClass(Class = "ImmuneSpaceConnection",
-            fields = list(study = "character", config="list",
+            fields = list(study = "character", config = "list",
                           available_datasets = "data.table",
-                          data_cache="list",constants="list")
+                          data_cache = "list", constants = "list")
 )
 
 #' @importFrom gtools mixedsort
@@ -336,7 +348,7 @@ NULL
   getGEAnalysis = function(...){
     "Downloads data from the gene expression analysis results table"
     GEAR <- data.table(labkey.selectRows(config$labkey.url.base, config$labkey.url.path,
-        "gene_expression", "gene_expression_analysis_results",  colNameOpt = "fieldname", ...))
+        "gene_expression", "gene_expression_analysis_results",  colNameOpt = "caption", ...))
     setnames(GEAR, .self$.munge(colnames(GEAR)))
     return(GEAR)
   }

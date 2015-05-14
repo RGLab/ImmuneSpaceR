@@ -8,13 +8,11 @@
 #'@seealso \code{\link{ImmuneSpaceConnection-class}}
 #'@exportClass ImmuneSpaceConnectionList
 #'@examples
-#'labkey.url.base <- "https://www.immunespace.org"
-#'labkey.url.path <- "/Studies/SDY269"
-#'labkey.user.email <- 'gfinak at fhcrc.org'
-#'cons <- CreateConnection(c("SDY269", "SDY180"))
-#'cons
+#' cons <- CreateConnection(c("SDY269", "SDY180"))
+#' cons
 #'@return An instance of an ImmuneSpaceConnection for a study in `labkey.url.path`
-.ISConList <- setRefClass(Class = "ImmuneSpaceConnectionList", fields = list(connections="list"))
+.ISConList <- setRefClass(Class = "ImmuneSpaceConnectionList",
+                          fields = list(connections = "list"))
 
 #' print names of the studies associated with the connection list.
 #' @name studyNames
@@ -149,7 +147,11 @@
       pData(featureData(es)) <- droplevels(pData(featureData(es)))#prevent warnings during combining
       es
     })
-    return(Reduce(f = combine, esList))
+    EM <- Reduce(f = combine, esList)
+    if(is.null(EM)){
+      warning("None of the selected runs or cohorts exist in the connection.")
+    }
+    return(EM)
   })
 
     
