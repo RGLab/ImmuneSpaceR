@@ -107,3 +107,19 @@ saveConnection <- function(con, file){
 ISpalette <- function(n){
   colorpanel(n, low = "#268bd2", mid = "#fdf6e3", high = "#dc322f")
 }
+
+#
+.check_filter <- function(lub, lup, schema, query, view = "", colFilter){
+  # Get the names used in the filter
+  old <- tolower(curlUnescape(gsub("~.*$", "", colFilter)))
+  # 
+  suppressWarnings({
+    labels <- tolower(colnames(labkey.selectRows(lub, lup, schema, query, view, maxRows = 0, colNameOpt = "caption")))
+    names <- colnames(labkey.selectRows(lub, lup, schema, query, view, maxRows = 0, colNameOpt = "fieldname"))
+  })
+  # Get the new names
+  idx <- which(old %in% labels)
+  new <- curlEscape(names[match(old[idx], labels)])
+  colFilter[idx] <- paste0(paste0(new, "~"), gsub("^.*~", "", colFilter[idx]))
+  return(colFilter)
+}

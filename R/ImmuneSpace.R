@@ -223,7 +223,7 @@ NULL
 #' sdy269 <- CreateConnection("SDY269")
 #' sdy269$getDataset("hai")
 .ISCon$methods(
-    getDataset = function(x, original_view = FALSE, reload=FALSE, ...){
+    getDataset = function(x, original_view = FALSE, reload = FALSE, colFilter = NULL, ...){
       "Get a dataset form the connection\n
       original_view: A logical. If set tot TRUE, download the ImmPort view.
       Else, download the default grid view.\n
@@ -233,27 +233,34 @@ NULL
         wstring <- paste0(study, " has invalid data set: ",x)
         if(config$verbose){
           wstring <- paste0(wstring, "\n",
-                            "Vali datasets for ", study, ": ",
+                            "Valid datasets for ", study, ": ",
                             paste(available_datasets$Name, collapse = ", "), ".")
         }
         warning(wstring)
         NULL
       }else{
         cache_name <- paste0(x, ifelse(original_view, "_full", ""))
-        if(!is.null(data_cache[[cache_name]]) & !reload & length(list(...)) == 0){
+        #if(!is.null(data_cache[[cache_name]]) & !reload & length(list(...)) == 0){
+        if(!is.null(data_cache[[cache_name]]) & !reload & is.null(colFilter)){
           data_cache[[cache_name]]
         }else{
           viewName <- NULL
           if(original_view){
             viewName <- "full"
           }
-          
+          #if("colFilter" %in% names(list(...))){
+          if(!is.null(colFilter)){
+            colFilter <- .check_filter(config$labkey.url.base, 
+                                       config$labkey.url.path, 
+                                       "study", x, viewName, colFilter)
+          }
           data_cache[[cache_name]] <<- data.table(labkey.selectRows(baseUrl = config$labkey.url.base
                                                            ,config$labkey.url.path
                                                            ,schemaName = "study"
                                                            , queryName = x
                                                            , viewName = viewName
                                                            , colNameOpt = "caption"
+                                                           , colFilter = colFilter
                                                            , ...)
           )
           setnames(data_cache[[cache_name]],

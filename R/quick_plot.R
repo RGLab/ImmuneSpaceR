@@ -34,7 +34,7 @@ NULL
 .quick_plot <- function(con, dataset, normalize_to_baseline = TRUE,
                       type = "auto", filter = NULL,
                       facet = "grid", text_size = 15,
-                      legend = NULL, ...){
+                      legend = NULL, show_virus_strain = FALSE, ...){
   logT <- TRUE #By default, log transform the value_reported
   message_out <- ""
   extras <- list(...)
@@ -49,7 +49,7 @@ NULL
   
   # Datasets
   e <- try({
-    dt <- .getDataToPlot(con, dataset, filter = filter)
+    dt <- .getDataToPlot(con, dataset, filter = filter, show_virus_strain)
     dt <- .standardize_time(dt)
     if(logT){
       dt <- dt[, response := mean(log2(response+1), na.rm = TRUE),
@@ -223,7 +223,7 @@ NULL
 # Get the data
 # Add standard columns for analyte and response
 # NOTE: No need for analyte_name check (Fixed in DR12)
-.getDataToPlot <- function(con, dataset, filter = NULL){
+.getDataToPlot <- function(con, dataset, filter = NULL, show_virus_strain = FALSE){
   # All columns that can potentially be used
   demo_cols <- c("gender", "age_reported", "race")
   out_cols <- c("study_time_collected", "study_time_collected_unit", "cohort", "subject_accession")
@@ -237,6 +237,10 @@ NULL
   
   if(dataset == "elispot"){
     dt <- dt[, value_reported := (spot_number_reported) / cell_number_reported]
+  } else if(dataset %in% c("hai", "neut_ab_titer")){
+    if(isTRUE(show_virus_strain)){
+      dt <- dt[, analyte := virus_strain]
+    }
   } else if(dataset == "pcr"){
     if(all(is.na(dt[, threshold_cycles]))){
       stop("PCR results cannot be displayed for studies that do not use threshold cycles.
