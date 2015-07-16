@@ -20,9 +20,6 @@ Instantiate this class to access a list of studies
     Note: For multi study connections, the summary argument is set to TRUE}
 }}
 \examples{
-labkey.url.base <- "https://www.immunespace.org"
-labkey.url.path <- "/Studies/SDY269"
-labkey.user.email <- 'gfinak at fhcrc.org'
 cons <- CreateConnection(c("SDY269", "SDY180"))
 cons
 }

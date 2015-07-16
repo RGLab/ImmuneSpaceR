@@ -38,7 +38,9 @@ NULL
 }
 
 #'@name ImmuneSpaceConnection
-#'@aliases ImmuneSpace
+#'@aliases
+#'ImmuneSpace
+#'ImmuneSpaceConnection-class
 #'@rdname ImmuneSpaceConnection-class
 #'@docType class
 #'@title The ImmuneSpaceConnection class
