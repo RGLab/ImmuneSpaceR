@@ -36,7 +36,6 @@ NULL
                       facet = "grid", text_size = 15,
                       legend = NULL, show_virus_strain = FALSE, ...){
   logT <- TRUE #By default, log transform the value_reported
-  message_out <- ""
   extras <- list(...)
   
   # legend
@@ -51,6 +50,7 @@ NULL
   e <- try({
     dt <- .getDataToPlot(con, dataset, filter = filter, show_virus_strain)
     dt <- .standardize_time(dt)
+    ylab <- .format_lab(dataset, normalize_to_baseline)
     if(logT){
       dt <- dt[, response := mean(log2(response+1), na.rm = TRUE),
                by = "cohort,subject_accession,analyte,time_str"]
@@ -59,13 +59,9 @@ NULL
                by = "cohort,subject_accession,analyte,time_str"]
     }
     dt <- unique(dt)
-    
     if(normalize_to_baseline){
       dt <- dt[,response:=response-response[study_time_collected==0],
                by="cohort,subject_accession,analyte"][study_time_collected!=0]
-      ylab <- "Response normalized to baseline"
-    } else{
-      ylab <- "Response (log2)"
     }
     if(type == "auto"){
       if(length(unique(dt$analyte)) < 10){
@@ -283,9 +279,6 @@ NULL
   dt <- dt[, response := ifelse(value_reported <0, 0, value_reported)]
   dt <- dt[, out_cols, with = FALSE]
   setnames(dt, demo_cols, c("Gender", "Age", "Race"))
-  #if(nrow(dt) != nrow(unique(dt))){
-  #  print(paste("There are: ", nrow(dt) - nrow(unique(dt)), " duplicates."))
-  #}
   return(dt)
 }
 
@@ -310,4 +303,20 @@ NULL
   anno <- data.frame(anno, row.names = anno$ID)
   anno$ID <- NULL
   return(list(anno, anno_color))
+}
+
+# Display name for the Y-axis
+# TODO: Add units. But they are in dt.
+.format_lab <- function(dataset, normalize_to_baseline){
+  lab <- switch(dataset,
+                "hai" = "HAI",
+                "elisa" = "Concentration",
+                "elispot" =  "Spot count",
+                "mbaa" = "Concentration",
+                "fcs_analyzed_result" = "Cell number",
+                "gene_expression_analysis_results" = "")
+  if(normalize_to_baseline){
+    lab <- paste(lab, "normalized to baseline")
+  }
+  return(lab)       
 }
