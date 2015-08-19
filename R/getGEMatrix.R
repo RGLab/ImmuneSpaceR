@@ -86,8 +86,8 @@ NULL
     #setnames(pheno, colnames(pheno), gsub("^biosample_", "", .self$.munge(colnames(pheno))))
     setnames(pheno, .self$.munge(colnames(pheno)))
 
-    #pheno <- pheno[, list(biosample_accession, subject_accession, arm_name,
-    pheno <- pheno[, list(biosample_accession, subject_accession, cohort,
+    #pheno <- pheno[, list(biosample_accession, ParticipantId, arm_name,
+    pheno <- pheno[, list(biosample_accession, participant_id, cohort,
 
                           study_time_collected, study_time_collected_unit)]
     
