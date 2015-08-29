@@ -44,6 +44,10 @@ NULL
       norm_exprs <- .process_CEL(con, gef, inputFiles)
     } else if(ext == "tsv"){
       norm_exprs <- .process_TSV(gef, inputFiles)
+    } else if(ext == "txt"){
+      norm_exprs <- .process_TXT(gef, inputFiles)
+    } else{
+      stop("File extension not supported.")
     }
     if(!is(norm_exprs, "data.table")){
       norm_exprs <- data.table(norm_exprs, keep.rownames = TRUE)
@@ -74,7 +78,6 @@ NULL
 # This will work for files that follow the standards from immport
 # Eventually, all tsv files should be rewritten to follow this standard.
 # @return A matrix with biosample_accession as cols and feature_id as rownames
-# @importFrom lumi lumiN
 #' @importFrom preprocessCore normalize.quantiles
 #' @importFrom reshape2 acast
 .process_TSV <- function(gef, inputFiles){
@@ -90,14 +93,38 @@ NULL
   exprs <- preprocessCore::normalize.quantiles(exprs)
   colnames(exprs) <- cnames 
   rownames(exprs) <- rnames 
-  #eset <- new("ExpressionSet", exprs = exprs)
-  #eset <- lumi::lumiN(eset, method = "quantile") #In Suggests to reduce laod time (13 secs for lumi alone)
-  #norm_exprs <- log2(pmax(exprs(eset), 1))
   
   norm_exprs <- log2(pmax(exprs, 1))
   norm_exprs <- norm_exprs[, c(colnames(norm_exprs) %in% gef$expsample_accession)]
   return(norm_exprs)
 }
+
+#biosample_accession as colnames
+#Works for SDY212
+#' @importFrom preprocessCore normalize.quantiles
+.process_TXT <- function(gef, inputFiles){
+  exprs <- fread(inputFiles, header = TRUE)
+  sigcols <- grep("Signal", colnames(exprs), value = TRUE)
+  if(length(sigcols) > 0){
+    exprs <- exprs[, c("PROBE_ID", sigcols), with = FALSE]
+    setnames(exprs, c("PROBE_ID", colnames(exprs)),
+             c("feature_id", gsub(".AVG.*$", "", colnames(exprs))))
+  } else{
+    stop("Unknown format: check data and add code if needed.")
+  }
+  
+  cnames <- colnames(exprs)
+  rnames <- rownames(exprs)
+  exprs <- preprocessCore::normalize.quantiles(exprs)
+  colnames(exprs) <- cnames
+  rownames(exprs) <- rnames
+  
+  norm_exprs <- log2(pmax(exprs, 1))
+  norm_exprs <- norm_exprs[, c(colnames(norm_exprs) %in% gef$biosample_accession)]
+  return(norm_exprs)
+}
+  
+
 
 .clean_colnames <- function(table){
   setnames(table, tolower(chartr(" ", "_", names(table))))
