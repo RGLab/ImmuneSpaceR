@@ -4,7 +4,6 @@ globalVariables(c("biosample_accession",
                 "study_time_collected_unit",
                 "arm_name",
                 "response",
-                "subject_accession",
                 "analyte",
                 "analyte_name",
                 "value_reported",
@@ -19,5 +18,6 @@ globalVariables(c("biosample_accession",
                 "x", "y", "err", #ggplot2 aes
                 "ID", #qpHeatmap
                 "stc", "stcu", "time_str", #standardize_time
-                "virus_strain", "cohort"
+                "virus_strain", "cohort",
+                "participant_id"
                 ))

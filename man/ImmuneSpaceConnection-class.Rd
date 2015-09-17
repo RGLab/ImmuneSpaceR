@@ -49,11 +49,11 @@ gene-expression data.}
 \item{\code{getDataset(x, original_view = FALSE, reload = FALSE, colFilter = NULL,
   ...)}}{Get a dataset form the connection
 
-      original_view: A logical. If set tot TRUE, download the ImmPort view.
-      Else, download the default grid view.
+    original_view: A logical. If set tot TRUE, download the ImmPort view.
+    Else, download the default grid view.
 
-      reload: A logical. Clear the cache. If set to TRUE, download the dataset,
-      whether a cached version exist or not.}
+    reload: A logical. Clear the cache. If set to TRUE, download the dataset,
+    whether a cached version exist or not.}
 
 \item{\code{getGEAnalysis(...)}}{Downloads data from the gene expression analysis results table}
 
