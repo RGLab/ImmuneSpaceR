@@ -173,6 +173,35 @@ NULL
   }
 )
 
+#' @importFrom Biobase pData
+#' @importFrom Rlabkey makeFilter labkey.selectRows
+.ISCon$methods(
+  addTrt=function(x = NULL){
+    if(!x %in% names(data_cache)){
+      stop(paste(x, "is not a valid expression matrix."))
+    } 
+    bsFilter <- makeFilter(c("biosample_accession", "IN",
+                             paste(pData(data_cache[[x]])$biosample_accession, collapse = ";")))
+    bs2es <- data.table(labkey.selectRows(config$labkey.url.base, config$labkey.url.path,
+                                          "immport", "biosample_2_expsample",
+                                          colFilter = bsFilter, colNameOpt = "rname"))
+    esFilter <- makeFilter(c("expsample_accession", "IN",
+                             paste(bs2es$expsample_accession, collapse = ";")))
+    es2trt <- data.table(labkey.selectRows(config$labkey.url.base, config$labkey.url.path,
+                                           "immport", "expsample_2_treatment",
+                                           colFilter = esFilter, colNameOpt = "rname"))
+    trtFilter <- makeFilter(c("treatment_accession", "IN",
+                              paste(es2trt$treatment_accession, collapse = ";")))
+    trt <- data.table(labkey.selectRows(config$labkey.url.base, config$labkey.url.path,
+                                        "immport", "treatment",
+                                        colFilter = trtFilter, colNameOpt = "rname"))
+    bs2trt <- merge(bs2es, es2trt, by = "expsample_accession")
+    bs2trt <- merge(bs2trt, trt, by = "treatment_accession")
+    pData(data_cache[[x]])$treatment <<- bs2trt[match(pData(data_cache[[x]])$biosample_accession, biosample_accession), name]
+    return(data_cache[[x]])
+  }
+)
+
 .ISCon$methods(
   .getFeatureId=function(matrix_name){
     subset(data_cache[[constants$matrices]],name%in%matrix_name)[, featureset]
