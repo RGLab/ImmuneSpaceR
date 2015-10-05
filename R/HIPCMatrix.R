@@ -42,10 +42,10 @@ NULL
       stop(paste("There is more than one file extension:", paste(ext, collapse = ",")))
     } else if(ext == "CEL"){
       norm_exprs <- .process_CEL(con, gef, inputFiles)
+    } else if(ext == "txt" | study %in% c("SDY162", "SDY212")){
+      norm_exprs <- .process_TXT(gef, inputFiles)
     } else if(ext == "tsv"){
       norm_exprs <- .process_TSV(gef, inputFiles)
-    } else if(ext == "txt"){
-      norm_exprs <- .process_TXT(gef, inputFiles)
     } else{
       stop("File extension not supported.")
     }
@@ -105,16 +105,21 @@ NULL
 .process_TXT <- function(gef, inputFiles){
   exprs <- fread(inputFiles, header = TRUE)
   sigcols <- grep("Signal", colnames(exprs), value = TRUE)
+  rnames <- exprs[, PROBE_ID]
   if(length(sigcols) > 0){
-    exprs <- exprs[, c("PROBE_ID", sigcols), with = FALSE]
-    setnames(exprs, c("PROBE_ID", colnames(exprs)),
-             c("feature_id", gsub(".AVG.*$", "", colnames(exprs))))
+    exprs <- exprs[, sigcols, with = FALSE]
+    #exprs <- exprs[, c("PROBE_ID", sigcols), with = FALSE]
+    setnames(exprs, gsub(".AVG.*$", "", colnames(exprs)))
+    #try(setnames(exprs, "PROBE_ID", "feature_id"))
+    #setnames(exprs, c("PROBE_ID", colnames(exprs)),
+    #         c("feature_id", gsub(".AVG.*$", "", colnames(exprs))))
   } else{
     stop("Unknown format: check data and add code if needed.")
   }
   
   cnames <- colnames(exprs)
-  rnames <- rownames(exprs)
+  #rnames <- rownames(exprs)
+  exprs <- as.matrix(exprs)
   exprs <- preprocessCore::normalize.quantiles(exprs)
   colnames(exprs) <- cnames
   rownames(exprs) <- rnames
