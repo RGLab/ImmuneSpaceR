@@ -6,21 +6,25 @@ NULL
 .ISCon$methods(
   downloadMatrix=function(x, summary = FALSE){
     cache_name <- paste0(x, ifelse(summary, "_sum", ""))
-#     if(is.null(data_cache[[x]])){
     if(is.null(data_cache[[cache_name]])){
       if(nrow(subset(data_cache[[constants$matrices]], name%in%x)) == 0){
         stop(sprintf("No matrix %s in study\n", x))
       }
       summary <- ifelse(summary, ".summary", "")
+      # If executed at project level, need to find the 
+      #link <- 
+      if(config$labkey.url.path == "/Studies/"){
+        path <- paste0("/Studies/", data_cache$GE_matrices[name == x, folder], "/")
+      } else{
+        path <- gsub("/$","",config$labkey.url.path)
+      }
       link <- URLdecode(file.path(gsub("http:","https:", gsub("/$","",config$labkey.url.base)),
-                                  "_webdav", gsub("^/","",config$labkey.url.path),
-                                  "@files/analysis/exprs_matrices",
+                                  "_webdav",  path, "@files/analysis/exprs_matrices",
                                   paste0(x, ".tsv", summary)))
       localpath <- .self$.localStudyPath(link)
       if(.self$.isRunningLocally(localpath)){
         fl <- localpath
         message("Reading local matrix")
-#         data_cache[[x]]<<-fread(fl,header=TRUE)
         data_cache[[cache_name]] <<- fread(fl, header = TRUE)
       }else{
         opts <- config$curlOptions
@@ -36,7 +40,7 @@ NULL
         if(nrow(EM) == 0){
           stop("The downloaded matrix has 0 rows. Something went wrong")
         }
-        data_cache[[cache_name]] <<-EM
+        data_cache[[cache_name]] <<- EM
         file.remove(fl)
       }
       
@@ -88,14 +92,14 @@ NULL
 
     #pheno <- pheno[, list(biosample_accession, ParticipantId, arm_name,
     pheno <- pheno[, list(biosample_accession, participant_id, cohort,
-
                           study_time_collected, study_time_collected_unit)]
     
     if(summary){
       fdata <- data.frame(FeatureId = matrix$gene_symbol, gene_symbol = matrix$gene_symbol, row.names = matrix$gene_symbol)
       fdata <- AnnotatedDataFrame(fdata)
     } else{
-      try(setnames(matrix," ","FeatureId"),silent=TRUE)
+      try(setnames(matrix, " ", "FeatureId"), silent = TRUE)
+      try(setnames(matrix, "V1", "FeatureId"), silent = TRUE)
       fdata <- data.table(FeatureId = as.character(matrix$FeatureId))
       fdata <- merge(fdata, features, by = "FeatureId", all.x = TRUE)
       fdata <- as.data.frame(fdata)
@@ -104,10 +108,11 @@ NULL
     }
     pheno <- data.frame(pheno)
     rownames(pheno) <- pheno$biosample_accession
-    pheno<-pheno[colnames(matrix)[-1L],]
-    ad_pheno<-AnnotatedDataFrame(data=pheno)
-    es<-ExpressionSet(assayData=as.matrix(matrix[,-1L,with=FALSE]),phenoData=ad_pheno,featureData=fdata)
-    data_cache[[cache_name]]<<-es
+    pheno <- pheno[colnames(matrix)[-1L], ]
+    ad_pheno <- AnnotatedDataFrame(data = pheno)
+    es <- ExpressionSet(assayData = as.matrix(matrix[, -1L, with = FALSE]),
+                        phenoData = ad_pheno, featureData = fdata)
+    data_cache[[cache_name]] <<- es
   }
 )
 
@@ -173,11 +178,21 @@ NULL
   }
 )
 
-#' @importFrom Biobase pData
-#' @importFrom Rlabkey makeFilter labkey.selectRows
+
+#' @title Add treatment
+#' 
+#' @description 
+#' Add treatment information to the phenoData of an expression matrix 
+#' available in the connection object.
+#' 
+#' @param x A \code{character}. The name of an expression that has been
+#' downloaded from the connection.
+#' 
+#' @return An \code{ExpressionSet} with new phenoData.
+#' @name addTrt
 .ISCon$methods(
   addTrt=function(x = NULL){
-    if(!x %in% names(data_cache)){
+    if(is.null(x) | !x %in% names(data_cache)){
       stop(paste(x, "is not a valid expression matrix."))
     } 
     bsFilter <- makeFilter(c("biosample_accession", "IN",
@@ -211,5 +226,55 @@ NULL
 .ISCon$methods(
   .mungeFeatureId=function(annotation_set_id){
     return(sprintf("featureset_%s",annotation_set_id))
+  }
+)
+
+# Issuess
+# 1. bs -> es or es -> bs will fail if there are more than 1 es per bs (e.g: SDY67)
+# 2. participant_time should use study_time_collected_unit
+# 3. Need to know the cached name to figure out which matrix it is. => 
+
+
+#' Change expression-matrix sample names
+#' 
+#' Change the sampleNames of an \code{ExpressionSet} fetched by
+#' \code{getGEMatrix} using the information in the \code{phenodData} slot.
+#'
+#' @param x An \code{ExpressionSet}. As returned by \code{getGEMatrix}
+#' @param colType A \code{character}. The type of column names. Valid optsions
+#' are "expsample_accession" and "participant_id".
+#' 
+#' @return An \code{ExpressionSet}, with updated \code{sampleNames} and 
+#' \code{phenoData}.
+#' 
+#' @name EMNames
+#' @importFrom Biobase pData sampleNames
+.ISCon$methods(
+  EMNames=function(EM = NULL, colType = "participant_id"){
+    if(is.null(EM) | !is(EM, "ExpressionSet")){
+      stop("EM should be a valid ExpressionSet, as returned by getGEMatrix")
+    }
+    if(!all(grepl("^BS", sampleNames(EM)))){
+      stop("All sampleNames should be biosample_accession, as returned by getGEMatrix")
+    }
+    pd <- data.table(pData(EM))
+    colType <- gsub("_.*$", "", tolower(colType))
+    if(colType == "expsample"){
+      bsFilter <- makeFilter(c("biosample_accession", "IN",
+                                 paste(pd$biosample_accession, collapse = ";")))
+      bs2es <- data.table(labkey.selectRows(config$labkey.url.base, config$labkey.url.path,
+                                              "immport", "biosample_2_expsample",
+                                              colFilter = bsFilter, colNameOpt = "rname"))
+      pd <- merge(pd, bs2es[, list(biosample_accession, expsample_accession)], by = "biosample_accession")
+      es <- pd[match(sampleNames(EM), pd$biosample_accession), expsample_accession]
+      sampleNames(EM) <- pData(EM)$expsample_accession <- es
+    } else if(colType %in% c("participant", "subject")){
+      pd <- pd[, nID := paste0(participant_id, "_", tolower(substr(study_time_collected_unit, 1, 1)), study_time_collected)]
+      sampleNames(EM) <- pd[ match(sampleNames(EM), pd$biosample_accession), nID]
+    } else if(colType == "biosample"){
+    } else{
+      stop("colType should be one of 'expsample_accession', 'biosample_accession', 'participant_id'.")
+    }
+    return(EM)
   }
 )
