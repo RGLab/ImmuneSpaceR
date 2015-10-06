@@ -75,6 +75,7 @@ NULL
 # Eventually, all tsv files should be rewritten to follow this standard.
 # @return A matrix with biosample_accession as cols and feature_id as rownames
 # @importFrom lumi lumiN
+#' @importFrom preprocessCore normalize.quantiles
 #' @importFrom reshape2 acast
 .process_TSV <- function(gef, inputFiles){
   exprs <- fread(inputFiles, header = TRUE)
@@ -84,9 +85,16 @@ NULL
   }
   try(setnames(exprs, "experiment_sample_accession", "expsample_accession"))
   exprs <- acast(exprs, formula = "target_id ~ expsample_accession", value.var = "raw_signal")
-  eset <- new("ExpressionSet", exprs = exprs)
-  eset <- lumi::lumiN(eset, method = "quantile") #In Suggests to reduce laod time (13 secs for lumi alone)
-  norm_exprs <- log2(pmax(exprs(eset), 1))
+  cnames <- colnames(exprs)
+  rnames <- rownames(exprs)
+  exprs <- preprocessCore::normalize.quantiles(exprs)
+  colnames(exprs) <- cnames 
+  rownames(exprs) <- rnames 
+  #eset <- new("ExpressionSet", exprs = exprs)
+  #eset <- lumi::lumiN(eset, method = "quantile") #In Suggests to reduce laod time (13 secs for lumi alone)
+  #norm_exprs <- log2(pmax(exprs(eset), 1))
+  
+  norm_exprs <- log2(pmax(exprs, 1))
   norm_exprs <- norm_exprs[, c(colnames(norm_exprs) %in% gef$expsample_accession)]
   return(norm_exprs)
 }

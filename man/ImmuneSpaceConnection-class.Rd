@@ -5,6 +5,7 @@
 \alias{.ISCon}
 \alias{ImmuneSpace}
 \alias{ImmuneSpaceConnection}
+\alias{ImmuneSpaceConnection-class}
 \title{The ImmuneSpaceConnection class}
 \value{
 An instance of an ImmuneSpaceConnection for a study in `labkey.url.path`
@@ -45,7 +46,8 @@ gene-expression data.}
 \section{Methods}{
 
 \describe{
-\item{\code{getDataset(x, original_view = FALSE, reload = FALSE, ...)}}{Get a dataset form the connection
+\item{\code{getDataset(x, original_view = FALSE, reload = FALSE, colFilter = NULL,
+  ...)}}{Get a dataset form the connection
 
       original_view: A logical. If set tot TRUE, download the ImmPort view.
       Else, download the default grid view.

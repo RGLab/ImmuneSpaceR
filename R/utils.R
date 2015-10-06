@@ -108,7 +108,7 @@ ISpalette <- function(n){
   colorpanel(n, low = "#268bd2", mid = "#fdf6e3", high = "#dc322f")
 }
 
-#
+#' @importFrom RCurl curlUnescape curlEscape
 .check_filter <- function(lub, lup, schema, query, view = "", colFilter){
   # Get the names used in the filter
   old <- tolower(curlUnescape(gsub("~.*$", "", colFilter)))
