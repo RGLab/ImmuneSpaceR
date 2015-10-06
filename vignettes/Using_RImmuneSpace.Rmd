@@ -12,7 +12,7 @@ This package provides a *thin* wrapper around `Rlabkey` and connects to the **Im
 ImmuneSpaceR uses the `options` mechanism in R to find the values of three variables.  These will typically be set by the LabKey system when a script is running on ImmuneSpace, but if you work remotely, you can set them in your global environment, or ImmuneSpaceR will assign default values if they're missing. The defaults may or may not work for you, so it's best to set them. 
 
 ```{r echo=TRUE}
-labkey.url.base="https://www.immunsepace.org"
+labkey.url.base="https://www.immunespace.org"
 labkey.url.path="Studies/SDY269"
 labkey.user.email="unknown_user at not_a_real_domain.org"
 ```

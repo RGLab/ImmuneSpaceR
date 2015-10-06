@@ -83,6 +83,10 @@ NULL
 .process_TSV <- function(gef, inputFiles){
   exprs <- fread(inputFiles, header = TRUE)
   exprs <- .clean_colnames(exprs)
+  
+  if(all(tolower(gef$biosample_accession) %in% colnames(exprs))){ #SDY180
+    
+  }
   if(!all(c("target_id", "raw_signal") %in% colnames(exprs))){
     stop("The file does not follow HIPC standards.")
   }
@@ -100,7 +104,7 @@ NULL
 }
 
 #biosample_accession as colnames
-#Works for SDY212
+#Works for SDY212 & 162
 #' @importFrom preprocessCore normalize.quantiles
 .process_TXT <- function(gef, inputFiles){
   exprs <- fread(inputFiles, header = TRUE)
