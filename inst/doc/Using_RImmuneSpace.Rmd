@@ -110,5 +110,5 @@ However, the `type` argument can be used to manually select from "boxplot",
 
 ## Future Enhancements
 
-As the schema stabilizes, we plan to implement automated merging of different data types within, and eventually across assays (using differen connections for example). 
+As the schema stabilizes, we plan to implement automated merging of different data types within, and eventually across assays (using different connections for example). 
 
