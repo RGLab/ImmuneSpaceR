@@ -8,13 +8,11 @@
 #'@seealso \code{\link{ImmuneSpaceConnection-class}}
 #'@exportClass ImmuneSpaceConnectionList
 #'@examples
-#'labkey.url.base <- "https://www.immunespace.org"
-#'labkey.url.path <- "/Studies/SDY269"
-#'labkey.user.email <- 'gfinak at fhcrc.org'
-#'cons <- CreateConnection(c("SDY269", "SDY180"))
-#'cons
+#' cons <- CreateConnection(c("SDY269", "SDY180"))
+#' cons
 #'@return An instance of an ImmuneSpaceConnection for a study in `labkey.url.path`
-.ISConList <- setRefClass(Class = "ImmuneSpaceConnectionList", fields = list(connections="list"))
+.ISConList <- setRefClass(Class = "ImmuneSpaceConnectionList",
+                          fields = list(connections = "list"))
 
 #' print names of the studies associated with the connection list.
 #' @name studyNames
@@ -101,6 +99,18 @@
   })
 
 .ISConList$methods(
+  getGEAnalysis = function(...){
+    geaList <- lapply(connections, function(con){
+      gea <- data.table::copy(con$getGEAnalysis(...))
+      if(!is.null(gea)){
+        gea[, study := con$study]
+      }
+      gea
+    })
+    rbindlist(geaList)
+  })
+
+.ISConList$methods(
   clear_cache = function(){
     for(con in connections)
       con$clear_cache()
@@ -114,36 +124,69 @@
 )
 
 .ISConList$methods(
-  getGEMatrix=function(x, merge = TRUE, ...){
-    
+  getGEMatrix=function(x = NULL, cohort = NULL, summary = TRUE){
+    "Download and combines the selected normalized gene expression matrices\n
+    Note: For multi study connections, the summary argument is set to TRUE"
+    # transform x/cohort into an x subset for the con
+    cohort_name <- cohort
     esList <- unlist(lapply(connections, function(con){
-      
-                      unlist(lapply(x, function(thisName){
-                        
-                            es <- try(con$getGEMatrix(x = thisName, ...), silent = T)  
-                            if(class(es) == "try-error")
-                              NULL
-                            else{
-                              
-                              pData(es)[, "cohort"] <- thisName
-                              pData(es)[, "study"] <- con$study
-                              es
-                            }
-                              
-                          }))
-                    }))
-    
-    message("combining eSets...")
-    #find common features
-    fnList <- lapply(esList, function(es)featureNames(es))
+      if(!is.null(cohort_name)){
+        runs <- con$data_cache$GE_matrices[cohort %in% cohort_name, name]
+      } else{
+        runs <- con$data_cache$GE_matrices[name %in% x, name]
+      }
+      if(length(runs) > 0){
+        con$getGEMatrix(runs, summary = TRUE)
+      } else
+        NULL
+    }))
+    fnList <- lapply(esList, function(es) featureNames(es))
     fnCommon <- Reduce(intersect, fnList)
-    #subset by common features before combining
     esList <- lapply(esList, function(es){
       es <- es[fnCommon,]
       pData(featureData(es)) <- droplevels(pData(featureData(es)))#prevent warnings during combining
       es
-      })
-   Reduce(combine, esList)
-  
-  }
-)                                                    
+    })
+    EM <- Reduce(f = combine, esList)
+    if(is.null(EM)){
+      warning("None of the selected runs or cohorts exist in the connection.")
+    }
+    return(EM)
+  })
+
+    
+    
+#.ISConList$methods(
+#  getGEMatrix=function(x = NULL, cohort = NULL, merge = TRUE, ...){
+#    
+#    esList <- unlist(lapply(connections, function(con){
+#      
+#                      unlist(lapply(x, function(thisName){
+#                        
+#                            es <- try(con$getGEMatrix(x = thisName, ...), silent = T)  
+#                            if(class(es) == "try-error")
+#                              NULL
+#                            else{
+#                              
+#                              pData(es)[, "cohort"] <- thisName
+#                              pData(es)[, "study"] <- con$study
+#                              es
+#                            }
+#                              
+#                          }))
+#                    }))
+#    
+#    message("combining eSets...")
+#    #find common features
+#    fnList <- lapply(esList, function(es)featureNames(es))
+#    fnCommon <- Reduce(intersect, fnList)
+#    #subset by common features before combining
+#    esList <- lapply(esList, function(es){
+#      es <- es[fnCommon,]
+#      pData(featureData(es)) <- droplevels(pData(featureData(es)))#prevent warnings during combining
+#      es
+#      })
+#   Reduce(combine, esList)
+#  
+#  }
+#)                                                    

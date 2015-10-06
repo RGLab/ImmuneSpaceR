@@ -1,13 +1,14 @@
 Package: ImmuneSpaceR
 Type: Package
 Title: A Thin Wrapper around the ImmuneSpace Database
-Version: 0.2.19
-Date: 2014-06-11
+Version: 0.2.22
+Date: 2014-06-12
 Author: Greg Finak
 VignetteBuilder: knitr
-Maintainer: <gfinak@fhcrc.org>
+Maintainer: Renan Sauteraud <rsautera@fhcrc.org>
 Description: Provides a convenient API for accessing data sets within studies
     in the ImmuneSpace database
+URL: https://github.com/RGLab/ImmuneSpaceR
 License: GPL-2
 Suggests:
     knitr,

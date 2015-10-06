@@ -3,6 +3,24 @@ NULL
 
 .ISCon$methods(
   quick_plot = function(...){
+    "Plots a selected dataset. This is the function used by the DataExplorer 
+    module on ImmuneSpace.\n
+    dataset: A character. The name of the dataset to plot, as displayed by the
+    listDataset method.\n
+    normalize_to_baseline: A logical. If set to TRUE, the values are plotted as
+    log2 fold-change from baseline.\n
+    type: A character. The type of plot. Valid choices are 'auto', 'heatmap',
+    'boxplot', 'lineplot', 'violinplot'. If set to 'auto', the function will
+    select an appropriate plot type for the selected data.\n
+    filter: A filter as created by the makeFilter function from Rlabkey.\n
+    facet: The facetting for ggplot2 based plots. Valid choices are 'grid' and 
+    'wrap'.\n
+    text_size: The size of all text elements in the plot.\n
+    legend: A character. Columns of the dataset or demographics to be added as
+    legend on the heatmap. This argument is ignored if the plot type isn't 
+    heatmap.\n
+    '...': Extra argument to be passed to ggplot. e.g: shape = 'Age', color =
+    'Race'.\n"
     .quick_plot(.self, ...)
   }
 )
@@ -16,7 +34,7 @@ NULL
 .quick_plot <- function(con, dataset, normalize_to_baseline = TRUE,
                       type = "auto", filter = NULL,
                       facet = "grid", text_size = 15,
-                      legend = NULL, ...){
+                      legend = NULL, show_virus_strain = FALSE, ...){
   logT <- TRUE #By default, log transform the value_reported
   message_out <- ""
   extras <- list(...)
@@ -31,20 +49,20 @@ NULL
   
   # Datasets
   e <- try({
-    dt <- .getDataToPlot(con, dataset, filter = filter)
+    dt <- .getDataToPlot(con, dataset, filter = filter, show_virus_strain)
     dt <- .standardize_time(dt)
     if(logT){
       dt <- dt[, response := mean(log2(response+1), na.rm = TRUE),
-               by = "arm_name,subject_accession,analyte,time_str"]
+               by = "cohort,subject_accession,analyte,time_str"]
     } else{
       dt <- dt[, response := mean(response, na.rm = TRUE),
-               by = "arm_name,subject_accession,analyte,time_str"]
+               by = "cohort,subject_accession,analyte,time_str"]
     }
     dt <- unique(dt)
     
     if(normalize_to_baseline){
       dt <- dt[,response:=response-response[study_time_collected==0],
-               by="arm_name,subject_accession,analyte"][study_time_collected!=0]
+               by="cohort,subject_accession,analyte"][study_time_collected!=0]
       ylab <- "Response normalized to baseline"
     } else{
       ylab <- "Response (log2)"
@@ -65,9 +83,9 @@ NULL
   
   # Plot
   if(facet == "grid"){
-    facet <- facet_grid(aes(analyte, arm_name), scales = "free")
+    facet <- facet_grid(aes(analyte, cohort), scales = "free")
   } else if(facet == "wrap"){
-    facet <- facet_wrap(~arm_name + analyte, scales = "free")
+    facet <- facet_wrap(~cohort + analyte, scales = "free")
   }
   if(type == "heatmap"){
     p <- .qpHeatmap2(dt, normalize_to_baseline, legend, text_size)
@@ -123,7 +141,7 @@ NULL
 .qpHeatmap2 <- function(dt, normalize_to_baseline, legend, text_size){
   palette <- ISpalette(20)
   
-  dt <- dt[, ID := paste(arm_name, time_str, subject_accession, sep = "_")]
+  dt <- dt[, ID := paste(cohort, time_str, subject_accession, sep = "_")]
   mat <- acast(data = dt, formula = formula("analyte ~ ID"), value.var = "response")
   
   if(ncol(mat) > 2 & nrow(mat) > 1){
@@ -205,10 +223,10 @@ NULL
 # Get the data
 # Add standard columns for analyte and response
 # NOTE: No need for analyte_name check (Fixed in DR12)
-.getDataToPlot <- function(con, dataset, filter = NULL){
+.getDataToPlot <- function(con, dataset, filter = NULL, show_virus_strain = FALSE){
   # All columns that can potentially be used
   demo_cols <- c("gender", "age_reported", "race")
-  out_cols <- c("study_time_collected", "study_time_collected_unit", "arm_name", "subject_accession")
+  out_cols <- c("study_time_collected", "study_time_collected_unit", "cohort", "subject_accession")
   out_cols <- c(c("response", "analyte"), demo_cols, out_cols)
   if(dataset != "gene_expression_analysis_results"){
     dt <- copy(con$getDataset(dataset, colFilter = filter, reload = TRUE))
@@ -219,6 +237,10 @@ NULL
   
   if(dataset == "elispot"){
     dt <- dt[, value_reported := (spot_number_reported) / cell_number_reported]
+  } else if(dataset %in% c("hai", "neut_ab_titer")){
+    if(isTRUE(show_virus_strain)){
+      dt <- dt[, analyte := virus_strain]
+    }
   } else if(dataset == "pcr"){
     if(all(is.na(dt[, threshold_cycles]))){
       stop("PCR results cannot be displayed for studies that do not use threshold cycles.
@@ -243,13 +265,15 @@ NULL
   } else if(dataset == "gene_expression_analysis_results"){
     logT <- FALSE #Matrices are already log2 transformed
     dt <- copy(con$getGEAnalysis(colFilter = filter))
-    uarm <- unique(dt$arm_name)
+    uarm <- unique(dt$cohort)
     ugenes <- unique(dt$gene_symbol)
     ugenes <- ugenes[ ugenes != "NA"]
     EM <- con$getGEMatrix(cohort = uarm, summary = TRUE)
+    ugenes <- ugenes[ugenes %in% featureNames(EM)]
     EM <- EM[ugenes,]
     pd <- data.table(pData(EM))
     demo <- con$getDataset("demographics")
+    demo <- unique(demo[, c("subject_accession", demo_cols), with = FALSE])
     dt <- data.table(melt(exprs(EM)))
     setnames(dt, c("analyte", "biosample_accession", "value_reported"))
     dt <- merge(dt, pd, by = "biosample_accession", all.x = TRUE) # Add s_t_c, s_t_c_u, arm 
@@ -267,15 +291,15 @@ NULL
 
 # dt has ID and all relevant columns
 .heatmapAnnotations <- function(dt, legend){
-  annoCols <- c("arm_name", "time_str", legend)
+  annoCols <- c("cohort", "time_str", legend)
   # Annotations  
   anno <- data.table(unique(dt[, c("ID", annoCols), with = FALSE]))
   # Order: Arm > Time > Age > Gender > Race
-  order_cols <- c("arm_name", "time_str", legend)
+  order_cols <- c("cohort", "time_str", legend)
   setorderv(anno, order_cols)
-  setcolorder(anno, c("ID", rev(legend), "time_str", "arm_name"))
+  setcolorder(anno, c("ID", rev(legend), "time_str", "cohort"))
   # Set colors
-  setnames(anno, c("arm_name", "time_str"), c("Arm", "Time"))
+  setnames(anno, c("cohort", "time_str"), c("Cohort", "Time"))
   anno_color <- list(Time = colorpanel(n = length(levels(anno$Time)),
                                        low = "white", high = "black"))
   names(anno_color$Time) <- levels(anno$Time)

@@ -3,7 +3,7 @@
 #'@param study \code{"character"} vector naming the study.
 #' @param verbose \code{"logical"} wehther to print the extra details for troubleshooting. 
 #'@description Constructor for \code{ImmuneSpaceConnection} class
-#'@details Instantiates and \code{ImmuneSpaceConnection} for \code{study}
+#'@details Instantiates an \code{ImmuneSpaceConnection} for \code{study}
 #'The constructor will try to take the values of the various `labkey.*` parameters from the global environment.
 #'If they don't exist, it will use default values. These are assigned to `options`, which are then used by the \code{ImmuneSpaceConnection} class.
 #'@export CreateConnection
@@ -106,4 +106,20 @@ saveConnection <- function(con, file){
 #' @export
 ISpalette <- function(n){
   colorpanel(n, low = "#268bd2", mid = "#fdf6e3", high = "#dc322f")
+}
+
+#
+.check_filter <- function(lub, lup, schema, query, view = "", colFilter){
+  # Get the names used in the filter
+  old <- tolower(curlUnescape(gsub("~.*$", "", colFilter)))
+  # 
+  suppressWarnings({
+    labels <- tolower(colnames(labkey.selectRows(lub, lup, schema, query, view, maxRows = 0, colNameOpt = "caption")))
+    names <- colnames(labkey.selectRows(lub, lup, schema, query, view, maxRows = 0, colNameOpt = "fieldname"))
+  })
+  # Get the new names
+  idx <- which(old %in% labels)
+  new <- curlEscape(names[match(old[idx], labels)])
+  colFilter[idx] <- paste0(paste0(new, "~"), gsub("^.*~", "", colFilter[idx]))
+  return(colFilter)
 }

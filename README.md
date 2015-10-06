@@ -1,19 +1,14 @@
 ImmuneSpaceR
 ============
 
-A thin wrapper around Rlabkey to access the ImmuneSpace database from R
+A thin wrapper around Rlabkey to access the [ImmuneSpace]("https://www.immunespace.org") database from R
 This package simplifies access to the HIPC ImmuneSpace database, for R programmers.
 
 It takes advantage of the standardization of the ImmuneSpace database to hide all the `Rlabkey` specific code away from the user.
 Study-specific datasets can be accessed via an object-oriented paradigm.
 
-## Requirements
-You may need to install RLabkey from our github repository (linked below). It has some additional error checking not present in the standard version. 
-
 
 ## Installation
-The package requires a new version of `Rlabkey` available [here](https://github.com/RGLab/Rlabkey).
-
 The package can be downloaded here and installed like any other R packages or installed directly from github using devtools.
 
 ```R
@@ -86,3 +81,5 @@ study$quick_plot("hai")
 ![](./inst/img/qpHai.png)
 
 
+## Examples
+For more advanced examples, see the package vignettes and the reports available on ImmuneSpace.
