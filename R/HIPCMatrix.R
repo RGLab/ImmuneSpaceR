@@ -114,7 +114,7 @@ NULL
     #try(setnames(exprs, "PROBE_ID", "feature_id"))
     #setnames(exprs, c("PROBE_ID", colnames(exprs)),
     #         c("feature_id", gsub(".AVG.*$", "", colnames(exprs))))
-  } else if(all(tolower(gef$biosample_accession) %in% colnames(exprs))){
+  } else if(all(gef$biosample_accession %in% colnames(exprs))){
     exprs <- exprs[, gef$biosample_accession, with = FALSE]
   } else{
     stop("Unknown format: check data and add code if needed.")
