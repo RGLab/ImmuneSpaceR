@@ -37,7 +37,7 @@ separated by white space (spaces, tabs, or newlines) or commas.
 
  machine `remote-machine-name` <br/>
  login `user-email`<br/>
- password `user-password`v<br/>
+ password `user-password`<br/>
 
 Multiple such blocks can exist in one file.
 
