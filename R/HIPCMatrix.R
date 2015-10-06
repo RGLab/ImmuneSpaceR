@@ -42,8 +42,8 @@ NULL
       stop(paste("There is more than one file extension:", paste(ext, collapse = ",")))
     } else if(ext == "CEL"){
       norm_exprs <- .process_CEL(con, gef, inputFiles)
-    } else if(ext == "txt" | study %in% c("SDY162", "SDY212")){
-      norm_exprs <- .process_TXT(gef, inputFiles)
+    } else if(ext == "txt" | study %in% c("SDY162", "SDY180", "SDY212")){
+      norm_exprs <- .process_others(gef, inputFiles)
     } else if(ext == "tsv"){
       norm_exprs <- .process_TSV(gef, inputFiles)
     } else{
@@ -84,9 +84,6 @@ NULL
   exprs <- fread(inputFiles, header = TRUE)
   exprs <- .clean_colnames(exprs)
   
-  if(all(tolower(gef$biosample_accession) %in% colnames(exprs))){ #SDY180
-    
-  }
   if(!all(c("target_id", "raw_signal") %in% colnames(exprs))){
     stop("The file does not follow HIPC standards.")
   }
@@ -106,7 +103,7 @@ NULL
 #biosample_accession as colnames
 #Works for SDY212 & 162
 #' @importFrom preprocessCore normalize.quantiles
-.process_TXT <- function(gef, inputFiles){
+.process_others <- function(gef, inputFiles){
   exprs <- fread(inputFiles, header = TRUE)
   sigcols <- grep("Signal", colnames(exprs), value = TRUE)
   rnames <- exprs[, PROBE_ID]
@@ -117,6 +114,8 @@ NULL
     #try(setnames(exprs, "PROBE_ID", "feature_id"))
     #setnames(exprs, c("PROBE_ID", colnames(exprs)),
     #         c("feature_id", gsub(".AVG.*$", "", colnames(exprs))))
+  } else if(all(tolower(gef$biosample_accession) %in% colnames(exprs))){
+    exprs <- exprs[, gef$biosample_accession, with = FALSE]
   } else{
     stop("Unknown format: check data and add code if needed.")
   }
