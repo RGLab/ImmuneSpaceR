@@ -11,8 +11,6 @@ NULL
         stop(sprintf("No matrix %s in study\n", x))
       }
       summary <- ifelse(summary, ".summary", "")
-      # If executed at project level, need to find the 
-      #link <- 
       if(config$labkey.url.path == "/Studies/"){
         path <- paste0("/Studies/", data_cache$GE_matrices[name == x, folder], "/")
       } else{
@@ -81,13 +79,14 @@ NULL
     #features
     features <- data_cache[[.self$.mungeFeatureId(.self$.getFeatureId(matrix_name))]][,c("FeatureId","gene_symbol")]
     #inputs
-    pheno_filter <- makeFilter(c("Run/DataOutputs/Name", "EQUAL", paste0(matrix_name, ".tsv")),
+    pheno_filter <- makeFilter(c("Run/Name", "EQUAL", matrix_name), #paste0(matrix_name, ".tsv")),
                                c("Biosample/biosample_accession", "IN", paste(colnames(matrix), collapse = ";")))
     pheno <- unique(data.table(labkey.selectRows(
       config$labkey.url.base, config$labkey.url.path,
       "assay.ExpressionMatrix.matrix", "InputSamples", "gene_expression_matrices",
+      containerFilter = "CurrentAndSubfolders",
       colNameOpt = "caption", colFilter = pheno_filter)))
-    #setnames(pheno, colnames(pheno), gsub("^biosample_", "", .self$.munge(colnames(pheno))))
+    
     setnames(pheno, .self$.munge(colnames(pheno)))
 
     #pheno <- pheno[, list(biosample_accession, ParticipantId, arm_name,
@@ -116,7 +115,7 @@ NULL
   }
 )
 
-#' @title get Gene Expression Matrix
+#' @title Get Gene Expression Matrix
 #'
 #' @description 
 #' Downloads a normalized gene expression matrix from ImmuneSpace.
@@ -145,7 +144,11 @@ NULL
     "Downloads a normalized gene expression matrix from ImmuneSpace.\n
     `x': A `character'. The name of the gene expression matrix to download.\n
     `cohort': A `character'. The name of a cohort that has an associated gene
-    expression matrix. Note that if `cohort' isn't NULL, then `x' is ignored."
+    expression matrix. Note that if `cohort' isn't NULL, then `x' is ignored.
+    `summary': A `logical'. If set to TRUE, Downloads a matrix with expression
+    averaged by gene symbol.
+    `reload': A `logical'. If set to TRUE, the matrix will be downloaded again,
+    even if a cached cop exist in the ImmuneSpaceConnection object."
     cohort_name <- cohort #can't use cohort = cohort in d.t
     if(!is.null(cohort_name)){
       if(all(cohort_name %in% data_cache$GE_matrices$cohort)){
@@ -229,11 +232,6 @@ NULL
   }
 )
 
-# Issuess
-# 1. bs -> es or es -> bs will fail if there are more than 1 es per bs (e.g: SDY67)
-# 2. participant_time should use study_time_collected_unit
-# 3. Need to know the cached name to figure out which matrix it is. => 
-
 
 #' Change expression-matrix sample names
 #' 
@@ -272,6 +270,7 @@ NULL
       pd <- pd[, nID := paste0(participant_id, "_", tolower(substr(study_time_collected_unit, 1, 1)), study_time_collected)]
       sampleNames(EM) <- pd[ match(sampleNames(EM), pd$biosample_accession), nID]
     } else if(colType == "biosample"){
+      warning("Nothing done, the column names should already be biosample_accession numbers.")
     } else{
       stop("colType should be one of 'expsample_accession', 'biosample_accession', 'participant_id'.")
     }

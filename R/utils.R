@@ -50,7 +50,6 @@ ISpalette <- function(n){
 .check_filter <- function(lub, lup, schema, query, view = "", colFilter){
   # Get the names used in the filter
   old <- tolower(curlUnescape(gsub("~.*$", "", colFilter)))
-  # 
   suppressWarnings({
     labels <- tolower(colnames(labkey.selectRows(lub, lup, schema, query, view, maxRows = 0, colNameOpt = "caption")))
     names <- colnames(labkey.selectRows(lub, lup, schema, query, view, maxRows = 0, colNameOpt = "fieldname"))

@@ -19,5 +19,6 @@ globalVariables(c("biosample_accession",
                 "ID", #qpHeatmap
                 "stc", "stcu", "time_str", #standardize_time
                 "virus_strain", "cohort",
-                "participant_id"
+                "participant_id",
+                "PROBE_ID"
                 ))
