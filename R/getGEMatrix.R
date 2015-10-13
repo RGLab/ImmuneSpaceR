@@ -185,8 +185,8 @@ NULL
 # Combine EMs and output only genes available in all EMs.
 #' @importFrom Biobase fData
 .combineEMs <- function(EMlist){
-  fd <- Reduce(f = function(x, y){ droplevels(merge(fData(x), fData(y), by = c("FeatureId", "gene_symbol")))},
-               EMlist)
+  fds <- lapply(EMlist, function(x){ droplevels(data.table(fData(x)))})
+  fd <- Reduce(f = function(x, y){ merge(x, y, by = c("FeatureId", "gene_symbol"))}, fds)
   EMlist <- lapply(EMlist, "[", as.character(fd$FeatureId))
   for(i in 1:length(EMlist)){ fData(EMlist[[i]]) <- fd}
   res <- Reduce(f = combine, EMlist)
