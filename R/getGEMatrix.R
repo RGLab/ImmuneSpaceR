@@ -165,7 +165,8 @@ NULL
       lapply(x, downloadMatrix, summary)
       lapply(x, GeneExpressionFeatures,summary)
       lapply(x, ConstructExpressionSet, summary)
-      return(Reduce(f=combine, data_cache[cache_name]))
+      ret <- .combineEMs(data_cache[cache_name])
+      return(ret)
     } else{
       if (cache_name %in% names(data_cache) && !reload) {
         data_cache[[cache_name]]
@@ -180,6 +181,16 @@ NULL
     }
   }
 )
+
+# Combine EMs and output only genes available in all EMs.
+.combineEMs <- function(EMlist){
+  EMlist <- EML
+  fd <- Reduce(f = function(x, y){ droplevels(merge(fData(x), fData(y), by = c("FeatureId", "gene_symbol")))},
+               EMlist)
+  EMlist <- lapply(EMlist, "[", as.character(fd$FeatureId))
+  for(i in 1:length(EMlist)){ fData(EMlist[[i]]) <- fd}
+  res <- Reduce(f = combine, EMlist)
+}
 
 
 #' @title Add treatment
