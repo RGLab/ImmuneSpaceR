@@ -184,7 +184,6 @@ NULL
 
 # Combine EMs and output only genes available in all EMs.
 .combineEMs <- function(EMlist){
-  EMlist <- EML
   fd <- Reduce(f = function(x, y){ droplevels(merge(fData(x), fData(y), by = c("FeatureId", "gene_symbol")))},
                EMlist)
   EMlist <- lapply(EMlist, "[", as.character(fd$FeatureId))
