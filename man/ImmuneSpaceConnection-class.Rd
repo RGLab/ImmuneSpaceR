@@ -68,7 +68,11 @@ gene-expression data.}
     `x': A `character'. The name of the gene expression matrix to download.
 
     `cohort': A `character'. The name of a cohort that has an associated gene
-    expression matrix. Note that if `cohort' isn't NULL, then `x' is ignored.}
+    expression matrix. Note that if `cohort' isn't NULL, then `x' is ignored.
+    `summary': A `logical'. If set to TRUE, Downloads a matrix with expression
+    averaged by gene symbol.
+    `reload': A `logical'. If set to TRUE, the matrix will be downloaded again,
+    even if a cached cop exist in the ImmuneSpaceConnection object.}
 
 \item{\code{listDatasets()}}{List the datasets available in the study or studies of the connection.}
 
