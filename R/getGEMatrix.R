@@ -152,7 +152,7 @@ NULL
     cohort_name <- cohort #can't use cohort = cohort in d.t
     if(!is.null(cohort_name)){
       if(all(cohort_name %in% data_cache$GE_matrices$cohort)){
-        x <- data_cache$GE_matrices[cohort == cohort_name, name]
+        x <- data_cache$GE_matrices[cohort %in% cohort_name, name]
       } else{
         validCohorts <- data_cache$GE_matrices[, cohort]
         stop(paste("No expression matrix for the given cohort.",
