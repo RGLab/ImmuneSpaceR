@@ -105,11 +105,14 @@ NULL
       rownames(fdata) <- fdata$FeatureId
       fdata <- AnnotatedDataFrame(fdata)
     }
+    exprs <- as.matrix(matrix[, -1L, with = FALSE])
+    exprs <- exprs[, colnames(exprs) %in% pheno$biosample_accession] #At project level, InputSamples may be filtered
+
     pheno <- data.frame(pheno)
     rownames(pheno) <- pheno$biosample_accession
-    pheno <- pheno[colnames(matrix)[-1L], ]
+    pheno <- pheno[colnames(exprs), ]
     ad_pheno <- AnnotatedDataFrame(data = pheno)
-    es <- ExpressionSet(assayData = as.matrix(matrix[, -1L, with = FALSE]),
+    es <- ExpressionSet(assayData = exprs,
                         phenoData = ad_pheno, featureData = fdata)
     data_cache[[cache_name]] <<- es
   }
