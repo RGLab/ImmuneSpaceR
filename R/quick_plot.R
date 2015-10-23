@@ -30,7 +30,7 @@ NULL
 #' @import ggthemr 
 #' @importFrom ggplot2 facet_grid facet_wrap geom_text element_blank
 #' @importFrom Biobase pData
-#' @importFrom reshape2 melt
+# @importFrom reshape2 melt
 .quick_plot <- function(con, dataset, normalize_to_baseline = TRUE,
                       type = "auto", filter = NULL,
                       facet = "grid", text_size = 15,
@@ -239,8 +239,7 @@ NULL
     }
   } else if(dataset == "pcr"){
     if(all(is.na(dt[, threshold_cycles]))){
-      stop("PCR results cannot be displayed for studies that do not use threshold cycles.
-           Use LabKey Quick Chart interface to plot this dataset.")
+      stop("PCR results cannot be displayed for studies that do not use threshold cycles.")
     }
     dt <- dt[, value_reported := threshold_cycles]
     dt <- dt[, analyte := entrez_gene_id]
