@@ -30,7 +30,6 @@ NULL
 #' @import ggthemr 
 #' @importFrom ggplot2 facet_grid facet_wrap geom_text element_blank
 #' @importFrom Biobase pData
-# @importFrom reshape2 melt
 .quick_plot <- function(con, dataset, normalize_to_baseline = TRUE,
                       type = "auto", filter = NULL,
                       facet = "grid", text_size = 15,

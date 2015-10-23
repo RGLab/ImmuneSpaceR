@@ -21,18 +21,18 @@ test_that("get_pcr", {
 test_that("get_gene_expression_files", {
   test_dataset(sdy269, "gene_expression_files", common_cols, specif_cols = gefCols)
 })
-test_that("fcs_analyzed_result", {
-  test_dataset(sdy269, "fcs_analyzed_result", common_cols, specif_cols = farCols)
-})
+#test_that("fcs_analyzed_result", {
+#  test_dataset(sdy269, "fcs_analyzed_result", common_cols, specif_cols = farCols)
+#})
 test_that("get_neut_ab_titer", {
   test_dataset(sdy180, "neut_ab_titer", common_cols, specif_cols = nabCols)
 })
-test_that("get_fcs_sample_files", {
-  test_dataset(sdy180, "fcs_sample_files", common_cols, specif_cols = fcsCols)
-})
-test_that("get_fcs_control_files", {
-  test_dataset(sdy180, "fcs_control_files", common_cols, specif_cols = fccCols)
-})
+#test_that("get_fcs_sample_files", {
+#  test_dataset(sdy180, "fcs_sample_files", common_cols, specif_cols = fcsCols)
+#})
+#test_that("get_fcs_control_files", {
+#  test_dataset(sdy180, "fcs_control_files", common_cols, specif_cols = fccCols)
+#})
 test_that("get_hla_typing", {
   test_dataset(sdy28, "hla_typing", common_cols, specif_cols = hlaCols)
 })

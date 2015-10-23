@@ -2,7 +2,7 @@
 #  Global variables
 #
 demo <- c("age_reported", "gender", "race")
-idCols <- c("subject_accession")
+idCols <- c("participant_id")
 common_cols <- c(demo, idCols)
 
 
@@ -18,7 +18,7 @@ elispotCols <- data.frame(name = c("spot_number_reported", "analyte"),
                           type = c("numeric", "character"))
 pcrCols     <- data.frame(name = c("value_reported", "entrez_gene_id"),
                           type = c("numeric", "character"))
-gefCols     <- data.frame(name = c("file_info_name", "arm_name"),
+gefCols     <- data.frame(name = c("file_info_name", "cohort"),
                           type = c("character", "character"))
 mbaaCols    <- data.frame(name = c("analyte_name", "concentration_value"))
 farCols     <- data.frame(name = c(#"population_cell_number", # declared as VARCHAR(500)
