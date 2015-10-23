@@ -30,13 +30,12 @@ NULL
 #' @import ggthemr 
 #' @importFrom ggplot2 facet_grid facet_wrap geom_text element_blank
 #' @importFrom Biobase pData
-#' @importFrom reshape2 melt
+# @importFrom reshape2 melt
 .quick_plot <- function(con, dataset, normalize_to_baseline = TRUE,
                       type = "auto", filter = NULL,
                       facet = "grid", text_size = 15,
                       legend = NULL, show_virus_strain = FALSE, ...){
   logT <- TRUE #By default, log transform the value_reported
-  message_out <- ""
   extras <- list(...)
   
   # legend
@@ -51,21 +50,18 @@ NULL
   e <- try({
     dt <- .getDataToPlot(con, dataset, filter = filter, show_virus_strain)
     dt <- .standardize_time(dt)
+    ylab <- .format_lab(dataset, normalize_to_baseline)
     if(logT){
       dt <- dt[, response := mean(log2(response+1), na.rm = TRUE),
-               by = "cohort,subject_accession,analyte,time_str"]
+               by = "cohort,participant_id,analyte,time_str"]
     } else{
       dt <- dt[, response := mean(response, na.rm = TRUE),
-               by = "cohort,subject_accession,analyte,time_str"]
+               by = "cohort,participant_id,analyte,time_str"]
     }
     dt <- unique(dt)
-    
     if(normalize_to_baseline){
       dt <- dt[,response:=response-response[study_time_collected==0],
-               by="cohort,subject_accession,analyte"][study_time_collected!=0]
-      ylab <- "Response normalized to baseline"
-    } else{
-      ylab <- "Response (log2)"
+               by="cohort,participant_id,analyte"][study_time_collected!=0]
     }
     if(type == "auto"){
       if(length(unique(dt$analyte)) < 10){
@@ -141,7 +137,7 @@ NULL
 .qpHeatmap2 <- function(dt, normalize_to_baseline, legend, text_size){
   palette <- ISpalette(20)
   
-  dt <- dt[, ID := paste(cohort, time_str, subject_accession, sep = "_")]
+  dt <- dt[, ID := paste(cohort, time_str, participant_id, sep = "_")]
   mat <- acast(data = dt, formula = formula("analyte ~ ID"), value.var = "response")
   
   if(ncol(mat) > 2 & nrow(mat) > 1){
@@ -208,7 +204,7 @@ NULL
 #' @importFrom ggplot2 theme element_text aes_string aes xlab ylab
 .qpLineplot <- function(dt, facet, ylab, text_size, extras, ...){
   ggthemr("solarized")
-  p <- ggplot(data = dt, aes(study_time_collected, response, group = subject_accession)) +
+  p <- ggplot(data = dt, aes(study_time_collected, response, group = participant_id)) +
   geom_line(size = 1, aes_string(...)) +                                            
   xlab("Time") + ylab(ylab) + facet + 
   theme(text = element_text(size = text_size), axis.text.x = element_text(angle = 45))
@@ -226,7 +222,7 @@ NULL
 .getDataToPlot <- function(con, dataset, filter = NULL, show_virus_strain = FALSE){
   # All columns that can potentially be used
   demo_cols <- c("gender", "age_reported", "race")
-  out_cols <- c("study_time_collected", "study_time_collected_unit", "cohort", "subject_accession")
+  out_cols <- c("study_time_collected", "study_time_collected_unit", "cohort", "participant_id")
   out_cols <- c(c("response", "analyte"), demo_cols, out_cols)
   if(dataset != "gene_expression_analysis_results"){
     dt <- copy(con$getDataset(dataset, colFilter = filter, reload = TRUE))
@@ -243,8 +239,7 @@ NULL
     }
   } else if(dataset == "pcr"){
     if(all(is.na(dt[, threshold_cycles]))){
-      stop("PCR results cannot be displayed for studies that do not use threshold cycles.
-           Use LabKey Quick Chart interface to plot this dataset.")
+      stop("PCR results cannot be displayed for studies that do not use threshold cycles.")
     }
     dt <- dt[, value_reported := threshold_cycles]
     dt <- dt[, analyte := entrez_gene_id]
@@ -273,19 +268,16 @@ NULL
     EM <- EM[ugenes,]
     pd <- data.table(pData(EM))
     demo <- con$getDataset("demographics")
-    demo <- unique(demo[, c("subject_accession", demo_cols), with = FALSE])
+    demo <- unique(demo[, c("participant_id", demo_cols), with = FALSE])
     dt <- data.table(melt(exprs(EM)))
     setnames(dt, c("analyte", "biosample_accession", "value_reported"))
     dt <- merge(dt, pd, by = "biosample_accession", all.x = TRUE) # Add s_t_c, s_t_c_u, arm 
-    dt <- merge(dt, demo, by = "subject_accession", all.x = TRUE) # Add race, gender, age
+    dt <- merge(dt, demo, by = "participant_id", all.x = TRUE) # Add race, gender, age
     setkey(dt, NULL)
   }
   dt <- dt[, response := ifelse(value_reported <0, 0, value_reported)]
   dt <- dt[, out_cols, with = FALSE]
   setnames(dt, demo_cols, c("Gender", "Age", "Race"))
-  #if(nrow(dt) != nrow(unique(dt))){
-  #  print(paste("There are: ", nrow(dt) - nrow(unique(dt)), " duplicates."))
-  #}
   return(dt)
 }
 
@@ -310,4 +302,20 @@ NULL
   anno <- data.frame(anno, row.names = anno$ID)
   anno$ID <- NULL
   return(list(anno, anno_color))
+}
+
+# Display name for the Y-axis
+# TODO: Add units. But they are in dt.
+.format_lab <- function(dataset, normalize_to_baseline){
+  lab <- switch(dataset,
+                "hai" = "HAI",
+                "elisa" = "Concentration",
+                "elispot" =  "Spot count",
+                "mbaa" = "Concentration",
+                "fcs_analyzed_result" = "Cell number",
+                "gene_expression_analysis_results" = "")
+  if(normalize_to_baseline){
+    lab <- paste(lab, "normalized to baseline")
+  }
+  return(lab)       
 }

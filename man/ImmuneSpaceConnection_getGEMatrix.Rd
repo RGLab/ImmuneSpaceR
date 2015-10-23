@@ -3,7 +3,7 @@
 \name{ImmuneSpaceConnection_getGEMatrix}
 \alias{ImmuneSpaceConnection_getGEMatrix}
 \alias{getGEMatrix}
-\title{get Gene Expression Matrix}
+\title{Get Gene Expression Matrix}
 \arguments{
 \item{x}{A \code{character}. The name of the Gene Expression Matrix to download.}
 
