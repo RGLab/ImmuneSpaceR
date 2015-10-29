@@ -195,7 +195,7 @@ NULL
                             colNameOpt = "fieldname",
                             showHidden = TRUE,
                             viewName = "expression_matrices")),
-        )
+        silent = TRUE)
       } else {
         suppressWarnings(
           ge <- try(data.table(
@@ -206,7 +206,7 @@ NULL
                               colNameOpt = "fieldname",
                               showHidden = TRUE,
                               viewName = "expression_matrices")),
-          )
+          silent = TRUE)
         )
       }
       if(inherits(ge, "try-error") || nrow(ge) == 0){
