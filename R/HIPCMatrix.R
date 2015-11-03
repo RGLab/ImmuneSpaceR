@@ -88,7 +88,14 @@ NULL
     stop("The file does not follow HIPC standards.")
   }
   try(setnames(exprs, "experiment_sample_accession", "expsample_accession"))
-  exprs <- acast(exprs, formula = "target_id ~ expsample_accession", value.var = "raw_signal")
+  if("expsample_accession" %in% colnames(exprs)){
+    EorB <- "expsample_accession"
+  } else if("biosample_accession" %in% colnames(exprs)){
+    EorB <- "biosample_accession"
+  } else{
+    stop("The input file must contain either biosample_accession or expsample_accession")
+  }
+  exprs <- acast(exprs, formula = paste("target_id ~", EorB), value.var = "raw_signal")
   cnames <- colnames(exprs)
   rnames <- rownames(exprs)
   exprs <- preprocessCore::normalize.quantiles(exprs)
