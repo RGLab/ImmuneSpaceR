@@ -5,6 +5,14 @@ sdy269 <- CreateConnection("SDY269")
 sdy180 <- CreateConnection("SDY180")
 sdy28 <- CreateConnection("SDY28")
 
+# Set curlOptions for download 
+netrc_file <- tempfile("tmpnetrc")
+netrc_string <- "machine www.immunespace.org login xxxx password xxxx"
+write(x = netrc_string, file = netrc_file)
+sdy269$config$curlOptions$netrc.file <- netrc_file
+sdy180$config$curlOptions$netrc.file <- netrc_file
+sdy28$config$curlOptions$netrc.file <- netrc_file
+
 # datasets
 test_that("get_hai", {
   test_dataset(sdy269, "hai", common_cols, specif_cols = haiCols)
@@ -44,3 +52,5 @@ test_that("get_multiple", {
   test_EM(sdy269, c("TIV_2008", "LAIV_2008"))
 })
 
+#
+file.remove(netrc_file)

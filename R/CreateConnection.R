@@ -42,16 +42,21 @@ CreateConnection = function(study = NULL, verbose = FALSE){
   # (Ideally labkey.selectRows should optionally parse the options from its argument besides package environment)
   # 
   # for now we assume they all share the same setting and init it only once here
-  curlOptions <- labkey.setCurlOptions(ssl.verifyhost = 2, sslversion = 1)
+  nf <- try(get("labkey.netrc.file", .GlobalEnv), silent = TRUE)
+  if(inherits(nf, "try-error")){
+    curlOptions <- labkey.setCurlOptions(ssl.verifyhost = 2, sslversion = 1)
+  } else{
+    curlOptions <- labkey.setCurlOptions(ssl.verifyhost = 2, sslversion = 1, netrc.file = nf)
+  }
   
-  if(length(study) <= 1)
+  if(length(study) <= 1){
     .CreateConnection(study = study
                       , labkey.url.base = labkey.url.base
                       , labkey.user.email = labkey.user.email
                       , verbose = verbose
                       , curlOptions = curlOptions
                       )
-  else{
+  } else{
     stop("For multiple studies, use an empty string and filter the connection.")
   }
 }
