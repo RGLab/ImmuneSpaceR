@@ -1,3 +1,16 @@
+#' @title A Thin Wrapper Around ImmuneSpace
+#' @description ImmuneSpaceR provides a convenient API for accessing data sets
+#' within the ImmuneSpace database.
+#' 
+#' @details Uses the Rlabkey package to connect to ImmuneSpace. Implements
+#' caching, and convenient methods for accessing data sets.
+#' 
+#' @name ImmuneSpaceR-package
+#' @aliases ImmuneSpaceR
+#' @author Greg Finak
+#' @import data.table Rlabkey methods Biobase
+NULL
+
 # globalVariables to remove RCC NOTES due to data.table scoping
 globalVariables(c("biosample_accession",
                 "study_time_collected",

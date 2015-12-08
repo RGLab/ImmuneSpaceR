@@ -4,14 +4,20 @@
 
 #' @title CreateConnection
 #' @name CreateConnection
-#' @param study \code{"character"} vector naming the study.
-#' @param verbose \code{"logical"} wehther to print the extra details for troubleshooting. 
+#' @param study A \code{"character"} vector naming the study.
+#' @param verbose A \code{"logical"} whether to print the extra details for troubleshooting. 
 #' @description Constructor for \code{ImmuneSpaceConnection} class
 #' @details Instantiates an \code{ImmuneSpaceConnection} for \code{study}
 #' The constructor will try to take the values of the various `labkey.*` parameters from the global environment.
 #' If they don't exist, it will use default values. These are assigned to `options`, which are then used by the \code{ImmuneSpaceConnection} class.
 #' @export CreateConnection
-#' @return an instance of an \code{ImmuneSpaceConnection} or \code{ImmuneSpaceConnectionList}
+#' @return an instance of an \code{ImmuneSpaceConnection}
+#' @seealso ImmuneSpaceConnection
+#' @examples
+#' # Single study 
+#' con <- CreateConnection("SDY269")
+#' # Cross study
+#' con <- CreateConnection("")
 CreateConnection = function(study = NULL, verbose = FALSE){
   # Try to parse labkey options from global environment 
   # which really should have been done through option()/getOption() mechanism
@@ -46,32 +52,11 @@ CreateConnection = function(study = NULL, verbose = FALSE){
                       , curlOptions = curlOptions
                       )
   else{
-    conList <- sapply(study
-                      , .CreateConnection
-                      , labkey.url.base = labkey.url.base
-                      , labkey.user.email = labkey.user.email
-                      , verbose = verbose
-                      , curlOptions = curlOptions
-                      )
-    
-    .ISConList(connections = conList)
+    stop("For multiple studies, use an empty string and filter the connection.")
   }
 }
 
 
-#'@docType package
-#'@title A Thin Wrapper Around ImmuneSpace.
-#'@description ImmuneSpaceR provides a convenient API for accessing data sets
-#'within the ImmuneSpace database.
-#'
-#'@details Uses the Rlabkey package to connect to ImmuneSpace. Implements
-#'caching, and convenient methods for accessing data sets.
-#'
-#'@name ImmuneSpaceR-package
-#'@aliases ImmuneSpaceR
-#'@author Greg Finak
-#'@import data.table Rlabkey methods Biobase
-NULL
 .CreateConnection = function(study = NULL
                              , labkey.url.base
                              , labkey.url.path
@@ -97,19 +82,27 @@ NULL
   .ISCon(config = config)
 }
 
-#'@name ImmuneSpaceConnection
+#'@rdname ImmuneSpaceConnection-class
 #'@aliases
 #'ImmuneSpace
+#'ImmuneSpaceConnection
 #'ImmuneSpaceConnection-class
-#'@rdname ImmuneSpaceConnection-class
-#'@docType class
+#'getGEMatrix
+#'getDataset
+#'listDatasets
+#'getGEAnalysis
+#'listGEAnalysis
+#'addTrt
+#'EMNames
+#'quick_plot
 #'@title The ImmuneSpaceConnection class
 #'
 #'@description
 #'A connection respresents a study or a set of studies available on ImmuneSpace.
 #'It provides function to download and display the data within these studies.
 #'
-#'@field study A \code{character}. The study accession number.
+#'@field study A \code{character}. The study accession number. Use an empty
+#'string ("") to create a connection at the project level.
 #'@field config A \code{list}. Stores configuration of the connection object 
 #'such as URL, path and username.
 #'@field available_datasets A \code{data.table}. The table of datasets available
@@ -134,11 +127,6 @@ NULL
 #'@seealso 
 #' \code{\link{CreateConnection}}
 #' \code{\link{ImmuneSpaceR-package}} 
-#' \code{\link{ImmuneSpaceConnection_getGEMatrix}}
-#' \code{\link{ImmuneSpaceConnection_getDataset}}
-#' \code{\link{ImmuneSpaceConnection_listDatasets}}
-#' \code{\link{ImmuneSpaceConnection_getGEAnalysis}}
-#' \code{\link{ImmuneSpaceConnection_listGEAnalysis}}
 #'@exportClass ImmuneSpaceConnection
 #'@examples
 #' sdy269 <- CreateConnection("SDY269")

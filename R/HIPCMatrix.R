@@ -104,7 +104,7 @@ NULL
   rownames(exprs) <- rnames 
   
   norm_exprs <- log2(pmax(exprs, 1))
-  norm_exprs <- norm_exprs[, c(colnames(norm_exprs) %in% gef$expsample_accession)]
+  norm_exprs <- norm_exprs[, c(colnames(norm_exprs) %in% gef[[EorB]])]
   return(norm_exprs)
 }
 

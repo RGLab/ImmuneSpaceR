@@ -1,13 +1,14 @@
 Package: ImmuneSpaceR
 Type: Package
 Title: A Thin Wrapper around the ImmuneSpace Database
-Version: 0.2.40
+Version: 0.2.41
 Date: 2014-06-12
-Author: Greg Finak
-VignetteBuilder: knitr
+Author: Renan Sauteraud
 Maintainer: Renan Sauteraud <rsautera@fhcrc.org>
+VignetteBuilder: knitr
 Description: Provides a convenient API for accessing data sets within studies
     in the ImmuneSpace database.
+biocViews: DataImport, DataRepresentation, ThirdPartyClient
 URL: https://github.com/RGLab/ImmuneSpaceR
 License: GPL-2
 Suggests:
@@ -25,18 +26,18 @@ Imports:
     pheatmap,
     ggplot2,
     gtools,
+    tools,
     gplots,
     reshape2,
-    preprocessCore,
-    plyr
+    preprocessCore
 Collate:
     'CreateConnection.R'
     'ImmuneSpace.R'
     'HIPCMatrix.R'
-    'ImmuneSpaceConnectionList.R'
-    'NOTES.R'
+    'ImmuneSpaceR.R'
     'getDataset.R'
     'getGEMatrix.R'
     'quick_plot.R'
     'utils.R'
     'zzz.R'
+RoxygenNote: 5.0.1.9000

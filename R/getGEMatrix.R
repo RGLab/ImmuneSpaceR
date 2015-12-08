@@ -58,14 +58,20 @@ NULL
     if(is.null(data_cache[[.self$.mungeFeatureId(annotation_set_id)]])){
       if(!summary){
         message("Downloading Features..")
-        featureAnnotationSetQuery=sprintf("SELECT * from FeatureAnnotation where FeatureAnnotationSetId='%s';",annotation_set_id);
-        features<-labkey.executeSql(config$labkey.url.base,config$labkey.url.path,schemaName = "Microarray",sql = featureAnnotationSetQuery ,colNameOpt = "fieldname")
+        featureAnnotationSetQuery = sprintf("SELECT * from FeatureAnnotation
+                                            where FeatureAnnotationSetId='%s';",
+                                            annotation_set_id);
+        features <- labkey.executeSql(config$labkey.url.base, 
+                                      config$labkey.url.path,
+                                      schemaName = "Microarray",
+                                      sql = featureAnnotationSetQuery,
+                                      colNameOpt = "fieldname")
         setnames(features, "GeneSymbol", "gene_symbol")
       }else{
-        features<-data.frame(FeatureId=data_cache[[cache_name]][,gene_symbol],
+        features <- data.frame(FeatureId=data_cache[[cache_name]][,gene_symbol],
                              gene_symbol=data_cache[[cache_name]][,gene_symbol])
       }
-      data_cache[[.self$.mungeFeatureId(annotation_set_id)]]<<-features
+      data_cache[[.self$.mungeFeatureId(annotation_set_id)]] <<- features
     }
   }
 )
@@ -105,6 +111,19 @@ NULL
       rownames(fdata) <- fdata$FeatureId
       fdata <- AnnotatedDataFrame(fdata)
     }
+    dups <- colnames(matrix)[duplicated(colnames(matrix))]
+    if(length(dups) > 0){
+      for(dup in dups){
+        dupIdx <- grep(dup, colnames(matrix))
+        newNames <- paste0(dup, 1:length(dupIdx))
+        setnames(matrix, dupIdx, newNames)
+        eval(substitute(matrix[, `:=`(dup, rowMeans(matrix[, dupIdx, with = FALSE]))], list(dup = dup)))
+        eval(substitute(matrix[, `:=`(newNames, NULL)], list(newNames = newNames)))
+      }
+      if(.self$config$verbose){
+        warning("The matrix contains subjects with multiple measures per timepoint. Averaging expression values.")
+      }
+    }
     exprs <- as.matrix(matrix[, -1L, with = FALSE])
     exprs <- exprs[, colnames(exprs) %in% pheno$biosample_accession] #At project level, InputSamples may be filtered
 
@@ -118,30 +137,7 @@ NULL
   }
 )
 
-#' @title Get Gene Expression Matrix
-#'
-#' @description 
-#' Downloads a normalized gene expression matrix from ImmuneSpace.
-#'
-#' con$getGEMatrix(x = NULL, cohort = NULL, summary = FALSE, reload = FALSE)
-#'
-#' @param x  A \code{character}. The name of the Gene Expression Matrix to download.
-#' @param cohort A \code{character}. The name of a cohort that has an associated
-#'  gene expression matrix. Note that if cohort is not NULL, then x will be ignored.
-#' @param summary A \code{logical}. If set to TRUE. Downloads a matrix with
-#'  expression averaged by gene symbol. By default the feature level matrix is
-#'  downloaded.
-#' @param reload A \code{logical}. If set to TRUE, the matrix will be downloaded
-#'  again, even if a cached copy exist in the \code{ImmuneSpaceConnection} object.
-#'  
-#' @return An \code{ExpressionSet}.
-#' @aliases getGEMatrix
-#' @name ImmuneSpaceConnection_getGEMatrix
-#' @examples
-#' labkey.url.base = "https://www.immunespace.org"
-#' labkey.url.path = "/Studies/SDY269"
-#' sdy269 <- CreateConnection("SDY269")
-#' sdy269$getGEMatrix("TIV_2008")
+# Downloads a normalized gene expression matrix from ImmuneSpace.
 .ISCon$methods(
   getGEMatrix=function(x = NULL, cohort = NULL, summary = FALSE, reload=FALSE){
     "Downloads a normalized gene expression matrix from ImmuneSpace.\n
@@ -196,19 +192,13 @@ NULL
 }
 
 
-#' @title Add treatment
-#' 
-#' @description 
-#' Add treatment information to the phenoData of an expression matrix 
-#' available in the connection object.
-#' 
-#' @param x A \code{character}. The name of an expression that has been
-#' downloaded from the connection.
-#' 
-#' @return An \code{ExpressionSet} with new phenoData.
-#' @name addTrt
+# Add treatment information to the phenoData of an expression matrix available in the connection object.
 .ISCon$methods(
   addTrt=function(x = NULL){
+    "Add treatment information to the phenoData of an expression matrix
+     available in the connection object.\n
+    x: A character. The name of a expression matrix that has been downloaded 
+    from the connection."
     if(is.null(x) | !x %in% names(data_cache)){
       stop(paste(x, "is not a valid expression matrix."))
     } 
@@ -247,22 +237,14 @@ NULL
 )
 
 
-#' Change expression-matrix sample names
-#' 
-#' Change the sampleNames of an \code{ExpressionSet} fetched by
-#' \code{getGEMatrix} using the information in the \code{phenodData} slot.
-#'
-#' @param x An \code{ExpressionSet}. As returned by \code{getGEMatrix}
-#' @param colType A \code{character}. The type of column names. Valid optsions
-#' are "expsample_accession" and "participant_id".
-#' 
-#' @return An \code{ExpressionSet}, with updated \code{sampleNames} and 
-#' \code{phenoData}.
-#' 
-#' @name EMNames
 #' @importFrom Biobase pData sampleNames
 .ISCon$methods(
   EMNames=function(EM = NULL, colType = "participant_id"){
+    "Change the sampleNames of an ExpressionSet fetched by getGEMatrix using the
+    information in the phenodData slot.\n
+    x: An ExpressionSet, as returned by getGEMatrix.\n
+    colType: A character. The type of column names. Valid options are 'expsample_accession'
+    and 'participant_id'."
     if(is.null(EM) | !is(EM, "ExpressionSet")){
       stop("EM should be a valid ExpressionSet, as returned by getGEMatrix")
     }

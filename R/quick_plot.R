@@ -19,6 +19,8 @@ NULL
     legend: A character. Columns of the dataset or demographics to be added as
     legend on the heatmap. This argument is ignored if the plot type isn't 
     heatmap.\n
+    show_virus_strain: A logical. Should all the virus strains be shown or should
+    the values be averaged. Only used when dataset = 'hai'.\n
     '...': Extra argument to be passed to ggplot. e.g: shape = 'Age', color =
     'Race'.\n"
     .quick_plot(.self, ...)

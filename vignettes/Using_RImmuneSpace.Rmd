@@ -9,19 +9,19 @@ This package provides a *thin* wrapper around `Rlabkey` and connects to the **Im
 
 ## Configuration
 
-ImmuneSpaceR uses the `options` mechanism in R to find the values of three variables.  These will typically be set by the LabKey system when a script is running on ImmuneSpace, but if you work remotely, you can set them in your global environment, or ImmuneSpaceR will assign default values if they're missing. The defaults may or may not work for you, so it's best to set them. 
+ImmuneSpaceR uses the `options` mechanism in R to find the values of three variables. These will typically be set by the LabKey system when a script is running on ImmuneSpace, but if you work remotely, you can set them in your global environment, or ImmuneSpaceR will assign default values if they're missing. The defaults may or may not work for you, so it's best to set them. 
 
 ```{r echo=TRUE}
-labkey.url.base="https://www.immunespace.org"
-labkey.url.path="Studies/SDY269"
-labkey.user.email="unknown_user at not_a_real_domain.org"
+labkey.url.base = "https://www.immunespace.org"
+labkey.url.path = "Studies/SDY269"
+labkey.user.email = "unknown_user at not_a_real_domain.org"
 ```
 
 The first is the URI to the ImmuneSpace system.
 The second is the path to the study you wish to access. In this case, we are going to access `SDY269`. All studies are under the `Studies` folder. Always.
-The third is your user email. This is used to track who generated a given report.
+The third is the email address used to register on ImmuneSpace. This optional variable is used to track who generated a given report.
 
-Finally you'll need an `.netrc` file in your home directory that will contain a `machine` name (hostname of ImmuneSpace), and `login` and `password`. See [here](https://www.labkey.org/wiki/home/Documentation/page.view?name=netrc) for more information.
+Finally you will need a `.netrc` file in your home directory that will contain a `machine` name (hostname of ImmuneSpace), and `login` and `password`. See [here](https://www.labkey.org/wiki/home/Documentation/page.view?name=netrc) for more information.
 
 A netrc file may look like this:
 ```
@@ -42,17 +42,16 @@ at the command prompt, you should see it there. If it's not there, create one no
 
 Let's instantiate a connection to ImmuneSpace. First, we need the configuration variables. These would normally be set up by LabKey when running locally on the ImmuneSpace server. Since we are running remotely, we need to define them.
 
-```{r,message=FALSE}
+```{r, message=FALSE}
 require(ImmuneSpaceR)
-labkey.url.base="https://www.immunespace.org" 
-labkey.url.path="Studies/SDY269"
-labkey.email.user="gfinak at fhcrc.org"
+labkey.url.base = "https://www.immunespace.org" 
+labkey.url.path = "Studies/SDY269"
 ```
 
 We'll be looking at study `SDY269`. If you want to use a different study, change that string. The connections have state, so you can instantiate multiple connections to different studies simultaneously.
 
-```{r, CreateConnection}
-sdy269<-CreateConnection(study="SDY269")
+```{r CreateConnection}
+sdy269 <- CreateConnection(study = "SDY269")
 sdy269
 ```
 
@@ -66,10 +65,22 @@ We can grab a named data set easily enough.
 sdy269$getDataset("hai")
 ```
 
+
 The *sdy269* object is an **S5** class, so it behaves like a true object. Functions (like `getDataset`) are members of the object, thus the `$` semantics to access member functions.
 The first time you retrieve a data set, it will contact the database. The data is cached locally, so the next time you call `getDataset` on the same dataset, it will retrieve the cached local copy. This is much faster. 
 
-We can grab a gene expression matrix
+
+To get only a subset of the data and speed up the download, filters can be 
+passed to `getDataset`. The filters are created using the `makeFilter` function
+of the `Rlabkey` package.
+```{r getDataset-filter, message = FALSE}
+library(Rlabkey)
+myFilter <- makeFilter(c("gender", "EQUAL", "Female"))
+hai <- sdy269$getDataset("hai", colFilter = myFilter)
+```
+See `?makeFilter` for more information on the syntax.
+
+We can also grab a gene expression matrix
 
 ```{r getGEMatrix}
 sdy269$getGEMatrix("LAIV_2008")
@@ -81,6 +92,12 @@ It is also possible to call this function using multiple matrix names. In this
 case, all the matrices are downloaded and combined into a single `ExpressionSet`.
 ```{r getGEMatrix-multiple}
 sdy269$getGEMatrix(c("TIV_2008", "LAIV_2008"))
+```
+
+Finally, the summary argument will let you download the matrix with gene symbols
+in place of priobe ids.
+```{r getGEMatrix-summary}
+gs <- sdy269$getGEMatrix("TIV_2008", summary = TRUE)
 ```
 
 ## Errors
@@ -108,7 +125,30 @@ sdy269$quick_plot("elisa")
 However, the `type` argument can be used to manually select from "boxplot",
 "heatmap", "violin" and "line".
 
-## Future Enhancements
+## Cross study connections
+To fetch data from multiple studies, simply create a connection at the project level.
 
-As the schema stabilizes, we plan to implement automated merging of different data types within, and eventually across assays (using differen connections for example). 
+```{r, cross-connection}
+con <- CreateConnection("")
+```
+
+This will instantiate a connection at the `Studies` level. Most functions work
+cross study connections just like they do on single studies.
+
+You can get a list of datasets and gene expression matrices available accross 
+all studies.
+```{r, cross-connection-print}
+con
+```
+
+Likewise, `quick_plot` will plot accross studies. Note that in most cases the
+datasets will have too many cohorts/subjects, making the filtering of the data
+a necessity. The `colFilter` argument can be used here, as described in the 
+`getDataset` sectionm.
+```{r cross-connection-qplot, dev='CairoPNG'}
+plotFilter <- makeFilter(c("cohort", "IN", "TIV 2010;TIV Group 2008"))
+con$quick_plot("elispot", filter = plotFilter)
+```
+The figure above shows the ELISPOT results for two different years of TIV 
+vaccine cohorts.
 
