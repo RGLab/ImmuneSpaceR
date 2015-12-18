@@ -1,17 +1,17 @@
 source("global_variable.R")
 
+# Set curlOptions for download 
+if(exists("ISR_login") & exists("ISR_pwd")){
+  netrc_file <- tempfile("ImmuneSpaceR_tmp_netrc")
+  netrc_string <- paste("machine www.immunespace.org login", ISR_login, "password", ISR_pwd)
+  write(x = netrc_string, file = netrc_file)
+  labkey.netrc.file <- netrc_file
+}
+
 # Connections
 sdy269 <- CreateConnection("SDY269")
 sdy180 <- CreateConnection("SDY180")
 sdy28 <- CreateConnection("SDY28")
-
-# Set curlOptions for download 
-netrc_file <- tempfile("tmpnetrc")
-netrc_string <- "machine www.immunespace.org login xxxx password xxxx"
-write(x = netrc_string, file = netrc_file)
-sdy269$config$curlOptions$netrc.file <- netrc_file
-sdy180$config$curlOptions$netrc.file <- netrc_file
-sdy28$config$curlOptions$netrc.file <- netrc_file
 
 # datasets
 test_that("get_hai", {
@@ -52,5 +52,7 @@ test_that("get_multiple", {
   test_EM(sdy269, c("TIV_2008", "LAIV_2008"))
 })
 
-#
-file.remove(netrc_file)
+# cleanup
+if(exists("netrc_file")){
+  file.remove(netrc_file)
+}

@@ -1,27 +1,38 @@
-<!--
-%\VignetteEngine{knitr::knitr}
-%\VignetteIndexEntry{An introduction to using the ImmuneSpaceR package}
--->
+---
+date: "`r Sys.Date()`"
+vignette: >
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteIndexEntry{An introduction to using the ImmuneSpaceR package}
+---
+```{r knitr, echo=FALSE, cache = FALSE}
+library(knitr)
+opts_chunk$set(cache = TRUE)
+```
+```{r netrc_req, echo = FALSE}
+# This chunk is only useful for BioConductor checks and shouldn't affect any other setup
+if(exists("ISR_login") & exists("ISR_pwd")){
+  netrc_file <- tempfile("ImmuneSpaceR_tmp_netrc")
+  netrc_string <- paste("machine www.immunespace.org login", ISR_login, "password", ISR_pwd)
+  write(x = netrc_string, file = netrc_file)
+  labkey.netrc.file <- netrc_file
+}
+```
 
 # A simple introduction on using the ImmuneSpaceR package
 
 This package provides a *thin* wrapper around `Rlabkey` and connects to the **ImmuneSpace* database, making it easier to fetch *datasets*, including gene expression data, hai, and so forth, from specific studies. 
 
-## Configuration
+## Contents
+1. [Configuration](#configuration)
+2. [Single study](#singlestudy)
+    1. [Datasets](#datasets)
+    2. [Gene expression](#ge)
+    3. [Plots](#quick_plot)
+3. [Cross-study](#crossstudy)
 
-ImmuneSpaceR uses the `options` mechanism in R to find the values of three variables. These will typically be set by the LabKey system when a script is running on ImmuneSpace, but if you work remotely, you can set them in your global environment, or ImmuneSpaceR will assign default values if they're missing. The defaults may or may not work for you, so it's best to set them. 
+## <a id="configuration"></a>Configuration
 
-```{r echo=TRUE}
-labkey.url.base = "https://www.immunespace.org"
-labkey.url.path = "Studies/SDY269"
-labkey.user.email = "unknown_user at not_a_real_domain.org"
-```
-
-The first is the URI to the ImmuneSpace system.
-The second is the path to the study you wish to access. In this case, we are going to access `SDY269`. All studies are under the `Studies` folder. Always.
-The third is the email address used to register on ImmuneSpace. This optional variable is used to track who generated a given report.
-
-Finally you will need a `.netrc` file in your home directory that will contain a `machine` name (hostname of ImmuneSpace), and `login` and `password`. See [here](https://www.labkey.org/wiki/home/Documentation/page.view?name=netrc) for more information.
+In order to connect to ImmuneSpace, you will need a `.netrc` file in your home directory that will contain a `machine` name (hostname of ImmuneSpace), and `login` and `password`. See [here](https://www.labkey.org/wiki/home/Documentation/page.view?name=netrc) for more information.
 
 A netrc file may look like this:
 ```
@@ -38,35 +49,30 @@ ls ~/.netrc
 ```
 at the command prompt, you should see it there. If it's not there, create one now. Make sure you have a valid login and password. If you don't have one, go to [ImmuneSpace](http://www.immunespace.org) now and set yourself up with an account. 
 
-## Instantiate a connection
-
-Let's instantiate a connection to ImmuneSpace. First, we need the configuration variables. These would normally be set up by LabKey when running locally on the ImmuneSpace server. Since we are running remotely, we need to define them.
-
-```{r, message=FALSE}
-require(ImmuneSpaceR)
-labkey.url.base = "https://www.immunespace.org" 
-labkey.url.path = "Studies/SDY269"
-```
+## <a id="singlestudy"></a>Instantiate a connection
 
 We'll be looking at study `SDY269`. If you want to use a different study, change that string. The connections have state, so you can instantiate multiple connections to different studies simultaneously.
 
-```{r CreateConnection}
+```{r CreateConnection, cache=FALSE}
+library(ImmuneSpaceR)
 sdy269 <- CreateConnection(study = "SDY269")
 sdy269
 ```
 
-The call to `CreateConnection` instantiates the connection and it initializes itself using the `labkey.*` variables, assigns them to `options`, and those are used by the connection. The `study` parameter can be used to override the `labkey.url.path`.  Printing the object shows where it's connected, to what study, and the available data sets and gene expression matrices.
+The call to `CreateConnection` instantiates the connection Printing the object shows where it's connected, to what study, and the available data sets and gene expression matrices.
+
+Note that when a script is running on ImmuneSpace, some variables set in the global environments will automatically indicate which study should be used and the `study` argument can be skipped.
 
 ## Fetching data sets and gene expression matrices
 
-We can grab a named data set easily enough.
+We can grab any of the datasets listed in the connection.
 
 ```{r getDataset}
 sdy269$getDataset("hai")
 ```
 
 
-The *sdy269* object is an **S5** class, so it behaves like a true object. Functions (like `getDataset`) are members of the object, thus the `$` semantics to access member functions.
+The *sdy269* object is an **R5** class, so it behaves like a true object. Functions (like `getDataset`) are members of the object, thus the `$` semantics to access member functions.
 The first time you retrieve a data set, it will contact the database. The data is cached locally, so the next time you call `getDataset` on the same dataset, it will retrieve the cached local copy. This is much faster. 
 
 
@@ -79,6 +85,9 @@ myFilter <- makeFilter(c("gender", "EQUAL", "Female"))
 hai <- sdy269$getDataset("hai", colFilter = myFilter)
 ```
 See `?makeFilter` for more information on the syntax.
+
+For more information about `getDataset`'s options, refer to the dedicated vignette.
+
 
 We can also grab a gene expression matrix
 
@@ -100,12 +109,6 @@ in place of priobe ids.
 gs <- sdy269$getGEMatrix("TIV_2008", summary = TRUE)
 ```
 
-## Errors
-If you try to grab a dataset that doesn't exist, the object should tell you by giving you an error.
-
-```{r}
-result <- sdy269$getDataset("mickey_mouse")
-```
 
 If the connection was created with `verbose = TRUE`, some functions will display
 additional informations such as the valid dataset names.
@@ -125,7 +128,7 @@ sdy269$quick_plot("elisa")
 However, the `type` argument can be used to manually select from "boxplot",
 "heatmap", "violin" and "line".
 
-## Cross study connections
+## <a id="crossstudy"></a>Cross study connections
 To fetch data from multiple studies, simply create a connection at the project level.
 
 ```{r, cross-connection}

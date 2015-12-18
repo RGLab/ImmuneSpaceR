@@ -64,7 +64,6 @@ CreateConnection = function(study = NULL, verbose = FALSE){
 
 .CreateConnection = function(study = NULL
                              , labkey.url.base
-                             , labkey.url.path
                              , labkey.user.email
                              , curlOptions
                              , verbose

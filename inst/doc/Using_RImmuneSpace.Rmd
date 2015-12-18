@@ -7,6 +7,10 @@
 
 This package provides a *thin* wrapper around `Rlabkey` and connects to the **ImmuneSpace* database, making it easier to fetch *datasets*, including gene expression data, hai, and so forth, from specific studies. 
 
+## Contents
+1. [Configuration](#Configuration)
+2. [Instantiate a connection](#Configuration)
+
 ## Configuration
 
 ImmuneSpaceR uses the `options` mechanism in R to find the values of three variables.  These will typically be set by the LabKey system when a script is running on ImmuneSpace, but if you work remotely, you can set them in your global environment, or ImmuneSpaceR will assign default values if they're missing. The defaults may or may not work for you, so it's best to set them. 

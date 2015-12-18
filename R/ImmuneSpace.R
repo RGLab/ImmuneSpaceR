@@ -35,17 +35,21 @@
 )
 
 .ISCon$methods(
-    listDatasets=function(){
+    listDatasets=function(which = c("datasets", "expression")){
       "List the datasets available in the study or studies of the connection."
-      cat("datasets\n")
       
-      for(i in 1:nrow(available_datasets)){
-        cat(sprintf("\t%s\n",available_datasets[i,Name]))
+      if("datasets" %in% which){
+        cat("datasets\n")
+        for(i in 1:nrow(available_datasets)){
+          cat(sprintf("\t%s\n",available_datasets[i,Name]))
+        }
       }
-      if(!is.null(data_cache[[constants$matrices]])){
-        cat("Expression Matrices\n")
-        for(i in 1:nrow(data_cache[[constants$matrices]])){
-          cat(sprintf("\t%s\n",data_cache[[constants$matrices]][i, name]))
+      if("expression" %in% which){
+        if(!is.null(data_cache[[constants$matrices]])){
+          cat("Expression Matrices\n")
+          for(i in 1:nrow(data_cache[[constants$matrices]])){
+            cat(sprintf("\t%s\n",data_cache[[constants$matrices]][i, name]))
+          }
         }
       }
     })

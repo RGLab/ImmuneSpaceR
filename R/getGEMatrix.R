@@ -89,7 +89,8 @@ NULL
                                c("Biosample/biosample_accession", "IN", paste(colnames(matrix), collapse = ";")))
     pheno <- unique(data.table(labkey.selectRows(
       config$labkey.url.base, config$labkey.url.path,
-      "assay.ExpressionMatrix.matrix", "InputSamples", "gene_expression_matrices",
+      #"assay.ExpressionMatrix.matrix", "InputSamples", "gene_expression_matrices",
+      "study", "HM_InputSamplesQuery",
       containerFilter = "CurrentAndSubfolders",
       colNameOpt = "caption", colFilter = pheno_filter)))
     

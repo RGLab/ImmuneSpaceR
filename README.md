@@ -62,7 +62,7 @@ which will print names of available datasets and gene expression matrices.
 Gene expression matrices or data sets can be retreived by:
 
 ```R
-study$getGEMarix("name")
+study$getGEMatrix("name")
 # or
 study$getDataset("name")
 ```
