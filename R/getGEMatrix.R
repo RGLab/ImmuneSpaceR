@@ -85,12 +85,16 @@ NULL
     #features
     features <- data_cache[[.self$.mungeFeatureId(.self$.getFeatureId(matrix_name))]][,c("FeatureId","gene_symbol")]
     #inputs
-    pheno_filter <- makeFilter(c("Run/Name", "EQUAL", matrix_name), #paste0(matrix_name, ".tsv")),
+    #pheno_filter <- makeFilter(c("Run/Name", "EQUAL", matrix_name), #paste0(matrix_name, ".tsv")),
+    #                           c("Biosample/biosample_accession", "IN", paste(colnames(matrix), collapse = ";")))
+
+    runID <- data_cache$GE_matrices[name == matrix_name, rowid]
+    pheno_filter <- makeFilter(c("Run", "EQUAL", runID), 
                                c("Biosample/biosample_accession", "IN", paste(colnames(matrix), collapse = ";")))
     pheno <- unique(data.table(labkey.selectRows(
       config$labkey.url.base, config$labkey.url.path,
       #"assay.ExpressionMatrix.matrix", "InputSamples", "gene_expression_matrices",
-      "study", "HM_InputSamplesQuery",
+      "study", "HM_InputSamplesQuerySnapshot",
       containerFilter = "CurrentAndSubfolders",
       colNameOpt = "caption", colFilter = pheno_filter)))
     
