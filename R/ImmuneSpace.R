@@ -71,7 +71,7 @@
     "Downloads data from the gene expression analysis results table.\n
     '...': A list of arguments to be passed to labkey.selectRows."
     GEAR <- data.table(labkey.selectRows(config$labkey.url.base, config$labkey.url.path,
-        "gene_expression", "DGEA_filteredGEAR",  colNameOpt = "caption", ...))
+        "gene_expression", "DGEA_filteredGEAR",  "DGEAR", colNameOpt = "caption", ...))
     setnames(GEAR, .self$.munge(colnames(GEAR)))
     return(GEAR)
   }
