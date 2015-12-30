@@ -225,7 +225,7 @@ NULL
   demo_cols <- c("gender", "age_reported", "race")
   out_cols <- c("study_time_collected", "study_time_collected_unit", "cohort", "participant_id")
   out_cols <- c(c("response", "analyte"), demo_cols, out_cols)
-  if(dataset != "gene_expression_analysis_results"){
+  if(dataset != "DGEA_filteredGEAR"){
     dt <- copy(con$getDataset(dataset, colFilter = filter, reload = TRUE))
     if(!"analyte" %in% colnames(dt)){
       dt <- dt[, analyte := ""]
@@ -258,7 +258,7 @@ NULL
   } else if(dataset == "fcs_analyzed_result"){
     dt <- dt[, value_reported := as.numeric(population_cell_number)]
     dt <- dt[, analyte := population_name_reported]
-  } else if(dataset == "gene_expression_analysis_results"){
+  } else if(dataset == "DGEA_filteredGEAR"){
     logT <- FALSE #Matrices are already log2 transformed
     dt <- copy(con$getGEAnalysis(colFilter = filter))
     uarm <- unique(dt$cohort)
@@ -314,7 +314,7 @@ NULL
                 "elispot" =  "Spot count",
                 "mbaa" = "Concentration",
                 "fcs_analyzed_result" = "Cell number",
-                "gene_expression_analysis_results" = "")
+                "DGEA_filteredGEAR" = "")
   if(normalize_to_baseline){
     lab <- paste(lab, "normalized to baseline")
   }
