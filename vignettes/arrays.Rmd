@@ -31,9 +31,8 @@ This vignette shows detailed examples for downloading expression matrices,
 1. [Connections](#cons)
 1. [List the expression matrices](#matrices)
 2. [Download an expression matrix](#download)
-  Download by Run names
-  Download by cohorts
 3. [Summarized matrices](#summary)
+4. [Combining matrices](#multi)
 5. [Caching](#caching)
 6. [sessionInfo](#sessioninfo)
 
@@ -57,7 +56,7 @@ them. But we need to figure out which processed matrices are available within
 our chosen studies.
 
 On www.immunespace.org, in the study of interest or at the project level, the
-*Gene expression matrices* table will show the available runs.
+**Gene expression matrices** table will show the available runs.
 
 Printing the connections will, among other information, list the datasets
 availables. The `listDatasets` method will only display the downloadable data.
@@ -78,15 +77,66 @@ it combines all available studies.
 
 ## <a id="download"></a>Download
 
-Calling `getGEMatrix` returns a selected expression matrix as an `ExpressionSet`. 
+### By run name
+
+The `getGEMatrix` function will accept any of the run names listed in the 
+connection.
 ```{r getGEMatrix}
 TIV_2008 <- sdy269$getGEMatrix("TIV_2008")
-TIV_2011 <- all$getGEMatrix("TIV_2011")
-
+TIV_2011 <- all$getGEMatrix(x = "TIV_2011")
+```
+The matrices are returned as `ExpressionSet` where the phenoData slot contains
+basic demographic information and the featureData slot shows a mapping of probe
+to official gene symbols.
+```{r ExpressionSet}
 TIV_2008
 ```
 
+### By cohort
+
+The `cohort` argument can be used in place of the run name (`x`). Likewise, the
+list of valid cohorts can be found in the Gene expression matrices table.
+```{r getGEMatrix-cohorts}
+LAIV_2008 <- sdy269$getGEMatrix(cohort = "LAIV group 2008")
+```
+Note that when cohort is used, `x` is ignored.
+
 [Back to top](#contents)
+
+
+## <a id="summary"></a>Summarized matrices
+
+By default, the returned `ExpressionSet`s have probe names as features (or rows).
+However, multiple probes often match the same gene and merging experiments from
+different arrays is impossible at feature level.
+When they are available, the `summary` argument allows to return the matrices 
+with gene symbols instead of probes.
+```{r summary}
+TIV_2008_sum <- sdy269$getGEMatrix("TIV_2008", summary = TRUE)
+```
+Probes that do not map to a unique gene are removed and expression is averaged 
+by gene.
+```{r summary-print}
+TIV_2008_sum
+```
+
+[Back to top](#contents)
+
+
+## <a id="multi"></a>Combining matrices
+
+With the summarized version of the matrices, it is easy to combine multiple 
+experiments, even accross different types of array. This is done internally in
+`getGEMatrix` when multiple runs or multiple cohorts are specified.
+
+```{r multi}
+# Within a study
+em269 <- sdy269$getGEMatrix(c("TIV_2008", "LAIV_2008"))
+# Combining accross studies
+TIV_seasons <- all$getGEMatrix(c("TIV_2008", "TIV_2010"))
+```
+
+
 
 ## <a id="caching"></a>Caching
 

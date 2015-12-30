@@ -170,6 +170,14 @@ NULL
       lapply(x, GeneExpressionFeatures,summary)
       lapply(x, ConstructExpressionSet, summary)
       ret <- .combineEMs(data_cache[cache_name])
+      if(dim(ret)[[1]] == 0){
+        # No features shared
+        warn <- "The returned ExpressionSet has 0 rows. No feature is shared accross the selected runs or cohorts."
+        if(!summary){
+          warn <- paste(warn, "Try setting summary to TRUE to merge the matrices by gene symbol.")
+        }
+        warning(warn)
+      }
       return(ret)
     } else{
       if (cache_name %in% names(data_cache) && !reload) {

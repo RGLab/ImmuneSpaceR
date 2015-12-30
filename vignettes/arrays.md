@@ -1,7 +1,7 @@
 ---
 title: "Expression matrices with ImmuneSpaceR"
 author: "Renan Sauteraud"
-date: "2015-12-17"
+date: "2015-12-18"
 output: html_document
 vignette: >
   %\VignetteEngine{knitr::rmarkdown}
@@ -19,9 +19,8 @@ This vignette shows detailed examples for downloading expression matrices,
 1. [Connections](#cons)
 1. [List the expression matrices](#matrices)
 2. [Download an expression matrix](#download)
-  Download by Run names
-  Download by cohorts
 3. [Summarized matrices](#summary)
+4. [Combining matrices](#multi)
 5. [Caching](#caching)
 6. [sessionInfo](#sessioninfo)
 
@@ -46,7 +45,7 @@ them. But we need to figure out which processed matrices are available within
 our chosen studies.
 
 On www.immunespace.org, in the study of interest or at the project level, the
-*Gene expression matrices* table will show the available runs.
+**Gene expression matrices** table will show the available runs.
 
 Printing the connections will, among other information, list the datasets
 availables. The `listDatasets` method will only display the downloadable data.
@@ -109,7 +108,10 @@ it combines all available studies.
 
 ## <a id="download"></a>Download
 
-Calling `getGEMatrix` returns a selected expression matrix as an `ExpressionSet`. 
+### By run name
+
+The `getGEMatrix` function will accept any of the run names listed in the 
+connection.
 
 ```r
 TIV_2008 <- sdy269$getGEMatrix("TIV_2008")
@@ -122,7 +124,7 @@ TIV_2008 <- sdy269$getGEMatrix("TIV_2008")
 ```
 
 ```r
-TIV_2011 <- all$getGEMatrix("TIV_2011")
+TIV_2011 <- all$getGEMatrix(x = "TIV_2011")
 ```
 
 ```
@@ -130,6 +132,9 @@ TIV_2011 <- all$getGEMatrix("TIV_2011")
 ## Downloading Features..
 ## Constructing ExpressionSet
 ```
+The matrices are returned as `ExpressionSet` where the phenoData slot contains
+basic demographic information and the featureData slot shows a mapping of probe
+to official gene symbols.
 
 ```r
 TIV_2008
@@ -154,7 +159,103 @@ TIV_2008
 ## Annotation:
 ```
 
+### By cohort
+
+The `cohort` argument can be used in place of the run name (`x`). Likewise, the
+list of valid cohorts can be found in the Gene expression matrices table.
+
+```r
+LAIV_2008 <- sdy269$getGEMatrix(cohort = "LAIV group 2008")
+```
+
+```
+## Downloading matrix..
+## Constructing ExpressionSet
+```
+Note that when cohort is used, `x` is ignored.
+
 [Back to top](#contents)
+
+
+## <a id="summary"></a>Summarized matrices
+
+By default, the returned `ExpressionSet`s have probe names as features (or rows).
+However, multiple probes often match the same gene and merging experiments from
+different arrays is impossible at feature level.
+When they are available, the `summary` argument allows to return the matrices 
+with gene symbols instead of probes.
+
+```r
+TIV_2008_sum <- sdy269$getGEMatrix("TIV_2008", summary = TRUE)
+```
+
+```
+## Downloading matrix..
+## Constructing ExpressionSet
+```
+Probes that do not map to a unique gene are removed and expression is averaged 
+by gene.
+
+```r
+TIV_2008_sum
+```
+
+```
+## ExpressionSet (storageMode: lockedEnvironment)
+## assayData: 16910 features, 80 samples 
+##   element names: exprs 
+## protocolData: none
+## phenoData
+##   sampleNames: BS586131 BS586187 ... BS586267 (80 total)
+##   varLabels: biosample_accession participant_id ...
+##     study_time_collected_unit (5 total)
+##   varMetadata: labelDescription
+## featureData
+##   featureNames: DDR1 RFC2 ... NUS1P3 (16910 total)
+##   fvarLabels: FeatureId gene_symbol
+##   fvarMetadata: labelDescription
+## experimentData: use 'experimentData(object)'
+## Annotation:
+```
+
+[Back to top](#contents)
+
+
+## <a id="multi"></a>Combining matrices
+
+With the summarized version of the matrices, it is easy to combine multiple 
+experiments, even accross different types of array. This is done internally in
+`getGEMatrix` when multiple runs or multiple cohorts are specified.
+
+
+```r
+# Within a study
+em269 <- sdy269$getGEMatrix(c("TIV_2008", "LAIV_2008"))
+```
+
+```
+## Downloading matrix..
+## Downloading matrix..
+## Downloading Features..
+## Constructing ExpressionSet
+## Constructing ExpressionSet
+```
+
+```r
+# Combining accross studies
+TIV_seasons <- all$getGEMatrix(c("TIV_2008", "TIV_2010"))
+```
+
+```
+## Downloading matrix..
+## Downloading matrix..
+## Downloading Features..
+## Downloading Features..
+## Constructing ExpressionSet
+## Constructing ExpressionSet
+```
+
+
 
 ## <a id="caching"></a>Caching
 
@@ -176,9 +277,8 @@ names(sdy269$data_cache)
 ```
 
 ```
-## [1] "GE_matrices"           "TIV_2008"              "featureset_18"        
-## [4] "filter_state_hai_full" "hai_full"              "filter_state_pcr"     
-## [7] "pcr"
+## [1] "GE_matrices"      "TIV_2008"         "featureset_18"   
+## [4] "filter_state_pcr" "pcr"
 ```
 
 If, for any reason, a specific marix needs to be redownloaded, the `reload` 
@@ -194,7 +294,7 @@ TIV_2008 <- sdy269$getGEMatrix("TIV_2008", reload = TRUE)
 ## Constructing ExpressionSet
 ```
 
-Finally, it is possible to clear every cached expressionmatrix (and dataset).
+Finally, it is possible to clear every cached expression matrix (and dataset).
 
 ```r
 sdy269$clear_cache()
@@ -233,22 +333,22 @@ sessionInfo()
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-##  [1] Rlabkey_2.1.128      rjson_0.2.15         RCurl_1.95-4.7      
-##  [4] bitops_1.0-6         ImmuneSpaceR_0.2.41  ggthemr_1.0.1       
-##  [7] ggplot2_1.0.1        knitr_1.11           data.table_1.9.6    
-## [10] devtools_1.9.1       BiocInstaller_1.21.2
+## [1] ImmuneSpaceR_0.2.42  ggthemr_1.0.1        ggplot2_1.0.1       
+## [4] knitr_1.11           data.table_1.9.6     devtools_1.9.1      
+## [7] BiocInstaller_1.21.2
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] Rcpp_0.12.2           formatR_1.2.1         highr_0.5.1          
-##  [4] RColorBrewer_1.1-2    plyr_1.8.3            tools_3.3.0          
-##  [7] zlibbioc_1.17.0       digest_0.6.8          evaluate_0.8         
-## [10] memoise_0.2.1         preprocessCore_1.33.0 gtable_0.1.2         
-## [13] parallel_3.3.0        proto_0.3-10          stringr_1.0.0        
-## [16] gtools_3.5.0          caTools_1.17.1        grid_3.3.0           
-## [19] Biobase_2.31.0        pheatmap_1.0.7        gdata_2.17.0         
-## [22] reshape2_1.4.1        magrittr_1.5          codetools_0.2-14     
-## [25] scales_0.3.0          gplots_2.17.0         BiocGenerics_0.17.1  
-## [28] MASS_7.3-44           colorspace_1.2-6      KernSmooth_2.23-15   
-## [31] stringi_1.0-1         affy_1.49.0           munsell_0.4.2        
-## [34] chron_2.3-47          affyio_1.41.0
+##  [1] Rcpp_0.12.2           RColorBrewer_1.1-2    formatR_1.2.1        
+##  [4] plyr_1.8.3            highr_0.5.1           bitops_1.0-6         
+##  [7] tools_3.3.0           zlibbioc_1.17.0       digest_0.6.8         
+## [10] evaluate_0.8          memoise_0.2.1         preprocessCore_1.33.0
+## [13] gtable_0.1.2          parallel_3.3.0        proto_0.3-10         
+## [16] stringr_1.0.0         gtools_3.5.0          caTools_1.17.1       
+## [19] grid_3.3.0            Biobase_2.31.0        Rlabkey_2.1.128      
+## [22] pheatmap_1.0.7        gdata_2.17.0          reshape2_1.4.1       
+## [25] magrittr_1.5          scales_0.3.0          gplots_2.17.0        
+## [28] codetools_0.2-14      MASS_7.3-44           BiocGenerics_0.17.1  
+## [31] colorspace_1.2-6      KernSmooth_2.23-15    stringi_1.0-1        
+## [34] affy_1.49.0           RCurl_1.95-4.7        munsell_0.4.2        
+## [37] chron_2.3-47          rjson_0.2.15          affyio_1.41.0
 ```

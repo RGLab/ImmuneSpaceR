@@ -210,10 +210,9 @@ hr {
 <ol>
 <li><a href="#cons">Connections</a></li>
 <li><a href="#matrices">List the expression matrices</a></li>
-<li><a href="#download">Download an expression matrix</a>
-Download by Run names
-Download by cohorts</li>
+<li><a href="#download">Download an expression matrix</a></li>
 <li><a href="#summary">Summarized matrices</a></li>
+<li><a href="#multi">Combining matrices</a></li>
 <li><a href="#caching">Caching</a></li>
 <li><a href="#sessioninfo">sessionInfo</a></li>
 </ol>
@@ -237,7 +236,7 @@ them. But we need to figure out which processed matrices are available within
 our chosen studies.</p>
 
 <p>On <a href="http://www.immunespace.org">www.immunespace.org</a>, in the study of interest or at the project level, the
-<em>Gene expression matrices</em> table will show the available runs.</p>
+<strong>Gene expression matrices</strong> table will show the available runs.</p>
 
 <p>Printing the connections will, among other information, list the datasets
 availables. The <code>listDatasets</code> method will only display the downloadable data.
@@ -296,7 +295,10 @@ it combines all available studies.</p>
 
 <h2><a id="download"></a>Download</h2>
 
-<p>Calling <code>getGEMatrix</code> returns a selected expression matrix as an <code>ExpressionSet</code>. </p>
+<h3>By run name</h3>
+
+<p>The <code>getGEMatrix</code> function will accept any of the run names listed in the 
+connection.</p>
 
 <pre><code class="r">TIV_2008 &lt;- sdy269$getGEMatrix(&quot;TIV_2008&quot;)
 </code></pre>
@@ -306,13 +308,17 @@ it combines all available studies.</p>
 ## Constructing ExpressionSet
 </code></pre>
 
-<pre><code class="r">TIV_2011 &lt;- all$getGEMatrix(&quot;TIV_2011&quot;)
+<pre><code class="r">TIV_2011 &lt;- all$getGEMatrix(x = &quot;TIV_2011&quot;)
 </code></pre>
 
 <pre><code>## Downloading matrix..
 ## Downloading Features..
 ## Constructing ExpressionSet
 </code></pre>
+
+<p>The matrices are returned as <code>ExpressionSet</code> where the phenoData slot contains
+basic demographic information and the featureData slot shows a mapping of probe
+to official gene symbols.</p>
 
 <pre><code class="r">TIV_2008
 </code></pre>
@@ -335,7 +341,90 @@ it combines all available studies.</p>
 ## Annotation:
 </code></pre>
 
+<h3>By cohort</h3>
+
+<p>The <code>cohort</code> argument can be used in place of the run name (<code>x</code>). Likewise, the
+list of valid cohorts can be found in the Gene expression matrices table.</p>
+
+<pre><code class="r">LAIV_2008 &lt;- sdy269$getGEMatrix(cohort = &quot;LAIV group 2008&quot;)
+</code></pre>
+
+<pre><code>## Downloading matrix..
+## Constructing ExpressionSet
+</code></pre>
+
+<p>Note that when cohort is used, <code>x</code> is ignored.</p>
+
 <p><a href="#contents">Back to top</a></p>
+
+<h2><a id="summary"></a>Summarized matrices</h2>
+
+<p>By default, the returned <code>ExpressionSet</code>s have probe names as features (or rows).
+However, multiple probes often match the same gene and merging experiments from
+different arrays is impossible at feature level.
+When they are available, the <code>summary</code> argument allows to return the matrices 
+with gene symbols instead of probes.</p>
+
+<pre><code class="r">TIV_2008_sum &lt;- sdy269$getGEMatrix(&quot;TIV_2008&quot;, summary = TRUE)
+</code></pre>
+
+<pre><code>## Downloading matrix..
+## Constructing ExpressionSet
+</code></pre>
+
+<p>Probes that do not map to a unique gene are removed and expression is averaged 
+by gene.</p>
+
+<pre><code class="r">TIV_2008_sum
+</code></pre>
+
+<pre><code>## ExpressionSet (storageMode: lockedEnvironment)
+## assayData: 16910 features, 80 samples 
+##   element names: exprs 
+## protocolData: none
+## phenoData
+##   sampleNames: BS586131 BS586187 ... BS586267 (80 total)
+##   varLabels: biosample_accession participant_id ...
+##     study_time_collected_unit (5 total)
+##   varMetadata: labelDescription
+## featureData
+##   featureNames: DDR1 RFC2 ... NUS1P3 (16910 total)
+##   fvarLabels: FeatureId gene_symbol
+##   fvarMetadata: labelDescription
+## experimentData: use &#39;experimentData(object)&#39;
+## Annotation:
+</code></pre>
+
+<p><a href="#contents">Back to top</a></p>
+
+<h2><a id="multi"></a>Combining matrices</h2>
+
+<p>With the summarized version of the matrices, it is easy to combine multiple 
+experiments, even accross different types of array. This is done internally in
+<code>getGEMatrix</code> when multiple runs or multiple cohorts are specified.</p>
+
+<pre><code class="r"># Within a study
+em269 &lt;- sdy269$getGEMatrix(c(&quot;TIV_2008&quot;, &quot;LAIV_2008&quot;))
+</code></pre>
+
+<pre><code>## Downloading matrix..
+## Downloading matrix..
+## Downloading Features..
+## Constructing ExpressionSet
+## Constructing ExpressionSet
+</code></pre>
+
+<pre><code class="r"># Combining accross studies
+TIV_seasons &lt;- all$getGEMatrix(c(&quot;TIV_2008&quot;, &quot;TIV_2010&quot;))
+</code></pre>
+
+<pre><code>## Downloading matrix..
+## Downloading matrix..
+## Downloading Features..
+## Downloading Features..
+## Constructing ExpressionSet
+## Constructing ExpressionSet
+</code></pre>
 
 <h2><a id="caching"></a>Caching</h2>
 
@@ -355,9 +444,8 @@ what gets cached and.</p>
 names(sdy269$data_cache)
 </code></pre>
 
-<pre><code>## [1] &quot;GE_matrices&quot;           &quot;TIV_2008&quot;              &quot;featureset_18&quot;        
-## [4] &quot;filter_state_hai_full&quot; &quot;hai_full&quot;              &quot;filter_state_pcr&quot;     
-## [7] &quot;pcr&quot;
+<pre><code>## [1] &quot;GE_matrices&quot;      &quot;TIV_2008&quot;         &quot;featureset_18&quot;   
+## [4] &quot;filter_state_pcr&quot; &quot;pcr&quot;
 </code></pre>
 
 <p>If, for any reason, a specific marix needs to be redownloaded, the <code>reload</code> 
@@ -371,7 +459,7 @@ the file and metadata again.</p>
 ## Constructing ExpressionSet
 </code></pre>
 
-<p>Finally, it is possible to clear every cached expressionmatrix (and dataset).</p>
+<p>Finally, it is possible to clear every cached expression matrix (and dataset).</p>
 
 <pre><code class="r">sdy269$clear_cache()
 names(sdy269$data_cache)
@@ -406,24 +494,24 @@ simply reload the expression matrix.</p>
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-##  [1] Rlabkey_2.1.128      rjson_0.2.15         RCurl_1.95-4.7      
-##  [4] bitops_1.0-6         ImmuneSpaceR_0.2.41  ggthemr_1.0.1       
-##  [7] ggplot2_1.0.1        knitr_1.11           data.table_1.9.6    
-## [10] devtools_1.9.1       BiocInstaller_1.21.2
+## [1] ImmuneSpaceR_0.2.42  ggthemr_1.0.1        ggplot2_1.0.1       
+## [4] knitr_1.11           data.table_1.9.6     devtools_1.9.1      
+## [7] BiocInstaller_1.21.2
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] Rcpp_0.12.2           formatR_1.2.1         highr_0.5.1          
-##  [4] RColorBrewer_1.1-2    plyr_1.8.3            tools_3.3.0          
-##  [7] zlibbioc_1.17.0       digest_0.6.8          evaluate_0.8         
-## [10] memoise_0.2.1         preprocessCore_1.33.0 gtable_0.1.2         
-## [13] parallel_3.3.0        proto_0.3-10          stringr_1.0.0        
-## [16] gtools_3.5.0          caTools_1.17.1        grid_3.3.0           
-## [19] Biobase_2.31.0        pheatmap_1.0.7        gdata_2.17.0         
-## [22] reshape2_1.4.1        magrittr_1.5          codetools_0.2-14     
-## [25] scales_0.3.0          gplots_2.17.0         BiocGenerics_0.17.1  
-## [28] MASS_7.3-44           colorspace_1.2-6      KernSmooth_2.23-15   
-## [31] stringi_1.0-1         affy_1.49.0           munsell_0.4.2        
-## [34] chron_2.3-47          affyio_1.41.0
+##  [1] Rcpp_0.12.2           RColorBrewer_1.1-2    formatR_1.2.1        
+##  [4] plyr_1.8.3            highr_0.5.1           bitops_1.0-6         
+##  [7] tools_3.3.0           zlibbioc_1.17.0       digest_0.6.8         
+## [10] evaluate_0.8          memoise_0.2.1         preprocessCore_1.33.0
+## [13] gtable_0.1.2          parallel_3.3.0        proto_0.3-10         
+## [16] stringr_1.0.0         gtools_3.5.0          caTools_1.17.1       
+## [19] grid_3.3.0            Biobase_2.31.0        Rlabkey_2.1.128      
+## [22] pheatmap_1.0.7        gdata_2.17.0          reshape2_1.4.1       
+## [25] magrittr_1.5          scales_0.3.0          gplots_2.17.0        
+## [28] codetools_0.2-14      MASS_7.3-44           BiocGenerics_0.17.1  
+## [31] colorspace_1.2-6      KernSmooth_2.23-15    stringi_1.0-1        
+## [34] affy_1.49.0           RCurl_1.95-4.7        munsell_0.4.2        
+## [37] chron_2.3-47          rjson_0.2.15          affyio_1.41.0
 </code></pre>
 
 </body>
