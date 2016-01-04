@@ -84,10 +84,7 @@ NULL
     matrix <- data_cache[[cache_name]]
     #features
     features <- data_cache[[.self$.mungeFeatureId(.self$.getFeatureId(matrix_name))]][,c("FeatureId","gene_symbol")]
-    #inputs
-    #pheno_filter <- makeFilter(c("Run/Name", "EQUAL", matrix_name), #paste0(matrix_name, ".tsv")),
-    #                           c("Biosample/biosample_accession", "IN", paste(colnames(matrix), collapse = ";")))
-
+    
     runID <- data_cache$GE_matrices[name == matrix_name, rowid]
     pheno_filter <- makeFilter(c("Run", "EQUAL", runID), 
                                c("Biosample/biosample_accession", "IN", paste(colnames(matrix), collapse = ";")))
@@ -106,6 +103,7 @@ NULL
     
     if(summary){
       fdata <- data.frame(FeatureId = matrix$gene_symbol, gene_symbol = matrix$gene_symbol, row.names = matrix$gene_symbol)
+      rownames(fdata) <- fdata$FeatureId
       fdata <- AnnotatedDataFrame(fdata)
     } else{
       try(setnames(matrix, " ", "FeatureId"), silent = TRUE)
@@ -197,6 +195,7 @@ NULL
 # Combine EMs and output only genes available in all EMs.
 #' @importFrom Biobase fData
 .combineEMs <- function(EMlist){
+  message("Combining ExpressionSets")
   fds <- lapply(EMlist, function(x){ droplevels(data.table(fData(x)))})
   fd <- Reduce(f = function(x, y){ merge(x, y, by = c("FeatureId", "gene_symbol"))}, fds)
   EMlist <- lapply(EMlist, "[", as.character(fd$FeatureId))

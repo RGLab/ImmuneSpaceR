@@ -174,7 +174,7 @@ simply reload the expression matrix.
 
 [Back to top](#contents)
 
-## <a id="sessioninfo"></a> sessionInfo()
+## <a id="sessioninfo"></a>sessionInfo()
 ```{r sessionInfo}
 sessionInfo()
 ```

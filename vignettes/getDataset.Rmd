@@ -193,7 +193,7 @@ simply reload the dataset.
 
 [Back to top](#contents)
 
-## <a id="sessioninfo"></a> sessionInfo()
+## <a id="sessioninfo"></a>sessionInfo()
 ```{r sessionInfo}
 sessionInfo()
 ```
