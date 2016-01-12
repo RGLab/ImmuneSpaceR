@@ -1,7 +1,7 @@
 ---
 title: "Expression matrices with ImmuneSpaceR"
 author: "Renan Sauteraud"
-date: "2015-12-18"
+date: "2016-01-07"
 output: html_document
 vignette: >
   %\VignetteEngine{knitr::rmarkdown}
@@ -84,7 +84,6 @@ all$listDatasets(which = "expression")
 
 ```
 ## Expression Matrices
-## 	TIV_2010
 ## 	VLplus
 ## 	VLminus
 ## 	Cohort2_old
@@ -223,9 +222,13 @@ TIV_2008_sum
 
 ## <a id="multi"></a>Combining matrices
 
-With the summarized version of the matrices, it is easy to combine multiple 
-experiments, even accross different types of array. This is done internally in
-`getGEMatrix` when multiple runs or multiple cohorts are specified.
+In order to faciliate analysis across experiments and studies, when multiple 
+runs or cohorts are specified, `getGEMatrix` will attempt to combine the 
+selected expression matrices into a single `ExpressionSet`.
+
+To avoid returning an empty object, it is usually recommended to use the 
+summarized version of the matrices, thus combining by genes. This is almost 
+always necessary when combining data from multiple studies.
 
 
 ```r
@@ -236,25 +239,23 @@ em269 <- sdy269$getGEMatrix(c("TIV_2008", "LAIV_2008"))
 ```
 ## Downloading matrix..
 ## Downloading matrix..
-## Downloading Features..
 ## Constructing ExpressionSet
 ## Constructing ExpressionSet
+## Combining ExpressionSets
 ```
 
 ```r
 # Combining accross studies
-TIV_seasons <- all$getGEMatrix(c("TIV_2008", "TIV_2010"))
+TIV_seasons <- all$getGEMatrix(c("TIV_2008", "TIV_2011"), summary = TRUE)
 ```
 
 ```
 ## Downloading matrix..
 ## Downloading matrix..
-## Downloading Features..
-## Downloading Features..
 ## Constructing ExpressionSet
 ## Constructing ExpressionSet
+## Combining ExpressionSets
 ```
-
 
 
 ## <a id="caching"></a>Caching
@@ -267,18 +268,17 @@ matrices. Subsequent calls to `getGEMatrix` with the same input will be faster.
 
 See `?setRefClass` for more information about reference classes.
 
-We can see the data currently cached using the `data_cache` field. This is not
-intended to be used for data manipulation and only displayed here to explain
-what gets cached and.
+We can see a list of already downloaded runs and feature sets the `data_cache` 
+field. This is not intended to be used for data manipulation and only displayed 
+here to explain what gets cached.
 
 ```r
-pcr <- sdy269$getDataset("pcr")
 names(sdy269$data_cache)
 ```
 
 ```
-## [1] "GE_matrices"      "TIV_2008"         "featureset_18"   
-## [4] "filter_state_pcr" "pcr"
+## [1] "GE_matrices"   "featureset_18" "TIV_2008_sum"  "TIV_2008"     
+## [5] "LAIV_2008"
 ```
 
 If, for any reason, a specific marix needs to be redownloaded, the `reload` 
@@ -298,11 +298,6 @@ Finally, it is possible to clear every cached expression matrix (and dataset).
 
 ```r
 sdy269$clear_cache()
-names(sdy269$data_cache)
-```
-
-```
-## [1] "GE_matrices"
 ```
 
 Again, the `data.cache` field should never be modified manually. When in doubt,
@@ -310,7 +305,7 @@ simply reload the expression matrix.
 
 [Back to top](#contents)
 
-## <a id="sessioninfo"></a> sessionInfo()
+## <a id="sessioninfo"></a>sessionInfo()
 
 ```r
 sessionInfo()
@@ -333,22 +328,22 @@ sessionInfo()
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-## [1] ImmuneSpaceR_0.2.42  ggthemr_1.0.1        ggplot2_1.0.1       
-## [4] knitr_1.11           data.table_1.9.6     devtools_1.9.1      
+## [1] knitr_1.11           ImmuneSpaceR_0.2.44  ggthemr_1.0.1       
+## [4] ggplot2_2.0.0.9001   data.table_1.9.6     devtools_1.9.1      
 ## [7] BiocInstaller_1.21.2
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] Rcpp_0.12.2           RColorBrewer_1.1-2    formatR_1.2.1        
-##  [4] plyr_1.8.3            highr_0.5.1           bitops_1.0-6         
+##  [1] Rcpp_0.12.2           formatR_1.2.1         highr_0.5.1          
+##  [4] RColorBrewer_1.1-2    plyr_1.8.3            bitops_1.0-6         
 ##  [7] tools_3.3.0           zlibbioc_1.17.0       digest_0.6.8         
 ## [10] evaluate_0.8          memoise_0.2.1         preprocessCore_1.33.0
-## [13] gtable_0.1.2          parallel_3.3.0        proto_0.3-10         
-## [16] stringr_1.0.0         gtools_3.5.0          caTools_1.17.1       
-## [19] grid_3.3.0            Biobase_2.31.0        Rlabkey_2.1.128      
-## [22] pheatmap_1.0.7        gdata_2.17.0          reshape2_1.4.1       
-## [25] magrittr_1.5          scales_0.3.0          gplots_2.17.0        
-## [28] codetools_0.2-14      MASS_7.3-44           BiocGenerics_0.17.1  
-## [31] colorspace_1.2-6      KernSmooth_2.23-15    stringi_1.0-1        
-## [34] affy_1.49.0           RCurl_1.95-4.7        munsell_0.4.2        
-## [37] chron_2.3-47          rjson_0.2.15          affyio_1.41.0
+## [13] gtable_0.1.2          parallel_3.3.0        stringr_1.0.0        
+## [16] gtools_3.5.0          caTools_1.17.1        grid_3.3.0           
+## [19] Biobase_2.31.0        Rlabkey_2.1.128       pheatmap_1.0.7       
+## [22] gdata_2.17.0          reshape2_1.4.1        magrittr_1.5         
+## [25] scales_0.3.0          gplots_2.17.0         codetools_0.2-14     
+## [28] BiocGenerics_0.17.1   colorspace_1.2-6      KernSmooth_2.23-15   
+## [31] stringi_1.0-1         affy_1.49.0           RCurl_1.95-4.7       
+## [34] munsell_0.4.2         chron_2.3-47          rjson_0.2.15         
+## [37] affyio_1.41.0
 ```

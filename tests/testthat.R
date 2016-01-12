@@ -5,4 +5,4 @@ library(ImmuneSpaceR)
 library(Biobase)
 library(testthat)
 
-test_package("ImmuneSpaceR")
+test_check("ImmuneSpaceR")

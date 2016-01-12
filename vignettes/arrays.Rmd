@@ -125,17 +125,20 @@ TIV_2008_sum
 
 ## <a id="multi"></a>Combining matrices
 
-With the summarized version of the matrices, it is easy to combine multiple 
-experiments, even accross different types of array. This is done internally in
-`getGEMatrix` when multiple runs or multiple cohorts are specified.
+In order to faciliate analysis across experiments and studies, when multiple 
+runs or cohorts are specified, `getGEMatrix` will attempt to combine the 
+selected expression matrices into a single `ExpressionSet`.
+
+To avoid returning an empty object, it is usually recommended to use the 
+summarized version of the matrices, thus combining by genes. This is almost 
+always necessary when combining data from multiple studies.
 
 ```{r multi}
 # Within a study
 em269 <- sdy269$getGEMatrix(c("TIV_2008", "LAIV_2008"))
 # Combining accross studies
-TIV_seasons <- all$getGEMatrix(c("TIV_2008", "TIV_2010"))
+TIV_seasons <- all$getGEMatrix(c("TIV_2008", "TIV_2011"), summary = TRUE)
 ```
-
 
 
 ## <a id="caching"></a>Caching
@@ -148,11 +151,10 @@ matrices. Subsequent calls to `getGEMatrix` with the same input will be faster.
 
 See `?setRefClass` for more information about reference classes.
 
-We can see the data currently cached using the `data_cache` field. This is not
-intended to be used for data manipulation and only displayed here to explain
-what gets cached and.
+We can see a list of already downloaded runs and feature sets the `data_cache` 
+field. This is not intended to be used for data manipulation and only displayed 
+here to explain what gets cached.
 ```{r caching-dataset}
-pcr <- sdy269$getDataset("pcr")
 names(sdy269$data_cache)
 ```
 
@@ -166,7 +168,6 @@ TIV_2008 <- sdy269$getGEMatrix("TIV_2008", reload = TRUE)
 Finally, it is possible to clear every cached expression matrix (and dataset).
 ```{r caching-clear}
 sdy269$clear_cache()
-names(sdy269$data_cache)
 ```
 
 Again, the `data.cache` field should never be modified manually. When in doubt,

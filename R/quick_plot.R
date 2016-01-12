@@ -29,7 +29,7 @@ NULL
 
 # @importFrom ggthemr ggthemr
 #Currently we have to depend on ggthemr because it depends on ggplot2
-#' @import ggthemr 
+# @import ggthemr 
 #' @importFrom ggplot2 facet_grid facet_wrap geom_text element_blank
 #' @importFrom Biobase pData
 .quick_plot <- function(con, dataset, normalize_to_baseline = TRUE,
@@ -49,6 +49,9 @@ NULL
   
   # Datasets
   e <- try({
+    if(tolower(dataset) %in% c("ge", "DGEA_filteredGEAR", "gene_expression", "gene_expression_analysis_results")){
+      dataset <- "gene_expression"
+    }
     dt <- .getDataToPlot(con, dataset, filter = filter, show_virus_strain)
     dt <- .standardize_time(dt)
     ylab <- .format_lab(dataset, normalize_to_baseline)
@@ -184,7 +187,8 @@ NULL
 #' @importFrom ggplot2 ggplot geom_violin geom_boxplot geom_jitter
 #' @importFrom ggplot2 theme element_text aes_string aes xlab ylab
 .qpBoxplotViolin <- function(dt, type, facet, ylab, text_size, extras, ...){
-  ggthemr("solarized")
+  if(requireNamespace("ggthemr", quietly = TRUE))
+    ggthemr::ggthemr("solarized")
   if(type == "violin"){
     geom_type <- geom_violin() #+ stat_summary(fun.y="median", geom="point")
   } else{
@@ -204,7 +208,8 @@ NULL
 #' @importFrom ggplot2 ggplot geom_line geom_point
 #' @importFrom ggplot2 theme element_text aes_string aes xlab ylab
 .qpLineplot <- function(dt, facet, ylab, text_size, extras, ...){
-  ggthemr("solarized")
+  if(requireNamespace("ggthemr", quietly = TRUE))
+    ggthemr::ggthemr("solarized")
   p <- ggplot(data = dt, aes(study_time_collected, response, group = participant_id)) +
   geom_line(size = 1, aes_string(...)) +                                            
   xlab("Time") + ylab(ylab) + facet + 
@@ -219,13 +224,12 @@ NULL
 
 # Get the data
 # Add standard columns for analyte and response
-# NOTE: No need for analyte_name check (Fixed in DR12)
 .getDataToPlot <- function(con, dataset, filter = NULL, show_virus_strain = FALSE){
   # All columns that can potentially be used
   demo_cols <- c("gender", "age_reported", "race")
   out_cols <- c("study_time_collected", "study_time_collected_unit", "cohort", "participant_id")
   out_cols <- c(c("response", "analyte"), demo_cols, out_cols)
-  if(dataset != "DGEA_filteredGEAR"){
+  if(dataset != "gene_expression"){
     dt <- copy(con$getDataset(dataset, colFilter = filter, reload = TRUE))
     if(!"analyte" %in% colnames(dt)){
       dt <- dt[, analyte := ""]
@@ -258,7 +262,7 @@ NULL
   } else if(dataset == "fcs_analyzed_result"){
     dt <- dt[, value_reported := as.numeric(population_cell_number)]
     dt <- dt[, analyte := population_name_reported]
-  } else if(dataset == "DGEA_filteredGEAR"){
+  } else if(dataset == "gene_expression"){
     logT <- FALSE #Matrices are already log2 transformed
     dt <- copy(con$getGEAnalysis(colFilter = filter))
     uarm <- unique(dt$cohort)
@@ -314,7 +318,7 @@ NULL
                 "elispot" =  "Spot count",
                 "mbaa" = "Concentration",
                 "fcs_analyzed_result" = "Cell number",
-                "DGEA_filteredGEAR" = "")
+                "gene_expression" = "")
   if(normalize_to_baseline){
     lab <- paste(lab, "normalized to baseline")
   }

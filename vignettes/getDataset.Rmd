@@ -160,7 +160,7 @@ See `?setRefClass` for more information about reference classes.
 
 We can see the data currently cached using the `data_cache` field. This is not
 intended to be used for data manipulation and only displayed here to explain
-what gets cached and.
+what gets cached.
 ```{r caching-dataset}
 pcr <- sdy269$getDataset("pcr")
 names(sdy269$data_cache)

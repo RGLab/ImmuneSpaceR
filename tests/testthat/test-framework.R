@@ -9,9 +9,9 @@ if(exists("ISR_login") & exists("ISR_pwd")){
 }
 
 # Connections
-sdy269 <- CreateConnection("SDY269")
-sdy180 <- CreateConnection("SDY180")
-sdy28 <- CreateConnection("SDY28")
+sdy269 <- CreateConnection("SDY269", verbose = TRUE)
+sdy180 <- CreateConnection("SDY180", verbose = TRUE)
+#sdy28 <- CreateConnection("SDY28", verbose = TRUE)
 
 # datasets
 test_that("get_hai", {
@@ -41,9 +41,9 @@ test_that("get_neut_ab_titer", {
 #test_that("get_fcs_control_files", {
 #  test_dataset(sdy180, "fcs_control_files", common_cols, specif_cols = fccCols)
 #})
-test_that("get_hla_typing", {
-  test_dataset(sdy28, "hla_typing", common_cols, specif_cols = hlaCols)
-})
+#test_that("get_hla_typing", {
+#  test_dataset(sdy28, "hla_typing", common_cols, specif_cols = hlaCols)
+#})
 # expression matrices
 test_that("get_TIV2008", {
   test_EM(sdy269, "TIV_2008", cohort = "TIV Group 2008")

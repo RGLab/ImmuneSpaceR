@@ -1,7 +1,7 @@
 Package: ImmuneSpaceR
 Type: Package
 Title: A Thin Wrapper around the ImmuneSpace Database
-Version: 0.2.44
+Version: 0.2.45
 Date: 2014-06-12
 Author: Renan Sauteraud
 Maintainer: Renan Sauteraud <rsautera@fhcrc.org>
@@ -15,7 +15,6 @@ Suggests:
     knitr,
     testthat
 Depends:
-    ggthemr
 Imports:
     methods,
     data.table,
@@ -30,6 +29,8 @@ Imports:
     gplots,
     reshape2,
     preprocessCore
+Enhances:
+    ggthemr
 Collate:
     'CreateConnection.R'
     'ImmuneSpace.R'
