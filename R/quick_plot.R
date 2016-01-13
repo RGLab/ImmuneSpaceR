@@ -49,7 +49,7 @@ NULL
   
   # Datasets
   e <- try({
-    if(tolower(dataset) %in% c("ge", "DGEA_filteredGEAR", "gene_expression", "gene_expression_analysis_results")){
+    if(tolower(dataset) %in% c("ge", "dgea_filteredgear", "gene_expression", "gene_expression_analysis_results")){
       dataset <- "gene_expression"
     }
     dt <- .getDataToPlot(con, dataset, filter = filter, show_virus_strain)
