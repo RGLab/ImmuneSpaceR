@@ -1,6 +1,10 @@
 # 
 #  Global variables
 #
+library(testthat)
+library(ImmuneSpaceR)
+library(Biobase)
+
 demo <- c("age_reported", "gender", "race")
 idCols <- c("participant_id")
 common_cols <- c(demo, idCols)

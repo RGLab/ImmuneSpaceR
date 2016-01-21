@@ -6,11 +6,12 @@ vignette: >
 ---
 ```{r knitr, echo=FALSE, cache = FALSE}
 library(knitr)
-opts_chunk$set(cache = TRUE)
+library(rmarkdown)
+opts_chunk$set(cache = FALSE)
 ```
 ```{r netrc_req, echo = FALSE}
 # This chunk is only useful for BioConductor checks and shouldn't affect any other setup
-if(exists("ISR_login") & exists("ISR_pwd")){
+if(Sys.getenv("ISR_login") != ""  & Sys.getenv("ISR_pwd") != ""){
   netrc_file <- tempfile("ImmuneSpaceR_tmp_netrc")
   netrc_string <- paste("machine www.immunespace.org login", ISR_login, "password", ISR_pwd)
   write(x = netrc_string, file = netrc_file)
@@ -22,12 +23,14 @@ if(exists("ISR_login") & exists("ISR_pwd")){
 
 This package provides a *thin* wrapper around `Rlabkey` and connects to the **ImmuneSpace* database, making it easier to fetch *datasets*, including gene expression data, hai, and so forth, from specific studies. 
 
-## Contents
+## <a id="contents"></a>Contents
 1. [Configuration](#configuration)
 2. [Connections](#connections)
 3. [Datasets](#datasets)
 4. [Gene expression](#ge)
-5. [Plots](#quick_plot)
+5. [Plots](#quickplot)
+6. [Cross study connections](#crossstudy)
+7. [sessionInfo](#sessioninfo)
 
 ## <a id="configuration"></a>Configuration
 
@@ -53,6 +56,8 @@ now. Make sure you have a valid login and password. If you don't have one, go to
 [ImmuneSpace](http://www.immunespace.org) now and set yourself up with an 
 account. 
 
+[Back to top](#contents)
+
 ## <a id="connections"></a>Instantiate a connection
 
 We'll be looking at study `SDY269`. If you want to use a different study, change
@@ -73,11 +78,7 @@ Note that when a script is running on ImmuneSpace, some variables set in the
 global environments will automatically indicate which study should be used and 
 the `study` argument can be skipped.
 
-To combine data across studies, create a connection that contain all available
-studies by leaving the `study` as an empty string.
-```{r multi-study}
-all <- CreateConnection("")
-```
+[Back to top](#contents)
 
 ## <a id="datasets"></a>Fetching data sets
 
@@ -109,8 +110,9 @@ See `?makeFilter` for more information on the syntax.
 
 For more information about `getDataset`'s options, refer to the dedicated vignette.
 
+[Back to top](#contents)
 
-## <a id="datasets"></a>Fetching expression matrices
+## <a id="ge"></a>Fetching expression matrices
 We can also grab a gene expression matrix
 
 ```{r getGEMatrix}
@@ -137,7 +139,9 @@ gs <- sdy269$getGEMatrix("TIV_2008", summary = TRUE)
 If the connection was created with `verbose = TRUE`, some functions will display
 additional informations such as the valid dataset names.
 
-## Quick plots
+[Back to top](#contents)
+
+## <a id="quickplot"></a>Quick plots
 A quick plot of a data set can be generated using the `quick_plot` function.
 
 `quick_plot` automatically chooses the type of plot depending on the selected 
@@ -151,6 +155,8 @@ sdy269$quick_plot("elisa")
 
 However, the `type` argument can be used to manually select from "boxplot",
 "heatmap", "violin" and "line".
+
+[Back to top](#contents)
 
 ## <a id="crossstudy"></a>Cross study connections
 To fetch data from multiple studies, simply create a connection at the project level.
@@ -168,14 +174,24 @@ all studies.
 con
 ```
 
+In cross-study connections, `getDataset` and `getGEMatrix` will combine the
+requested datasets or expression matrices. See the dedicated vignettes for more
+information.
+
 Likewise, `quick_plot` will plot accross studies. Note that in most cases the
 datasets will have too many cohorts/subjects, making the filtering of the data
 a necessity. The `colFilter` argument can be used here, as described in the 
-`getDataset` sectionm.
+`getDataset` section.
 ```{r cross-connection-qplot, dev='CairoPNG'}
 plotFilter <- makeFilter(c("cohort", "IN", "TIV 2010;TIV Group 2008"))
 con$quick_plot("elispot", filter = plotFilter)
 ```
 The figure above shows the ELISPOT results for two different years of TIV 
-vaccine cohorts.
+vaccine cohorts from two different studies.
 
+[Back to top](#contents)
+
+## <a id="sessioninfo"></a>sessionInfo()
+```{r sessionInfo}
+sessionInfo()
+```

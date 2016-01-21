@@ -116,3 +116,41 @@
   }
 )
 
+# Returns a named logical where TRUE marks files that are accessible.
+.ISCon$methods(
+  .test_files=function(what = c("gene_expression_files", "fcs")){
+    ret <- list()
+    if("gene_expression_files" %in% what){
+      gef <- .self$getDataset("gene_expression_files", original_view = TRUE)
+      gef <- gef[file_info_purpose == "Gene expression result"]
+      gef <- unique(gef[, list(study_accession, file_info_name)])
+      links <- paste0(config$labkey.url.base, "/_webdav/", "/Studies/", 
+                      gef$study_accession, "/%40files/rawdata/gene_expression/",
+                      gef$file_info_name)
+      res <- sapply(links, url.exists, netrc = TRUE)
+      print(paste0(length(res[res]), "/", length(res), "gene expression files with valid links."))
+      ret$gene_expression_files <- res
+    }
+    if("fcs" %in% what){
+      fcs <- .self$getDataset("fcs_sample_files", original_view = TRUE)
+      fcs <- unique(fcs[, list(file_info_name, study_accession)])
+      links <- paste0(config$labkey.url.base, "/_webdav/", "/Studies/", 
+                      fcs$study_accession, "/%40files/rawdata/flow_cytometry/",
+                      fcs$file_info_name)
+      res <- sapply(links, url.exists, netrc = TRUE)
+      print(paste0(length(res[res]), "/", length(res), "FCS files with valid links."))
+      ret$fcs <- res
+    }
+    return(res)
+  }
+)
+
+# Returns TRUE if the connection is at project level ("/Studies")
+.ISCon$methods(
+  .isProject=function()
+    if(config$labkey.url == "/Studies/"){
+      TRUE
+    } else{
+      FALSE
+    }
+)

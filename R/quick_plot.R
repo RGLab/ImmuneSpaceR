@@ -27,9 +27,6 @@ NULL
   }
 )
 
-# @importFrom ggthemr ggthemr
-#Currently we have to depend on ggthemr because it depends on ggplot2
-# @import ggthemr 
 #' @importFrom ggplot2 facet_grid facet_wrap geom_text element_blank
 #' @importFrom Biobase pData
 .quick_plot <- function(con, dataset, normalize_to_baseline = TRUE,
@@ -265,7 +262,17 @@ NULL
   } else if(dataset == "gene_expression"){
     logT <- FALSE #Matrices are already log2 transformed
     dt <- copy(con$getGEAnalysis(colFilter = filter))
-    uarm <- unique(dt$cohort)
+    if(!is.null(filter) & any(sapply(filter, function(x){gsub("~.*$", "", x)}) == "cohort")){
+      uarm <- unique(dt$cohort)
+    } else{
+    uarm <- labkey.selectRows(
+      baseUrl=con$config$labkey.url.base, folderPath=con$config$labkey.url.path,
+      schemaName="assay.ExpressionMatrix.matrix",
+      queryName="SelectedRuns",
+      viewName="expression_matrices",
+      colFilter=NULL,
+      containerFilter= "CurrentAndSubfolders")$Cohort
+    }
     ugenes <- unique(dt$gene_symbol)
     ugenes <- ugenes[ ugenes != "NA"]
     EM <- con$getGEMatrix(cohort = uarm, summary = TRUE)

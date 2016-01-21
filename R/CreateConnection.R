@@ -148,7 +148,7 @@ CreateConnection = function(study = NULL, verbose = FALSE){
   checkStudy=function(verbose = FALSE){
     validStudies <- mixedsort(grep("^SDY", basename(lsFolders(getSession(config$labkey.url.base, "Studies"))), value = TRUE))
     req_study <- basename(config$labkey.url.path)
-    if(!req_study %in% validStudies){
+    if(!req_study %in% c("", validStudies)){
       if(!verbose){
         stop(paste0(req_study, " is not a valid study"))
       } else{
@@ -162,13 +162,11 @@ CreateConnection = function(study = NULL, verbose = FALSE){
 .ISCon$methods(
   getAvailableDataSets=function(){
     if(length(available_datasets)==0){
-      dataset_filter <- makeFilter(c("showbydefault", "EQUAL", TRUE))
       df <- labkey.selectRows(baseUrl = config$labkey.url.base
                         , config$labkey.url.path
                         , schemaName = "study"
-                        , queryName = "DataSets"
-                        , colFilter = dataset_filter)
-      available_datasets <<- data.table(df)[,list(Label,Name,Description,`Key Property Name`)]
+                        , queryName = "ISC_study_datasets")
+      available_datasets <<- data.table(df)#[,list(Label,Name,Description,`Key Property Name`)]
     }
   }
 )
