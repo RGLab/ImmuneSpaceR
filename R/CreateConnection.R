@@ -43,10 +43,10 @@ CreateConnection = function(study = NULL, verbose = FALSE){
   # 
   # for now we assume they all share the same setting and init it only once here
   nf <- try(get("labkey.netrc.file", .GlobalEnv), silent = TRUE)
-  if(inherits(nf, "try-error")){
-    curlOptions <- labkey.setCurlOptions(ssl.verifyhost = 2, sslversion = 1)
-  } else{
+  if(!inherits(nf, "try-error") && !is.null(nf)){
     curlOptions <- labkey.setCurlOptions(ssl.verifyhost = 2, sslversion = 1, netrc.file = nf)
+  } else{
+    curlOptions <- labkey.setCurlOptions(ssl.verifyhost = 2, sslversion = 1)
   }
   
   if(length(study) <= 1){

@@ -117,6 +117,7 @@
 )
 
 # Returns a named logical where TRUE marks files that are accessible.
+#' @importFrom RCurl url.exists
 .ISCon$methods(
   .test_files=function(what = c("gene_expression_files", "fcs")){
     ret <- list()
@@ -141,7 +142,7 @@
       print(paste0(length(res[res]), "/", length(res), "FCS files with valid links."))
       ret$fcs <- res
     }
-    return(res)
+    return(ret)
   }
 )
 
