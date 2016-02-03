@@ -13,7 +13,6 @@ The package can be downloaded here and installed like any other R packages or in
 
 ```R
     library(devtools)
-    install_github("RGLab/Rlabkey")
     install_github("RGLab/ImmuneSpaceR")
 ```
 

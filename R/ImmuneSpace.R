@@ -117,18 +117,24 @@
 )
 
 # Returns a named logical where TRUE marks files that are accessible.
+# This function is used for administrative purposes to check that the flat files
+# are properly loaded and accessible to the users.
 #' @importFrom RCurl url.exists
 .ISCon$methods(
-  .test_files=function(what = c("gene_expression_files", "fcs")){
+  .test_files=function(what = c("gene_expression_files", "fcs"), mc = FALSE){
     ret <- list()
     if("gene_expression_files" %in% what){
       gef <- .self$getDataset("gene_expression_files", original_view = TRUE)
-      gef <- gef[file_info_purpose == "Gene expression result"]
+      gef <- gef[!is.na(file_info_name)]
       gef <- unique(gef[, list(study_accession, file_info_name)])
       links <- paste0(config$labkey.url.base, "/_webdav/", "/Studies/", 
                       gef$study_accession, "/%40files/rawdata/gene_expression/",
                       gef$file_info_name)
-      res <- sapply(links, url.exists, netrc = TRUE)
+      if(mc){
+        res <- unlist(mclapply(links, url.exists, netrc = TRUE))
+      } else{
+        res <- sapply(links, url.exists, netrc = TRUE)
+      }
       print(paste0(length(res[res]), "/", length(res), "gene expression files with valid links."))
       ret$gene_expression_files <- res
     }
@@ -138,7 +144,11 @@
       links <- paste0(config$labkey.url.base, "/_webdav/", "/Studies/", 
                       fcs$study_accession, "/%40files/rawdata/flow_cytometry/",
                       fcs$file_info_name)
-      res <- sapply(links, url.exists, netrc = TRUE)
+      if(mc){
+        res <- unlist(mclapply(links, url.exists, netrc = TRUE))
+      } else{
+        res <- sapply(links, url.exists, netrc = TRUE)
+      }
       print(paste0(length(res[res]), "/", length(res), "FCS files with valid links."))
       ret$fcs <- res
     }

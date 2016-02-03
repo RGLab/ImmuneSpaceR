@@ -237,7 +237,7 @@ NULL
     dt <- dt[, value_reported := (spot_number_reported) / cell_number_reported]
   } else if(dataset %in% c("hai", "neut_ab_titer")){
     if(isTRUE(show_virus_strain)){
-      dt <- dt[, analyte := virus_strain]
+      dt <- dt[, analyte := virus]
     }
   } else if(dataset == "pcr"){
     if(all(is.na(dt[, threshold_cycles]))){
