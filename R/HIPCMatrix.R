@@ -18,46 +18,74 @@ NULL
 
 #' makeMatrix
 #' 
-#' Create a standard expression matrix from a given set of files.
+#' Create a standard expression matrix from a given set of files or GEO
+#' accession numbers.
 #'
 #' @param gef A \code{data.table}. The gene_expression_files dataset, filtered
-#'  for the selected cohort and relvant files.
+#'  for the selected cohort and relvant files or accession numbers.
+#' @param isGEO A \code{logical}. Set to TRUE if the Matrix should be generated
+#'  from GEO accession numbers instead of data on disk.
 #' 
 #' @name makeMatrix 
 #' @importFrom tools file_ext
+#' @importFrom GEOquery getGEO
 #' 
 .ISCon$methods(
-  makeMatrix = function(gef){
-    inputFiles <- unique(gef$file_info_name)
+  makeMatrix = function(gef, isGEO = FALSE){
     cohort <- unique(gef$arm_name)
-    ext <- unique(file_ext(inputFiles))
     if(length(cohort) > 1){
       message("There are more than one cohort selected in this HIPCMatrix run")
     }
-    
-    inputFiles <- file.path("/share/files/", config$labkey.url.path, "@files/rawdata/gene_expression", inputFiles)
-    # Filetypes
-    # After this step norm_exprs is a matrix with features as rownames and expsample as colnames
-    if(length(ext) > 1){
-      stop(paste("There is more than one file extension:", paste(ext, collapse = ",")))
-    } else if(ext == "CEL"){
-      norm_exprs <- .process_CEL(con, gef, inputFiles)
-    } else if(ext == "txt" | study %in% c("SDY162", "SDY180", "SDY212")){
-      norm_exprs <- .process_others(gef, inputFiles)
-    } else if(ext == "tsv"){
-      norm_exprs <- .process_TSV(gef, inputFiles)
-    } else{
-      stop("File extension not supported.")
+    if(isGEO){
+      norm_exprs <- .process_GEO(gef)
+    }else{
+      inputFiles <- unique(gef$file_info_name)
+      ext <- unique(file_ext(inputFiles))
+      inputFiles <- file.path("/share/files/", config$labkey.url.path, "@files/rawdata/gene_expression", inputFiles)
+      # Filetypes
+      # After this step norm_exprs is a matrix with features as rownames and expsample as colnames
+      if(length(ext) > 1){
+        stop(paste("There is more than one file extension:", paste(ext, collapse = ",")))
+      } else if(ext == "CEL"){
+        norm_exprs <- .process_CEL(con, gef, inputFiles)
+      } else if(ext == "txt" | study %in% c("SDY162", "SDY180", "SDY212")){
+        norm_exprs <- .process_others(gef, inputFiles)
+      } else if(ext == "tsv"){
+        norm_exprs <- .process_TSV(gef, inputFiles)
+      } else{
+        stop("File extension not supported.")
+      }
+      if(!is(norm_exprs, "data.table")){
+        norm_exprs <- data.table(norm_exprs, keep.rownames = TRUE)
+        setnames(norm_exprs, "rn", "feature_id")
+      }
+      # This step should eventually be removed as we move from biosample to expsample
+      norm_exprs <- .es2bs(.self, norm_exprs)
     }
-    if(!is(norm_exprs, "data.table")){
-      norm_exprs <- data.table(norm_exprs, keep.rownames = TRUE)
-      setnames(norm_exprs, "rn", "feature_id")
-    }
-    # This step should eventually be removed as we move from biosample to expsample
-    norm_exprs <- .es2bs(.self, norm_exprs)
     return(norm_exprs)
   }
 )
+
+# Process GEO accession
+# Returns a data.table with a feature_id column and one column per expsample_accession
+#' @importFrom Biobase exprs sampleNames
+.process_GEO <- function(gef){
+  gef <- gef[geo_accession != ""] #Make sure we only have rows with GEO.
+  gsm <- getGEO(gef[1, geo_accession])
+  gse <- gsm@header$series_id
+  es <- getGEO(gse)[[1]]
+  if(nrow(gef) == dim(es)[2]){ #All sample of the series are part of the selection
+    #sampleNames are GEO accession
+    sampleNames(es) <- gef[match(sampleNames(es), geo_accession), expsample_accession] 
+    exprs <- preprocessCore::normalize.quantiles(exprs(es))
+    norm_exprs <- data.table(exprs)
+    norm_exprs <- norm_exprs[, feature_id := featureNames(es)]
+  } else{
+    stop("Some samples of the series are not part of the selected 
+             gene_expression_files rows. Add code!")
+  }
+  return(norm_exprs)
+}
 
 # Process CEL files
 # @param gef A \code{data.table} the gene_expression_files table or a subset of

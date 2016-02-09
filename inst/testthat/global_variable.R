@@ -10,9 +10,9 @@ idCols <- c("participant_id")
 common_cols <- c(demo, idCols)
 
 
-haiCols     <- data.frame(name = c("value_reported", "virus_strain"),
+haiCols     <- data.frame(name = c("value_reported", "virus"),
                           type = c("numeric", "character"))
-nabCols     <- data.frame(name = c("value_reported", "virus_strain"),
+nabCols     <- data.frame(name = c("value_reported", "virus"),
                           type = c("numeric", "character"))
 hlaCols     <- data.frame(name = c("allele_1", "allele_2", "locus_name"),
                           type = c("character", "character", "character"))

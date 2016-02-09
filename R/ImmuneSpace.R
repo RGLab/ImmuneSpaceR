@@ -7,6 +7,16 @@
     return(new)
   }
 )
+
+# Returns TRUE if the connection is at project level ("/Studies")
+.ISCon$methods(
+  .isProject=function()
+    if(config$labkey.url.path == "/Studies/"){
+      TRUE
+    } else{
+      FALSE
+    }
+)
 .ISCon$methods(
   GeneExpressionInputs=function(){
     if(!is.null(data_cache[[constants$matrix_inputs]])){
@@ -121,15 +131,16 @@
 # are properly loaded and accessible to the users.
 #' @importFrom RCurl url.exists
 .ISCon$methods(
-  .test_files=function(what = c("gene_expression_files", "fcs"), mc = FALSE){
+  .test_files=function(what = c("gene_expression_files", "fcs", "protocol"), mc = FALSE){
     ret <- list()
+    what <- tolower(what)
     if("gene_expression_files" %in% what){
       gef <- .self$getDataset("gene_expression_files", original_view = TRUE)
       gef <- gef[!is.na(file_info_name)]
       gef <- unique(gef[, list(study_accession, file_info_name)])
       links <- paste0(config$labkey.url.base, "/_webdav/", "/Studies/", 
                       gef$study_accession, "/%40files/rawdata/gene_expression/",
-                      gef$file_info_name)
+                      sapply(gef$file_info_name, URLencode))
       if(mc){
         res <- unlist(mclapply(links, url.exists, netrc = TRUE))
       } else{
@@ -143,7 +154,7 @@
       fcs <- unique(fcs[, list(file_info_name, study_accession)])
       links <- paste0(config$labkey.url.base, "/_webdav/", "/Studies/", 
                       fcs$study_accession, "/%40files/rawdata/flow_cytometry/",
-                      fcs$file_info_name)
+                      sapply(fcs$file_info_name, URLencode))
       if(mc){
         res <- unlist(mclapply(links, url.exists, netrc = TRUE))
       } else{
@@ -152,16 +163,19 @@
       print(paste0(length(res[res]), "/", length(res), "FCS files with valid links."))
       ret$fcs <- res
     }
+    if("protocol" %in% what){
+      if(.self$.isProject()){
+        message("Project level, all protocols will be checked.")
+        # Get study list and check em all. Bonus points for returning named logical.
+      } else{
+        folder <- basename(con$config$labkey.url.path)
+        res <- url.exists(paste0(config$labkey.url.base, "/_webdav/Studies/",
+                                 study, "/%40files/protocols/", folder,
+                                 "_protocol.zip"),
+                          netrc = TRUE)
+        ret$protocol <- res
+      }
+    }
     return(ret)
   }
-)
-
-# Returns TRUE if the connection is at project level ("/Studies")
-.ISCon$methods(
-  .isProject=function()
-    if(config$labkey.url == "/Studies/"){
-      TRUE
-    } else{
-      FALSE
-    }
 )
