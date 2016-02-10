@@ -60,8 +60,8 @@ NULL
         setnames(norm_exprs, "rn", "feature_id")
       }
       # This step should eventually be removed as we move from biosample to expsample
-      norm_exprs <- .es2bs(.self, norm_exprs)
     }
+    norm_exprs <- .es2bs(.self, norm_exprs)
     return(norm_exprs)
   }
 )
@@ -77,9 +77,15 @@ NULL
   if(nrow(gef) == dim(es)[2]){ #All sample of the series are part of the selection
     #sampleNames are GEO accession
     sampleNames(es) <- gef[match(sampleNames(es), geo_accession), expsample_accession] 
+    cnames <- colnames(es)
+    rnames <- rownames(es)
     exprs <- preprocessCore::normalize.quantiles(exprs(es))
-    norm_exprs <- data.table(exprs)
+    colnames(exprs) <- cnames
+    rownames(exprs) <- rnames
+    norm_exprs <- log2(pmax(exprs, 1))
+    norm_exprs <- data.table(norm_exprs)
     norm_exprs <- norm_exprs[, feature_id := featureNames(es)]
+    setcolorder(norm_exprs, c("feature_id", cnames))
   } else{
     stop("Some samples of the series are not part of the selected 
              gene_expression_files rows. Add code!")

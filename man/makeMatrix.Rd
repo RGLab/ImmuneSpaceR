@@ -5,9 +5,13 @@
 \title{makeMatrix}
 \arguments{
 \item{gef}{A \code{data.table}. The gene_expression_files dataset, filtered
-for the selected cohort and relvant files.}
+for the selected cohort and relvant files or accession numbers.}
+
+\item{isGEO}{A \code{logical}. Set to TRUE if the Matrix should be generated
+from GEO accession numbers instead of data on disk.}
 }
 \description{
-Create a standard expression matrix from a given set of files.
+Create a standard expression matrix from a given set of files or GEO
+accession numbers.
 }
 
