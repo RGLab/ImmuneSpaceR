@@ -116,29 +116,33 @@ NULL
 #' @importFrom reshape2 acast
 .process_TSV <- function(gef, inputFiles){
   exprs <- fread(inputFiles, header = TRUE)
-  exprs <- .clean_colnames(exprs)
-  
-  if(!all(c("target_id", "raw_signal") %in% colnames(exprs))){
-    stop("The file does not follow HIPC standards.")
-  }
-  try(setnames(exprs, "experiment_sample_accession", "expsample_accession"))
-  try(setnames(exprs, "target_id", "feature_id"))
-  if("expsample_accession" %in% colnames(exprs)){
-    EorB <- "expsample_accession"
-  } else if("biosample_accession" %in% colnames(exprs)){
-    EorB <- "biosample_accession"
+  if(min(exprs[, lapply(.SD, min), .SDcols = grep("^BS", names(exprs))]) == 0 &
+     max(exprs[, lapply(.SD, max), .SDcols = grep("^BS", names(exprs))]) > 100){
+    #RNA-Seq data. Assume it is already count base.
   } else{
-    stop("The input file must contain either biosample_accession or expsample_accession")
+    exprs <- .clean_colnames(exprs)
+    if(!all(c("target_id", "raw_signal") %in% colnames(exprs))){
+      stop("The file does not follow HIPC standards.")
+    }
+    try(setnames(exprs, "experiment_sample_accession", "expsample_accession"))
+    try(setnames(exprs, "target_id", "feature_id"))
+    if("expsample_accession" %in% colnames(exprs)){
+      EorB <- "expsample_accession"
+    } else if("biosample_accession" %in% colnames(exprs)){
+      EorB <- "biosample_accession"
+    } else{
+      stop("The input file must contain either biosample_accession or expsample_accession")
+    }
+    exprs <- acast(exprs, formula = paste("feature_id ~", EorB), value.var = "raw_signal")
+    cnames <- colnames(exprs)
+    rnames <- rownames(exprs)
+    exprs <- preprocessCore::normalize.quantiles(exprs)
+    colnames(exprs) <- cnames 
+    rownames(exprs) <- rnames 
+    
+    norm_exprs <- log2(pmax(exprs, 1))
+    norm_exprs <- norm_exprs[, c(colnames(norm_exprs) %in% gef[[EorB]])]
   }
-  exprs <- acast(exprs, formula = paste("feature_id ~", EorB), value.var = "raw_signal")
-  cnames <- colnames(exprs)
-  rnames <- rownames(exprs)
-  exprs <- preprocessCore::normalize.quantiles(exprs)
-  colnames(exprs) <- cnames 
-  rownames(exprs) <- rnames 
-  
-  norm_exprs <- log2(pmax(exprs, 1))
-  norm_exprs <- norm_exprs[, c(colnames(norm_exprs) %in% gef[[EorB]])]
   return(norm_exprs)
 }
 

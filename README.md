@@ -35,9 +35,12 @@ separated by white space (spaces, tabs, or newlines) or commas.
 
 Multiple such blocks can exist in one file.
 
-Please ensure that your machine name in the netrc file contains the "www" prefix as that is how the package connects to immunespace by default. A mismatch will lead to connection failures. 
+Please ensure that the machine name in the netrc file contains the "www" prefix 
+as that is how the package connects to immunespace by default. A mismatch will 
+lead to connection failures. 
 
-See `man netrc` for the official documentation.
+See `man netrc` for the official documentation and the User guide vignette for an
+ImmuneSpace specific setup.
 
 ## Usage
 The general idea is that the user creates an instance of an `ImmuneSpaceConnection` class. 

@@ -183,6 +183,7 @@ NULL
 
 #' @importFrom ggplot2 ggplot geom_violin geom_boxplot geom_jitter
 #' @importFrom ggplot2 theme element_text aes_string aes xlab ylab
+# @importFrom ggplot2 scale_color_manual scale_color_gradient
 .qpBoxplotViolin <- function(dt, type, facet, ylab, text_size, extras, ...){
   if(requireNamespace("ggthemr", quietly = TRUE))
     ggthemr::ggthemr("solarized")
@@ -199,6 +200,13 @@ NULL
   } else{                                                                   
     p <- p + geom_jitter(size = 3, aes_string(...))                         
   }                                                                         
+  #color_aes <- list(...)$color
+  #color_aes_type <- sapply(dt, class)[color_aes]
+  #if(color_aes_type %in% c("factor", "character")){
+  #  p <- p + scale_color_manual(values = ISpalette(nrow(unique(dt[, color_aes, with = FALSE]))))
+  #} else if(color_aes_type == "numeric"){
+  #  p <- p + scale_color_gradient(low = "#dc322f", high = "#268bd2")
+  #}
   print(p)
 }
 
@@ -215,7 +223,7 @@ NULL
     p <- p + geom_point(aes_string(...))                                    
   } else{                                                                   
     p <- p + geom_point(size = 3, aes_string(...))                          
-  }                                                                         
+  }
   print(p)                                                                  
 }
 
