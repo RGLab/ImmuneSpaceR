@@ -7,7 +7,6 @@ This package simplifies access to the HIPC ImmuneSpace database, for R programme
 It takes advantage of the standardization of the ImmuneSpace database to hide all the `Rlabkey` specific code away from the user.
 Study-specific datasets can be accessed via an object-oriented paradigm.
 
-
 ## Installation
 The package can be downloaded here and installed like any other R packages or installed directly from github using devtools.
 
@@ -23,15 +22,17 @@ Create netrc file in the computer running R.
 * On a UNIX system this file should be named `.netrc` (**dot** `netrc`) 
 * On windows it sould be named `_netrc` (**underscore** `netrc`). 
 * The file should be located in the users home directory and the permissions
-on the file should be unreadable for everybody except the owner.To determine
+on the file should be unreadable for everybody except the owner. To determine
 home directory, run `Sys.getenv("HOME")` in R.
 
 The following three lines must be included in the .netrc or _netrc file either
 separated by white space (spaces, tabs, or newlines) or commas.
 
- machine `remote-machine-name` <br/>
- login `user-email`<br/>
- password `user-password`<br/>
+```
+machine www.immunespace.org
+login myuser@domain.com
+password supersecretpassword
+```
 
 Multiple such blocks can exist in one file.
 
@@ -83,5 +84,6 @@ study$quick_plot("hai")
 ![](./inst/img/qpHai.png)
 
 
-## Examples
-For more advanced examples, see the package vignettes and the reports available on ImmuneSpace.
+## Examples & Documentation
+For more advanced examples and detailed documentation, see the package vignettes
+and the reports available on ImmuneSpace.
