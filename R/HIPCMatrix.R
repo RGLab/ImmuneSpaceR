@@ -72,9 +72,10 @@ NULL
 .process_GEO <- function(gef){
   gef <- gef[geo_accession != ""] #Make sure we only have rows with GEO.
   gsm <- getGEO(gef[1, geo_accession])
-  gse <- gsm@header$series_id
+  gse <- gsm@header$series_id[1] #Assumes that the serie is the first one (SuperSeries with higher ID)
   es <- getGEO(gse)[[1]]
-  if(nrow(gef) == dim(es)[2]){ #All sample of the series are part of the selection
+  es <- es[, sampleNames(es) %in% gef$geo_accession]
+  if(all(gef$geo_accession %in% sampleNames(es))){ #All selected samples are in the series
     #sampleNames are GEO accession
     sampleNames(es) <- gef[match(sampleNames(es), geo_accession), expsample_accession] 
     cnames <- colnames(es)

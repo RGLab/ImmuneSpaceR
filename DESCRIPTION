@@ -1,7 +1,7 @@
 Package: ImmuneSpaceR
 Type: Package
 Title: A Thin Wrapper around the ImmuneSpace Database
-Version: 0.2.53
+Version: 0.2.54
 Date: 2014-06-12
 Author: Greg Finak, Renan Sauteraud, Mike Jiang
 Maintainer: Renan Sauteraud <rsautera@fhcrc.org>
@@ -25,6 +25,7 @@ Imports:
     Biobase,
     pheatmap,
     ggplot2,
+    scales,
     gtools,
     tools,
     gplots,
