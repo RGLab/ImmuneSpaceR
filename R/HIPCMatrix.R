@@ -88,8 +88,8 @@ NULL
     norm_exprs <- norm_exprs[, feature_id := featureNames(es)]
     setcolorder(norm_exprs, c("feature_id", cnames))
   } else{
-    stop("Some samples of the series are not part of the selected 
-             gene_expression_files rows. Add code!")
+    stop(paste0("Some of the selected gene_expression_files rows are not part of ",
+               gse, ". Add code!"))
   }
   return(norm_exprs)
 }
@@ -179,12 +179,11 @@ NULL
   return(norm_exprs)
 }
   
-
-
 .clean_colnames <- function(table){
   setnames(table, tolower(chartr(" ", "_", names(table))))
 }
 
+# Change colnames from expsample_accession to biosample_accession
 .es2bs <- function(con, table){
   ess <- grep("^ES", colnames(table), value = TRUE)
   if(length(ess) > 0){

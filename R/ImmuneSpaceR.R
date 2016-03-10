@@ -31,7 +31,10 @@ globalVariables(c("biosample_accession",
                 "x", "y", "err", #ggplot2 aes
                 "ID", #qpHeatmap
                 "stc", "stcu", "time_str", #standardize_time
-                "virus_strain", "cohort",
+                "virus_strain", "virus", "cohort",
                 "participant_id",
-                "PROBE_ID"
+                "PROBE_ID",
+                "geo_accession",
+                "expsample_accession",
+                "feature_id"
                 ))

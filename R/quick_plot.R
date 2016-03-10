@@ -61,8 +61,11 @@ NULL
     }
     dt <- unique(dt)
     if(normalize_to_baseline){
-      dt <- dt[,response:=response-response[study_time_collected==0],
-               by="cohort,participant_id,analyte"][study_time_collected!=0]
+      dt <- dt[,response:=response-response[study_time_collected <= 0],
+               by="cohort,participant_id,analyte"][study_time_collected > 0]
+      if(nrow(dt) == 0){
+        stop("All data points are <= 0. Cannot normalize to baseline.")
+      }
     }
     if(type == "auto"){
       if(length(unique(dt$analyte)) < 10){
@@ -185,8 +188,6 @@ NULL
 #' @importFrom ggplot2 theme element_text aes_string aes xlab ylab
 # @importFrom ggplot2 scale_color_manual scale_color_gradient
 .qpBoxplotViolin <- function(dt, type, facet, ylab, text_size, extras, ...){
-  if(requireNamespace("ggthemr", quietly = TRUE))
-    ggthemr::ggthemr("solarized")
   if(type == "violin"){
     geom_type <- geom_violin() #+ stat_summary(fun.y="median", geom="point")
   } else{
@@ -195,26 +196,18 @@ NULL
   p <- ggplot(data = dt, aes(as.factor(study_time_collected), response)) +
   geom_type + xlab("Time") + ylab(ylab) + facet + 
   theme(text = element_text(size = text_size), axis.text.x = element_text(angle = 45))
-  if(!is.null(extras[["size"]])){                                           
-    p <- p + geom_jitter(aes_string(...))                                   
-  } else{                                                                   
-    p <- p + geom_jitter(size = 3, aes_string(...))                         
-  }                                                                         
-  #color_aes <- list(...)$color
-  #color_aes_type <- sapply(dt, class)[color_aes]
-  #if(color_aes_type %in% c("factor", "character")){
-  #  p <- p + scale_color_manual(values = ISpalette(nrow(unique(dt[, color_aes, with = FALSE]))))
-  #} else if(color_aes_type == "numeric"){
-  #  p <- p + scale_color_gradient(low = "#dc322f", high = "#268bd2")
-  #}
+  if(!is.null(extras[["size"]])){ 
+    p <- p + geom_jitter(aes_string(...))
+  } else{
+    p <- p + geom_jitter(size = 3, aes_string(...)) 
+  } 
+  p <- p + theme_IS()
   print(p)
 }
 
 #' @importFrom ggplot2 ggplot geom_line geom_point
 #' @importFrom ggplot2 theme element_text aes_string aes xlab ylab
 .qpLineplot <- function(dt, facet, ylab, text_size, extras, ...){
-  if(requireNamespace("ggthemr", quietly = TRUE))
-    ggthemr::ggthemr("solarized")
   p <- ggplot(data = dt, aes(study_time_collected, response, group = participant_id)) +
   geom_line(size = 1, aes_string(...)) +                                            
   xlab("Time") + ylab(ylab) + facet + 
