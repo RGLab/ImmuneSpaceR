@@ -53,9 +53,10 @@ ISpalette <- function(n){
 #' @importFrom ggplot2 theme theme_classic element_line element_text element_rect
 #' @importFrom ggplot2 continuous_scale rel
 #' @export
-theme_IS <- function() {
+theme_IS <- function(base_size) {
   .override_scale()
   theme_classic() +
+    theme(text = element_text(size = base_size)) +
     theme(axis.text.x = element_text(angle = 45)) +
     theme(panel.background = element_rect(fill="#FDF6E3")) +
     theme(panel.grid.major = element_line(colour = "#ded8d5", linetype = "dotted")) +

@@ -194,14 +194,14 @@ NULL
     geom_type <- geom_boxplot(outlier.size = 0)
   }
   p <- ggplot(data = dt, aes(as.factor(study_time_collected), response)) +
-  geom_type + xlab("Time") + ylab(ylab) + facet + 
-  theme(text = element_text(size = text_size), axis.text.x = element_text(angle = 45))
+  geom_type + xlab("Time") + ylab(ylab) + facet 
+  #theme(text = element_text(size = text_size), axis.text.x = element_text(angle = 45))
   if(!is.null(extras[["size"]])){ 
     p <- p + geom_jitter(aes_string(...))
   } else{
     p <- p + geom_jitter(size = 3, aes_string(...)) 
   } 
-  p <- p + theme_IS()
+  p <- p + theme_IS(base_size = text_size)
   print(p)
 }
 
