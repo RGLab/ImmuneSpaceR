@@ -26,7 +26,6 @@ if(Sys.getenv("ISR_login") != ""  & Sys.getenv("ISR_pwd") != ""){
 library(ImmuneSpaceR)
 library(data.table)
 library(ggplot2)
-library(ggthemr)
 ```
 
 #### Initialize the connection to SDY144 and get data
@@ -52,29 +51,25 @@ We compute the HI and VN titer as the fold-increase between baseline and day 30.
 ```{r FC}
 # HAI
 hai <- hai[,response:=value_reported/value_reported[study_time_collected==0],
-                 by="virus_strain,cohort,participant_id"][study_time_collected==30]
-hai <- hai[, list(participant_id, virus_strain, response)]
+                 by="virus,cohort,participant_id"][study_time_collected==30]
+hai <- hai[, list(participant_id, virus, response)]
 dat_hai <- merge(hai, pb, by = "participant_id", allow.cartesian = TRUE)
 # VN
 vn <- vn[, response:=value_reported/value_reported[study_time_collected==0],
-                 by="virus_strain,cohort,participant_id"][study_time_collected==30]
-vn <- vn[, list(participant_id, virus_strain, response)]
+                 by="virus,cohort,participant_id"][study_time_collected==30]
+vn <- vn[, list(participant_id, virus, response)]
 dat_vn <- merge(vn, pb, by = "participant_id", allow.cartesian = TRUE)
 ```
 
 #### Plot using `ggplot2`
-ImmuneSpace uses the *solarized* theme for plots.
-```{r}
-ggthemr('solarized')
-```
 Figure 2 A: Correlation between the absolute number of plasmablasts and plasma
 Bcells 7 days after vaccination with and fold-increase of HI titers from baseline
 to day 30 after vaccination.
 ```{r HAI, dev='CairoPNG'}
 ggplot(dat_hai, aes(x = population_cell_number, y = response)) +
   geom_point() + geom_smooth(method = "lm") +
-  facet_grid(virus_strain~population_name_reported, scale = "free") +
-  xlab("Number of cells") + ylab("HI fold-increase Day 30 vs. baseline")
+  facet_grid(virus~population_name_reported, scale = "free") +
+  xlab("Number of cells") + ylab("HI fold-increase Day 30 vs. baseline") + theme_IS(12)
 ```
 
 Figure 2 B: Correlation between the absolute number of plasmablasts and plasma
@@ -83,6 +78,6 @@ to day 30 after vaccination.
 ```{r VN, dev='CairoPNG'}
 ggplot(dat_vn, aes(x = population_cell_number, y = response)) +
   geom_point() + geom_smooth(method = "lm") +
-  facet_grid(virus_strain~population_name_reported, scale = "free") +
+  facet_grid(virus~population_name_reported, scale = "free") +
   xlab("Number of cells") + ylab("VN fold-increase Day 30 vs. baseline")
 ```
