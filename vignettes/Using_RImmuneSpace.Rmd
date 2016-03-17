@@ -1,8 +1,10 @@
 ---
+title: "A simple introduction to the ImmuneSpaceR package"
 date: "`r Sys.Date()`"
+output: html_document
 vignette: >
   %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteIndexEntry{An introduction to using the ImmuneSpaceR package}
+  %\VignetteIndexEntry{An introduction to the ImmuneSpaceR package}
 ---
 ```{r knitr, echo=FALSE, cache = FALSE}
 library(knitr)
@@ -19,9 +21,8 @@ if(Sys.getenv("ISR_login") != ""  & Sys.getenv("ISR_pwd") != ""){
 }
 ```
 
-# A simple introduction on using the ImmuneSpaceR package
 
-This package provides a *thin* wrapper around `Rlabkey` and connects to the **ImmuneSpace* database, making it easier to fetch *datasets*, including gene expression data, hai, and so forth, from specific studies. 
+This package provides a *thin* wrapper around `Rlabkey` and connects to the **ImmuneSpace** database, making it easier to fetch datasets, including gene expression data, hai, and so forth, from specific studies. 
 
 ## <a id="contents"></a>Contents
 1. [Configuration](#configuration)
@@ -64,7 +65,7 @@ We'll be looking at study `SDY269`. If you want to use a different study, change
 that string. The connections have state, so you can instantiate multiple 
 connections to different studies simultaneously.
 
-```{r CreateConnection, cache=FALSE}
+```{r CreateConnection, cache=FALSE, message=FALSE}
 library(ImmuneSpaceR)
 sdy269 <- CreateConnection(study = "SDY269")
 sdy269
@@ -182,10 +183,11 @@ Likewise, `quick_plot` will plot accross studies. Note that in most cases the
 datasets will have too many cohorts/subjects, making the filtering of the data
 a necessity. The `colFilter` argument can be used here, as described in the 
 `getDataset` section.
-```{r cross-connection-qplot, dev='CairoPNG'}
+```{r cross-connection-qplot, dev='CairoPNG', fig.align="center"}
 plotFilter <- makeFilter(c("cohort", "IN", "TIV 2010;TIV Group 2008"))
 con$quick_plot("elispot", filter = plotFilter)
 ```
+
 The figure above shows the ELISPOT results for two different years of TIV 
 vaccine cohorts from two different studies.
 

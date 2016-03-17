@@ -1,6 +1,5 @@
 ---
 title: "getDataset"
-author: "Renan Sauteraud"
 date: "`r Sys.Date()`"
 output: html_document
 vignette: >
@@ -23,7 +22,6 @@ if(Sys.getenv("ISR_login") != "" & Sys.getenv("ISR_pwd") != ""){
 }
 ```
 
-# getDataset
 This vignette shows detailed examples for all functionalities of the `getDataset`
 function.
 
@@ -43,7 +41,7 @@ As explained into the user guide vignette, datasets must be downloaded from
 the study or studies of interest. Throughout this vignette, we will use two
 connections, one to a single study, and one to to all available data.
 
-```{r CreateConection, cache=FALSE}
+```{r CreateConection, cache=FALSE, message=FALSE}
 library(ImmuneSpaceR)
 sdy269 <- CreateConnection("SDY269")
 all <- CreateConnection("")

@@ -4,7 +4,10 @@
 \alias{theme_IS}
 \title{theme_IS}
 \usage{
-theme_IS()
+theme_IS(base_size = 12)
+}
+\arguments{
+\item{base_size}{A \code{numeric}. Base font size.}
 }
 \value{
 A theme object

@@ -195,7 +195,6 @@ NULL
   }
   p <- ggplot(data = dt, aes(as.factor(study_time_collected), response)) +
   geom_type + xlab("Time") + ylab(ylab) + facet 
-  #theme(text = element_text(size = text_size), axis.text.x = element_text(angle = 45))
   if(!is.null(extras[["size"]])){ 
     p <- p + geom_jitter(aes_string(...))
   } else{
@@ -210,14 +209,14 @@ NULL
 .qpLineplot <- function(dt, facet, ylab, text_size, extras, ...){
   p <- ggplot(data = dt, aes(study_time_collected, response, group = participant_id)) +
   geom_line(size = 1, aes_string(...)) +                                            
-  xlab("Time") + ylab(ylab) + facet + 
-  theme(text = element_text(size = text_size), axis.text.x = element_text(angle = 45))
+  xlab("Time") + ylab(ylab) + facet
   if(!is.null(extras[["size"]])){                                           
     p <- p + geom_point(aes_string(...))                                    
   } else{                                                                   
     p <- p + geom_point(size = 3, aes_string(...))                          
   }
-  print(p)                                                                  
+  p <- p + theme_IS(base_size = text_size)
+  print(p)
 }
 
 # Get the data

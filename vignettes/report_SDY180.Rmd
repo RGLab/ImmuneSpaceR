@@ -1,10 +1,18 @@
-<!--
-%\VignetteEngine{knitr::knitr}
-%\VignetteIndexEntry{Reproducing an online report using ImmuneSpaceR: Plasmablast abundance in SDY180}
--->
-# Abundance of plasmablasts measured by multiparameter flow cytometry in SDY180
+---
+title: "Abundance of plasmablasts measured by multiparameter flow cytometry in SDY180"
+author: "Renan Sauteraud"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_document
+vignette: >
+  %\VignetteIndexEntry{Reproducing an online report using ImmuneSpaceR: Plasmablast abundance in SDY180}
+  %\VignetteEngine{knitr::rmarkdown}
+---
 
-ImmuneSpaceR code produces consistent results, regardless of whether it is being executed from a module or a UI based report on the server or on a local machine. This vignette reproduces a report available on <a href="https://www.immunespace.org/reports/Studies/SDY180/runReport.view?reportId=module%3ASDY180%2Freports%2Fschemas%2Fstudy%2Fdemographics%2Fplasmablast_abundance.Rmd&redirectUrl=%2Fproject%2FStudies%2FSDY180%2Fbegin.view%3FpageId%3DReports">www.immunespace.org</a> using the same code.
+
+ImmuneSpaceR code produces consistent results, regardless of whether it is being
+executed from a module or a UI based report on the server or on a local machine.
+This vignette reproduces a report available on <a href="https://www.immunespace.org/reports/Studies/SDY180/runReport.view?reportId=module
+%3ASDY180%2Freports%2Fschemas%2Fstudy%2Fdemographics%2Fplasmablast_abundance.Rmd">www.immunespace.org</a> using the same code.
 
 ### Summary
 This report investigate the abundance of plasmablast (and other B cell subsets) over time after vaccination with Pneumovax, Fluzone, or no vaccination (saline control group). 
@@ -32,8 +40,6 @@ if(Sys.getenv("ISR_login") != ""  & Sys.getenv("ISR_pwd") != ""){
 library(ImmuneSpaceR)
 library(ggplot2)
 library(data.table)
-library(ggthemr)
-ggthemr('solarized')
 ```
 
 
@@ -61,6 +67,6 @@ ggplot(dt_fcs19, aes(x = as.factor(study_time_collected), y = as.double(populati
   geom_boxplot() + geom_jitter() + scale_y_log10() + facet_grid(cohort~population_name_reported, 
   scale = "free") + xlab("Time") + ylab(expression(paste("Number of cells/", mu, "l"))) + 
   geom_line(data = dt_fcs19_median, aes(x = as.factor(study_time_collected), y = as.double(median_cell_reported),
-  group = 1), color = "black", size = 1.2) + labs(title = "Plasma cell abundance after vaccination")
+  group = 1), color = "black", size = 1.2) + labs(title = "Plasma cell abundance after vaccination") + theme_IS()
 ```
 

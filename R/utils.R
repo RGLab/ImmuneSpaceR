@@ -57,21 +57,17 @@ ISpalette <- function(n){
 #' @export
 theme_IS <- function(base_size = 12) {
   .override_scale()
-  #theme_classic() +
-    theme(text = element_text(size = base_size)) +
-    theme(axis.text.x = element_text(angle = 45)) +
-    theme(panel.background = element_rect(fill = "#FDF6E3")) +
-    theme(panel.grid.major = element_line(colour = "#ded8d5", linetype = "dotted")) +
-    theme(panel.grid.minor = element_blank()) +#line(colour = "#FDF6E3", linetype = "dotted")) +
-    #theme(panel.background = element_rect(fill = "#FDF6E3", colour = NA)) +
-    #theme(panel.grid.major = element_line(colour = "lightgray", linetype = "dotted")) +
-    #theme(panel.grid.minor = element_line(colour = "gray", linetype = "dotted")) +
-    theme(axis.ticks = element_blank()) +
-    #theme(axis.line.x = element_line(size = 5, colour = "black")) +
-    theme(axis.line.x = element_line(size = 0.5, colour = "black")) + 
-    theme(axis.line.y = element_line(size = 0.5, colour = "black")) +
-    theme(plot.title = element_text(size = rel(1))) +
-    theme(strip.background = element_rect(colour = "white", fill = "white")) #bg of facets
+  theme(text = element_text(size = base_size)) +
+  #theme(axis.text.x = element_text(angle = 45)) +
+  theme(panel.background = element_rect(fill = "#FDF6E3")) +
+  theme(panel.grid.major = element_line(colour = "#ded8d5", linetype = "dashed")) +
+  theme(panel.grid.minor = element_blank()) +
+  theme(axis.ticks = element_blank()) +
+  #theme(axis.line = element_line(size = 0.5, colour = "black")) +
+  theme(axis.line.x = element_line(size = 0.5, colour = "black")) +
+  theme(axis.line.y = element_line(size = 0.5, colour = "black")) +
+  theme(plot.title = element_text(size = rel(1))) +
+  theme(strip.background = element_rect(colour = "white", fill = "white")) #bg of facets
 }
 
 # Add scales that use a different color scheme to the environment.
@@ -80,15 +76,15 @@ theme_IS <- function(base_size = 12) {
 .override_scale <- function(envir = as.environment(1)){
   update_geom_defaults("boxplot", list(fill = "#268bd2"))
   scale_updates <- list( 
-    scale_fill_continuous = function(...) continuous_scale('fill', 'ggthemr', seq_gradient_pal("#268bd2", "#dc322f"), ...),
-    scale_fill_gradient = function(...) continuous_scale('fill', 'ggthemr', seq_gradient_pal("#268bd2", "#dc322f"), ...),
-    scale_colour_gradient = function(...) continuous_scale('colour', 'ggthemr', seq_gradient_pal("#268bd2", "#dc322f"), ...),
-    scale_colour_continuous = function(...) continuous_scale('colour', 'ggthemr', seq_gradient_pal("#268bd2", "#dc322f"), ...)
-  )                                                                             
-  
-  Map(                                                                          
-    function (name, f) assign(name, f, envir = envir),                          
-    names(scale_updates),                                                       
-    scale_updates                                                               
-  )                                                                             
-} 
+    scale_fill_continuous = function(...) continuous_scale('fill', 'scale_IS', seq_gradient_pal("#268bd2", "#dc322f"), ...),
+    scale_fill_gradient = function(...) continuous_scale('fill', 'scale_IS', seq_gradient_pal("#268bd2", "#dc322f"), ...),
+    scale_colour_gradient = function(...) continuous_scale('colour', 'scale_IS', seq_gradient_pal("#268bd2", "#dc322f"), ...),
+    scale_colour_continuous = function(...) continuous_scale('colour', 'scale_IS', seq_gradient_pal("#268bd2", "#dc322f"), ...)
+  )
+
+  Map(
+    function(name, f) assign(name, f, envir = envir),
+    names(scale_updates),
+    scale_updates
+  )
+}

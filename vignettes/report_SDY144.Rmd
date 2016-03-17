@@ -1,11 +1,16 @@
-<!--
-%\VignetteEngine{knitr::knitr}
-%\VignetteIndexEntry{Reproducing an online report using ImmuneSpaceR: Correlation of HAI/virus neutralizition titer and cell counts in SDY144}
---> 
+---
+title: "Correlation of HAI/virus neutralizition titer and cell counts in SDY144"
+author: "Renan Sauteraud"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_document
+vignette: >
+  %\VignetteIndexEntry{Reproducing an online report using ImmuneSpaceR: Correlation of HAI/virus neutralizition titer and cell counts in SDY144}
+  %\VignetteEngine{knitr::rmarkdown}
+--- 
 
 ### Correlations between hemagglutination inhibition (HI) and viral neutralization (VN) titers and plasmablast and plasma B cells among trivalent inactivated influenza vaccine (TIV) vaccinees.
 
-This reports reproduces Figure 2 of <a href="http://www.jid.oxfordjournals.org/cgi/pmidlookup?view=long&pmid=24495909">Cao RG et al (2014)</a> published as part of the original study.
+This reports reproduces Figure 2 of [Cao RG et al(2014)](http://www.jid.oxfordjournals.org/cgi/pmidlookup?view=long&pmid=24495909) published as part of the original study.
 
 ```{r knitr, echo = FALSE}
 library(knitr)
@@ -69,7 +74,7 @@ to day 30 after vaccination.
 ggplot(dat_hai, aes(x = population_cell_number, y = response)) +
   geom_point() + geom_smooth(method = "lm") +
   facet_grid(virus~population_name_reported, scale = "free") +
-  xlab("Number of cells") + ylab("HI fold-increase Day 30 vs. baseline") + theme_IS(12)
+  xlab("Number of cells") + ylab("HI fold-increase Day 30 vs. baseline") + theme_IS()
 ```
 
 Figure 2 B: Correlation between the absolute number of plasmablasts and plasma
@@ -79,5 +84,5 @@ to day 30 after vaccination.
 ggplot(dat_vn, aes(x = population_cell_number, y = response)) +
   geom_point() + geom_smooth(method = "lm") +
   facet_grid(virus~population_name_reported, scale = "free") +
-  xlab("Number of cells") + ylab("VN fold-increase Day 30 vs. baseline")
+  xlab("Number of cells") + ylab("VN fold-increase Day 30 vs. baseline") + theme_IS()
 ```
