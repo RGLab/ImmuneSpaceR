@@ -4,7 +4,6 @@
 #' 
 #' @param file the file name to be saved to or loaded from
 #' @return An ImmuneSpaceConnection object
-#' @export
 loadConnection <- function(file){
   con <- readRDS(file = file)
   conType <- class(con)
@@ -24,7 +23,6 @@ loadConnection <- function(file){
 #'  To be loaded later using \code{loadConnection}.
 #' 
 #' @rdname loadConnection
-#' @export
 saveConnection <- function(con, file){
   saveRDS(con, file = file)
 }
@@ -40,6 +38,8 @@ saveConnection <- function(con, file){
 #' 
 #' @importFrom gplots colorpanel
 #' @export
+#' @examples
+#' plot(1:10, col = ISpalette(10), cex = 10, pch = 16)
 ISpalette <- function(n){
   colorpanel(n, low = "#268bd2", mid = "#fdf6e3", high = "#dc322f")
 }
@@ -55,6 +55,10 @@ ISpalette <- function(n){
 #' @importFrom ggplot2 theme theme_classic element_line element_text element_rect
 #' @importFrom ggplot2 continuous_scale rel
 #' @export
+#' @examples
+#' library(ggplot2)
+#' p <- ggplot(data = mtcars) + geom_point(aes(x = mpg, y = cyl, color = hp)) + facet_grid(vs ~ am)
+#' p + theme_IS()
 theme_IS <- function(base_size = 12) {
   .override_scale()
   theme(text = element_text(size = base_size)) +

@@ -14,10 +14,12 @@
 #' @return an instance of an \code{ImmuneSpaceConnection}
 #' @seealso ImmuneSpaceConnection
 #' @examples
-#' # Single study 
-#' con <- CreateConnection("SDY269")
-#' # Cross study
-#' con <- CreateConnection("")
+#' \dontrun{
+#'   # Single study 
+#'   con <- CreateConnection("SDY269")
+#'   # Cross study
+#'   con <- CreateConnection("")
+#' }
 CreateConnection = function(study = NULL, verbose = FALSE){
   # Try to parse labkey options from global environment 
   # which really should have been done through option()/getOption() mechanism
@@ -128,13 +130,15 @@ CreateConnection = function(study = NULL, verbose = FALSE){
 #' \code{password} entry to allow access to ImmuneSpace, where \code{machine} is
 #' the host name like "www.immunespace.org".
 #' 
-#'@seealso 
-#' \code{\link{CreateConnection}}
-#' \code{\link{ImmuneSpaceR-package}} 
-#'@exportClass ImmuneSpaceConnection
-#'@examples
-#' sdy269 <- CreateConnection("SDY269")
-#' sdy269
+#' @seealso 
+#'  \code{\link{CreateConnection}}
+#'  \code{\link{ImmuneSpaceR-package}} 
+#' @exportClass ImmuneSpaceConnection
+#' @examples
+#' \dontrun{
+#'   sdy269 <- CreateConnection("SDY269")
+#'   sdy269
+#' }
 #'@return An instance of an ImmuneSpaceConnection for a study in `labkey.url.path`
 .ISCon <- setRefClass(Class = "ImmuneSpaceConnection",
             fields = list(study = "character", config = "list",

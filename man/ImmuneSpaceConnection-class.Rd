@@ -140,11 +140,13 @@ gene-expression data.}
     'Race'.}
 }}
 \examples{
-sdy269 <- CreateConnection("SDY269")
-sdy269
+\dontrun{
+  sdy269 <- CreateConnection("SDY269")
+  sdy269
+}
 }
 \seealso{
 \code{\link{CreateConnection}}
-\code{\link{ImmuneSpaceR-package}}
+ \code{\link{ImmuneSpaceR-package}}
 }
 

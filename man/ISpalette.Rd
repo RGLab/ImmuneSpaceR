@@ -17,4 +17,7 @@ A \code{character} vector colors in hexadecimal code of length
 Create a color gradient of the selected length that matches the ImmuneSpace
 theme.
 }
+\examples{
+plot(1:10, col = ISpalette(10), cex = 10, pch = 16)
+}
 

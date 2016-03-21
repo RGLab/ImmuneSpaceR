@@ -23,10 +23,12 @@ The constructor will try to take the values of the various `labkey.*` parameters
 If they don't exist, it will use default values. These are assigned to `options`, which are then used by the \code{ImmuneSpaceConnection} class.
 }
 \examples{
-# Single study 
-con <- CreateConnection("SDY269")
-# Cross study
-con <- CreateConnection("")
+\dontrun{
+  # Single study 
+  con <- CreateConnection("SDY269")
+  # Cross study
+  con <- CreateConnection("")
+}
 }
 \seealso{
 ImmuneSpaceConnection

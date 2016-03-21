@@ -138,6 +138,7 @@ NULL
 
 #' @importFrom pheatmap pheatmap
 #' @importFrom reshape2 acast
+#' @importFrom stats formula
 .qpHeatmap2 <- function(dt, normalize_to_baseline, legend, text_size){
   palette <- ISpalette(20)
   
