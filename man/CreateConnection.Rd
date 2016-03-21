@@ -9,7 +9,8 @@ CreateConnection(study = NULL, verbose = FALSE)
 \arguments{
 \item{study}{A \code{"character"} vector naming the study.}
 
-\item{verbose}{A \code{"logical"} whether to print the extra details for troubleshooting.}
+\item{verbose}{A \code{"logical"} whether to print the extra details for 
+troubleshooting.}
 }
 \value{
 an instance of an \code{ImmuneSpaceConnection}
@@ -19,8 +20,10 @@ Constructor for \code{ImmuneSpaceConnection} class
 }
 \details{
 Instantiates an \code{ImmuneSpaceConnection} for \code{study}
-The constructor will try to take the values of the various `labkey.*` parameters from the global environment.
-If they don't exist, it will use default values. These are assigned to `options`, which are then used by the \code{ImmuneSpaceConnection} class.
+The constructor will try to take the values of the various `labkey.*` 
+parameters from the global environment. If they don't exist, it will use 
+default values. These are assigned to `options`, which are then used by the 
+\code{ImmuneSpaceConnection} class.
 }
 \examples{
 \dontrun{
@@ -28,6 +31,12 @@ If they don't exist, it will use default values. These are assigned to `options`
   con <- CreateConnection("SDY269")
   # Cross study
   con <- CreateConnection("")
+}
+
+sdy <- try(CreateConnection("SDY269"))
+if(inherits(sdy, "try-error")){
+  print("Read the Introduction vignette for more information on how to set up
+  a .netrc file.")
 }
 }
 \seealso{

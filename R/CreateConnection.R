@@ -5,11 +5,14 @@
 #' @title CreateConnection
 #' @name CreateConnection
 #' @param study A \code{"character"} vector naming the study.
-#' @param verbose A \code{"logical"} whether to print the extra details for troubleshooting. 
+#' @param verbose A \code{"logical"} whether to print the extra details for 
+#' troubleshooting. 
 #' @description Constructor for \code{ImmuneSpaceConnection} class
 #' @details Instantiates an \code{ImmuneSpaceConnection} for \code{study}
-#' The constructor will try to take the values of the various `labkey.*` parameters from the global environment.
-#' If they don't exist, it will use default values. These are assigned to `options`, which are then used by the \code{ImmuneSpaceConnection} class.
+#' The constructor will try to take the values of the various `labkey.*` 
+#' parameters from the global environment. If they don't exist, it will use 
+#' default values. These are assigned to `options`, which are then used by the 
+#' \code{ImmuneSpaceConnection} class.
 #' @export CreateConnection
 #' @return an instance of an \code{ImmuneSpaceConnection}
 #' @seealso ImmuneSpaceConnection
@@ -19,6 +22,12 @@
 #'   con <- CreateConnection("SDY269")
 #'   # Cross study
 #'   con <- CreateConnection("")
+#' }
+#' 
+#' sdy <- try(CreateConnection("SDY269"))
+#' if(inherits(sdy, "try-error")){
+#'   print("Read the Introduction vignette for more information on how to set up
+#'   a .netrc file.")
 #' }
 CreateConnection = function(study = NULL, verbose = FALSE){
   # Try to parse labkey options from global environment 
