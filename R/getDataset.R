@@ -14,6 +14,21 @@
   return(colFilter)
 }
 
+## TODO: Need a way to translate Curl operators into math (so that we can filter the saved tables using colFilter).
+filterDT <- function(table, col, value){
+  table <- table[eval(as.name(col)) == value]
+  return(table)
+}
+filter_cached_copy <- function(filters, data){
+  decoded <- curlUnescape(filters)
+  cols <- gsub(".*/", "", gsub("~.*", "", decoded))
+  values <- gsub(".*=", "", decoded)
+  for(i in 1:length(filters)){
+    data <- filterDT(table, cols[i], values[i])
+  }
+  return(data)
+}
+
 # Downloads a dataset and cache the result in the connection object.
 .ISCon$methods(
   getDataset = function(x, original_view = FALSE, reload = FALSE, colFilter = NULL, ...){
@@ -22,7 +37,7 @@
     Else, download the default grid view.\n
     reload: A logical. Clear the cache. If set to TRUE, download the dataset,
     whether a cached version exist or not.\n
-    colFiler: A character. A filter as returned by Rlabkey's makeFilter function.\n
+    colFilter: A character. A filter as returned by Rlabkey's makeFilter function.\n
     '...': Extra arguments to be passed to labkey.selectRows."
     if(nrow(available_datasets[Name%in%x])==0){
       wstring <- paste0(study, " has invalid data set: ",x)
@@ -35,13 +50,15 @@
       NULL
     } else{
       cache_name <- paste0(x, ifelse(original_view, "_full", ""))
-      filter_state <- paste0("filter_state_", cache_name)
-      if(!is.null(data_cache[[cache_name]]) &
-         !reload &
-         is.null(colFilter) &
-         (is.null(data_cache[[filter_state]]) || !data_cache[[filter_state]])){
-        data_cache[[cache_name]]
-      } else{
+      if(!is.null(data_cache[[cache_name]]) & !reload & is.null(colFilter)){ # Serve cache
+        data <- data_cache[[cache_name]]
+        #if(!is.null(colFilter)){
+        #  data <- filter_cached_copy(colFilter, data)
+        #  return(data)
+        #} else{
+          return(data)
+        #}
+      } else{ # Download the data
         viewName <- NULL
         if(original_view){
           viewName <- "full"
@@ -50,11 +67,11 @@
           colFilter <- .check_filter(config$labkey.url.base, 
                                      config$labkey.url.path, 
                                      "study", x, viewName, colFilter)
-          data_cache[[filter_state]] <<- TRUE 
+          cache <- FALSE
         } else{
-          data_cache[[filter_state]] <<- FALSE
+          cache <- TRUE
         }
-        data_cache[[cache_name]] <<- data.table(
+        data <- data.table(
           labkey.selectRows(baseUrl = config$labkey.url.base,
                             config$labkey.url.path,
                             schemaName = "study",
@@ -63,9 +80,45 @@
                             colNameOpt = "caption",
                             colFilter = colFilter,
                             ...))
-        setnames(data_cache[[cache_name]],
-                 .self$.munge(colnames(data_cache[[cache_name]])))
-        data_cache[[cache_name]]
+        setnames(data, .self$.munge(colnames(data)))
+        if(cache){
+          data_cache[[cache_name]] <<- data
+        }
+        return(data)
       }
     }
+  #    cache_name <- paste0(x, ifelse(original_view, "_full", ""))
+  #    filter_state <- paste0("filter_state_", cache_name)
+  #    if(!is.null(data_cache[[cache_name]]) &
+  #       !reload &
+  #       is.null(colFilter) &
+  #       (is.null(data_cache[[filter_state]]) || !data_cache[[filter_state]])){
+  #      data_cache[[cache_name]]
+  #    } else{
+  #      viewName <- NULL
+  #      if(original_view){
+  #        viewName <- "full"
+  #      }
+  #      if(!is.null(colFilter)){
+  #        colFilter <- .check_filter(config$labkey.url.base, 
+  #                                   config$labkey.url.path, 
+  #                                   "study", x, viewName, colFilter)
+  #        data_cache[[filter_state]] <<- TRUE 
+  #      } else{
+  #        data_cache[[filter_state]] <<- FALSE
+  #      }
+  #      data_cache[[cache_name]] <<- data.table(
+  #        labkey.selectRows(baseUrl = config$labkey.url.base,
+  #                          config$labkey.url.path,
+  #                          schemaName = "study",
+  #                          queryName = x,
+  #                          viewName = viewName,
+  #                          colNameOpt = "caption",
+  #                          colFilter = colFilter,
+  #                          ...))
+  #      setnames(data_cache[[cache_name]],
+  #               .self$.munge(colnames(data_cache[[cache_name]])))
+  #      data_cache[[cache_name]]
+  #    }
+  #  }
   })

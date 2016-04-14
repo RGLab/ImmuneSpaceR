@@ -1,8 +1,12 @@
-#' Load an ImmuneSpaceConnection object from disk
+#' Save/Load an ImmuneSpaceConnection object from disk
+#' 
+#' Connection can hold a lot of data in cache. If a lot of work has 
+#' been done (e.g: lots of downloaded datasets and gene-expression matrices),
+#' it can be useful to save the connection for later or even offline use.
 #' 
 #' @rdname loadConnection
 #' 
-#' @param file the file name to be saved to or loaded from
+#' @param file The file name to be saved to or loaded from
 #' @return An ImmuneSpaceConnection object
 loadConnection <- function(file){
   con <- readRDS(file = file)
@@ -17,8 +21,6 @@ loadConnection <- function(file){
   con
 }
 
-#' Save an ImmuneSpaceConnection object to disk
-#' 
 #' @param con An \code{ImmuneSpaceConnection}. The connection to save to file. 
 #'  To be loaded later using \code{loadConnection}.
 #' 
@@ -46,7 +48,9 @@ ISpalette <- function(n){
 
 #' theme_IS
 #' 
-#' Theme that matches ImmuneSpace's graphic style.
+#' Theme that matches ImmuneSpace's graphic style. The theme modifies the 
+#' background, the grid lines, the axis, and the colors used by continuous and
+#' gradient scales.
 #' 
 #' @param base_size A \code{numeric}. Base font size.
 #' 
@@ -91,4 +95,28 @@ theme_IS <- function(base_size = 12) {
     names(scale_updates),
     scale_updates
   )
+}
+
+#' Check netrc file
+#' 
+#' Check that there is a netrc file with a valid entry for ImmuneSpace.
+#' 
+#' @export
+check_netrc <- function(){
+  if(exists("labkey.netrc.file", .GlobalEnv)){
+    netrc_file <- labkey.netrc.file
+  } else{
+    netrc_file <- "~/.netrc"
+  }
+  if(!file.exists(netrc_file)){
+    stop("There is no netrc file")
+  } else{
+    print(paste("netrc file found at", netrc_file))
+  }
+  lines <- readLines(netrc_file)
+  lines <- gsub("http.*//", "", lines)
+  if(length(grep("machine\\swww.immunespace.org", lines)) == 0){
+    stop("No entry found for www.immunespace.org in the netrc file.")
+  }
+  print("The netrc looks valid.")
 }

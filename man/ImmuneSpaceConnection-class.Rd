@@ -80,7 +80,7 @@ gene-expression data.}
     reload: A logical. Clear the cache. If set to TRUE, download the dataset,
     whether a cached version exist or not.
 
-    colFiler: A character. A filter as returned by Rlabkey's makeFilter function.
+    colFilter: A character. A filter as returned by Rlabkey's makeFilter function.
 
     '...': Extra arguments to be passed to labkey.selectRows.}
 

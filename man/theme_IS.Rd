@@ -13,7 +13,9 @@ theme_IS(base_size = 12)
 A theme object
 }
 \description{
-Theme that matches ImmuneSpace's graphic style.
+Theme that matches ImmuneSpace's graphic style. The theme modifies the 
+background, the grid lines, the axis, and the colors used by continuous and
+gradient scales.
 }
 \examples{
 library(ggplot2)

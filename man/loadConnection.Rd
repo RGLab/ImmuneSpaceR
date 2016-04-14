@@ -3,7 +3,7 @@
 \name{loadConnection}
 \alias{loadConnection}
 \alias{saveConnection}
-\title{Load an ImmuneSpaceConnection object from disk}
+\title{Save/Load an ImmuneSpaceConnection object from disk}
 \usage{
 loadConnection(file)
 
@@ -19,8 +19,8 @@ To be loaded later using \code{loadConnection}.}
 An ImmuneSpaceConnection object
 }
 \description{
-Load an ImmuneSpaceConnection object from disk
-
-Save an ImmuneSpaceConnection object to disk
+Connection can hold a lot of data in cache. If a lot of work has 
+been done (e.g: lot's of downloaded datasets and gene-expression matrices),
+it can be useful to save the connection for later or offline use.
 }
 
