@@ -10,7 +10,7 @@ loadConnection(file)
 saveConnection(con, file)
 }
 \arguments{
-\item{file}{the file name to be saved to or loaded from}
+\item{file}{The file name to be saved to or loaded from}
 
 \item{con}{An \code{ImmuneSpaceConnection}. The connection to save to file. 
 To be loaded later using \code{loadConnection}.}
@@ -20,7 +20,15 @@ An ImmuneSpaceConnection object
 }
 \description{
 Connection can hold a lot of data in cache. If a lot of work has 
-been done (e.g: lot's of downloaded datasets and gene-expression matrices),
-it can be useful to save the connection for later or offline use.
+been done (e.g: lots of downloaded datasets and gene-expression matrices),
+it can be useful to save the connection for later or even offline use.
+}
+\examples{
+#Sample saved connection with pre-downloaded expression matrices and datasets
+saved <- system.file("extdata/saved_con.rds", package = "ImmuneSpaceR")
+new_con <- loadConnection(saved)
+new_con
+names(new_con$data_cache)
+
 }
 

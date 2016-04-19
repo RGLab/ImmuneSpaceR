@@ -1,15 +1,14 @@
 Package: ImmuneSpaceR
 Type: Package
 Title: A Thin Wrapper around the ImmuneSpace Database
-Version: 0.99.5
+Version: 0.99.6
 Date: 2014-06-12
 Author: Greg Finak, Renan Sauteraud, Mike Jiang, Gil Guday
 Maintainer: Renan Sauteraud <rsautera@fhcrc.org>
 VignetteBuilder: knitr
-Description: Provides a convenient API for accessing data sets within 
-    ImmuneSpace, the data repository and analysis platform of the Human 
-    Immunology Project Consortium (HIPC). The portal is available at 
-    www.immunespace.org.
+Description: Provides a convenient API for accessing data sets within
+    ImmuneSpace (www.immunespace.org), the data repository and analysis platform
+    of the Human Immunology Project Consortium (HIPC).
 biocViews: DataImport, DataRepresentation, ThirdPartyClient
 URL: https://github.com/RGLab/ImmuneSpaceR
 BugReports: https://github.com/RGLab/ImmuneSpaceR/issues
@@ -18,11 +17,9 @@ Suggests:
     knitr,
     rmarkdown,
     testthat
-Depends:
 Imports:
     methods,
     data.table,
-    affy,
     RCurl,
     Rlabkey (>= 2.1.127),
     Biobase,
@@ -31,11 +28,8 @@ Imports:
     scales,
     stats,
     gtools,
-    tools,
     gplots,
-    reshape2,
-    preprocessCore,
-    GEOquery
+    reshape2
 Collate:
     'CreateConnection.R'
     'ImmuneSpace.R'

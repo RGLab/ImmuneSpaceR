@@ -2,11 +2,19 @@
 #' 
 #' Connection can hold a lot of data in cache. If a lot of work has 
 #' been done (e.g: lots of downloaded datasets and gene-expression matrices),
-#' it can be useful to save the connection for later or even offline use.
-#' 
-#' @rdname loadConnection
+#' it can be useful to save the connection for later work or even offline use.
 #' 
 #' @param file The file name to be saved to or loaded from
+#' 
+#' @examples
+#' #Sample saved connection with pre-downloaded expression matrices and datasets
+#' saved <- system.file("extdata/saved_con.rds", package = "ImmuneSpaceR")
+#' new_con <- loadConnection(saved)
+#' new_con
+#' names(new_con$data_cache)
+#' 
+#' @rdname loadConnection
+#' @export
 #' @return An ImmuneSpaceConnection object
 loadConnection <- function(file){
   con <- readRDS(file = file)
@@ -25,6 +33,7 @@ loadConnection <- function(file){
 #'  To be loaded later using \code{loadConnection}.
 #' 
 #' @rdname loadConnection
+#' @export
 saveConnection <- function(con, file){
   saveRDS(con, file = file)
 }

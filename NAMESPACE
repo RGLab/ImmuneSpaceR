@@ -3,6 +3,8 @@
 export(CreateConnection)
 export(ISpalette)
 export(check_netrc)
+export(loadConnection)
+export(saveConnection)
 export(theme_IS)
 exportClasses(ImmuneSpaceConnection)
 import(Biobase)

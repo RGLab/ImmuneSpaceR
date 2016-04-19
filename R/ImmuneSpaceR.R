@@ -36,5 +36,6 @@ globalVariables(c("biosample_accession",
                 "PROBE_ID",
                 "geo_accession",
                 "expsample_accession",
-                "feature_id"
+                "feature_id",
+                "labkey.netrc.file"
                 ))
