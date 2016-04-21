@@ -72,7 +72,7 @@ dat_vn <- merge(vn, pb, by = "participant_id", allow.cartesian = TRUE)
 Figure 2 A: Correlation between the absolute number of plasmablasts and plasma
 Bcells 7 days after vaccination with and fold-increase of HI titers from baseline
 to day 30 after vaccination.
-```{r HAI, dev='CairoPNG'}
+```{r HAI, dev='png'}
 ggplot(dat_hai, aes(x = population_cell_number, y = response)) +
   geom_point() + geom_smooth(method = "lm") +
   facet_grid(virus~population_name_reported, scale = "free") +
@@ -82,7 +82,7 @@ ggplot(dat_hai, aes(x = population_cell_number, y = response)) +
 Figure 2 B: Correlation between the absolute number of plasmablasts and plasma
 Bcells 7 days after vaccination with and fold-increase of VN titers from baseline
 to day 30 after vaccination.
-```{r VN, dev='CairoPNG'}
+```{r VN, dev='png'}
 ggplot(dat_vn, aes(x = population_cell_number, y = response)) +
   geom_point() + geom_smooth(method = "lm") +
   facet_grid(virus~population_name_reported, scale = "free") +

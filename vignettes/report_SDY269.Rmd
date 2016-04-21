@@ -77,7 +77,7 @@ dt_all <- dt_hai[dt_fcs, nomatch=0][dt_elispot, nomatch=0]
 
 
 The figure below shows the absolute number of plasmablast cells measured by flow cytometry vs. the number of frequency of influenza-specific cells measured by ELISPOT. 
-```{r plot1, dev='CairoPNG'}
+```{r plot1, dev='png'}
 ggplot(dt_all, aes(x=as.double(fcs_response), y=elispot_response, color=cohort)) +
   geom_point() + scale_y_log10() + scale_x_log10() + geom_smooth(method="lm") +
   xlab("Total plasmablasts (%)") + ylab("Influenza specific cells\n (per 10^6 PBMCs)") +
@@ -85,7 +85,7 @@ ggplot(dt_all, aes(x=as.double(fcs_response), y=elispot_response, color=cohort))
 ```
 
 The figure below shows the HAI fold increase over baseline vs. the number of frequency of influenza-specific cells measured by ELISPOT. 
-```{r plot2, dev='CairoPNG'}
+```{r plot2, dev='png'}
 ggplot(dt_all, aes(x=as.double(hai_response), y=elispot_response, color=cohort)) +
   geom_point() + scale_x_continuous(trans="log2") + scale_y_log10() +
   geom_smooth(method="lm") + xlab("HAI fold") +

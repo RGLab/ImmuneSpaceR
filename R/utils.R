@@ -12,6 +12,9 @@
 #' new_con <- loadConnection(saved)
 #' new_con
 #' names(new_con$data_cache)
+#' \dontrun{
+#'   saveConnection(new_con, tempfile())
+#' }
 #' 
 #' @rdname loadConnection
 #' @export
@@ -65,6 +68,16 @@ ISpalette <- function(n){
 #' 
 #' @return A theme object
 #' 
+#' @details
+#' List of modified ggplot2 elements: \code{panel.background},
+#' \code{panel.grid.major}, \code{panel.grid.minor}, \code{axis.ticks},
+#' \code{axis.line.x}, \code{axis.line.y}, \code{plot.title}, and
+#' \code{strip.background}.
+#' 
+#' The default \code{scale_fill_gradient}, \code{scale_fill_continuous},
+#' \code{scale_colour_gradient} and \code{scale_colour_continous} are also
+#' replaced by a custom scale.
+#' 
 #' @importFrom ggplot2 theme theme_classic element_line element_text element_rect
 #' @importFrom ggplot2 continuous_scale rel
 #' @export
@@ -104,28 +117,4 @@ theme_IS <- function(base_size = 12) {
     names(scale_updates),
     scale_updates
   )
-}
-
-#' Check netrc file
-#' 
-#' Check that there is a netrc file with a valid entry for ImmuneSpace.
-#' 
-#' @export
-check_netrc <- function(){
-  if(exists("labkey.netrc.file", .GlobalEnv)){
-    netrc_file <- labkey.netrc.file
-  } else{
-    netrc_file <- "~/.netrc"
-  }
-  if(!file.exists(netrc_file)){
-    stop("There is no netrc file")
-  } else{
-    print(paste("netrc file found at", netrc_file))
-  }
-  lines <- readLines(netrc_file)
-  lines <- gsub("http.*//", "", lines)
-  if(length(grep("machine\\swww.immunespace.org", lines)) == 0){
-    stop("No entry found for www.immunespace.org in the netrc file.")
-  }
-  print("The netrc looks valid.")
 }

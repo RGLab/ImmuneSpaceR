@@ -17,6 +17,16 @@ Theme that matches ImmuneSpace's graphic style. The theme modifies the
 background, the grid lines, the axis, and the colors used by continuous and
 gradient scales.
 }
+\details{
+List of modified ggplot2 elements: \code{panel.background},
+\code{panel.grid.major}, \code{panel.grid.minor}, \code{axis.ticks},
+\code{axis.line.x}, \code{axis.line.y}, \code{plot.title}, and
+\code{strip.background}.
+
+The default \code{scale_fill_gradient}, \code{scale_fill_continuous},
+\code{scale_colour_gradient} and \code{scale_colour_continous} are also
+replaced by a custom scale.
+}
 \examples{
 library(ggplot2)
 p <- ggplot(data = mtcars) + geom_point(aes(x = mpg, y = cyl, color = hp)) + facet_grid(vs ~ am)

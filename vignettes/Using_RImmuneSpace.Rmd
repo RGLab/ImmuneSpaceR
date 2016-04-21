@@ -150,7 +150,7 @@ A quick plot of a data set can be generated using the `quick_plot` function.
 `quick_plot` automatically chooses the type of plot depending on the selected 
 dataset.
 
-```{r, dev='CairoPNG', fig.width=15}
+```{r, dev='png', fig.width=15}
 sdy269$quick_plot("hai")
 
 sdy269$quick_plot("elisa")
@@ -185,7 +185,7 @@ Likewise, `quick_plot` will plot accross studies. Note that in most cases the
 datasets will have too many cohorts/subjects, making the filtering of the data
 a necessity. The `colFilter` argument can be used here, as described in the 
 `getDataset` section.
-```{r cross-connection-qplot, dev='CairoPNG', fig.align="center"}
+```{r cross-connection-qplot, dev='png', fig.align="center"}
 plotFilter <- makeFilter(c("cohort", "IN", "TIV 2010;TIV Group 2008"))
 con$quick_plot("elispot", filter = plotFilter)
 ```

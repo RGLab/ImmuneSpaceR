@@ -64,7 +64,7 @@ dt_fcs19_median <- dt_fcs19[, .(median_cell_reported = median(as.double(populati
 ```
 
 #### Flow cytometry vs. elispot
-```{r, dev='CairoPNG'}
+```{r, dev='png'}
 ggplot(dt_fcs19, aes(x = as.factor(study_time_collected), y = as.double(population_cell_number) + 1)) +
   geom_boxplot() + geom_jitter() + scale_y_log10() + facet_grid(cohort~population_name_reported, 
   scale = "free") + xlab("Time") + ylab(expression(paste("Number of cells/", mu, "l"))) + 
