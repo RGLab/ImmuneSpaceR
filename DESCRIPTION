@@ -1,7 +1,7 @@
 Package: ImmuneSpaceR
 Type: Package
 Title: A Thin Wrapper around the ImmuneSpace Database
-Version: 1.1.0
+Version: 1.1.1
 Date: 2014-06-12
 Author: Greg Finak, Renan Sauteraud, Mike Jiang, Gil Guday
 Maintainer: Renan Sauteraud <rsautera@fhcrc.org>
