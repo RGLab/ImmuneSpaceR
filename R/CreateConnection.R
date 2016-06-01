@@ -64,9 +64,9 @@ CreateConnection = function(study = NULL, login = NULL, password = NULL, verbose
     nf <- try(get("labkey.netrc.file", .GlobalEnv), silent = TRUE)
   }
   if(!inherits(nf, "try-error") && !is.null(nf)){
-    curlOptions <- labkey.setCurlOptions(ssl.verifyhost = 2, sslversion = 1, netrc.file = nf)
+    curlOptions <- labkey.setCurlOptions(ssl.verifyhost = 2, sslversion = 1, netrc.file = nf, useragent = "ImmuneSpaceR connection")
   } else{
-    curlOptions <- labkey.setCurlOptions(ssl.verifyhost = 2, sslversion = 1)
+    curlOptions <- labkey.setCurlOptions(ssl.verifyhost = 2, sslversion = 1, useragent = "ImmuneSpaceR connection")
   }
   
   if(length(study) <= 1){
