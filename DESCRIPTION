@@ -14,10 +14,30 @@ biocViews: DataImport, DataRepresentation, ThirdPartyClient
 URL: https://github.com/RGLab/ImmuneSpaceR
 BugReports: https://github.com/RGLab/ImmuneSpaceR/issues
 License: GPL-2
-Suggests: knitr, rmarkdown, testthat
-Imports: methods, data.table, RCurl, Rlabkey (>= 2.1.127), Biobase,
-        pheatmap, ggplot2, scales, stats, gtools, gplots, reshape2
-Collate: 'CreateConnection.R' 'ImmuneSpace.R' 'ImmuneSpaceR.R'
-        'getDataset.R' 'getGEMatrix.R' 'quick_plot.R' 'utils.R' 'zzz.R'
+Suggests:
+    knitr,
+    rmarkdown,
+    testthat
+Imports:
+    methods,
+    data.table,
+    RCurl,
+    Rlabkey (>= 2.1.127),
+    Biobase,
+    pheatmap,
+    ggplot2,
+    scales,
+    stats,
+    gtools,
+    gplots,
+    reshape2
+Collate:
+    'CreateConnection.R'
+    'ImmuneSpace.R'
+    'ImmuneSpaceR.R'
+    'getDataset.R'
+    'getGEMatrix.R'
+    'quick_plot.R'
+    'utils.R'
+    'zzz.R'
 RoxygenNote: 5.0.1.9000
-NeedsCompilation: no

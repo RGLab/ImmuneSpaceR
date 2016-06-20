@@ -5,6 +5,11 @@
 #' @title CreateConnection
 #' @name CreateConnection
 #' @param study A \code{"character"} vector naming the study.
+#' @param login A \code{"character"}. Optional argument. If there is no netrc
+#'  file a temporary one can be written by passing login and password of an 
+#'  active ImmuneSpace account.
+#' @param password A \code{"character"}. Optional. The password for the selected
+#'  login.
 #' @param verbose A \code{"logical"} whether to print the extra details for 
 #' troubleshooting. 
 #' @description Constructor for \code{ImmuneSpaceConnection} class
@@ -29,7 +34,7 @@
 #'   print("Read the Introduction vignette for more information on how to set up
 #'   a .netrc file.")
 #' }
-CreateConnection = function(study = NULL, verbose = FALSE){
+CreateConnection = function(study = NULL, login = NULL, password = NULL, verbose = FALSE){
   # Try to parse labkey options from global environment 
   # which really should have been done through option()/getOption() mechanism
   # Here we do this to be compatible to labkey online report system 
@@ -53,11 +58,15 @@ CreateConnection = function(study = NULL, verbose = FALSE){
   # (Ideally labkey.selectRows should optionally parse the options from its argument besides package environment)
   # 
   # for now we assume they all share the same setting and init it only once here
-  nf <- try(get("labkey.netrc.file", .GlobalEnv), silent = TRUE)
-  if(!inherits(nf, "try-error") && !is.null(nf)){
-    curlOptions <- labkey.setCurlOptions(ssl.verifyhost = 2, sslversion = 1, netrc.file = nf)
+  if(!is.null(login) & !is.null(password)){
+    nf <- write_netrc(login, password)
   } else{
-    curlOptions <- labkey.setCurlOptions(ssl.verifyhost = 2, sslversion = 1)
+    nf <- try(get("labkey.netrc.file", .GlobalEnv), silent = TRUE)
+  }
+  if(!inherits(nf, "try-error") && !is.null(nf)){
+    curlOptions <- labkey.setCurlOptions(ssl.verifyhost = 2, sslversion = 1, netrc.file = nf, useragent = "ImmuneSpaceR connection")
+  } else{
+    curlOptions <- labkey.setCurlOptions(ssl.verifyhost = 2, sslversion = 1, useragent = "ImmuneSpaceR connection")
   }
   
   if(length(study) <= 1){
