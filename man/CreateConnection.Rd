@@ -4,10 +4,18 @@
 \alias{CreateConnection}
 \title{CreateConnection}
 \usage{
-CreateConnection(study = NULL, verbose = FALSE)
+CreateConnection(study = NULL, login = NULL, password = NULL,
+  verbose = FALSE)
 }
 \arguments{
 \item{study}{A \code{"character"} vector naming the study.}
+
+\item{login}{A \code{"character"}. Optional argument. If there is no netrc
+file a temporary one can be written by passing login and password of an 
+active ImmuneSpace account.}
+
+\item{password}{A \code{"character"}. Optional. The password for the selected
+login.}
 
 \item{verbose}{A \code{"logical"} whether to print the extra details for 
 troubleshooting.}
