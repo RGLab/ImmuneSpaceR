@@ -34,7 +34,7 @@
 #'   print("Read the Introduction vignette for more information on how to set up
 #'   a .netrc file.")
 #' }
-CreateConnection = function(study = NULL, login = NULL, password = NULL, verbose = FALSE){
+CreateConnection = function(study = NULL, login = NULL, password = NULL, use.data.frame = FALSE, verbose = FALSE){
   # Try to parse labkey options from global environment 
   # which really should have been done through option()/getOption() mechanism
   # Here we do this to be compatible to labkey online report system 
@@ -73,6 +73,7 @@ CreateConnection = function(study = NULL, login = NULL, password = NULL, verbose
     .CreateConnection(study = study
                       , labkey.url.base = labkey.url.base
                       , labkey.user.email = labkey.user.email
+                      , use.data.frame = use.data.frame
                       , verbose = verbose
                       , curlOptions = curlOptions
                       )
@@ -85,6 +86,7 @@ CreateConnection = function(study = NULL, login = NULL, password = NULL, verbose
 .CreateConnection = function(study = NULL
                              , labkey.url.base
                              , labkey.user.email
+                             , use.data.frame
                              , curlOptions
                              , verbose
                              , ...){
@@ -97,11 +99,16 @@ CreateConnection = function(study = NULL, login = NULL, password = NULL, verbose
   }else if(!is.null(study)){
     labkey.url.path <- file.path(dirname(labkey.url.path),study)
   }
+  if(!is(use.data.frame, "logical")){
+    warning("use.data.frame should be of class `logical`. Setting it to FALSE.")
+    use.data.frame <- FALSE
+  }
   config <- list(labkey.url.base = labkey.url.base,
-                  labkey.url.path = labkey.url.path,
-                  labkey.user.email = labkey.user.email,
-                  curlOptions = curlOptions,
-                  verbose = verbose)
+                 labkey.url.path = labkey.url.path,
+                 labkey.user.email = labkey.user.email,
+                 use.data.frame = use.data.frame,
+                 curlOptions = curlOptions,
+                 verbose = verbose)
   
   .ISCon(config = config)
 }
