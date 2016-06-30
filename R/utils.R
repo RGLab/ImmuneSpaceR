@@ -118,27 +118,3 @@ theme_IS <- function(base_size = 12) {
     scale_updates
   )
 }
-
-#' Write a netrc file
-#'
-#' Write a netrc file that is valid for accessing ImmuneSpace
-#' 
-#' @param login A \code{character}. The email address used for loging in on
-#'  ImmuneSpace.
-#' @param password A \code{character}. The password associated with the login.
-#' @param file A \code{character}. The credentials will be written into that
-#'  file. If left NULL, the netrc will be written into a temporary file.
-#' @export
-#' @examples 
-#' write_netrc("immunespaceuser@gmail.com", "mypassword")
-#' 
-write_netrc <- function(login, password, file = NULL){
-  string <- paste("machine www.immunespace.org login", login, "password", password)
-  if(is.null(file)){
-    file <- tempfile()
-  } else if(file.exists(file)){
-    stop("The file you are trying to write to already exists. Remove manually if you wish to overwrite.")
-  }
-  write(string, file)
-  return(file)
-}
