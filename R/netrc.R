@@ -1,7 +1,7 @@
 #' Write a netrc file
 #'
 #' Write a netrc file that is valid for accessing ImmuneSpace
-#' 
+#'
 #' @param login A \code{character}. The email address used for loging in on
 #'  ImmuneSpace.
 #' @param password A \code{character}. The password associated with the login.
@@ -10,7 +10,7 @@
 #' @export
 #' @examples 
 #' write_netrc("immunespaceuser@gmail.com", "mypassword")
-#' 
+#'
 write_netrc <- function(login, password, file = NULL){
   string <- paste("machine www.immunespace.org login", login, "password", password)
   if(is.null(file)){
@@ -23,18 +23,18 @@ write_netrc <- function(login, password, file = NULL){
 }
 
 #' @title Check netrc file
-#' 
+#'
 #' Check that there is a netrc file with a valid entry for ImmuneSpace.
-#' 
+#'
 #' @return The name of the netrc file
-#' 
+#'
 #' @details
 #' In order to connect to ImmuneSpace, you will need a `.netrc` file in your 
 #' contains a `machine` name (hostname of ImmuneSpace), and `login` and 
 #' `password`. See [here](https://www.labkey.org/wiki/home/Documentation/page.view?name=netrc) 
 #' for more information. By default \code{RCurl} will look for the file in your
 #' home directoty.
-#' 
+#'
 #' If no netrc is available or it is not formatted properly, \code{write_netrc}
 #' can be used to write one. Otherwise, when specifying login and password in
 #' \code{CreateConnection}, a temporary file will be created for that connection.
@@ -42,7 +42,7 @@ write_netrc <- function(login, password, file = NULL){
 #' @seealso CreateConnection write_netrc
 #' @examples
 #' try(check_netrc())
-#' 
+#'
 #' @export
 check_netrc <- function(){
   if(exists("labkey.netrc.file", .GlobalEnv)){

@@ -95,6 +95,7 @@
 )
 .ISCon$methods(
     show=function(){
+    "Display information about the object."
       cat(sprintf("Immunespace Connection to study %s\n",study))
       cat(sprintf("URL: %s\n",file.path(gsub("/$","",config$labkey.url.base),gsub("^/","",config$labkey.url.path))))
       cat(sprintf("User: %s\n",config$labkey.user.email))
