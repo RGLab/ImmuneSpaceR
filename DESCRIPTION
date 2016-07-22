@@ -1,10 +1,10 @@
 Package: ImmuneSpaceR
 Type: Package
 Title: A Thin Wrapper around the ImmuneSpace Database
-Version: 1.1.9
+Version: 1.1.10
 Date: 2014-06-12
 Author: Greg Finak, Renan Sauteraud, Mike Jiang, Gil Guday
-Maintainer: Renan Sauteraud <rsautera@fhcrc.org>
+Maintainer: Renan Sauteraud <renan.sauteraud@gmail.com>
 VignetteBuilder: knitr
 Description: Provides a convenient API for accessing data sets within
     ImmuneSpace (www.immunespace.org), the data repository and
