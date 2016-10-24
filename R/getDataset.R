@@ -69,6 +69,8 @@ filter_cached_copy <- function(filters, data){
                                      config$labkey.url.path, 
                                      "study", x, viewName, colFilter)
           cache <- FALSE
+        } else if(length(nOpts) > 0){
+          cache <- FALSE
         } else{
           cache <- TRUE
         }
