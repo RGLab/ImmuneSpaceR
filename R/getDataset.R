@@ -51,7 +51,8 @@ filter_cached_copy <- function(filters, data){
       NULL
     } else{
       cache_name <- paste0(x, ifelse(original_view, "_full", ""))
-      if(!is.null(data_cache[[cache_name]]) & !reload & is.null(colFilter)){ # Serve cache
+      nOpts <- length(list(...))
+      if(!is.null(data_cache[[cache_name]]) & !reload & is.null(colFilter) & nOpts == 0){ # Serve cache
         data <- data_cache[[cache_name]]
         #if(!is.null(colFilter)){
         #  data <- filter_cached_copy(colFilter, data)
