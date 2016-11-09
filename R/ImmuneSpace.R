@@ -146,7 +146,7 @@
       } else{
         res <- sapply(links, url.exists, netrc = TRUE)
       }
-      print(paste0(length(res[res]), "/", length(res), "gene expression files with valid links."))
+      print(paste0(length(res[res]), "/", length(res), " gene expression files with valid links."))
       ret$gene_expression_files <- res
     }
     if("fcs" %in% what){
@@ -160,7 +160,7 @@
       } else{
         res <- sapply(links, url.exists, netrc = TRUE)
       }
-      print(paste0(length(res[res]), "/", length(res), "FCS files with valid links."))
+      print(paste0(length(res[res]), "/", length(res), " FCS files with valid links."))
       ret$fcs <- res
     }
     if("protocol" %in% what){
