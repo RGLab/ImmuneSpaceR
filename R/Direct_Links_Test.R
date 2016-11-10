@@ -55,20 +55,26 @@ get_data <- function(filetype, filename_col,link_text){
   # test link and output to temp table
   Results <- mapply(test_link, Sdyids, Filenames, link_text)
   
-  # merge temp table with comb df as third column
-  #final_df <- cbind(Sdyids,Filenames,Results)
+  # Edit results list to have only 1 set, not 3!!!
+  # TODO: Results_sliced <- lapply()
+  
+  # merge info into
+  final_df <- cbind(Sdyids,Filenames,Results)
   
   # return table
-  return(Results)
+  return(final_df)
 }
 
   
 
 #fcs_table <- get_data("fcs_sample_files","File Info Name","fcs")
+starttime <- strftime(Sys.time(),format = "%T")
 gene_expr_table <- get_data("gene_expression_files","File Info Name","gene_expression")
+endtime <- strftime(Sys.time(),format = "%T")
 
-#sorted_ge <- gene_expr_table[order(Results),]
-#sort by result
+num_rows <- nrow(gene_expr_table)
+bad_ge_links <- gene_expr_table[which (gene_expr_table$Results != 200), ]
+
 
 #TODO: figure out protocols ... different method of data extraction?
 
@@ -76,7 +82,7 @@ gene_expr_table <- get_data("gene_expression_files","File Info Name","gene_expre
 ts <-paste(format(Sys.time(), "%Y_%m_%d %T"), "pdf", sep = ".")
 pdfname <- paste0("Test_IS_Links_", ts)
 pdf(pdfname)
-grid.table(gene_expr_table)
+grid.table(bad_ge_links)
 dev.off()
 
 
