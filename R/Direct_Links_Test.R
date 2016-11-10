@@ -2,21 +2,42 @@
 # ImmuneSpace Test Script
 # Last Updated: 11/8/2016
 
-# Purpose: Ensure all links work correctly
+# Purpose: Ensure all links for gene expression, fcs, and protocols
+# work correctly for ImmuneSpace, both test / production
+
+#--------Requirements--------------------------------------
+require(Rlabkey)
 require(plyr)
 require(grid)
 require(gridExtra)
 require(httr)
 
+#---------Helper-Functions-----------------------------------
+# Pull data from labkey
+get_data <- function(filetype){
+  df <- labkey.selectRows(baseUrl = "https://www.immunespace.org",
+                          "/Studies",
+                          schemaName = "study",
+                          queryName = filetype,
+                          colNameOpt = "caption")
+  return(df)
+}
 
-#splitting function for SDYID
+# splitting function for SDYID
 get_sdyid <- function(subjectid){
   id_table <- read.table(text = subjectid, sep = ".", as.is = T, fill = T)
   sdyid <- id_table[1,2]
 }
 
-# test link function
-test_link <- function(study_id,filename,link_text){
+# parse SDYids into a list so they can be merged easily later
+parse_ids <- function(raw_data_file){
+  Sdyids <- apply(MARGIN=1, raw_data_file, FUN = function(x) get_sdyid(x))
+  return(Sdyids)
+}
+
+# Test a link and pass errors / warnings (b/c timeout is a problem for some reason)
+link_test <- function(study_id,filename,link_text){
+  result <- "init"
   
   if(is.na(filename)){
     result <- "NA"
@@ -24,66 +45,69 @@ test_link <- function(study_id,filename,link_text){
     result <- "NA"
   }else{
     link <- paste0("https://www.immunespace.org/_webdav/Studies/SDY",study_id,"/@files/rawdata/",link_text,"/",filename) 
-    tryCatch({
-      status <- GET(link)
-      result <- status$status_code
+    result <- tryCatch({
+      info <- GET(link)
+      status <- info$status_code
+      return(status)
     },
     error = function(e){
-      result <- "Error Occurred in GET(link)"
+      return(e)
     },
     warning = function(w){
-      message(w)
+      return(w)
     })
   }
   return(result)
 }
 
-# Pull data from labkey
-get_data <- function(filetype, filename_col,link_text){
-  df <- labkey.selectRows(baseUrl = "https://www.immunespace.org",
-                         "/Studies",
-                         schemaName = "study",
-                         queryName = filetype,
-                         colNameOpt = "caption")
+# Parse link test results into list for merging
+parse_results <- function(Link_Test_Results){
+  final_Res_List = list()
+  for(i in Link_Test_Results){
+    final_Res_List[i] <- Link__Test_Results[[i]]
+  }
+  return(final_Res_List)
+} 
+
+# does analysis and outputs table of just bad links with SDYID / filename
+analyzer <- function(info_set){
+  files <- info_set[1]
+  filename_col <- info_set[2]
+  link_text <- info_set[3]
   
-  # get SDY ids into a table
-  Sdyids <- apply(MARGIN=1, df, FUN = function(x) get_sdyid(x))
+  raw_data <- get_data(files)
+  Sdyids <- parse_ids(raw_data)
+  Filenames <- raw_data[ , filename_col]
+  Link_Test_Results <- mapply(link_test, Filenames, Sdyids, link_text)
+  final_Res_List <- parse_results(Link_Test_Results)
+  final_df <- cbind(Sdyids,Filenames,final_Res_List)
   
-  # get filenames into separate table / list
-  Filenames <- df[filename_col]
+  num_rows <- nrow(final_df)
+  bad_links_table <- final_df[which (final_df$Results != 200), ]
   
-  # test link and output to temp table
-  Results <- mapply(test_link, Sdyids, Filenames, link_text)
-  
-  # Edit results list to have only 1 set, not 3!!!
-  # TODO: Results_sliced <- lapply()
-  
-  # merge info into
-  final_df <- cbind(Sdyids,Filenames,Results)
-  
-  # return table
-  return(final_df)
+  return(bad_links_table)
 }
 
+# Gathers performance info and packages with bad links table for pdf output
+bad_links_to_pdf <- function(name, info_set){
+  start <- strftime(Sys.time(),format = "%T")
+  bad_links <- analyzer(info_set)
+  end <- strftime(Sys.time(),format = "%T")
   
+  ts <-paste(format(Sys.time(), "%Y_%m_%d %T"), "pdf", sep = ".")
+  pdfname <- paste0(name," ", ts)
+  pdf(pdfname)
+  grid.table(bad_links)
+  dev.off()
+}
 
-#fcs_table <- get_data("fcs_sample_files","File Info Name","fcs")
-starttime <- strftime(Sys.time(),format = "%T")
-gene_expr_table <- get_data("gene_expression_files","File Info Name","gene_expression")
-endtime <- strftime(Sys.time(),format = "%T")
+#-------Execution------------------------------------------
+fcs <- c("fcs_sample_files","File Info Name","fcs")
+ge <- c("gene_expression_files","File Info name","gene_expression")
 
-num_rows <- nrow(gene_expr_table)
-bad_ge_links <- gene_expr_table[which (gene_expr_table$Results != 200), ]
-
+bad_links_to_pdf("Gene Expression",ge)
+bad_links_to_pdf("FCS",fcs)
 
 #TODO: figure out protocols ... different method of data extraction?
-
-# Print tables to pdf
-ts <-paste(format(Sys.time(), "%Y_%m_%d %T"), "pdf", sep = ".")
-pdfname <- paste0("Test_IS_Links_", ts)
-pdf(pdfname)
-grid.table(bad_ge_links)
-dev.off()
-
 
 
