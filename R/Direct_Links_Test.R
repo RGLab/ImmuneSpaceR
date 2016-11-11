@@ -60,15 +60,6 @@ link_test <- function(study_id,filename,link_text){
   return(result)
 }
 
-# Parse link test results into list for merging
-parse_results <- function(Link_Test_Results){
-  final_Res_List = list()
-  for(i in Link_Test_Results){
-    final_Res_List[i] <- Link__Test_Results[[i]]
-  }
-  return(final_Res_List)
-} 
-
 # does analysis and outputs table of just bad links with SDYID / filename
 analyzer <- function(info_set){
   files <- info_set[1]
@@ -78,12 +69,10 @@ analyzer <- function(info_set){
   raw_data <- get_data(files)
   Sdyids <- parse_ids(raw_data)
   Filenames <- raw_data[ , filename_col]
-  Link_Test_Results <- mapply(link_test, Filenames, Sdyids, link_text)
-  final_Res_List <- parse_results(Link_Test_Results)
-  final_df <- cbind(Sdyids,Filenames,final_Res_List)
-  
-  num_rows <- nrow(final_df)
-  bad_links_table <- final_df[which (final_df$Results != 200), ]
+  link_test_results <- mapply(link_test, Filenames, Sdyids, link_text)
+  Link_Status <- unname(link_test_results)
+  final_df <- cbind(Sdyids,Filenames,Link_Status)
+  bad_links_table <- subset(final_dy, Link_Status != "200")
   
   return(bad_links_table)
 }
@@ -94,19 +83,27 @@ bad_links_to_pdf <- function(name, info_set){
   bad_links <- analyzer(info_set)
   end <- strftime(Sys.time(),format = "%T")
   
+  start_string <- paste0(name," run started at: ", start)
+  end_string <- paste0(name," run ended at: ", end)
+  
   ts <-paste(format(Sys.time(), "%Y_%m_%d %T"), "pdf", sep = ".")
   pdfname <- paste0(name," ", ts)
   pdf(pdfname)
   grid.table(bad_links)
   dev.off()
+  
+  print("Run information")
+  print(start_string)
+  print(end_string)
+  print(pdfname)
 }
 
 #-------Execution------------------------------------------
-fcs <- c("fcs_sample_files","File Info Name","fcs")
-ge <- c("gene_expression_files","File Info name","gene_expression")
+#fcs <- c("fcs_sample_files","File Info Name","fcs")
+ge <- c("gene_expression_files","File Info Name","gene_expression")
 
 bad_links_to_pdf("Gene Expression",ge)
-bad_links_to_pdf("FCS",fcs)
+#bad_links_to_pdf("FCS",fcs)
 
 #TODO: figure out protocols ... different method of data extraction?
 
