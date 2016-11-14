@@ -8,9 +8,9 @@
 #--------Requirements--------------------------------------
 require(Rlabkey)
 require(plyr)
-require(grid)
-require(gridExtra)
 require(httr)
+require(parallel)
+require(R2HTML)
 
 #---------Helper-Functions-----------------------------------
 # Pull data from labkey
@@ -27,6 +27,7 @@ get_data <- function(filetype){
 get_sdyid <- function(subjectid){
   id_table <- read.table(text = subjectid, sep = ".", as.is = T, fill = T)
   sdyid <- id_table[1,2]
+  return(sdyid)
 }
 
 # parse SDYids into a list so they can be merged easily later
@@ -36,7 +37,7 @@ parse_ids <- function(raw_data_file){
 }
 
 # Test a link and pass errors / warnings (b/c timeout is a problem for some reason)
-link_test <- function(study_id,filename,link_text){
+link_test <- function(filename,study_id,link_text){
   result <- "init"
   
   if(is.na(filename)){
@@ -69,7 +70,7 @@ analyzer <- function(info_set){
   raw_data <- get_data(files)
   Sdyids <- parse_ids(raw_data)
   Filenames <- raw_data[ , filename_col]
-  link_test_results <- mapply(link_test, Filenames, Sdyids, link_text)
+  link_test_results <- mcmapply(FUN=link_test, filename=Filenames, study_id=Sdyids, link_text=link_text,mc.cores = detectCores())
   Link_Status <- unname(link_test_results)
   final_df <- cbind(Sdyids,Filenames,Link_Status)
   bad_links_table <- subset(final_df, Link_Status != "200")
@@ -87,24 +88,25 @@ bad_links_to_pdf <- function(name, info_set){
   end_string <- paste0(name," run ended at: ", end)
   
   #if badlinks are found ....
-  ts <-paste(format(Sys.time(), "%Y_%m_%d %T"), "pdf", sep = ".")
-  pdfname <- paste0(name," ", ts)
-  pdf(pdfname)
-  grid.table(bad_links)
-  dev.off()
+  if(nrow(bad_links) > 1){
+    ts <-paste(format(Sys.time(), "%Y_%m_%d %T"), "html", sep = ".")
+    htmlname <- paste0(name," ", ts)
+    HTML(bad_links, file=htmlname)
+    print(htmlname)
+  }
   
   print("Run information")
   print(start_string)
   print(end_string)
-  print(pdfname)
+  
 }
 
 #-------Execution------------------------------------------
-#fcs <- c("fcs_sample_files","File Info Name","fcs")
+fcs <- c("fcs_sample_files","File Info Name","fcs")
 ge <- c("gene_expression_files","File Info Name","gene_expression")
 
 bad_links_to_pdf("Gene Expression",ge)
-#bad_links_to_pdf("FCS",fcs)
+bad_links_to_pdf("FCS",fcs)
 
 #TODO: figure out protocols ... different method of data extraction?
 
