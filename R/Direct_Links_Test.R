@@ -72,7 +72,7 @@ analyzer <- function(info_set){
   link_test_results <- mapply(link_test, Filenames, Sdyids, link_text)
   Link_Status <- unname(link_test_results)
   final_df <- cbind(Sdyids,Filenames,Link_Status)
-  bad_links_table <- subset(final_dy, Link_Status != "200")
+  bad_links_table <- subset(final_df, Link_Status != "200")
   
   return(bad_links_table)
 }
@@ -86,6 +86,7 @@ bad_links_to_pdf <- function(name, info_set){
   start_string <- paste0(name," run started at: ", start)
   end_string <- paste0(name," run ended at: ", end)
   
+  #if badlinks are found ....
   ts <-paste(format(Sys.time(), "%Y_%m_%d %T"), "pdf", sep = ".")
   pdfname <- paste0(name," ", ts)
   pdf(pdfname)
