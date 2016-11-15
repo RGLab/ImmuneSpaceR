@@ -20,6 +20,11 @@ get_data <- function(filetype){
                           schemaName = "study",
                           queryName = filetype,
                           colNameOpt = "caption")
+  
+  numrow <- nrow(df)
+  blurb <- paste0("There are ", numrow, " files to check in ", filetype)
+  print(blurb)
+  
   return(df)
 }
 
@@ -39,6 +44,10 @@ parse_ids <- function(raw_data_file){
 # Test a link and pass errors / warnings (b/c timeout is a problem for some reason)
 link_test <- function(filename,study_id,link_text){
   result <- "init"
+  
+  if(grepl(pattern = " ", filename)){
+    filename <- gsub(pattern = " ", replacement = "%20", filename)
+  }
   
   if(is.na(filename)){
     result <- "NA"
@@ -75,6 +84,10 @@ analyzer <- function(info_set){
   final_df <- cbind(Sdyids,Filenames,Link_Status)
   bad_links_table <- subset(final_df, Link_Status != "200")
   
+  numrow <- nrow(bad_links_table)
+  blurb <- paste0("There are ", numrow, " bad links in ", files)
+  print(blurb)
+  
   return(bad_links_table)
 }
 
@@ -95,7 +108,7 @@ bad_links_to_pdf <- function(name, info_set){
     print(htmlname)
   }
   
-  print("Run information")
+  print("Runtime information")
   print(start_string)
   print(end_string)
   
