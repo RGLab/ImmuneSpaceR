@@ -99,12 +99,10 @@ bad_links_to_pdf <- function(name, info_set){
   print(start_string)
   print(end_string)
   
-  return(bad_links)
-  
 }
 
 #-------Execution------------------------------------------
-fcs <- c("fcs_sample_files","File Info Name","flow_cytometry")
+fcs <- c("fcs_sample_files","File Info Name","fcs")
 ge <- c("gene_expression_files","File Info Name","gene_expression")
 
 bad_links_to_pdf("Gene Expression",ge)
