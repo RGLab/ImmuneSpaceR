@@ -10,7 +10,6 @@ require(Rlabkey)
 require(plyr)
 require(httr)
 require(parallel)
-require(R2HTML)
 
 #---------Helper-Functions-----------------------------------
 # Pull data from labkey
@@ -22,8 +21,6 @@ get_data <- function(filetype){
                           colNameOpt = "caption")
   df <- df[!is.na(df$`File Info Name`),]
   df <- df[!duplicated(df$`File Info Name`),]
-  
-  #gef <- unique(gef[, list(study_accession, file_info_name)])
   
   numrow <- nrow(df)
   blurb <- paste0("There are ", numrow, " files to check in ", filetype)
@@ -45,41 +42,22 @@ parse_ids <- function(raw_data_file){
   return(Sdyids)
 }
 
-# Test a link and pass errors / warnings (b/c timeout is a problem for some reason)
+# Test a link with GET b/c url.exists throws FALSE if certain options aren't specified
 link_test <- function(filename,study_id,link_text){
-  result <- "init"
-  
-  if(is.na(filename)){
-    result <- "NA"
-  }else if(filename == "<NA>"){
-    result <- "NA"
-  }else{
+ 
     filename <- URLencode(filename)
     link <- paste0("https://www.immunespace.org/_webdav/Studies/SDY",study_id,"/@files/rawdata/",link_text,"/",filename) 
-    result <- tryCatch({
-      info <- GET(link)
-      status <- info$status_code
-      return(status)
-    },
-    error = function(e){
-      return(e)
-    },
-    warning = function(w){
-      return(w)
-    })
-  }
-  return(result)
+    info <- GET(link)
+    status <- info$status_code
+    return(status)
 }
 
-# does analysis and outputs table of just bad links with SDYID / filename
-analyzer <- function(info_set){
-  files <- info_set[1]
-  filename_col <- info_set[2]
-  link_text <- info_set[3]
+# does analysis and outputs table of just bad links with study id, filename, and error code from GET (impt. for knowing if actual bad link)
+analyzer <- function(files,link_text){
   
   raw_data <- get_data(files)
   sdyids <- parse_ids(raw_data)
-  filenames <- raw_data[ , filename_col]
+  filenames <- raw_data[ , "File Info Name"]
   link_test_results <- mcmapply(FUN=link_test, filename=filenames, study_id=sdyids, link_text=link_text,mc.cores = detectCores())
   link_status <- unname(link_test_results)
   final_df <- cbind(sdyids,filenames,link_status)
@@ -92,38 +70,12 @@ analyzer <- function(info_set){
   return(bad_links_table)
 }
 
-# Gathers performance info and packages with bad links table for pdf output
-output_bad_links <- function(name, info_set){
-  start <- strftime(Sys.time(),format = "%T")
-  bad_links <- analyzer(info_set)
-  end <- strftime(Sys.time(),format = "%T")
-  
-  start_string <- paste0(name," run started at: ", start)
-  end_string <- paste0(name," run ended at: ", end)
-  
-  #if badlinks are found ....
-  if(nrow(bad_links) > 1){
-    ts <-paste(format(Sys.time(), "%Y_%m_%d %T"), "html", sep = ".")
-    htmlname <- paste0(name," ", ts)
-    HTML(bad_links, file=htmlname)
-    print(htmlname)
-  }
-  
-  print("Runtime information")
-  print(start_string)
-  print(end_string)
-  
-  return(bad_links)
-  
-}
-
 #-------Execution------------------------------------------
-fcs <- c("fcs_sample_files","File Info Name","flow_cytometry")
-ge <- c("gene_expression_files","File Info Name","gene_expression")
 
 result <- list()
-result$ge <- output_bad_links("Gene Expression",ge)
-result$fcs <- output_bad_links("FCS",fcs)
+
+result$fcs <- analyzer(files = "fcs_sample_files",link_text = "flow_cytometry")
+result$ge <- analyzer(files = "gene_expression_files", link_text = "gene_expression")
 
 return(result)
 
