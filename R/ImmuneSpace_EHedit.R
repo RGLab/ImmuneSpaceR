@@ -129,8 +129,9 @@
 # Returns a named logical where TRUE marks files that are accessible.
 # This function is used for administrative purposes to check that the flat files
 # are properly loaded and accessible to the users.
-#' @importFrom RCurl url.exists
+#' @import httr
 #' @import parallel
+#' @import Rlabkey
 .ISCon$methods(
   .test_files=function(what = c("gene_expression_files", "fcs_sample_files", "protocol")){
     
@@ -138,14 +139,12 @@
     ret <- list()
     what <- tolower(what)
     
-    
-    
     for(i in what){
-      df <- .self$getDataset(i, original_view = TRUE)
-      df <- df[!is.na(file_info_name)]
       
-      # handle gene expr / fcs separately bc similar link paths
+      # handle gene expr / fcs separately from protocols bc similar link construction
       if(i == "gene_expression_files" | i == "fcs_sample_files"){ 
+        df <- .self$getDataset(i, original_view = TRUE)
+        df <- df[!is.na(file_info_name)]
         df <- unique(df[, list(study_accession, file_info_name)])
         
         numrow <- nrow(df)
@@ -158,46 +157,59 @@
         }
         
         links <- paste0(labkey.url.base, "/_webdav/", "/Studies/", 
-                        gef$study_accession, "/%40files/rawdata/",link_text,
-                        sapply(gef$file_info_name, URLencode))
+                        df$study_accession, "/%40files/rawdata/",link_text,
+                        sapply(df$file_info_name, URLencode))
         
-        all_res <- unlist(mclapply(links, link_test, mc.cores = detectCores()))
-        bound_res <- cbind(gef,all_res)
-
-        print(paste0(length(all_res), "/", numrow, " ", i, " with valid links."))
+        http_status <- unlist(mclapply(links, link_test, mc.cores = detectCores()))
+        num_good_links <- length(which(http_status == 200))
+        bound_res <- cbind(df,http_status)
+        
+        print(paste0(num_good_links, "/", numrow, " ", i, " with valid links."))
         
         ret[[i]] <- bound_res
         
         #handle protocols alone 
       }else{
-        #TODO: Get list of all studies
-        # make list of links
-        # mcapply to test links like above
         
-        study_string <- strsplit(.self$config$labkey.url.path, "/")
-        study <- study_string[[1]][3]
-        res <- link_test(paste0(labkey.url.base, "/_webdav/Studies/",
-                                 study, "/%40files/protocols/", folder,
-                                 "_protocol.zip"))
-        ret[[i]] <- res
+        # if all studies, then pull links from folders list.  Assumption is that each SDY folder should have a protocol.
+        if(.self$.isProject()){
+          folders_list <- labkey.getFolders(baseUrl = labkey.url.base, folderPath = "/Studies/")
+          studies <- unlist(folders_list[1])
+          studies <- studies [! studies %in% c("SDY_template","Studies")]
+          links <- lapply(studies, make_link)
+          http_status <- unlist(mclapply(links, link_test, mc.cores = detectCores()))
+          num_good_links <- length(which(http_status == 200))
+          bound_res <- cbind(studies,http_status)
+          
+          print(paste0(num_good_links, "/", length(studies), " ", i, " with valid links."))
+          
+          ret[[i]] <- bound_res
+          
+          #if single study, then id study from the path value from CreateConnection
+        }else{
+          study_string <- strsplit(.self$config$labkey.url.path, "/")
+          study <- study_string[[1]][3]
+          res <- link_test(paste0(labkey.url.base, "/_webdav/Studies/",
+                                  study, "/%40files/protocols/", folder,
+                                  "_protocol.zip"))
+          ret[[i]] <- res
         }
       }
-      
+    }
     return(ret)
   }
 )
 
+#-----helper functions for test_files()-----------
 link_test <- function(link){
-  
   info <- GET(link)
   status <- info$status_code
   return(status)
 }
 
-#    if("protocol" %in% what){
-#if(.self$.isProject()){
-#  message("Project level, all protocols will be checked.")
-#  # Get study list and check em all. Bonus points for returning named logical.
-#} else{
-# https://www.immunespace.org/_webdav/Studies/SDY112/%40files/protocols/SDY112_protocol.zip
-#}
+make_link <- function(study){
+  link <- paste0(labkey.url.base, "/_webdav/Studies/",
+                 study, "/%40files/protocols/", study,
+                 "_protocol.zip")
+  return(link)
+}
