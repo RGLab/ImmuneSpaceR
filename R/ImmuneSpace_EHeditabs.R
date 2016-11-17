@@ -135,7 +135,7 @@
 .ISCon$methods(
   .test_files=function(what = c("gene_expression_files", "fcs_sample_files", "protocol")){
     
-    labkey.url.base <- "https://www.immunespace.org"
+    labkey.url.base <- .self$config$labkey.url.base
     ret <- list()
     what <- tolower(what)
     
@@ -147,9 +147,7 @@
         df <- df[!is.na(file_info_name)]
         df <- unique(df[, list(study_accession, file_info_name)])
         
-        numrow <- nrow(df)
         link_text <- ""
-        
         if(i == "gene_expression_files"){
           link_text <- "gene_expression"
         }else if( i == "fcs_sample_files"){
@@ -160,13 +158,9 @@
                         df$study_accession, "/%40files/rawdata/",link_text,
                         sapply(df$file_info_name, URLencode))
         
-        http_status <- unlist(mclapply(links, link_test, mc.cores = detectCores()))
-        num_good_links <- length(which(http_status == 200))
-        bound_res <- cbind(df,http_status)
+        numrow <- nrow(df)
         
-        print(paste0(num_good_links, "/", numrow, " ", i, " with valid links."))
-        
-        ret[[i]] <- bound_res
+        ret[[i]] <- res_table_maker(links_to_test = links,info_table = df, numrow = numrow, filetype = i)
         
         #handle protocols alone 
       }else{
@@ -177,21 +171,18 @@
           studies <- unlist(folders_list[1])
           studies <- studies [! studies %in% c("SDY_template","Studies")]
           links <- lapply(studies, make_link)
-          http_status <- unlist(mclapply(links, link_test, mc.cores = detectCores()))
-          num_good_links <- length(which(http_status == 200))
-          bound_res <- cbind(studies,http_status)
+          numrow <- length(studies)
           
-          print(paste0(num_good_links, "/", length(studies), " ", i, " with valid links."))
+          ret[[i]] <- res_table_maker(links_to_test = links,info_table = studies, numrow = numrow, filetype = i)
           
-          ret[[i]] <- bound_res
-          
-          #if single study, then id study from the path value from CreateConnection
+        #if single study, then id study from the path value from CreateConnection
         }else{
           study_string <- strsplit(.self$config$labkey.url.path, "/")
           study <- study_string[[1]][3]
           res <- link_test(paste0(labkey.url.base, "/_webdav/Studies/",
                                   study, "/%40files/protocols/", study,
                                   "_protocol.zip"))
+          print(paste0(length(which(res == 200)), "/1 protocols with valid links."))
           ret[[i]] <- res
         }
       }
@@ -212,4 +203,12 @@ make_link <- function(study){
                  study, "/%40files/protocols/", study,
                  "_protocol.zip")
   return(link)
+}
+
+res_table_maker <- function(filetype,numrow,links_to_test,info_table){
+  http_status <- unlist(mclapply(links_to_test, link_test, mc.cores = detectCores()))
+  bound_res <- cbind(info_table,http_status)
+  num_good_links <- length(which(http_status == 200))
+  print(paste0(num_good_links, "/", numrow, " ", filetype, " with valid links."))
+  return(bound_res)
 }
