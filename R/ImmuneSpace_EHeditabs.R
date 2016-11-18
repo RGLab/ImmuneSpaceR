@@ -205,7 +205,7 @@ make_link <- function(study){
   return(link)
 }
 
-res_table_maker <- function(filetype,numrow,links_to_test,info_table){
+res_table_maker <- function(links_to_test, info_table, numrow, filetype){
   http_status <- unlist(mclapply(links_to_test, link_test, mc.cores = detectCores()))
   bound_res <- cbind(info_table,http_status)
   num_good_links <- length(which(http_status == 200))
