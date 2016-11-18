@@ -160,7 +160,7 @@
     
     #Allow for both prod / test work by having baseUrl set through CreateConnection
     labkey.url.base <- .self$config$labkey.url.base
-    print(paste0("testing on ",labkey.url.base)
+    print(paste0("testing on ", labkey.url.base)
     ret <- list()
     what <- tolower(what)
     
@@ -184,15 +184,15 @@
             }
             
             links <- paste0(labkey.url.base, "/_webdav/", "/Studies/", 
-                            df$study_accession, "/%40files/rawdata/",link_text,
+                            df$study_accession, "/%40files/rawdata/", link_text,
                             sapply(df$file_info_name, URLencode))
             
-            ret[[i]] <- res_table_maker(links_to_test = links,info_table = df, numrow = nrow(df), filetype = i)
+            ret[[i]] <- res_table_maker(links_to_test = links, info_table = df, numrow = nrow(df), filetype = i)
           }else{
             print(paste0(i, " contains no links - i.e. 'File Info Name' col is all NA"))
           }
         }else{
-          print(paste0("No ",i," found to test"))
+          print(paste0("No ", i, " found to test"))
         }
        
       #handle protocols alone 
@@ -209,7 +209,7 @@
           studies <- strsplit(.self$config$labkey.url.path, "/")[[1]][3]
         }
      
-        ret[[i]] <- res_table_maker(links_to_test = lapply(studies, make_protocol_link),info_table = studies, numrow = length(studies), filetype = i)
+        ret[[i]] <- res_table_maker(links_to_test = lapply(studies, make_protocol_link), info_table = studies, numrow = length(studies), filetype = i)
       }
     }
     return(ret)
