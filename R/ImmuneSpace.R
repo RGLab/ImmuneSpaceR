@@ -160,7 +160,7 @@
     
     #Allow for both prod / test work by having baseUrl set through CreateConnection
     labkey.url.base <- .self$config$labkey.url.base
-    print(paste0("testing on ", labkey.url.base)
+    print(paste0("testing on ", labkey.url.base))
     ret <- list()
     what <- tolower(what)
     
