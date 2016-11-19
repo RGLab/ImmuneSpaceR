@@ -129,9 +129,8 @@
 # This function is used for administrative purposes to check that the flat files
 # are properly loaded and accessible to the users.
 # Returns a list with three dataframes with file link info and HTTP status code for each tested link.
-#' @importfrom httr GET
-#' @importfrom parallel mclapply
-#' @import Rlabkey
+#' @importFrom httr GET
+#' @importFrom parallel mclapply
 .ISCon$methods(
   .test_files=function(what = c("gene_expression_files", "fcs_sample_files", "protocol")){
     
