@@ -127,56 +127,93 @@
   }
 )
 
-# Returns a named logical where TRUE marks files that are accessible.
 # This function is used for administrative purposes to check that the flat files
 # are properly loaded and accessible to the users.
-#' @importFrom RCurl url.exists
+# Returns a list with three dataframes with file link info and HTTP status code for each tested link.
+#' @importFrom httr GET
+#' @importFrom parallel mclapply
 .ISCon$methods(
-  .test_files=function(what = c("gene_expression_files", "fcs", "protocol"), mc = FALSE){
+  .test_files=function(what = c("gene_expression_files", "fcs_sample_files", "protocol")){
+    
+    #-----helper-functions--------
+    link_test <- function(link){
+      #url.exists() threw errors due to HTTP request related param values not being present at times, therefore using GET
+      info <- GET(link)
+      status <- info$status_code
+      return(status)
+    }
+    
+    make_protocol_link <- function(study){
+      link <- paste0(labkey.url.base, "/_webdav/Studies/",
+                     study, "/%40files/protocols/", study,
+                     "_protocol.zip")
+      return(link)
+    }
+    
+    res_table_maker <- function(links_to_test, info_table, numrow, filetype){
+      http_status <- unlist(mclapply(links_to_test, link_test, mc.cores = detectCores()))
+      bound_res <- cbind(info_table,http_status)
+      num_good_links <- length(which(http_status == 200))
+      print(paste0(num_good_links, "/", numrow, " ", filetype, " with valid links."))
+      return(bound_res)
+    }
+    
+    #Allow for both prod / test work by having baseUrl set through CreateConnection
+    labkey.url.base <- .self$config$labkey.url.base
+    print(paste0("testing on ", labkey.url.base))
     ret <- list()
     what <- tolower(what)
-    if("gene_expression_files" %in% what){
-      gef <- .self$getDataset("gene_expression_files", original_view = TRUE)
-      gef <- gef[!is.na(file_info_name)]
-      gef <- unique(gef[, list(study_accession, file_info_name)])
-      links <- paste0(config$labkey.url.base, "/_webdav/", "/Studies/", 
-                      gef$study_accession, "/%40files/rawdata/gene_expression/",
-                      sapply(gef$file_info_name, URLencode))
-      if(mc){
-        res <- unlist(mclapply(links, url.exists, netrc = TRUE))
-      } else{
-        res <- sapply(links, url.exists, netrc = TRUE)
-      }
-      print(paste0(length(res[res]), "/", length(res), "gene expression files with valid links."))
-      ret$gene_expression_files <- res
-    }
-    if("fcs" %in% what){
-      fcs <- .self$getDataset("fcs_sample_files", original_view = TRUE)
-      fcs <- unique(fcs[, list(file_info_name, study_accession)])
-      links <- paste0(config$labkey.url.base, "/_webdav/", "/Studies/", 
-                      fcs$study_accession, "/%40files/rawdata/flow_cytometry/",
-                      sapply(fcs$file_info_name, URLencode))
-      if(mc){
-        res <- unlist(mclapply(links, url.exists, netrc = TRUE))
-      } else{
-        res <- sapply(links, url.exists, netrc = TRUE)
-      }
-      print(paste0(length(res[res]), "/", length(res), "FCS files with valid links."))
-      ret$fcs <- res
-    }
-    if("protocol" %in% what){
-      if(.self$.isProject()){
-        message("Project level, all protocols will be checked.")
-        # Get study list and check em all. Bonus points for returning named logical.
-      } else{
-        folder <- basename(con$config$labkey.url.path)
-        res <- url.exists(paste0(config$labkey.url.base, "/_webdav/Studies/",
-                                 study, "/%40files/protocols/", folder,
-                                 "_protocol.zip"),
-                          netrc = TRUE)
-        ret$protocol <- res
+    
+    for(i in what){
+      
+      # handle gene expr / fcs separately from protocols bc similar link construction
+      # note: error handling applies for single studies that may have no fcs / ge files
+      # or the files may not have any links in the file_info_name col
+      if(i == "gene_expression_files" | i == "fcs_sample_files"){ 
+        df <- .self$getDataset(i, original_view = TRUE)
+        if(!is.null(df)){
+          df <- df[!is.na(file_info_name)]
+          if(nrow(df) != 0){
+            df <- unique(df[, list(study_accession, file_info_name)])
+            
+            link_text <- ""
+            if(i == "gene_expression_files"){
+              link_text <- "gene_expression"
+            }else if( i == "fcs_sample_files"){
+              link_text <- "flow_cytometry"
+            }
+            
+            links <- paste0(labkey.url.base, "/_webdav/", "/Studies/", 
+                            df$study_accession, "/%40files/rawdata/", link_text,
+                            sapply(df$file_info_name, URLencode))
+            
+            ret[[i]] <- res_table_maker(links_to_test = links, info_table = df, numrow = nrow(df), filetype = i)
+          }else{
+            print(paste0(i, " contains no links - i.e. 'File Info Name' col is all NA"))
+          }
+        }else{
+          print(paste0("No ", i, " found to test"))
+        }
+       
+      #handle protocols alone 
+      }else{
+        
+        # if all studies, then pull links from folders list.  Assumption is that each SDY folder should have only one protocol.
+        if(.self$.isProject()){
+          folders_list <- labkey.getFolders(baseUrl = labkey.url.base, folderPath = "/Studies/")
+          studies <- unlist(folders_list[1])
+          studies <- studies [! studies %in% c("SDY_template","Studies")]
+          
+        #if single study, then id study from the path from CreateConnection
+        }else{
+          studies <- strsplit(.self$config$labkey.url.path, "/")[[1]][3]
+        }
+     
+        ret[[i]] <- res_table_maker(links_to_test = lapply(studies, make_protocol_link), info_table = studies, numrow = length(studies), filetype = i)
       }
     }
     return(ret)
   }
 )
+
+
