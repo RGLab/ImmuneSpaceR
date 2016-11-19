@@ -131,7 +131,7 @@
 # are properly loaded and accessible to the users.
 # Returns a list with three dataframes with file link info and HTTP status code for each tested link.
 #' @importFrom httr GET
-#' @importFrom parallel mclapply
+#' @importFrom parallel mclapply detectCores
 .ISCon$methods(
   .test_files=function(what = c("gene_expression_files", "fcs_sample_files", "protocol")){
     
