@@ -1,0 +1,11 @@
+#!/bin/bash
+
+### Are any Sass files canged and added?
+if git status -s | grep  '^M.\+s[ac]ss$'
+then
+	sass --update inst/themes/IStemplate.scss:inst/themes/IStemplate.css
+	git add inst/themes/IStemplate.css -f
+fi
+
+exit 0
+
