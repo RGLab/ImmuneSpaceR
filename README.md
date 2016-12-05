@@ -1,8 +1,8 @@
 ImmuneSpaceR
 ============
 
-A thin wrapper around Rlabkey to access the [ImmuneSpace]("https://www.immunespace.org") database from R
-This package simplifies access to the HIPC ImmuneSpace database, for R programmers.
+A thin wrapper around Rlabkey to access the [ImmuneSpace]("https://www.immunespace.org") database from R.
+This package simplifies access to the HIPC ImmuneSpace database for R programmers.
 
 It takes advantage of the standardization of the ImmuneSpace database to hide all the `Rlabkey` specific code away from the user.
 Study-specific datasets can be accessed via an object-oriented paradigm.
