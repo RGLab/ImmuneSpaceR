@@ -13,7 +13,7 @@ body {
 h1 {
 	margin-left: -20px;
 	font: sans-serif;
-	color: $color_matisse_approx;
+	color: $mercury;
 	text-align: left;
 	padding-left: 10px;
 	padding-top: 120px;
@@ -21,8 +21,8 @@ h1 {
 	font-weight: normal;
 	border-top-style: solid;
 	border-top-width: 40px;
-	border-top-color: $color_matisse_approx;
-	background-color: $mercury;
+	border-top-color: $mercury;
+	background-color: $color_matisse_approx;
 	background-image: $url_0;
 	background-repeat: no-repeat;
 }

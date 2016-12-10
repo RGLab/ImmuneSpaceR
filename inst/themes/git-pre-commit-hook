@@ -1,5 +1,19 @@
 #!/bin/bash
 
+# In order to make this work
+#
+# 0. assume to have git already installed
+#
+# 1. install needed system packages by running as root:
+# apt-get install ruby
+# gem install sass
+#
+# and
+#
+# 2. the following must be executed from the repository root:
+# ln -s ./inst/themes/git-pre-commit-hook .git/hooks/pre-commit
+# chmod +x .git/hooks/pre-commit
+
 ### Are any Sass files canged and added?
 if git status -s | grep  '^M.\+s[ac]ss$'
 then

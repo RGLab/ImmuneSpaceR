@@ -4,7 +4,7 @@ body {
 h1 {
   margin-left: -20px;
   font: sans-serif;
-  color: #126495;
+  color: #e5e5e5;
   text-align: left;
   padding-left: 10px;
   padding-top: 120px;
@@ -12,8 +12,8 @@ h1 {
   font-weight: normal;
   border-top-style: solid;
   border-top-width: 40px;
-  border-top-color: #126495;
-  background-color: #e5e5e5;
+  border-top-color: #e5e5e5;
+  background-color: #126495;
   background-image: url(labkey-logo.png);
   background-repeat: no-repeat; }
 
