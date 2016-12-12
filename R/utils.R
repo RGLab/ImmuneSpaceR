@@ -1,11 +1,11 @@
 #' Save/Load an ImmuneSpaceConnection object from disk
-#' 
-#' Connection can hold a lot of data in cache. If a lot of work has 
+#'
+#' Connection can hold a lot of data in cache. If a lot of work has
 #' been done (e.g: lots of downloaded datasets and gene-expression matrices),
 #' it can be useful to save the connection for later work or even offline use.
-#' 
+#'
 #' @param file The file name to be saved to or loaded from
-#' 
+#'
 #' @examples
 #' #Sample saved connection with pre-downloaded expression matrices and datasets
 #' saved <- system.file("extdata/saved_con.rds", package = "ImmuneSpaceR")
@@ -15,26 +15,26 @@
 #' \dontrun{
 #'   saveConnection(new_con, tempfile())
 #' }
-#' 
+#'
 #' @rdname loadConnection
 #' @export
 #' @return An ImmuneSpaceConnection object
 loadConnection <- function(file){
   con <- readRDS(file = file)
   conType <- class(con)
-  if(conType == 'ImmuneSpaceConnection') 
+  if(conType == 'ImmuneSpaceConnection')
     labkey.url.base <- con$config$labkey.url.base
   else
     stop("invalid ImmuneSpaceConnection object!")
-  
+
   #init labkey.setCurlOptions
   labkey.setCurlOptions(ssl.verifyhost = 2, sslversion=1)
   con
 }
 
-#' @param con An \code{ImmuneSpaceConnection}. The connection to save to file. 
+#' @param con An \code{ImmuneSpaceConnection}. The connection to save to file.
 #'  To be loaded later using \code{loadConnection}.
-#' 
+#'
 #' @rdname loadConnection
 #' @export
 saveConnection <- function(con, file){
@@ -42,14 +42,14 @@ saveConnection <- function(con, file){
 }
 
 #' ImmuneSpace palette
-#' 
+#'
 #' Create a color gradient of the selected length that matches the ImmuneSpace
 #' theme.
-#' 
+#'
 #' @param n A \code{numeric}. The length of the desired palette.
 #' @return A \code{character} vector colors in hexadecimal code of length
 #'  \code{n}.
-#' 
+#'
 #' @importFrom gplots colorpanel
 #' @export
 #' @examples
@@ -59,25 +59,25 @@ ISpalette <- function(n){
 }
 
 #' theme_IS
-#' 
-#' Theme that matches ImmuneSpace's graphic style. The theme modifies the 
+#'
+#' Theme that matches ImmuneSpace's graphic style. The theme modifies the
 #' background, the grid lines, the axis, and the colors used by continuous and
 #' gradient scales.
-#' 
+#'
 #' @param base_size A \code{numeric}. Base font size.
-#' 
+#'
 #' @return A theme object
-#' 
+#'
 #' @details
 #' List of modified ggplot2 elements: \code{panel.background},
 #' \code{panel.grid.major}, \code{panel.grid.minor}, \code{axis.ticks},
 #' \code{axis.line.x}, \code{axis.line.y}, \code{plot.title}, and
 #' \code{strip.background}.
-#' 
+#'
 #' The default \code{scale_fill_gradient}, \code{scale_fill_continuous},
 #' \code{scale_colour_gradient} and \code{scale_colour_continous} are also
 #' replaced by a custom scale.
-#' 
+#'
 #' @importFrom ggplot2 theme theme_classic element_line element_text element_rect
 #' @importFrom ggplot2 continuous_scale rel
 #' @export
@@ -100,12 +100,34 @@ theme_IS <- function(base_size = 12) {
   theme(strip.background = element_rect(colour = "white", fill = "white")) #bg of facets
 }
 
+#' template_IS
+#'
+#' Template for knitted reports that matches ImmuneSpace's graphic style.
+#' The theme among other things modifies the background and text colors, font sizes and types.
+#'
+#' @param None
+#'
+#' @return None
+#'
+#' @details
+#' None.
+#'
+#' @importFrom rmarkdown html_document
+#' @export
+#' @examples
+#' None.
+template_IS <- function(){
+  html_document(
+    css = system.file('themes/IStemplate.css', package = 'ImmuneSpaceR')
+  )
+}
+
 # Add scales that use a different color scheme to the environment.
 #' @importFrom ggplot2 update_geom_defaults
 #' @importFrom scales seq_gradient_pal
 .override_scale <- function(envir = as.environment(1)){
   update_geom_defaults("boxplot", list(fill = "#268bd2"))
-  scale_updates <- list( 
+  scale_updates <- list(
     scale_fill_continuous = function(...) continuous_scale('fill', 'scale_IS', seq_gradient_pal("#268bd2", "#dc322f"), ...),
     scale_fill_gradient = function(...) continuous_scale('fill', 'scale_IS', seq_gradient_pal("#268bd2", "#dc322f"), ...),
     scale_colour_gradient = function(...) continuous_scale('colour', 'scale_IS', seq_gradient_pal("#268bd2", "#dc322f"), ...),
