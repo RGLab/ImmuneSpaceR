@@ -118,7 +118,7 @@ theme_IS <- function(base_size = 12) {
 #' None.
 template_IS <- function(){
   html_document(
-    css = system.file('themes/IStemplate.css', package = 'ImmuneSpaceR')
+    css <- system.file("rmarkdown/templates/ImmuneSpace/skeleton/style.css", package = "ImmuneSpaceR")
   )
 }
 

@@ -1,0 +1,14 @@
+---
+title: "ImmuneSpace Report Template"
+author: "An ImmuneSpace User"
+date: 
+output: ImmuneSpaceR::template_IS
+---
+
+```{r}
+library(ImmuneSpaceR)
+```
+
+## Overview
+
+## Analysis
