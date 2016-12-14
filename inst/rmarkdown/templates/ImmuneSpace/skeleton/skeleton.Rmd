@@ -1,14 +1,36 @@
 ---
 title: "ImmuneSpace Report Template"
 author: "An ImmuneSpace User"
-date: 
+date: "`r Sys.Date()`"
 output: ImmuneSpaceR::template_IS
 ---
+
+## Overview
+
+
+## Load ImmuneSpaceR
 
 ```{r}
 library(ImmuneSpaceR)
 ```
 
-## Overview
+
+## Connect to the study and get datasets
+
+```{r}
+study <- CreateConnection("SDY269")
+
+dt_hai <- study$getDataset("hai", reload = T)
+dt_fcs <- study$getDataset("fcs_analyzed_result", reload = T)
+dt_elispot <- study$getDataset("elispot", reload = T)
+```
+
+
+## Data cleaning
+
 
 ## Analysis
+
+```{r}
+study$quick_plot("hai")
+```
