@@ -12,14 +12,14 @@
 #
 # 2. the following must be executed from the repository root:
 # cd .git/hooks/
-# ln -s ../../inst/rmarkdown/templates/ImmuneSpace/skeleton/git-pre-commit-hook pre-commit
+# ln -s ../../inst/rmarkdown/templates/ImmuneSpace/resources/git-pre-commit-hook pre-commit
 # chmod +x pre-commit
 
 ### Are any Sass files canged and added?
 if git status -s | grep  '^M.\+s[ac]ss$'
 then
-	sass --update inst/rmarkdown/templates/ImmuneSpace/skeleton/styles.scss:inst/rmarkdown/templates/ImmuneSpace/skeleton/styles.css
-	git add inst/rmarkdown/templates/ImmuneSpace/skeleton/styles.css -f
+	sass --update inst/rmarkdown/templates/ImmuneSpace/resources/IStemplate.scss:inst/rmarkdown/templates/ImmuneSpace/resources/IStemplate.css
+	git add inst/rmarkdown/templates/ImmuneSpace/resources/IStemplate.css -f
 fi
 
 exit 0
