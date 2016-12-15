@@ -136,6 +136,9 @@ gene-expression data.}
     show_virus_strain: A logical. Should all the virus strains be shown or should
     the values be averaged. Only used when dataset = 'hai'.
 
+    interactive: A logical. If set to TRUE, an interactive plot will be created. 
+    The default is FALSE.
+
     '...': Extra argument to be passed to ggplot. e.g: shape = 'Age', color =
     'Race'.}
 }}
