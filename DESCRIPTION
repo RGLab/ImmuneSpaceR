@@ -30,7 +30,8 @@ Imports:
     stats,
     gtools,
     gplots,
-    reshape2
+    reshape2,
+    plotly
 Collate:
     'CreateConnection.R'
     'ImmuneSpace.R'
