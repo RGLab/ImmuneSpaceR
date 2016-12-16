@@ -2,7 +2,7 @@
 title: "Correlation of HAI/virus neutralizition titer and cell counts in SDY144"
 author: "Renan Sauteraud"
 date: "`r Sys.Date()`"
-output: rmarkdown::html_document
+output: ImmuneSpaceR::template_IS
 vignette: >
   %\VignetteIndexEntry{Reproducing an online report using ImmuneSpaceR: Correlation of HAI/virus neutralizition titer and cell counts in SDY144}
   %\VignetteEngine{knitr::rmarkdown}
