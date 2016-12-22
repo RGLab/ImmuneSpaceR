@@ -31,7 +31,8 @@ Imports:
     gtools,
     gplots,
     reshape2,
-    plotly
+    plotly,
+    heatmaply
 Collate:
     'CreateConnection.R'
     'ImmuneSpace.R'

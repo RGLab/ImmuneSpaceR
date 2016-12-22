@@ -142,6 +142,7 @@ NULL
 #' @importFrom pheatmap pheatmap
 #' @importFrom reshape2 acast
 #' @importFrom stats formula
+#' @importFrom heatmaply heatmaply
 .qpHeatmap2 <- function(dt, normalize_to_baseline, legend, text_size, interactive){
   palette <- ISpalette(20)
   
@@ -185,9 +186,11 @@ NULL
                   fontsize = text_size, annotation_colors = anno_color)
   }
   if (interactive){
-    message("Interactive visualization is not available for heatmap.")
+    p <- heatmaply(x = mat, colors = rev(palette), col_side_colors = t(anno), 
+                   dendrogram = "row")
+    print(p)
   }
-  return(p)
+  p
 }
 
 
