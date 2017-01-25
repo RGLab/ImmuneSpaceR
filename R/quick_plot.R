@@ -92,6 +92,7 @@ NULL
   }
   if(type == "heatmap"){
     p <- .qpHeatmap2(dt, normalize_to_baseline, legend, text_size, interactive)
+    if (interactive) p
   } else if(type %in% c("boxplot", "violin")){
     .qpBoxplotViolin(dt, type, facet, ylab, text_size, extras, interactive, ...)
   } else if(type == "line"){
@@ -171,26 +172,26 @@ NULL
   show_rnames <- ifelse(nrow(mat) < 50, TRUE, FALSE)
   cluster_rows <- ifelse(nrow(mat) > 2 & ncol(mat) > 2, TRUE, FALSE)
   
-  e <- try({
-    p <- pheatmap(mat = mat, annotation = anno, show_colnames = FALSE,
-                  show_rownames = show_rnames, cluster_cols = FALSE,
-                  cluster_rows = cluster_rows, color = palette,
-                  scale = scale, breaks = breaks,
-                  fontsize = text_size, annotation_colors = anno_color)
-  })
-  if(inherits(e, "try-error")){
-    p <- pheatmap(mat = mat, annotation = anno, show_colnames = FALSE,
-                  show_rownames = show_rnames, cluster_cols = FALSE,
-                  cluster_rows = FALSE, color = palette,
-                  scale = scale, breaks = breaks,
-                  fontsize = text_size, annotation_colors = anno_color)
-  }
   if (interactive){
-    p <- heatmaply(x = mat, colors = rev(palette), col_side_colors = t(anno), 
+    heatmaply(x = mat, colors = rev(palette), col_side_colors = t(anno), 
                    dendrogram = "row")
-    print(p)
+  } else {
+    e <- try({
+      p <- pheatmap(mat = mat, annotation = anno, show_colnames = FALSE,
+                    show_rownames = show_rnames, cluster_cols = FALSE,
+                    cluster_rows = cluster_rows, color = palette,
+                    scale = scale, breaks = breaks,
+                    fontsize = text_size, annotation_colors = anno_color)
+    })
+    if(inherits(e, "try-error")){
+      p <- pheatmap(mat = mat, annotation = anno, show_colnames = FALSE,
+                    show_rownames = show_rnames, cluster_cols = FALSE,
+                    cluster_rows = FALSE, color = palette,
+                    scale = scale, breaks = breaks,
+                    fontsize = text_size, annotation_colors = anno_color)
+    }
+    p
   }
-  p
 }
 
 
