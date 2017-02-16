@@ -4,22 +4,33 @@
 \alias{template_IS}
 \title{template_IS}
 \usage{
-template_IS()
+template_IS(...)
 }
 \arguments{
-\item{None}{}
+\item{...}{See \code{\link[rmarkdown]{html_document}}}
 }
 \value{
-None
+R Markdown output format to pass to \code{\link[rmarkdown]{render}}
 }
 \description{
-Template for knitted reports that matches ImmuneSpace's graphic style.
-The theme among other things modifies the background and text colors, font sizes and types.
+A HTML template for knitted reports that matches ImmuneSpace's graphic style.
+It is based on \code{\link[rmarkdown]{html_document}} from the \pkg{rmarkdown} 
+package with css, theme, and template parameters disabled.
 }
 \details{
-None.
+See the documentation for \code{\link[rmarkdown]{html_document}} or the 
+\href{http://rmarkdown.rstudio.com/html_document_format.html}{oneline documentation}
+for additional details on using the html_document format.
+Compared to html_document, it:
+\itemize{
+\item uses a custom css stylesheet
+\item does not use bootstrap themes
+}
 }
 \examples{
-None.
+\dontrun{
+library(ImmuneSpaceR)
+rmarkdown::render("input.Rmd", template_IS())
+rmarkdown::render("input.Rmd", template_IS(toc = TRUE))
 }
-
+}
