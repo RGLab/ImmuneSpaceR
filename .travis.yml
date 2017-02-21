@@ -1,4 +1,15 @@
+# R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
+
 language: r
-r: bioc-devel
-sudo: false
+r: 
+- bioc-devel
+- bioc-release
 cache: packages
+sudo: false
+
+before_script: Rscript -e 'write(x = paste("machine www.immunespace.org login", Sys.getenv("ISR_login"), "password", Sys.getenv("ISR_pwd")), file = "~/.netrc")'
+
+notifications:
+  email: false
+  slack:
+    secure: N/GCrUwLnqtc+WK9eTAG2wu12q1xCTrA2c1qG54A3p72JfkQtpEhnUUYv4jPzMLa1sR6d/w7flPe2PNqr2/sPXKNIrf41+L4rl3W7kd0s7Wx6pKnE2TocWRR7lcCDYeN3LVjEyJFg7A6utp0kii7UtLGq9G6iJOX/kcBVIkng7s=
