@@ -1,6 +1,8 @@
 ImmuneSpaceR
 ============
 
+[![Build Status](https://travis-ci.org/RGLab/ImmuneSpaceR.svg?branch=dev)](https://travis-ci.org/RGLab/ImmuneSpaceR)
+
 A thin wrapper around Rlabkey to access the [ImmuneSpace]("https://www.immunespace.org") database from R
 This package simplifies access to the HIPC ImmuneSpace database, for R programmers.
 
