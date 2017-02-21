@@ -2,17 +2,17 @@
 % Please edit documentation in R/CreateConnection.R
 \docType{class}
 \name{ImmuneSpaceConnection-class}
+\alias{ImmuneSpaceConnection-class}
 \alias{.ISCon}
-\alias{EMNames}
 \alias{ImmuneSpace}
 \alias{ImmuneSpaceConnection}
-\alias{ImmuneSpaceConnection-class}
-\alias{addTrt}
-\alias{getDataset}
-\alias{getGEAnalysis}
 \alias{getGEMatrix}
+\alias{getDataset}
 \alias{listDatasets}
+\alias{getGEAnalysis}
 \alias{listGEAnalysis}
+\alias{addTrt}
+\alias{EMNames}
 \alias{quick_plot}
 \title{The ImmuneSpaceConnection class}
 \value{
@@ -52,6 +52,7 @@ tables multiple times.}
 \item{\code{constants}}{A \code{list}. Used to store information regarding 
 gene-expression data.}
 }}
+
 \section{Methods}{
 
 \describe{
@@ -142,6 +143,7 @@ gene-expression data.}
     '...': Extra argument to be passed to ggplot. e.g: shape = 'Age', color =
     'Race'.}
 }}
+
 \examples{
 \dontrun{
   sdy269 <- CreateConnection("SDY269")
@@ -152,4 +154,3 @@ gene-expression data.}
 \code{\link{CreateConnection}}
  \code{\link{ImmuneSpaceR-package}}
 }
-

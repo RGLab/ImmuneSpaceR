@@ -2,14 +2,15 @@
 % Please edit documentation in R/netrc.R
 \name{check_netrc}
 \alias{check_netrc}
-\title{Check netrc file
-
-Check that there is a netrc file with a valid entry for ImmuneSpace.}
+\title{Check netrc file}
 \usage{
 check_netrc()
 }
 \value{
 The name of the netrc file
+}
+\description{
+Check that there is a netrc file with a valid entry for ImmuneSpace.
 }
 \details{
 In order to connect to ImmuneSpace, you will need a `.netrc` file in your 
@@ -29,4 +30,3 @@ try(check_netrc())
 \seealso{
 CreateConnection write_netrc
 }
-

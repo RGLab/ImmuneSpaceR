@@ -18,7 +18,6 @@ BugReports: https://github.com/RGLab/ImmuneSpaceR/issues
 License: GPL-2
 Suggests:
     knitr,
-    rmarkdown,
     testthat
 Imports:
     methods,
@@ -34,7 +33,9 @@ Imports:
     gplots,
     reshape2,
     plotly,
-    heatmaply (>= 0.7.0)
+    heatmaply (>= 0.7.0), 
+    rjson,
+    rmarkdown
 Collate:
     'CreateConnection.R'
     'ImmuneSpace.R'
@@ -45,4 +46,4 @@ Collate:
     'quick_plot.R'
     'utils.R'
     'zzz.R'
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.1

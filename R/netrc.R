@@ -22,7 +22,7 @@ write_netrc <- function(login, password, file = NULL){
   return(file)
 }
 
-#' @title Check netrc file
+#' Check netrc file
 #'
 #' Check that there is a netrc file with a valid entry for ImmuneSpace.
 #'
