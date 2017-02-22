@@ -13,7 +13,7 @@ theme_IS(base_size = 12)
 A theme object
 }
 \description{
-Theme that matches ImmuneSpace's graphic style. The theme modifies the
+Theme that matches ImmuneSpace's graphic style. The theme modifies the 
 background, the grid lines, the axis, and the colors used by continuous and
 gradient scales.
 }

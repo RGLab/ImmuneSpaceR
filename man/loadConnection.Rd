@@ -12,14 +12,14 @@ saveConnection(con, file)
 \arguments{
 \item{file}{The file name to be saved to or loaded from}
 
-\item{con}{An \code{ImmuneSpaceConnection}. The connection to save to file.
+\item{con}{An \code{ImmuneSpaceConnection}. The connection to save to file. 
 To be loaded later using \code{loadConnection}.}
 }
 \value{
 An ImmuneSpaceConnection object
 }
 \description{
-Connection can hold a lot of data in cache. If a lot of work has
+Connection can hold a lot of data in cache. If a lot of work has 
 been done (e.g: lots of downloaded datasets and gene-expression matrices),
 it can be useful to save the connection for later work or even offline use.
 }

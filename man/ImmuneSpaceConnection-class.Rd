@@ -56,14 +56,6 @@ gene-expression data.}
 \section{Methods}{
 
 \describe{
-\item{\code{addTrt(x = NULL)}}{Add treatment information to the phenoData of an expression matrix
-     available in the connection object.
-
-    x: A character. The name of a expression matrix that has been downloaded 
-    from the connection.}
-
-\item{\code{clear_cache()}}{Clear the data_cache. Remove downloaded datasets and expression matrices.}
-
 \item{\code{EMNames(EM = NULL, colType = "participant_id")}}{Change the sampleNames of an ExpressionSet fetched by getGEMatrix using the
     information in the phenodData slot.
 
@@ -71,6 +63,14 @@ gene-expression data.}
 
     colType: A character. The type of column names. Valid options are 'expsample_accession'
     and 'participant_id'.}
+
+\item{\code{addTrt(x = NULL)}}{Add treatment information to the phenoData of an expression matrix
+     available in the connection object.
+
+    x: A character. The name of a expression matrix that has been downloaded 
+    from the connection.}
+
+\item{\code{clear_cache()}}{Clear the data_cache. Remove downloaded datasets and expression matrices.}
 
 \item{\code{getDataset(x, original_view = FALSE, reload = FALSE, colFilter = NULL,
   ...)}}{Get a dataset form the connection
@@ -136,9 +136,6 @@ gene-expression data.}
 
     show_virus_strain: A logical. Should all the virus strains be shown or should
     the values be averaged. Only used when dataset = 'hai'.
-
-    interactive: A logical. If set to TRUE, an interactive plot will be created. 
-    The default is FALSE.
 
     '...': Extra argument to be passed to ggplot. e.g: shape = 'Age', color =
     'Race'.}

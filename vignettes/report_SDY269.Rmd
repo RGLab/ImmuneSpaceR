@@ -2,7 +2,7 @@
 title: "Correlating HAI with flow cytometry and ELISPOT results in SDY269"
 author: "Renan Sauteraud"
 date: "`r Sys.Date()`"
-output: ImmuneSpaceR::template_IS
+output: rmarkdown::html_document
 vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteIndexEntry{Reproducing an online report using ImmuneSpaceR: Correlation between HAI and flow cytometry in SDY269}

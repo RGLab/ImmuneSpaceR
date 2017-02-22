@@ -3,7 +3,6 @@
 .check_filter <- function(lub, lup, schema, query, view = "", colFilter){
   # Get the names used in the filter
   old <- tolower(curlUnescape(gsub("~.*$", "", colFilter)))
-  old[old == "participant_id"] <- "participant id"
   suppressWarnings({
     labels <- tolower(colnames(labkey.selectRows(lub, lup, schema, query, view, maxRows = 0, colNameOpt = "caption")))
     names <- colnames(labkey.selectRows(lub, lup, schema, query, view, maxRows = 0, colNameOpt = "fieldname"))
@@ -51,13 +50,13 @@ filter_cached_copy <- function(filters, data){
       NULL
     } else{
       cache_name <- paste0(x, ifelse(original_view, "_full", ""))
-      nOpts <- length(list(...))
-      if(!is.null(data_cache[[cache_name]]) & !reload & is.null(colFilter) & nOpts == 0){ # Serve cache
+      if(!is.null(data_cache[[cache_name]]) & !reload & is.null(colFilter)){ # Serve cache
         data <- data_cache[[cache_name]]
         #if(!is.null(colFilter)){
         #  data <- filter_cached_copy(colFilter, data)
         #  return(data)
         #} else{
+          return(data)
         #}
       } else{ # Download the data
         viewName <- NULL
@@ -68,8 +67,6 @@ filter_cached_copy <- function(filters, data){
           colFilter <- .check_filter(config$labkey.url.base, 
                                      config$labkey.url.path, 
                                      "study", x, viewName, colFilter)
-          cache <- FALSE
-        } else if(length(nOpts) > 0){
           cache <- FALSE
         } else{
           cache <- TRUE
@@ -87,10 +84,41 @@ filter_cached_copy <- function(filters, data){
         if(cache){
           data_cache[[cache_name]] <<- data
         }
+        return(data)
       }
-      if(!is.null(config$use.data.frame) & config$use.data.frame){
-        data <- data.frame(data)
-      }
-      return(data)
     }
+  #    cache_name <- paste0(x, ifelse(original_view, "_full", ""))
+  #    filter_state <- paste0("filter_state_", cache_name)
+  #    if(!is.null(data_cache[[cache_name]]) &
+  #       !reload &
+  #       is.null(colFilter) &
+  #       (is.null(data_cache[[filter_state]]) || !data_cache[[filter_state]])){
+  #      data_cache[[cache_name]]
+  #    } else{
+  #      viewName <- NULL
+  #      if(original_view){
+  #        viewName <- "full"
+  #      }
+  #      if(!is.null(colFilter)){
+  #        colFilter <- .check_filter(config$labkey.url.base, 
+  #                                   config$labkey.url.path, 
+  #                                   "study", x, viewName, colFilter)
+  #        data_cache[[filter_state]] <<- TRUE 
+  #      } else{
+  #        data_cache[[filter_state]] <<- FALSE
+  #      }
+  #      data_cache[[cache_name]] <<- data.table(
+  #        labkey.selectRows(baseUrl = config$labkey.url.base,
+  #                          config$labkey.url.path,
+  #                          schemaName = "study",
+  #                          queryName = x,
+  #                          viewName = viewName,
+  #                          colNameOpt = "caption",
+  #                          colFilter = colFilter,
+  #                          ...))
+  #      setnames(data_cache[[cache_name]],
+  #               .self$.munge(colnames(data_cache[[cache_name]])))
+  #      data_cache[[cache_name]]
+  #    }
+  #  }
   })
