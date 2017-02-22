@@ -2,7 +2,7 @@
 title: "Downloading expression matrices using ImmuneSpaceR"
 author: "Renan Sauteraud"
 date: "`r Sys.Date()`"
-output: ImmuneSpaceR::template_IS
+output: html_document
 vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteIndexEntry{Handling expression matrices with ImmuneSpaceR}

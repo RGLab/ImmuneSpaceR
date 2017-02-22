@@ -1,7 +1,7 @@
 ---
 title: "getDataset"
 date: "`r Sys.Date()`"
-output: ImmuneSpaceR::template_IS
+output: html_document
 vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteIndexEntry{Downloading tables with getDataset}

@@ -95,7 +95,6 @@
 )
 .ISCon$methods(
     show=function(){
-    "Display information about the object."
       cat(sprintf("Immunespace Connection to study %s\n",study))
       cat(sprintf("URL: %s\n",file.path(gsub("/$","",config$labkey.url.base),gsub("^/","",config$labkey.url.path))))
       cat(sprintf("User: %s\n",config$labkey.user.email))
@@ -127,83 +126,56 @@
   }
 )
 
-# Returns a list of data frames where TRUE in file_exists column marks files that are accessible.
+# Returns a named logical where TRUE marks files that are accessible.
 # This function is used for administrative purposes to check that the flat files
 # are properly loaded and accessible to the users.
-#' @importFrom RCurl getURL url.exists
-#' @importFrom rjson fromJSON
-#' @importFrom parallel mclapply detectCores
+#' @importFrom RCurl url.exists
 .ISCon$methods(
-  .test_files=function(what = c("gene_expression_files", "fcs_sample_files", "protocols")){
-    list_files <- function(link){
-      response <- NULL
-      if (url.exists(url = link, netrc = TRUE)){
-        response_raw <- getURL(url = link, netrc = TRUE)
-        response_json <- fromJSON(response_raw)
-        response <- unlist(lapply(response_json$files, function(x) x$text))
-      }
-      response
-    }
-    
-    check_links <- function (name1, name2){
-      res <- data.frame(file_info_name = NULL, study_accession = NULL, 
-                        file_link = NULL, file_exists = NULL, 
-                        stringsAsFactors = FALSE)
-      
-      if (name1 %in% studies$available_datasets$Name){
-        temp <- .self$getDataset(name1, original_view = TRUE)
-        temp <- temp[!is.na(file_info_name)]
-        temp <- unique(temp[, list(study_accession, file_info_name)])
-        
-        file_link <- paste0(.self$config$labkey.url.base, "/_webdav/Studies/", 
-                            temp$study_accession, "/%40files/rawdata/", name2, "/", 
-                            sapply(temp$file_info_name, URLencode))
-        
-        studies <- unique(temp$study_accession)
-        folder_link <- paste0(.self$config$labkey.url.base, "/_webdav/Studies/", 
-                              studies, "/%40files/rawdata/", name2, "?method=JSON")
-        
-        file_list <- unlist(mclapply(folder_link, list_files, mc.cores = detectCores()))
-        
-        file_exists <- temp$file_info_name %in% file_list
-        res <- data.frame(study = temp$study_accession, file_link = file_link, file_exists = file_exists, 
-                          stringsAsFactors = FALSE) 
-        print(paste0(sum(res$file_exists), "/", nrow(res), " ", name1, " with valid links."))
-      }
-      
-      res
-    }
-    
+  .test_files=function(what = c("gene_expression_files", "fcs", "protocol"), mc = FALSE){
     ret <- list()
     what <- tolower(what)
-    
     if("gene_expression_files" %in% what){
-      ret$gene_expression_files <- check_links("gene_expression_files", "gene_expression")
-    }
-    if("fcs_sample_files" %in% what){
-      ret$fcs_sample_files <- check_links("fcs_sample_files", "flow_cytometry")
-    }
-    if("protocols" %in% what){
-      if(.self$.isProject()){
-        folders_list <- labkey.getFolders(baseUrl = .self$config$labkey.url.base, 
-                                          folderPath = "/Studies/")
-        folders <- folders_list[, 1]
-        folders <- folders[!folders %in% c("SDY_template","Studies")]
+      gef <- .self$getDataset("gene_expression_files", original_view = TRUE)
+      gef <- gef[!is.na(file_info_name)]
+      gef <- unique(gef[, list(study_accession, file_info_name)])
+      links <- paste0(config$labkey.url.base, "/_webdav/", "/Studies/", 
+                      gef$study_accession, "/%40files/rawdata/gene_expression/",
+                      sapply(gef$file_info_name, URLencode))
+      if(mc){
+        res <- unlist(mclapply(links, url.exists, netrc = TRUE))
       } else{
-        folders <- basename(.self$config$labkey.url.path)
+        res <- sapply(links, url.exists, netrc = TRUE)
       }
-      
-      file_link <- paste0(.self$config$labkey.url.base, "/_webdav/Studies/", folders, 
-                              "/%40files/protocols/", folders, "_protocol.zip")
-      file_exists <- unlist(mclapply(file_link, url.exists, netrc = TRUE, mc.cores = detectCores()))
-      
-      res <- data.frame(study = folders, file_link = file_link, file_exists = file_exists, 
-                        stringsAsFactors = FALSE)      
-      print(paste0(sum(res$file_exists), "/", nrow(res), " protocols with valid links."))
-      ret$protocols <- res
+      print(paste0(length(res[res]), "/", length(res), "gene expression files with valid links."))
+      ret$gene_expression_files <- res
+    }
+    if("fcs" %in% what){
+      fcs <- .self$getDataset("fcs_sample_files", original_view = TRUE)
+      fcs <- unique(fcs[, list(file_info_name, study_accession)])
+      links <- paste0(config$labkey.url.base, "/_webdav/", "/Studies/", 
+                      fcs$study_accession, "/%40files/rawdata/flow_cytometry/",
+                      sapply(fcs$file_info_name, URLencode))
+      if(mc){
+        res <- unlist(mclapply(links, url.exists, netrc = TRUE))
+      } else{
+        res <- sapply(links, url.exists, netrc = TRUE)
+      }
+      print(paste0(length(res[res]), "/", length(res), "FCS files with valid links."))
+      ret$fcs <- res
+    }
+    if("protocol" %in% what){
+      if(.self$.isProject()){
+        message("Project level, all protocols will be checked.")
+        # Get study list and check em all. Bonus points for returning named logical.
+      } else{
+        folder <- basename(con$config$labkey.url.path)
+        res <- url.exists(paste0(config$labkey.url.base, "/_webdav/Studies/",
+                                 study, "/%40files/protocols/", folder,
+                                 "_protocol.zip"),
+                          netrc = TRUE)
+        ret$protocol <- res
+      }
     }
     return(ret)
   }
 )
-
-
