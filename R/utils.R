@@ -129,6 +129,7 @@ theme_IS <- function(base_size = 12) {
 #' @param file A \code{character}. The credentials will be written into that
 #'  file. If left NULL, the netrc will be written into a temporary file.
 #' @export
+#' @return A character vector containing the file paths for netrc
 #' @examples 
 #' write_netrc("immunespaceuser@gmail.com", "mypassword")
 #' 

@@ -15,6 +15,9 @@ ImmuneSpace.}
 \item{file}{A \code{character}. The credentials will be written into that
 file. If left NULL, the netrc will be written into a temporary file.}
 }
+\value{
+A character vector containing the file paths for netrc
+}
 \description{
 Write a netrc file that is valid for accessing ImmuneSpace
 }
@@ -22,4 +25,3 @@ Write a netrc file that is valid for accessing ImmuneSpace
 write_netrc("immunespaceuser@gmail.com", "mypassword")
 
 }
-
