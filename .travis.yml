@@ -7,7 +7,15 @@ r:
 cache: packages
 sudo: false
 
+bioc_packages:
+  - BiocCheck
+
 before_script: Rscript -e 'write(x = paste("machine www.immunespace.org login", Sys.getenv("ISR_login"), "password", Sys.getenv("ISR_pwd")), file = "~/.netrc")'
+
+after_script:
+  - ls -lah
+  - FILE=$(ls -1t *.tar.gz | head -n 1)
+  - Rscript -e "library(BiocCheck); BiocCheck(\"${FILE}\")"
 
 notifications:
   email: false
