@@ -21,6 +21,8 @@ NULL
     heatmap.\n
     show_virus_strain: A logical. Should all the virus strains be shown or should
     the values be averaged. Only used when dataset = 'hai'.\n
+    interactive: A logical. If set to TRUE, an interactive plot will be created. 
+    The default is FALSE.\n
     '...': Extra argument to be passed to ggplot. e.g: shape = 'Age', color =
     'Race'.\n"
     .quick_plot(.self, ...)
@@ -32,7 +34,8 @@ NULL
 .quick_plot <- function(con, dataset, normalize_to_baseline = TRUE,
                       type = "auto", filter = NULL,
                       facet = "grid", text_size = 15,
-                      legend = NULL, show_virus_strain = FALSE, ...){
+                      legend = NULL, show_virus_strain = FALSE, 
+                      interactive = FALSE, ...){
   logT <- TRUE #By default, log transform the value_reported
   extras <- list(...)
   
@@ -88,11 +91,12 @@ NULL
     facet <- facet_wrap(~cohort + analyte, scales = "free")
   }
   if(type == "heatmap"){
-    p <- .qpHeatmap2(dt, normalize_to_baseline, legend, text_size)
+    p <- .qpHeatmap2(dt, normalize_to_baseline, legend, text_size, interactive)
+    if (interactive) p
   } else if(type %in% c("boxplot", "violin")){
-    .qpBoxplotViolin(dt, type, facet, ylab, text_size, extras, ...)
+    .qpBoxplotViolin(dt, type, facet, ylab, text_size, extras, interactive, ...)
   } else if(type == "line"){
-    .qpLineplot(dt, facet, ylab, text_size, extras, ...)
+    .qpLineplot(dt, facet, ylab, text_size, extras, interactive, ...)
   } else{#} if(type == "error"){
     data <- data.frame(x = 0, y = 0, err = error_string)
     p <- ggplot(data = data) + geom_text(aes(x, y, label = err), size = 10) +
@@ -139,7 +143,8 @@ NULL
 #' @importFrom pheatmap pheatmap
 #' @importFrom reshape2 acast
 #' @importFrom stats formula
-.qpHeatmap2 <- function(dt, normalize_to_baseline, legend, text_size){
+#' @importFrom heatmaply heatmaply
+.qpHeatmap2 <- function(dt, normalize_to_baseline, legend, text_size, interactive){
   palette <- ISpalette(20)
   
   dt <- dt[, ID := paste(cohort, time_str, participant_id, sep = "_")]
@@ -167,28 +172,34 @@ NULL
   show_rnames <- ifelse(nrow(mat) < 50, TRUE, FALSE)
   cluster_rows <- ifelse(nrow(mat) > 2 & ncol(mat) > 2, TRUE, FALSE)
   
-  e <- try({
-    p <- pheatmap(mat = mat, annotation = anno, show_colnames = FALSE,
-                  show_rownames = show_rnames, cluster_cols = FALSE,
-                  cluster_rows = cluster_rows, color = palette,
-                  scale = scale, breaks = breaks,
-                  fontsize = text_size, annotation_colors = anno_color)
-  })
-  if(inherits(e, "try-error")){
-    p <- pheatmap(mat = mat, annotation = anno, show_colnames = FALSE,
-                  show_rownames = show_rnames, cluster_cols = FALSE,
-                  cluster_rows = FALSE, color = palette,
-                  scale = scale, breaks = breaks,
-                  fontsize = text_size, annotation_colors = anno_color)
+  if (interactive){
+    heatmaply(x = mat, colors = rev(palette), col_side_colors = t(anno), 
+                   dendrogram = "row")
+  } else {
+    e <- try({
+      p <- pheatmap(mat = mat, annotation = anno, show_colnames = FALSE,
+                    show_rownames = show_rnames, cluster_cols = FALSE,
+                    cluster_rows = cluster_rows, color = palette,
+                    scale = scale, breaks = breaks,
+                    fontsize = text_size, annotation_colors = anno_color)
+    })
+    if(inherits(e, "try-error")){
+      p <- pheatmap(mat = mat, annotation = anno, show_colnames = FALSE,
+                    show_rownames = show_rnames, cluster_cols = FALSE,
+                    cluster_rows = FALSE, color = palette,
+                    scale = scale, breaks = breaks,
+                    fontsize = text_size, annotation_colors = anno_color)
+    }
+    p
   }
-  return(p)
 }
 
 
 #' @importFrom ggplot2 ggplot geom_violin geom_boxplot geom_jitter
 #' @importFrom ggplot2 theme element_text aes_string aes xlab ylab
+#' @importFrom plotly ggplotly
 # @importFrom ggplot2 scale_color_manual scale_color_gradient
-.qpBoxplotViolin <- function(dt, type, facet, ylab, text_size, extras, ...){
+.qpBoxplotViolin <- function(dt, type, facet, ylab, text_size, extras, interactive, ...){
   if(type == "violin"){
     geom_type <- geom_violin() #+ stat_summary(fun.y="median", geom="point")
   } else{
@@ -202,12 +213,17 @@ NULL
     p <- p + geom_jitter(size = 3, aes_string(...)) 
   } 
   p <- p + theme_IS(base_size = text_size)
-  print(p)
+  if (interactive){
+    ggplotly(p)
+  } else{
+    print(p)
+  }
 }
 
 #' @importFrom ggplot2 ggplot geom_line geom_point
 #' @importFrom ggplot2 theme element_text aes_string aes xlab ylab
-.qpLineplot <- function(dt, facet, ylab, text_size, extras, ...){
+#' @importFrom plotly ggplotly
+.qpLineplot <- function(dt, facet, ylab, text_size, extras, interactive, ...){
   p <- ggplot(data = dt, aes(study_time_collected, response, group = participant_id)) +
   geom_line(size = 1, aes_string(...)) +                                            
   xlab("Time") + ylab(ylab) + facet
@@ -217,7 +233,11 @@ NULL
     p <- p + geom_point(size = 3, aes_string(...))                          
   }
   p <- p + theme_IS(base_size = text_size)
-  print(p)
+  if (interactive){
+    ggplotly(p)
+  } else{
+    print(p)
+  }
 }
 
 # Get the data

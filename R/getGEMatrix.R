@@ -23,7 +23,7 @@ NULL
       if(.self$.isRunningLocally(localpath)){
         fl <- localpath
         message("Reading local matrix")
-        data_cache[[cache_name]] <<- fread(fl, header = TRUE)
+        data_cache[[cache_name]] <<- fread(fl, header = TRUE, showProgress = FALSE)
       }else{
         opts <- config$curlOptions
         opts$netrc <- 1L
@@ -34,7 +34,7 @@ NULL
         curlPerform(url = link, curl = handle, writefunction = h$update)
         fl <- tempfile()
         write(h$value(), file = fl)
-        EM <- fread(fl, header = TRUE)
+        EM <- fread(fl, header = TRUE, showProgress = FALSE)
         if(nrow(EM) == 0){
           stop("The downloaded matrix has 0 rows. Something went wrong")
         }
