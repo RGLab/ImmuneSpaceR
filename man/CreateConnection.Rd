@@ -50,4 +50,3 @@ if(inherits(sdy, "try-error")){
 \seealso{
 ImmuneSpaceConnection
 }
-
