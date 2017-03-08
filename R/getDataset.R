@@ -47,8 +47,7 @@ filter_cached_copy <- function(filters, data){
                           "Valid datasets for ", study, ": ",
                           paste(available_datasets$Name, collapse = ", "), ".")
       }
-      warning(wstring)
-      NULL
+      stop(wstring)
     } else{
       cache_name <- paste0(x, ifelse(original_view, "_full", ""))
       nOpts <- length(list(...))
