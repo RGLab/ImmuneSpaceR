@@ -7,6 +7,8 @@ r:
 cache: packages
 sudo: false
 
+r_github_packages:
+  - jimhester/covr
 bioc_packages:
   - BiocCheck
 
@@ -16,6 +18,9 @@ after_script:
   - ls -lah
   - FILE=$(ls -1t *.tar.gz | head -n 1)
   - Rscript -e "library(BiocCheck); BiocCheck(\"${FILE}\")"
+
+after_success:
+  - Rscript -e 'covr::codecov()'
 
 notifications:
   email: false
