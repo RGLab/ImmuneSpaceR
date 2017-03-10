@@ -217,7 +217,7 @@ NULL
     bsFilter <- makeFilter(c("biosample_accession", "IN",
                              paste(pData(data_cache[[x]])$biosample_accession, collapse = ";")))
     bs2es <- data.table(labkey.selectRows(config$labkey.url.base, config$labkey.url.path,
-                                          "immport", "biosample_2_expsample",
+                                          "immport", "expsample_2_biosample",
                                           colFilter = bsFilter, colNameOpt = "rname"))
     esFilter <- makeFilter(c("expsample_accession", "IN",
                              paste(bs2es$expsample_accession, collapse = ";")))
@@ -269,7 +269,7 @@ NULL
       bsFilter <- makeFilter(c("biosample_accession", "IN",
                                  paste(pd$biosample_accession, collapse = ";")))
       bs2es <- data.table(labkey.selectRows(config$labkey.url.base, config$labkey.url.path,
-                                              "immport", "biosample_2_expsample",
+                                              "immport", "expsample_2_biosample",
                                               colFilter = bsFilter, colNameOpt = "rname"))
       pd <- merge(pd, bs2es[, list(biosample_accession, expsample_accession)], by = "biosample_accession")
       es <- pd[match(sampleNames(EM), pd$biosample_accession), expsample_accession]
