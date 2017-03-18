@@ -46,6 +46,7 @@ NULL
   
   # Datasets
   e <- try({
+    if(tolower(dataset) == "hla_typing") stop("hla_typing visualization is not available.")
     if(tolower(dataset) %in% c("ge", "dgea_filteredgear", "gene_expression", "gene_expression_analysis_results")){
       dataset <- "gene_expression"
     }
