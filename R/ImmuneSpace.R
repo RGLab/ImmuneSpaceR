@@ -134,7 +134,7 @@
 #' @importFrom rjson fromJSON
 #' @importFrom parallel mclapply detectCores
 .ISCon$methods(
-  .test_files=function(what = c("gene_expression_files", "fcs_sample_files", "protocols")){
+  .test_files=function(what = c("gene_expression_files", "fcs_sample_files", "protocols", "ge_matrices")){
     list_files <- function(link){
       response <- NULL
       if (url.exists(url = link, netrc = TRUE)){
@@ -145,30 +145,30 @@
       response
     }
     
-    check_links <- function (name1, name2){
+    check_links <- function (dataset, folder){
       res <- data.frame(file_info_name = NULL, study_accession = NULL, 
                         file_link = NULL, file_exists = NULL, 
                         stringsAsFactors = FALSE)
       
-      if (name1 %in% studies$available_datasets$Name){
-        temp <- .self$getDataset(name1, original_view = TRUE)
+      if (dataset %in% studies$available_datasets$Name){
+        temp <- .self$getDataset(dataset, original_view = TRUE)
         temp <- temp[!is.na(file_info_name)]
         temp <- unique(temp[, list(study_accession, file_info_name)])
         
         file_link <- paste0(.self$config$labkey.url.base, "/_webdav/Studies/", 
-                            temp$study_accession, "/%40files/rawdata/", name2, "/", 
+                            temp$study_accession, "/%40files/rawdata/", folder, "/", 
                             sapply(temp$file_info_name, URLencode))
         
         studies <- unique(temp$study_accession)
         folder_link <- paste0(.self$config$labkey.url.base, "/_webdav/Studies/", 
-                              studies, "/%40files/rawdata/", name2, "?method=JSON")
+                              studies, "/%40files/rawdata/", folder, "?method=JSON")
         
         file_list <- unlist(mclapply(folder_link, list_files, mc.cores = detectCores()))
         
         file_exists <- temp$file_info_name %in% file_list
         res <- data.frame(study = temp$study_accession, file_link = file_link, file_exists = file_exists, 
                           stringsAsFactors = FALSE) 
-        print(paste0(sum(res$file_exists), "/", nrow(res), " ", name1, " with valid links."))
+        print(paste0(sum(res$file_exists), "/", nrow(res), " ", dataset, " with valid links."))
       }
       
       res
@@ -201,6 +201,19 @@
                         stringsAsFactors = FALSE)      
       print(paste0(sum(res$file_exists), "/", nrow(res), " protocols with valid links."))
       ret$protocols <- res
+    }
+    if ("ge_matrices" %in% what){
+      library("Rlabkey")
+      labkey.url.base <- "https://immunespace.org/"
+      ge<-data.frame(labkey.selectRows( baseUrl = labkey.url.base, folderPath = "/query/Studies",  
+                        schemaName = "assay.ExpressionMatrix.matrix", queryName = "OutputDatas", colNameOpt = "rname", viewName = "links"))
+      output <- lapply(ge[4], function(x) gsub("@", "%40", gsub("file:/share/files", 
+                        paste(labkey.url.base, "_webdav", sep= ""), x)))
+      library("parallel")  
+      file_exists <- unlist(mclapply(output$data_datafileurl, url.exists, netrc = TRUE, mc.cores = detectCores()))
+      res <- data.frame(file_link = output$data_datafileurl, file_exists = file_exists, 
+                        stringsAsFactors = FALSE)
+      ret$ge_matrices <- res
     }
     return(ret)
   }
