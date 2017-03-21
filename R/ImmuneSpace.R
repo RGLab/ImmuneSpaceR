@@ -150,7 +150,7 @@
                         file_link = NULL, file_exists = NULL, 
                         stringsAsFactors = FALSE)
       
-      if (dataset %in% studies$available_datasets$Name){
+      if (dataset %in% .self$available_datasets$Name){
         temp <- .self$getDataset(dataset, original_view = TRUE)
         temp <- temp[!is.na(file_info_name)]
         temp <- unique(temp[, list(study_accession, file_info_name)])
