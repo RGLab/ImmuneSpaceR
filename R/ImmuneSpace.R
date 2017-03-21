@@ -203,7 +203,7 @@
       ret$protocols <- res
     }
     if ("ge_matrices" %in% what){
-      ge<-data.frame(labkey.selectRows( baseUrl = config$labkey.url.base, folderPath = "/query/Studies",  
+      ge<-data.frame(labkey.selectRows( baseUrl = config$labkey.url.base, folderPath = config$labkey.url.path,  
                         schemaName = "assay.ExpressionMatrix.matrix", queryName = "OutputDatas", colNameOpt = "rname", viewName = "links"))
       output <- lapply(ge[4], function(x) gsub("@", "%40", gsub("file:/share/files", 
                         paste0(config$labkey.url.base, "/_webdav"), x)))
