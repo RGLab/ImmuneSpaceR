@@ -216,7 +216,7 @@
         res <- data.frame(file_link = output$data_datafileurl, file_exists = file_exists, 
                         stringsAsFactors = FALSE)
       } else {
-        res <- data.frame(file_link = NULL, file_exists = NULL, stringAsFactors = FALSE)
+        res <- data.frame(file_link = NULL, file_exists = NULL, stringsAsFactors = FALSE)
       }
       
       ret$ge_matrices <- res
