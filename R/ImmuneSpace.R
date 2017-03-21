@@ -150,7 +150,7 @@
                         file_link = NULL, file_exists = NULL, 
                         stringsAsFactors = FALSE)
       
-      if (dataset %in% studies$available_datasets$Name){
+      if (dataset %in% config$available_datasets$Name){
         temp <- .self$getDataset(dataset, original_view = TRUE)
         temp <- temp[!is.na(file_info_name)]
         temp <- unique(temp[, list(study_accession, file_info_name)])
@@ -203,13 +203,18 @@
       ret$protocols <- res
     }
     if ("ge_matrices" %in% what){
-      ge<-data.frame(labkey.selectRows( baseUrl = config$labkey.url.base, folderPath = config$labkey.url.path,  
+      res <- data.frame(file_link = NULL, file_exists = NULL, stringAsFactors = FALSE)
+
+      try({
+          ge<-data.frame(labkey.selectRows( baseUrl = config$labkey.url.base, folderPath = config$labkey.url.path,  
                         schemaName = "assay.ExpressionMatrix.matrix", queryName = "OutputDatas", colNameOpt = "rname", viewName = "links"))
-      output <- lapply(ge[4], function(x) gsub("@", "%40", gsub("file:/share/files", 
+          output <- lapply(ge[4], function(x) gsub("@", "%40", gsub("file:/share/files", 
                         paste0(config$labkey.url.base, "/_webdav"), x)))
-      file_exists <- unlist(mclapply(output$data_datafileurl, url.exists, netrc = TRUE, mc.cores = detectCores()))
-      res <- data.frame(file_link = output$data_datafileurl, file_exists = file_exists, 
+          file_exists <- unlist(mclapply(output$data_datafileurl, url.exists, netrc = TRUE, mc.cores = detectCores()))
+          res <- data.frame(file_link = output$data_datafileurl, file_exists = file_exists, 
                         stringsAsFactors = FALSE)
+      })
+      
       ret$ge_matrices <- res
     }
     return(ret)
