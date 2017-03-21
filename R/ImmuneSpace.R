@@ -155,12 +155,12 @@
         temp <- temp[!is.na(file_info_name)]
         temp <- unique(temp[, list(study_accession, file_info_name)])
         
-        file_link <- paste0($config$labkey.url.base, "/_webdav/Studies/", 
+        file_link <- paste0(config$labkey.url.base, "/_webdav/Studies/", 
                             temp$study_accession, "/%40files/rawdata/", folder, "/", 
                             sapply(temp$file_info_name, URLencode))
         
         studies <- unique(temp$study_accession)
-        folder_link <- paste0($config$labkey.url.base, "/_webdav/Studies/", 
+        folder_link <- paste0(config$labkey.url.base, "/_webdav/Studies/", 
                               studies, "/%40files/rawdata/", folder, "?method=JSON")
         
         file_list <- unlist(mclapply(folder_link, list_files, mc.cores = detectCores()))
