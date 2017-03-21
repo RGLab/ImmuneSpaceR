@@ -206,7 +206,7 @@
       ge<-data.frame(labkey.selectRows( baseUrl = config$labkey.url.base, folderPath = "/query/Studies",  
                         schemaName = "assay.ExpressionMatrix.matrix", queryName = "OutputDatas", colNameOpt = "rname", viewName = "links"))
       output <- lapply(ge[4], function(x) gsub("@", "%40", gsub("file:/share/files", 
-                        paste0(config$labkey.url.base, "_webdav"), x)))
+                        paste0(config$labkey.url.base, "/_webdav"), x)))
       file_exists <- unlist(mclapply(output$data_datafileurl, url.exists, netrc = TRUE, mc.cores = detectCores()))
       res <- data.frame(file_link = output$data_datafileurl, file_exists = file_exists, 
                         stringsAsFactors = FALSE)
