@@ -207,7 +207,6 @@
                         schemaName = "assay.ExpressionMatrix.matrix", queryName = "OutputDatas", colNameOpt = "rname", viewName = "links"))
       output <- lapply(ge[4], function(x) gsub("@", "%40", gsub("file:/share/files", 
                         paste(config$labkey.url.base, "_webdav"), x)))
-      library("parallel")  
       file_exists <- unlist(mclapply(output$data_datafileurl, url.exists, netrc = TRUE, mc.cores = detectCores()))
       res <- data.frame(file_link = output$data_datafileurl, file_exists = file_exists, 
                         stringsAsFactors = FALSE)
