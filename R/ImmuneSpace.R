@@ -203,17 +203,21 @@
       ret$protocols <- res
     }
     if ("ge_matrices" %in% what){
-      res <- data.frame(file_link = NULL, file_exists = NULL, stringAsFactors = FALSE)
-
-      try({
-          ge<-data.frame(labkey.selectRows( baseUrl = config$labkey.url.base, folderPath = config$labkey.url.path,  
+      matrix_queries <- labkey.getQueries(baseUrl = config$labkey.url.base, 
+                                          folderPath = config$labkey.url.path, 
+                                          schemaName = "assay.ExpressionMatrix.matrix")
+      
+      if ("OutputDatas" %in% matrix_queries$queryName) {
+        ge<-data.frame(labkey.selectRows( baseUrl = config$labkey.url.base, folderPath = config$labkey.url.path,  
                         schemaName = "assay.ExpressionMatrix.matrix", queryName = "OutputDatas", colNameOpt = "rname", viewName = "links"))
-          output <- lapply(ge[4], function(x) gsub("@", "%40", gsub("file:/share/files", 
+        output <- lapply(ge[4], function(x) gsub("@", "%40", gsub("file:/share/files", 
                         paste0(config$labkey.url.base, "/_webdav"), x)))
-          file_exists <- unlist(mclapply(output$data_datafileurl, url.exists, netrc = TRUE, mc.cores = detectCores()))
-          res <- data.frame(file_link = output$data_datafileurl, file_exists = file_exists, 
+        file_exists <- unlist(mclapply(output$data_datafileurl, url.exists, netrc = TRUE, mc.cores = detectCores()))
+        res <- data.frame(file_link = output$data_datafileurl, file_exists = file_exists, 
                         stringsAsFactors = FALSE)
-      })
+      } else {
+        res <- data.frame(file_link = NULL, file_exists = NULL, stringAsFactors = FALSE)
+      }
       
       ret$ge_matrices <- res
     }
