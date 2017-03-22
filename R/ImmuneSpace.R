@@ -215,6 +215,7 @@
         file_exists <- unlist(mclapply(output$data_datafileurl, url.exists, netrc = TRUE, mc.cores = detectCores()))
         res <- data.frame(file_link = output$data_datafileurl, file_exists = file_exists, 
                         stringsAsFactors = FALSE)
+        print(paste0(sum(res$file_exists), "/", nrow(res), " ge_matrices with valid links."))
       } else {
         res <- data.frame(file_link = NULL, file_exists = NULL, stringsAsFactors = FALSE)
       }
