@@ -134,7 +134,7 @@
 #' @importFrom rjson fromJSON
 #' @importFrom parallel mclapply detectCores
 .ISCon$methods(
-  .test_files=function(what = c("gene_expression_files", "fcs_sample_files", "protocols")){
+  .test_files=function(what = c("gene_expression_files", "fcs_sample_files", "protocols", "ge_matrices")){
     list_files <- function(link){
       response <- NULL
       if (url.exists(url = link, netrc = TRUE)){
@@ -145,30 +145,30 @@
       response
     }
     
-    check_links <- function (name1, name2){
+    check_links <- function (dataset, folder){
       res <- data.frame(file_info_name = NULL, study_accession = NULL, 
                         file_link = NULL, file_exists = NULL, 
                         stringsAsFactors = FALSE)
       
-      if (name1 %in% studies$available_datasets$Name){
-        temp <- .self$getDataset(name1, original_view = TRUE)
+      if (dataset %in% .self$available_datasets$Name){
+        temp <- .self$getDataset(dataset, original_view = TRUE)
         temp <- temp[!is.na(file_info_name)]
         temp <- unique(temp[, list(study_accession, file_info_name)])
         
-        file_link <- paste0(.self$config$labkey.url.base, "/_webdav/Studies/", 
-                            temp$study_accession, "/%40files/rawdata/", name2, "/", 
+        file_link <- paste0(config$labkey.url.base, "/_webdav/Studies/", 
+                            temp$study_accession, "/%40files/rawdata/", folder, "/", 
                             sapply(temp$file_info_name, URLencode))
         
         studies <- unique(temp$study_accession)
-        folder_link <- paste0(.self$config$labkey.url.base, "/_webdav/Studies/", 
-                              studies, "/%40files/rawdata/", name2, "?method=JSON")
+        folder_link <- paste0(config$labkey.url.base, "/_webdav/Studies/", 
+                              studies, "/%40files/rawdata/", folder, "?method=JSON")
         
         file_list <- unlist(mclapply(folder_link, list_files, mc.cores = detectCores()))
         
         file_exists <- temp$file_info_name %in% file_list
         res <- data.frame(study = temp$study_accession, file_link = file_link, file_exists = file_exists, 
                           stringsAsFactors = FALSE) 
-        print(paste0(sum(res$file_exists), "/", nrow(res), " ", name1, " with valid links."))
+        print(paste0(sum(res$file_exists), "/", nrow(res), " ", dataset, " with valid links."))
       }
       
       res
@@ -185,15 +185,15 @@
     }
     if("protocols" %in% what){
       if(.self$.isProject()){
-        folders_list <- labkey.getFolders(baseUrl = .self$config$labkey.url.base, 
+        folders_list <- labkey.getFolders(baseUrl = config$labkey.url.base, 
                                           folderPath = "/Studies/")
         folders <- folders_list[, 1]
         folders <- folders[!folders %in% c("SDY_template","Studies")]
       } else{
-        folders <- basename(.self$config$labkey.url.path)
+        folders <- basename(config$labkey.url.path)
       }
       
-      file_link <- paste0(.self$config$labkey.url.base, "/_webdav/Studies/", folders, 
+      file_link <- paste0(config$labkey.url.base, "/_webdav/Studies/", folders, 
                               "/%40files/protocols/", folders, "_protocol.zip")
       file_exists <- unlist(mclapply(file_link, url.exists, netrc = TRUE, mc.cores = detectCores()))
       
@@ -201,6 +201,26 @@
                         stringsAsFactors = FALSE)      
       print(paste0(sum(res$file_exists), "/", nrow(res), " protocols with valid links."))
       ret$protocols <- res
+    }
+    if ("ge_matrices" %in% what){
+      matrix_queries <- labkey.getQueries(baseUrl = config$labkey.url.base, 
+                                          folderPath = config$labkey.url.path, 
+                                          schemaName = "assay.ExpressionMatrix.matrix")
+      
+      if ("OutputDatas" %in% matrix_queries$queryName) {
+        ge<-data.frame(labkey.selectRows( baseUrl = config$labkey.url.base, folderPath = config$labkey.url.path,  
+                        schemaName = "assay.ExpressionMatrix.matrix", queryName = "OutputDatas", colNameOpt = "rname", viewName = "links"))
+        output <- lapply(ge[4], function(x) gsub("@", "%40", gsub("file:/share/files", 
+                        paste0(config$labkey.url.base, "/_webdav"), x)))
+        file_exists <- unlist(mclapply(output$data_datafileurl, url.exists, netrc = TRUE, mc.cores = detectCores()))
+        res <- data.frame(file_link = output$data_datafileurl, file_exists = file_exists, 
+                        stringsAsFactors = FALSE)
+        print(paste0(sum(res$file_exists), "/", nrow(res), " ge_matrices with valid links."))
+      } else {
+        res <- data.frame(file_link = NULL, file_exists = NULL, stringsAsFactors = FALSE)
+      }
+      
+      ret$ge_matrices <- res
     }
     return(ret)
   }
