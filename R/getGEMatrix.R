@@ -23,7 +23,7 @@ NULL
       if(.self$.isRunningLocally(localpath)){
         fl <- localpath
         message("Reading local matrix")
-        data_cache[[cache_name]] <<- fread(fl, header = TRUE)
+        data_cache[[cache_name]] <<- fread(fl, header = TRUE, showProgress = FALSE)
       }else{
         opts <- config$curlOptions
         opts$netrc <- 1L
@@ -34,7 +34,7 @@ NULL
         curlPerform(url = link, curl = handle, writefunction = h$update)
         fl <- tempfile()
         write(h$value(), file = fl)
-        EM <- fread(fl, header = TRUE)
+        EM <- fread(fl, header = TRUE, showProgress = FALSE)
         if(nrow(EM) == 0){
           stop("The downloaded matrix has 0 rows. Something went wrong")
         }
@@ -217,7 +217,7 @@ NULL
     bsFilter <- makeFilter(c("biosample_accession", "IN",
                              paste(pData(data_cache[[x]])$biosample_accession, collapse = ";")))
     bs2es <- data.table(labkey.selectRows(config$labkey.url.base, config$labkey.url.path,
-                                          "immport", "biosample_2_expsample",
+                                          "immport", "expsample_2_biosample",
                                           colFilter = bsFilter, colNameOpt = "rname"))
     esFilter <- makeFilter(c("expsample_accession", "IN",
                              paste(bs2es$expsample_accession, collapse = ";")))
@@ -269,7 +269,7 @@ NULL
       bsFilter <- makeFilter(c("biosample_accession", "IN",
                                  paste(pd$biosample_accession, collapse = ";")))
       bs2es <- data.table(labkey.selectRows(config$labkey.url.base, config$labkey.url.path,
-                                              "immport", "biosample_2_expsample",
+                                              "immport", "expsample_2_biosample",
                                               colFilter = bsFilter, colNameOpt = "rname"))
       pd <- merge(pd, bs2es[, list(biosample_accession, expsample_accession)], by = "biosample_accession")
       es <- pd[match(sampleNames(EM), pd$biosample_accession), expsample_accession]

@@ -38,7 +38,7 @@ test_dataset <- function(con, name, common_cols, specif_cols){
   x <- con$getDataset(name, reload = TRUE)
   # Dataset is of the right class and not empty
   expect_is(x, "data.table")
-  expect_more_than(nrow(x), 0)
+  expect_gt(nrow(x), 0)
   # All required columns are here
   expect_true(all(common_cols %in% colnames(x)))
   expect_true(all(specif_cols$name %in% colnames(x)))
@@ -56,10 +56,10 @@ test_EM <- function(con, name, cohort = NULL){
   # EM have the right class and aren't empty
   expect_is(EM, "ExpressionSet")
   expect_is(EMsum, "ExpressionSet")
-  expect_more_than(ncol(EM), 0)
-  expect_more_than(nrow(EM), 0)
-  expect_more_than(ncol(EMsum), 0)
-  expect_more_than(nrow(EMsum), 0)  
+  expect_gt(ncol(EM), 0)
+  expect_gt(nrow(EM), 0)
+  expect_gt(ncol(EMsum), 0)
+  expect_gt(nrow(EMsum), 0)  
   
   # In summary, no gene is NA
   expect_false(any(is.na(fData(EMsum)$gene_symbol)))
