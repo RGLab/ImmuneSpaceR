@@ -2,7 +2,7 @@
 title: "Abundance of plasmablasts measured by multiparameter flow cytometry in SDY180"
 author: "Renan Sauteraud"
 date: "`r Sys.Date()`"
-output: rmarkdown::html_document
+output: ImmuneSpaceR::template_IS
 vignette: >
   %\VignetteIndexEntry{Reproducing an online report using ImmuneSpaceR: Plasmablast abundance in SDY180}
   %\VignetteEngine{knitr::rmarkdown}

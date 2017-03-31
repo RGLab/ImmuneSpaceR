@@ -1,7 +1,7 @@
 ---
 title: "A simple introduction to the ImmuneSpaceR package"
 date: "`r Sys.Date()`"
-output: html_document
+output: ImmuneSpaceR::template_IS
 vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteIndexEntry{An introduction to the ImmuneSpaceR package}
