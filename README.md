@@ -2,7 +2,9 @@ ImmuneSpaceR
 ============
 
 [![Build Status](https://travis-ci.org/RGLab/ImmuneSpaceR.svg?branch=dev)](https://travis-ci.org/RGLab/ImmuneSpaceR)
-[![codecov](https://codecov.io/gh/RGLab/ImmuneSpaceR/branch/master/graph/badge.svg)](https://codecov.io/gh/RGLab/ImmuneSpaceR)
+[![codecov](https://codecov.io/gh/RGLab/ImmuneSpaceR/branch/dev/graph/badge.svg)](https://codecov.io/gh/RGLab/ImmuneSpaceR/branch/dev)
+[![bioc](http://www.bioconductor.org/shields/downloads/ImmuneSpaceR.svg)](https://bioconductor.org/packages/stats/bioc/ImmuneSpaceR/) 
+[![bioc](http://www.bioconductor.org/shields/years-in-bioc/ImmuneSpaceR.svg)](http://bioconductor.org/packages/devel/bioc/html/ImmuneSpaceR.html)
 
 A thin wrapper around Rlabkey to access the [ImmuneSpace]("https://www.immunespace.org") database from R
 This package simplifies access to the HIPC ImmuneSpace database, for R programmers.
