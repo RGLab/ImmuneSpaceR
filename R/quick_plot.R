@@ -174,8 +174,10 @@ NULL
   cluster_rows <- ifelse(nrow(mat) > 2 & ncol(mat) > 2, TRUE, FALSE)
   
   if (interactive){
-    heatmaply(x = mat, colors = rev(palette), col_side_colors = t(anno), 
-                   dendrogram = "row")
+    heatmaply(x = mat, 
+              colors = rev(palette), 
+              col_side_colors = anno, 
+              dendrogram = "row")
   } else {
     e <- try({
       p <- pheatmap(mat = mat, annotation = anno, show_colnames = FALSE,
