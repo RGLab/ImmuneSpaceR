@@ -226,4 +226,105 @@
   }
 )
 
+###############################################################################
+# -------------- PARTICIPANT FILTERING METHODS -------------------------------#
+###############################################################################
+
+.col_lookup <- function(iter, values, keys){
+  results <- sapply(iter, FUN = function(x){ res <- values[which(keys == x)] })
+}
+
+
+.getLKtbl <- function(config, schema, query){
+  df <- labkey.selectRows(baseUrl = config$labkey.url.base,
+                          folderPath = config$labkey.url.path,
+                          schemaName = schema,
+                          queryName = query,
+                          showHidden = TRUE)
+}
+
+
+.ISCon$methods(
+  listParticipantGroups = function(){
+    if(config$labkey.url.path != "/Studies/"){
+      stop("labkey.url.path must be /Studies/. Use CreateConnection with all studies.")
+    }
+    
+    pgrp <- .getLKtbl(config = .self$config, schema = "study", query = "ParticipantGroup")
+    pcat <- .getLKtbl(config = .self$config, schema = "study", query = "ParticipantCategory")
+    pmap <- .getLKtbl(config = .self$config, schema = "study", query = "ParticipantGroupMap")
+    user2grp <- .getLKtbl(config = .self$config, schema = "core", query = "UsersAndGroups")
+    
+    result <- merge(pgrp, pcat, by.x = "Category Id", by.y = "Row Id")
+    result <- data.frame(Group_ID = result$`Row Id`, 
+                         Label = result$Label.x, 
+                         Created = result$Created, 
+                         Created_By = result$`Created By`,
+                         stringsAsFactors = F)
+    
+    result$Created_By <- .col_lookup(iter = result$Created_By,
+                                     values = user2grp$`Display Name`,
+                                     keys = user2grp$`User Id`)
+    
+    # Do we want to import dplyr? Or redo with data.table / other sys.
+    # subs <- data.frame(summarize(group_by(pmap, `Group Id`), numsubs = n() ))
+    # 
+    # result$Subjects <- .col_lookup(iter = result$Group_ID,
+    #                                values = subs$numsubs,
+    #                                keys = subs$Group.Id)
+    
+    return(result)
+  }
+)
+
+.ISCon$methods(
+  getParticipantData = function(groupId, dataType){
+    allowedData <- c("hai",
+                     "neut_ab_titer",
+                     "gene_expression_files",
+                     "demographics")
+    
+    if(!(dataType %in% allowedData)){
+      stop("DataType must be in ", paste(allowedData, collapse = ", "))
+    }
+    
+    dt <- tolower(dataType)
+    sql <- paste0("SELECT ", dt, ".*, pmap.GroupId As groupId ",
+                  "FROM ", dt,
+                  " JOIN ParticipantGroupMap AS pmap ON ", 
+                  dt, ".ParticipantId = pmap.ParticipantId",
+                  " WHERE groupId = ", as.character(groupId))
+    
+    allData <- labkey.executeSql(baseUrl = .self$config$labkey.url.base, 
+                                 folderPath = .self$config$labkey.url.path,
+                                 schemaName = "study",
+                                 sql = sql,
+                                 colNameOpt = "fieldname")
+    
+    cols2rm <- c("Container", 
+                 "lsid",
+                 "ParticipantSequenceNum",
+                 "sourcelsid",
+                 "Created",
+                 "CreatedBy",
+                 "Modified",
+                 "ModifiedBy",
+                 "SequenceNum",
+                 "workspace_id",
+                 "Dataset",
+                 "VisitRowId",
+                 "Folder",
+                 "_key",
+                 "filesize",
+                 "unique_id",
+                 "QCState",
+                 "dsrowid",
+                 "date")
+    
+    filtData <- allData[ , !(colnames(allData) %in% cols2rm) ]
+    
+    return(filtData)
+  }
+)
+
 
