@@ -11,34 +11,31 @@
 # Returns TRUE if the connection is at project level ("/Studies")
 .ISCon$methods(
   .isProject=function()
-    if(config$labkey.url.path == "/Studies/"){
-      TRUE
-    } else{
-      FALSE
-    }
+    res <- ifelse(config$labkey.url.path == "/Studies/", TRUE, FALSE)
 )
+
 .ISCon$methods(
   GeneExpressionInputs=function(){
     if(!is.null(data_cache[[constants$matrix_inputs]])){
       data_cache[[constants$matrix_inputs]]
     }else{
-      ge <- data.table(.getLKtbl(con = .self, 
-                                 schema = "assay.Expressionmatrix.matrix",
-                                 query = "InputSamples",
-                                 viewName = "gene_expression_matrices",
-                                 colNameOpt = "fieldname"))
+      ge <- .getLKtbl(con = .self, 
+                      schema = "assay.Expressionmatrix.matrix",
+                      query = "InputSamples",
+                      viewName = "gene_expression_matrices",
+                      colNameOpt = "fieldname")
       setnames(ge,.self$.munge(colnames(ge)))
-      data_cache[[constants$matrix_inputs]]<<-ge
+      data_cache[[constants$matrix_inputs]] <<- ge
     }
   }
 )
-
 
 .ISCon$methods(
   .isRunningLocally=function(path){
     file.exists(path)
   }
 )
+
 .ISCon$methods(
   .localStudyPath=function(urlpath){
     LOCALPATH <- "/share/files/"
@@ -58,6 +55,7 @@
           cat(sprintf("\t%s\n",available_datasets[i,Name]))
         }
       }
+      
       if("expression" %in% which){
         if(!is.null(data_cache[[constants$matrices]])){
           cat("Expression Matrices\n")
@@ -66,8 +64,8 @@
           }
         }
       }
-    })
-
+    }
+)
 
 .ISCon$methods(
     listGEAnalysis = function(){
@@ -101,22 +99,32 @@
     data_cache[grep("^GE", names(data_cache), invert = TRUE)] <<- NULL
   }
 )
+
 .ISCon$methods(
     show=function(){
     "Display information about the object."
       cat(sprintf("Immunespace Connection to study %s\n",study))
-      cat(sprintf("URL: %s\n",file.path(gsub("/$","",config$labkey.url.base),gsub("^/","",config$labkey.url.path))))
+      
+      cat(sprintf("URL: %s\n",
+                  file.path(gsub("/$","",config$labkey.url.base),
+                            gsub("^/","",config$labkey.url.path)))
+          )
+      
       cat(sprintf("User: %s\n",config$labkey.user.email))
+      
       cat("Available datasets\n")
+      
       for(i in 1:nrow(available_datasets)){
         cat(sprintf("\t%s\n",available_datasets[i,Name]))
       }
+      
       if(!is.null(data_cache[[constants$matrices]])){
         cat("Expression Matrices\n")
         for(i in 1:nrow(data_cache[[constants$matrices]])){
           cat(sprintf("\t%s\n",data_cache[[constants$matrices]][i, name]))
         }
       }
+      
     }
 )
 
@@ -334,8 +342,6 @@
                  "date")
     
     filtData <- allData[ , !(colnames(allData) %in% cols2rm) ]
-    
-    return(filtData)
   }
 )
 

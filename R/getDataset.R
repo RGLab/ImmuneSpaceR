@@ -6,17 +6,17 @@
   old[old == "participant_id"] <- "participant id"
   
   colFn <- function(colNameOpt){
-    res <- tolower(colnames(.getLKtbl(con = con,
-                                      schema = schema, 
-                                      query = query,
-                                      viewName = view,
-                                      maxRows = 0,
-                                      colNameOpt = colNameOpt,
-                                      showHidden = FALSE)))
+    res <- colnames(.getLKtbl(con = con,
+                              schema = schema, 
+                              query = query,
+                              viewName = view,
+                              maxRows = 0,
+                              colNameOpt = colNameOpt,
+                              showHidden = FALSE))
   }
   
   suppressWarnings({
-    labels <- colFn(colNameOpt = "caption")
+    labels <- tolower(colFn(colNameOpt = "caption"))
     names <- colFn(colNameOpt = "fieldname")
   })
   
@@ -53,7 +53,8 @@ filter_cached_copy <- function(filters, data){
     whether a cached version exist or not.\n
     colFilter: A character. A filter as returned by Rlabkey's makeFilter function.\n
     '...': Extra arguments to be passed to labkey.selectRows."
-    if(nrow(available_datasets[Name%in%x])==0){
+    
+    if( nrow(available_datasets[Name%in%x]) == 0 ){
       wstring <- paste0(study, " has invalid data set: ",x)
       if(config$verbose){
         wstring <- paste0(wstring, "\n",
@@ -61,21 +62,23 @@ filter_cached_copy <- function(filters, data){
                           paste(available_datasets$Name, collapse = ", "), ".")
       }
       stop(wstring)
-    } else{
+      
+    } else {
       cache_name <- paste0(x, ifelse(original_view, "_full", ""))
       nOpts <- length(list(...))
-      if(!is.null(data_cache[[cache_name]]) & !reload & is.null(colFilter) & nOpts == 0){ # Serve cache
+      
+      if( !is.null(data_cache[[cache_name]]) & !reload & is.null(colFilter) & nOpts == 0 ){ # Serve cache
         data <- data_cache[[cache_name]]
         #if(!is.null(colFilter)){
         #  data <- filter_cached_copy(colFilter, data)
         #  return(data)
         #} else{
         #}
-      } else{ # Download the data
+        
+      } else { # Download the data
         viewName <- NULL
-        if(original_view){
-          viewName <- "full"
-        }
+        if(original_view){ viewName <- "full"}
+        
         if(!is.null(colFilter)){
           colFilter <- .check_filter(con = .self, 
                                      schema = "study", 
@@ -88,6 +91,7 @@ filter_cached_copy <- function(filters, data){
         } else{
           cache <- TRUE
         }
+        
         data <- .getLKtbl(con = .self,
                           schema = "study",
                           query = x,
@@ -96,15 +100,15 @@ filter_cached_copy <- function(filters, data){
                           colFilter = colFilter,
                           showHidden = FALSE,
                           ...)
-        
         setnames(data, .self$.munge(colnames(data)))
-        if(cache){
-          data_cache[[cache_name]] <<- data
-        }
+        
+        if( cache ){ data_cache[[cache_name]] <<- data }
       }
-      if(!is.null(config$use.data.frame) & config$use.data.frame){
+      
+      if( !is.null(config$use.data.frame) & config$use.data.frame ){
         data <- data.frame(data)
       }
+      
       return(data)
     }
   })
