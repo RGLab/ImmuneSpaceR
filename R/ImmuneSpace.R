@@ -22,10 +22,11 @@
     if(!is.null(data_cache[[constants$matrix_inputs]])){
       data_cache[[constants$matrix_inputs]]
     }else{
-      ge <- data.table(.getLKtbl(schema = "assay.Expressionmatrix.matrix",
-                      query = "InputSamples",
-                      viewName = "gene_expression_matrices",
-                      colNameOpt = "fieldname"))
+      ge <- data.table(.getLKtbl(con = .self, 
+                                 schema = "assay.Expressionmatrix.matrix",
+                                 query = "InputSamples",
+                                 viewName = "gene_expression_matrices",
+                                 colNameOpt = "fieldname"))
       setnames(ge,.self$.munge(colnames(ge)))
       data_cache[[constants$matrix_inputs]]<<-ge
     }
@@ -71,22 +72,24 @@
 .ISCon$methods(
     listGEAnalysis = function(){
       "List available gene expression analysis for the connection."
-      GEA <- data.table(.getLKtbl(schema = "gene_expression",
-                                  query = "gene_expression_analysis",
-                                  showHidden = FALSE,
-                                  colNameOpt = "rname"))
-      return(GEA)
-    })
+      GEA <- .getLKtbl(con = .self, 
+                       schema = "gene_expression",
+                       query = "gene_expression_analysis",
+                       showHidden = FALSE,
+                       colNameOpt = "rname")
+    }
+)
 
 .ISCon$methods(
   getGEAnalysis = function(...){
     "Downloads data from the gene expression analysis results table.\n
     '...': A list of arguments to be passed to labkey.selectRows."
-    GEAR <- data.table(.getLKtbl(schema = "gene_expression",
-                                 query = "DGEA_filteredGEAR",
-                                 viewName = "DGEAR",
-                                 colNameOpt = "caption",
-                                 ...))
+    GEAR <- .getLKtbl(con = .self, 
+                      schema = "gene_expression",
+                      query = "DGEA_filteredGEAR",
+                      viewName = "DGEAR",
+                      colNameOpt = "caption",
+                      ...)
     setnames(GEAR, .self$.munge(colnames(GEAR)))
     return(GEAR)
   }
@@ -213,17 +216,31 @@
                                           schemaName = "assay.ExpressionMatrix.matrix")
       
       if ("OutputDatas" %in% matrix_queries$queryName) {
-        ge <-.getLKtbl(schema = "assay.ExpressionMatrix.matrix", 
+        ge <-.getLKtbl(con = .self, 
+                       schema = "assay.ExpressionMatrix.matrix", 
                        query = "OutputDatas", 
                        colNameOpt = "rname", 
                        viewName = "links")
         
-        output <- lapply(ge[4], function(x) gsub("@", "%40", gsub("file:/share/files", 
-                        paste0(config$labkey.url.base, "/_webdav"), x)))
-        file_exists <- unlist(mclapply(output$data_datafileurl, url.exists, netrc = TRUE, mc.cores = detectCores()))
-        res <- data.frame(file_link = output$data_datafileurl, file_exists = file_exists, 
-                        stringsAsFactors = FALSE)
+        output <- lapply(ge[4], function(x){
+                          gsub("@", 
+                               "%40", 
+                               gsub("file:/share/files", 
+                                    paste0(config$labkey.url.base, "/_webdav"), 
+                                    x))} 
+                        )
+        
+        file_exists <- unlist(mclapply(output$data_datafileurl, 
+                                       url.exists, 
+                                       netrc = TRUE, 
+                                       mc.cores = detectCores()))
+        
+        res <- data.frame(file_link = output$data_datafileurl, 
+                          file_exists = file_exists, 
+                          stringsAsFactors = FALSE)
+        
         print(paste0(sum(res$file_exists), "/", nrow(res), " ge_matrices with valid links."))
+        
       } else {
         res <- data.frame(file_link = NULL, file_exists = NULL, stringsAsFactors = FALSE)
       }
@@ -237,9 +254,8 @@
 ###############################################################################
 # -------------- PARTICIPANT FILTERING METHODS -------------------------------#
 ###############################################################################
-
-.getLKtbl <- function(schema, query, showHidden = TRUE, ...){
-  con <- get("con")
+# internal method to make it less verbose to grab LK tables 
+.getLKtbl <- function(con, schema, query, showHidden = TRUE, ...){
   df <- data.table(labkey.selectRows(baseUrl = con$config$labkey.url.base,
                                      folderPath = con$config$labkey.url.path,
                                      schemaName = schema,
@@ -255,10 +271,10 @@
       stop("labkey.url.path must be /Studies/. Use CreateConnection with all studies.")
     }
     
-    pgrp <- .getLKtbl(schema = "study", query = "ParticipantGroup")
-    pcat <- .getLKtbl(schema = "study", query = "ParticipantCategory")
-    pmap <- .getLKtbl(schema = "study", query = "ParticipantGroupMap")
-    user2grp <- .getLKtbl(schema = "core", query = "UsersAndGroups")
+    pgrp <- .getLKtbl(con = .self, schema = "study", query = "ParticipantGroup")
+    pcat <- .getLKtbl(con = .self, schema = "study", query = "ParticipantCategory")
+    pmap <- .getLKtbl(con = .self, schema = "study", query = "ParticipantGroupMap")
+    user2grp <- .getLKtbl(con = .self, schema = "core", query = "UsersAndGroups")
     
     preRes <- data.table(merge(pgrp, pcat, by.x = "Category Id", by.y = "Row Id"))
     preRes[ user2grp, Created_by := `Display Name`, on = c(`Created By` = "User Id")]

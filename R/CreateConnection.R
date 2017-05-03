@@ -190,14 +190,12 @@ CreateConnection = function(study = NULL, login = NULL, password = NULL, use.dat
   }
 )
 
-# Cannot use .getLKtbl() here b/c run on init
 .ISCon$methods(
   getAvailableDataSets=function(){
     if( length(available_datasets) == 0 ){
-      available_datasets <<- data.table(labkey.selectRows(baseUrl = config$labkey.url.base
-                              , config$labkey.url.path
-                              , schemaName = "study"
-                              , queryName = "ISC_study_datasets"))
+      available_datasets <<- .getLKtbl(con = .self,
+                                       schema = "study",
+                                       query = "ISC_study_datasets")
     }
   }
 )
@@ -205,20 +203,18 @@ CreateConnection = function(study = NULL, login = NULL, password = NULL, use.dat
 .ISCon$methods(
   GeneExpressionMatrices=function(verbose = FALSE){
     getData <- function(){
-      res <- data.table(.getLKtbl(schema = "assay.ExpressionMatrix.matrix",
-                           query = "Runs",
-                           colNameOpt = "fieldname",
-                           viewName = "expression_matrices"))
+      res <- try(.getLKtbl(con = .self,
+                       schema = "assay.ExpressionMatrix.matrix",
+                       query = "Runs",
+                       colNameOpt = "fieldname",
+                       viewName = "expression_matrices"),
+                 silent = TRUE)
     }
     
     if( !is.null(data_cache[[constants$matrices]]) ){
       data_cache[[constants$matrices]]
     }else{
-      if(verbose){
-        ge <- try(getData(), silent = TRUE)
-      } else {
-        ge <- suppressWarnings(try(getData(), silent = TRUE))
-      }
+      ge <- if(verbose){ getData() } else { suppressWarnings(getData()) }
       
       if(inherits(ge, "try-error") || nrow(ge) == 0 ){
         #No assay or no runs
@@ -226,7 +222,7 @@ CreateConnection = function(study = NULL, login = NULL, password = NULL, use.dat
         data_cache[[constants$matrices]] <<- NULL
       } else {
         setnames(ge,.self$.munge(colnames(ge)))
-        data_cache[[constants$matrices]]<<-ge
+        data_cache[[constants$matrices]] <<- ge
       }
     }
     return(data_cache[[constants$matrices]])
@@ -240,19 +236,20 @@ CreateConnection = function(study = NULL, login = NULL, password = NULL, use.dat
     #(e.g. when using $new(object) to construct the new object based on the exiting object)
     callSuper(...)
     
-    constants <<- list(matrices="GE_matrices",matrix_inputs="GE_inputs")
+    constants <<- list(matrices = "GE_matrices", matrix_inputs = "GE_inputs")
     
     if(!is.null(config))
       config <<- config
 
     study <<- basename(config$labkey.url.path)
+    
     if(config$verbose){
       checkStudy(config$verbose)
     }
     
-    getAvailableDataSets() # errors with .getLKtbl b/c run prior to con var being in global env
+    getAvailableDataSets()
 
-    gematrices_success <- GeneExpressionMatrices(verbose = FALSE) # unused?
+    gematrices_success <- GeneExpressionMatrices()
     
   }
 )

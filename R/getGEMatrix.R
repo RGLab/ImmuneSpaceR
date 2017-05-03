@@ -7,7 +7,7 @@ NULL
   downloadMatrix=function(x, summary = FALSE){
     cache_name <- paste0(x, ifelse(summary, "_sum", ""))
     if(is.null(data_cache[[cache_name]])){
-      if(nrow(subset(data_cache[[constants$matrices]], name%in%x)) == 0){
+      if( nrow(subset(data_cache[[constants$matrices]], name %in% x )) == 0 ){
         stop(sprintf("No matrix %s in study\n", x))
       }
       summary <- ifelse(summary, ".summary", "")
@@ -91,7 +91,8 @@ NULL
                                  "IN", 
                                  paste(colnames(matrix), collapse = ";")))
 
-    pheno <- unique(.getLKtbl(schema = "study",
+    pheno <- unique(.getLKtbl(con = .self,
+                              schema = "study",
                               query = "HM_InputSamplesQuerySnapshot",
                               containerFilter = "CurrentAndSubfolders",
                               colNameOpt = "fieldname",
@@ -226,21 +227,24 @@ NULL
     } 
     bsFilter <- makeFilter(c("biosample_accession", "IN",
                              paste(pData(data_cache[[x]])$biosample_accession, collapse = ";")))
-    bs2es <- .getLKtbl(schema = "immport",
+    bs2es <- .getLKtbl(con = .self,
+                       schema = "immport",
                        query = "expsample_2_biosample",
                        colFilter = bsFilter,
                        colNameOpt = "rname")
     
     esFilter <- makeFilter(c("expsample_accession", "IN",
                              paste(bs2es$expsample_accession, collapse = ";")))
-    es2trt <- .getLKtbl(schema = "immport",
-                       query = "expsample_2_treatment",
-                       colFilter = esFilter,
-                       colNameOpt = "rname")
+    es2trt <- .getLKtbl(con = .self,
+                        schema = "immport",
+                        query = "expsample_2_treatment",
+                        colFilter = esFilter,
+                        colNameOpt = "rname")
     
     trtFilter <- makeFilter(c("treatment_accession", "IN",
                               paste(es2trt$treatment_accession, collapse = ";")))
-    trt <- .getLKtbl(schema = "immport",
+    trt <- .getLKtbl(con = .self,
+                     schema = "immport",
                      query = "treatment",
                      colFilter = trtFilter,
                      colNameOpt = "rname")
@@ -290,7 +294,8 @@ NULL
     if(colType == "expsample"){
       bsFilter <- makeFilter(c("biosample_accession", "IN",
                                  paste(pd$biosample_accession, collapse = ";")))
-      bs2es <- .getLKtbl(schema = "immport",
+      bs2es <- .getLKtbl(con = .self,
+                         schema = "immport",
                          query = "expsample_2_biosample",
                          colFilter = bsFilter,
                          colNameOpt = "rname")

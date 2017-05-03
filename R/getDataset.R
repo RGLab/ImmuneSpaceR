@@ -1,23 +1,25 @@
 # Decode filters in case the user used column labels instead of column names
 #' @importFrom RCurl curlUnescape curlEscape
-.check_filter <- function(lub, lup, schema, query, view = "", colFilter){
+.check_filter <- function(con, schema, query, view = "", colFilter){
   # Get the names used in the filter
   old <- tolower(curlUnescape(gsub("~.*$", "", colFilter)))
   old[old == "participant_id"] <- "participant id"
+  
+  colFn <- function(colNameOpt){
+    res <- tolower(colnames(.getLKtbl(con = con,
+                                      schema = schema, 
+                                      query = query,
+                                      viewName = view,
+                                      maxRows = 0,
+                                      colNameOpt = colNameOpt,
+                                      showHidden = FALSE)))
+  }
+  
   suppressWarnings({
-    labels <- tolower(colnames(.getLKtbl(schema = schema, 
-                                         query = query,
-                                         viewName = view,
-                                         maxRows = 0,
-                                         colNameOpt = "caption",
-                                         showHidden = FALSE)))
-    names <- tolower(colnames(.getLKtbl(schema = schema, 
-                                         query = query,
-                                         viewName = view,
-                                         maxRows = 0,
-                                         colNameOpt = "fieldname",
-                                         showHidden = FALSE)))
+    labels <- colFn(colNameOpt = "caption")
+    names <- colFn(colNameOpt = "fieldname")
   })
+  
   # Get the new names
   idx <- which(old %in% labels)
   new <- curlEscape(names[match(old[idx], labels)])
@@ -30,6 +32,7 @@ filterDT <- function(table, col, value){
   table <- table[eval(as.name(col)) == value]
   return(table)
 }
+
 filter_cached_copy <- function(filters, data){
   decoded <- curlUnescape(filters)
   cols <- gsub(".*/", "", gsub("~.*", "", decoded))
@@ -74,22 +77,26 @@ filter_cached_copy <- function(filters, data){
           viewName <- "full"
         }
         if(!is.null(colFilter)){
-          colFilter <- .check_filter(config$labkey.url.base, 
-                                     config$labkey.url.path, 
-                                     "study", x, viewName, colFilter)
+          colFilter <- .check_filter(con = .self, 
+                                     schema = "study", 
+                                     query = x, 
+                                     view = viewName, 
+                                     colFilter = colFilter)
           cache <- FALSE
         } else if(length(nOpts) > 0){
           cache <- FALSE
         } else{
           cache <- TRUE
         }
-        data <- .getLKtbl(schema = "study",
+        data <- .getLKtbl(con = .self,
+                          schema = "study",
                           query = x,
                           viewName = viewName,
                           colNameOpt = "caption",
                           colFilter = colFilter,
-                          showHIdden = FALSE,
+                          showHidden = FALSE,
                           ...)
+        
         setnames(data, .self$.munge(colnames(data)))
         if(cache){
           data_cache[[cache_name]] <<- data
