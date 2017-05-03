@@ -5,8 +5,18 @@
   old <- tolower(curlUnescape(gsub("~.*$", "", colFilter)))
   old[old == "participant_id"] <- "participant id"
   suppressWarnings({
-    labels <- tolower(colnames(labkey.selectRows(lub, lup, schema, query, view, maxRows = 0, colNameOpt = "caption")))
-    names <- colnames(labkey.selectRows(lub, lup, schema, query, view, maxRows = 0, colNameOpt = "fieldname"))
+    labels <- tolower(colnames(.getLKtbl(schema = schema, 
+                                         query = query,
+                                         viewName = view,
+                                         maxRows = 0,
+                                         colNameOpt = "caption",
+                                         showHidden = FALSE)))
+    names <- tolower(colnames(.getLKtbl(schema = schema, 
+                                         query = query,
+                                         viewName = view,
+                                         maxRows = 0,
+                                         colNameOpt = "fieldname",
+                                         showHidden = FALSE)))
   })
   # Get the new names
   idx <- which(old %in% labels)
@@ -73,15 +83,13 @@ filter_cached_copy <- function(filters, data){
         } else{
           cache <- TRUE
         }
-        data <- data.table(
-          labkey.selectRows(baseUrl = config$labkey.url.base,
-                            config$labkey.url.path,
-                            schemaName = "study",
-                            queryName = x,
-                            viewName = viewName,
-                            colNameOpt = "caption",
-                            colFilter = colFilter,
-                            ...))
+        data <- .getLKtbl(schema = "study",
+                          query = x,
+                          viewName = viewName,
+                          colNameOpt = "caption",
+                          colFilter = colFilter,
+                          showHIdden = FALSE,
+                          ...)
         setnames(data, .self$.munge(colnames(data)))
         if(cache){
           data_cache[[cache_name]] <<- data

@@ -22,7 +22,10 @@
     if(!is.null(data_cache[[constants$matrix_inputs]])){
       data_cache[[constants$matrix_inputs]]
     }else{
-      ge<-data.table(labkey.selectRows(baseUrl = config$labkey.url.base,config$labkey.url.path,schemaName = "assay.ExpressionMatrix.matrix",queryName = "InputSamples",colNameOpt = "fieldname",viewName = "gene_expression_matrices",showHidden=TRUE))
+      ge <- data.table(.getLKtbl(schema = "assay.Expressionmatrix.matrix",
+                      query = "InputSamples",
+                      viewName = "gene_expression_matrices",
+                      colNameOpt = "fieldname"))
       setnames(ge,.self$.munge(colnames(ge)))
       data_cache[[constants$matrix_inputs]]<<-ge
     }
@@ -68,11 +71,10 @@
 .ISCon$methods(
     listGEAnalysis = function(){
       "List available gene expression analysis for the connection."
-      GEA <- data.table(labkey.selectRows(config$labkey.url.base,
-                                          config$labkey.url.path,
-                                          "gene_expression",
-                                          "gene_expression_analysis",
-                                          colNameOpt = "rname"))
+      GEA <- data.table(.getLKtbl(schema = "gene_expression",
+                                  query = "gene_expression_analysis",
+                                  showHidden = FALSE,
+                                  colNameOpt = "rname"))
       return(GEA)
     })
 
@@ -80,8 +82,11 @@
   getGEAnalysis = function(...){
     "Downloads data from the gene expression analysis results table.\n
     '...': A list of arguments to be passed to labkey.selectRows."
-    GEAR <- data.table(labkey.selectRows(config$labkey.url.base, config$labkey.url.path,
-        "gene_expression", "DGEA_filteredGEAR",  "DGEAR", colNameOpt = "caption", ...))
+    GEAR <- data.table(.getLKtbl(schema = "gene_expression",
+                                 query = "DGEA_filteredGEAR",
+                                 viewName = "DGEAR",
+                                 colNameOpt = "caption",
+                                 ...))
     setnames(GEAR, .self$.munge(colnames(GEAR)))
     return(GEAR)
   }
@@ -208,8 +213,11 @@
                                           schemaName = "assay.ExpressionMatrix.matrix")
       
       if ("OutputDatas" %in% matrix_queries$queryName) {
-        ge<-data.frame(labkey.selectRows( baseUrl = config$labkey.url.base, folderPath = config$labkey.url.path,  
-                        schemaName = "assay.ExpressionMatrix.matrix", queryName = "OutputDatas", colNameOpt = "rname", viewName = "links"))
+        ge <-.getLKtbl(schema = "assay.ExpressionMatrix.matrix", 
+                       query = "OutputDatas", 
+                       colNameOpt = "rname", 
+                       viewName = "links")
+        
         output <- lapply(ge[4], function(x) gsub("@", "%40", gsub("file:/share/files", 
                         paste0(config$labkey.url.base, "/_webdav"), x)))
         file_exists <- unlist(mclapply(output$data_datafileurl, url.exists, netrc = TRUE, mc.cores = detectCores()))
@@ -230,19 +238,16 @@
 # -------------- PARTICIPANT FILTERING METHODS -------------------------------#
 ###############################################################################
 
-.col_lookup <- function(iter, values, keys){
-  results <- sapply(iter, FUN = function(x){ res <- values[which(keys == x)] })
+.getLKtbl <- function(schema, query, showHidden = TRUE, ...){
+  con <- get("con")
+  df <- data.table(labkey.selectRows(baseUrl = con$config$labkey.url.base,
+                                     folderPath = con$config$labkey.url.path,
+                                     schemaName = schema,
+                                     queryName = query,
+                                     showHidden = showHidden,
+                                     ...),
+                   stringsAsFactors = FALSE)
 }
-
-
-.getLKtbl <- function(config, schema, query){
-  df <- labkey.selectRows(baseUrl = config$labkey.url.base,
-                          folderPath = config$labkey.url.path,
-                          schemaName = schema,
-                          queryName = query,
-                          showHidden = TRUE)
-}
-
 
 .ISCon$methods(
   listParticipantGroups = function(){
@@ -250,42 +255,33 @@
       stop("labkey.url.path must be /Studies/. Use CreateConnection with all studies.")
     }
     
-    pgrp <- .getLKtbl(config = .self$config, schema = "study", query = "ParticipantGroup")
-    pcat <- .getLKtbl(config = .self$config, schema = "study", query = "ParticipantCategory")
-    pmap <- .getLKtbl(config = .self$config, schema = "study", query = "ParticipantGroupMap")
-    user2grp <- .getLKtbl(config = .self$config, schema = "core", query = "UsersAndGroups")
+    pgrp <- .getLKtbl(schema = "study", query = "ParticipantGroup")
+    pcat <- .getLKtbl(schema = "study", query = "ParticipantCategory")
+    pmap <- .getLKtbl(schema = "study", query = "ParticipantGroupMap")
+    user2grp <- .getLKtbl(schema = "core", query = "UsersAndGroups")
     
-    result <- merge(pgrp, pcat, by.x = "Category Id", by.y = "Row Id")
-    result <- data.frame(Group_ID = result$`Row Id`, 
-                         Label = result$Label.x, 
-                         Created = result$Created, 
-                         Created_By = result$`Created By`,
+    preRes <- data.table(merge(pgrp, pcat, by.x = "Category Id", by.y = "Row Id"))
+    preRes[ user2grp, Created_by := `Display Name`, on = c(`Created By` = "User Id")]
+    
+    result <- data.frame(Group_ID = preRes$`Row Id`, 
+                         Label = preRes$Label.x, 
+                         Created = preRes$Created, 
+                         Created_By = preRes$Created_by,
                          stringsAsFactors = F)
     
-    result$Created_By <- .col_lookup(iter = result$Created_By,
-                                     values = user2grp$`Display Name`,
-                                     keys = user2grp$`User Id`)
-    
-    # Do we want to import dplyr? Or redo with data.table / other sys.
-    # subs <- data.frame(summarize(group_by(pmap, `Group Id`), numsubs = n() ))
-    # 
-    # result$Subjects <- .col_lookup(iter = result$Group_ID,
-    #                                values = subs$numsubs,
-    #                                keys = subs$Group.Id)
-    
+    pmap <- data.table(pmap)
+    pmap[, Subs := .N, by = `Group Id`]
+    result$Subject_Count <- pmap$Subs[ match(result$Group_ID, pmap$`Group Id`)]
+
     return(result)
   }
 )
 
 .ISCon$methods(
   getParticipantData = function(groupId, dataType){
-    allowedData <- c("hai",
-                     "neut_ab_titer",
-                     "gene_expression_files",
-                     "demographics")
     
-    if(!(dataType %in% allowedData)){
-      stop("DataType must be in ", paste(allowedData, collapse = ", "))
+    if(!(dataType %in% .self$available_datasets$Name)){
+      stop("DataType must be in ", paste(.self$available_datasets$Name, collapse = ", "))
     }
     
     dt <- tolower(dataType)

@@ -190,51 +190,41 @@ CreateConnection = function(study = NULL, login = NULL, password = NULL, use.dat
   }
 )
 
+# Cannot use .getLKtbl() here b/c run on init
 .ISCon$methods(
   getAvailableDataSets=function(){
-    if(length(available_datasets)==0){
-      df <- labkey.selectRows(baseUrl = config$labkey.url.base
-                        , config$labkey.url.path
-                        , schemaName = "study"
-                        , queryName = "ISC_study_datasets")
-      available_datasets <<- data.table(df)#[,list(Label,Name,Description,`Key Property Name`)]
+    if( length(available_datasets) == 0 ){
+      available_datasets <<- data.table(labkey.selectRows(baseUrl = config$labkey.url.base
+                              , config$labkey.url.path
+                              , schemaName = "study"
+                              , queryName = "ISC_study_datasets"))
     }
   }
 )
 
 .ISCon$methods(
   GeneExpressionMatrices=function(verbose = FALSE){
-    if(!is.null(data_cache[[constants$matrices]])){
+    getData <- function(){
+      res <- data.table(.getLKtbl(schema = "assay.ExpressionMatrix.matrix",
+                           query = "Runs",
+                           colNameOpt = "fieldname",
+                           viewName = "expression_matrices"))
+    }
+    
+    if( !is.null(data_cache[[constants$matrices]]) ){
       data_cache[[constants$matrices]]
     }else{
       if(verbose){
-        ge <- try(data.table(
-          labkey.selectRows(baseUrl = config$labkey.url.base,
-                            config$labkey.url.path,
-                            schemaName = "assay.ExpressionMatrix.matrix",
-                            queryName = "Runs",
-                            colNameOpt = "fieldname",
-                            showHidden = TRUE,
-                            viewName = "expression_matrices")),
-        silent = TRUE)
+        ge <- try(getData(), silent = TRUE)
       } else {
-        suppressWarnings(
-          ge <- try(data.table(
-            labkey.selectRows(baseUrl = config$labkey.url.base,
-                              config$labkey.url.path,
-                              schemaName = "assay.ExpressionMatrix.matrix",
-                              queryName = "Runs",
-                              colNameOpt = "fieldname",
-                              showHidden = TRUE,
-                              viewName = "expression_matrices")),
-          silent = TRUE)
-        )
+        ge <- suppressWarnings(try(getData(), silent = TRUE))
       }
-      if(inherits(ge, "try-error") || nrow(ge) == 0){
+      
+      if(inherits(ge, "try-error") || nrow(ge) == 0 ){
         #No assay or no runs
         message("No gene expression data")
         data_cache[[constants$matrices]] <<- NULL
-      } else{
+      } else {
         setnames(ge,.self$.munge(colnames(ge)))
         data_cache[[constants$matrices]]<<-ge
       }
@@ -260,9 +250,9 @@ CreateConnection = function(study = NULL, login = NULL, password = NULL, use.dat
       checkStudy(config$verbose)
     }
     
-    getAvailableDataSets()
+    getAvailableDataSets() # errors with .getLKtbl b/c run prior to con var being in global env
 
-    gematrices_success <- GeneExpressionMatrices(verbose = FALSE)
+    gematrices_success <- GeneExpressionMatrices(verbose = FALSE) # unused?
     
   }
 )
