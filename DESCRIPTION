@@ -21,6 +21,7 @@ Suggests:
 Imports:
     methods,
     data.table,
+    utils,
     RCurl,
     Rlabkey (>= 2.1.127),
     Biobase,
