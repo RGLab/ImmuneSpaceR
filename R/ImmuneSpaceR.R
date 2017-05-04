@@ -8,7 +8,7 @@
 #' @name ImmuneSpaceR-package
 #' @aliases ImmuneSpaceR
 #' @author Greg Finak
-#' @import data.table Rlabkey methods Biobase
+#' @import data.table Rlabkey methods utils
 NULL
 
 # globalVariables to remove RCC NOTES due to data.table scoping

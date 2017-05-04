@@ -76,6 +76,7 @@ NULL
   }
 )
 
+#' @importFrom Biobase ExpressionSet AnnotatedDataFrame
 .ISCon$methods(
   ConstructExpressionSet=function(matrix_name, summary){
     cache_name <- paste0(matrix_name, ifelse(summary, "_sum", ""))
@@ -146,7 +147,8 @@ NULL
     pheno <- pheno[colnames(exprs), ]
     ad_pheno <- AnnotatedDataFrame(data = pheno)
     es <- ExpressionSet(assayData = exprs,
-                        phenoData = ad_pheno, featureData = fdata)
+                        phenoData = ad_pheno, 
+                        featureData = fdata)
     data_cache[[cache_name]] <<- es
   }
 )
