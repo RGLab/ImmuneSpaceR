@@ -56,14 +56,6 @@ gene-expression data.}
 \section{Methods}{
 
 \describe{
-\item{\code{EMNames(EM = NULL, colType = "participant_id")}}{Change the sampleNames of an ExpressionSet fetched by getGEMatrix using the
-    information in the phenodData slot.
-
-    x: An ExpressionSet, as returned by getGEMatrix.
-
-    colType: A character. The type of column names. Valid options are 'expsample_accession'
-    and 'participant_id'.}
-
 \item{\code{addTrt(x = NULL)}}{Add treatment information to the phenoData of an expression matrix
      available in the connection object.
 
@@ -71,6 +63,14 @@ gene-expression data.}
     from the connection.}
 
 \item{\code{clear_cache()}}{Clear the data_cache. Remove downloaded datasets and expression matrices.}
+
+\item{\code{EMNames(EM = NULL, colType = "participant_id")}}{Change the sampleNames of an ExpressionSet fetched by getGEMatrix using the
+    information in the phenodData slot.
+
+    x: An ExpressionSet, as returned by getGEMatrix.
+
+    colType: A character. The type of column names. Valid options are 'expsample_accession'
+    and 'participant_id'.}
 
 \item{\code{getDataset(x, original_view = FALSE, reload = FALSE, colFilter = NULL,
   ...)}}{Get a dataset form the connection
@@ -106,9 +106,19 @@ gene-expression data.}
     `reload': A `logical'. If set to TRUE, the matrix will be downloaded again,
     even if a cached cop exist in the ImmuneSpaceConnection object.}
 
+\item{\code{getParticipantData(groupId, dataType)}}{$getParticipantData() returns a dataframe with ImmuneSpace data subset by
+    groupId.
+
+    groupId: Use $listParticipantGroups() to find Participant Group Id.
+
+    dataType: Use $available_datasets to see possible dataType inputs.}
+
 \item{\code{listDatasets(which = c("datasets", "expression"))}}{List the datasets available in the study or studies of the connection.}
 
 \item{\code{listGEAnalysis()}}{List available gene expression analysis for the connection.}
+
+\item{\code{listParticipantGroups()}}{$listParticipantGroups() returns a dataframe with all saved Participant Groups on
+ImmuneSpace.}
 
 \item{\code{quick_plot(...)}}{Plots a selected dataset. This is the function used by the DataExplorer 
     module on ImmuneSpace.

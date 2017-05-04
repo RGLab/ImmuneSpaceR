@@ -272,6 +272,9 @@
 # -------------- PARTICIPANT FILTERING METHODS -------------------------------#
 ###############################################################################
 # internal method to make it less verbose to grab LK tables 
+# Need to import .DollarNames for use with BioBase' .DollarNames.eset method
+# otherwise TravisCI build fails as it is not found during library(Biobase).
+#' @importFrom utils .DollarNames
 .getLKtbl <- function(con, schema, query, showHidden = TRUE, ...){
   data.table(labkey.selectRows(baseUrl = con$config$labkey.url.base,
                                folderPath = con$config$labkey.url.path,
