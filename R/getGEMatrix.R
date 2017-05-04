@@ -206,7 +206,7 @@ NULL
 )
 
 # Combine EMs and output only genes available in all EMs.
-#' @importFrom Biobase fData
+#' @importFrom Biobase fData fData<- combine
 .combineEMs <- function(EMlist){
   message("Combining ExpressionSets")
   fds <- lapply(EMlist, function(x){ droplevels(data.table(fData(x)))})
