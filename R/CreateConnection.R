@@ -66,9 +66,14 @@ CreateConnection = function(study = NULL, login = NULL, password = NULL, use.dat
     nf <- try(get("labkey.netrc.file", .GlobalEnv), silent = TRUE)
   }
   if(!inherits(nf, "try-error") && !is.null(nf)){
-    curlOptions <- labkey.setCurlOptions(ssl.verifyhost = 2, sslversion = 1, netrc.file = nf, useragent = paste("ImmuneSpaceR", packageVersion("ImmuneSpaceR")))
+    curlOptions <- labkey.setCurlOptions(ssl.verifyhost = 2, 
+                                         sslversion = 1, 
+                                         netrc.file = nf, 
+                                         useragent = paste("ImmuneSpaceR", packageVersion("ImmuneSpaceR")))
   } else{
-    curlOptions <- labkey.setCurlOptions(ssl.verifyhost = 2, sslversion = 1, useragent = paste("ImmuneSpaceR", packageVersion("ImmuneSpaceR")))
+    curlOptions <- labkey.setCurlOptions(ssl.verifyhost = 2, 
+                                         sslversion = 1, 
+                                         useragent = paste("ImmuneSpaceR", packageVersion("ImmuneSpaceR")))
   }
   
   if(length(study) <= 1){
@@ -168,16 +173,20 @@ CreateConnection = function(study = NULL, login = NULL, password = NULL, use.dat
 #' }
 #'@return An instance of an ImmuneSpaceConnection for a study in `labkey.url.path`
 .ISCon <- setRefClass(Class = "ImmuneSpaceConnection",
-            fields = list(study = "character", config = "list",
+            fields = list(study = "character", 
+                          config = "list",
                           available_datasets = "data.table",
-                          data_cache = "list", constants = "list")
+                          data_cache = "list", 
+                          constants = "list")
 )
 
 # Functions used in initialize need to be declared ahead of it
 #' @importFrom gtools mixedsort
 .ISCon$methods(
   checkStudy=function(verbose = FALSE){
-    validStudies <- mixedsort(grep("^SDY", basename(lsFolders(getSession(config$labkey.url.base, "Studies"))), value = TRUE))
+    validStudies <- mixedsort(grep("^SDY", 
+                                   basename(lsFolders(getSession(config$labkey.url.base, "Studies"))), 
+                                   value = TRUE))
     req_study <- basename(config$labkey.url.path)
     if(!req_study %in% c("", validStudies)){
       if(!verbose){

@@ -2,8 +2,7 @@
   .munge=function(x){
     new <- tolower(gsub(" ","_",basename(x)))
     idx <- which(duplicated(new) | duplicated(new, fromLast = TRUE))
-    if(length(idx)>0)
-      new[idx] <- .munge(gsub("(.*)/.*$", "\\1", x[idx]))
+    if( length(idx) > 0 ){ new[idx] <- .munge(gsub("(.*)/.*$", "\\1", x[idx])) }
     return(new)
   }
 )
@@ -11,7 +10,7 @@
 # Returns TRUE if the connection is at project level ("/Studies")
 .ISCon$methods(
   .isProject=function()
-    res <- ifelse(config$labkey.url.path == "/Studies/", TRUE, FALSE)
+    res <- config$labkey.url.path == "/Studies/"
 )
 
 .ISCon$methods(
@@ -137,8 +136,10 @@
                     config$labkey.url.path,
                     "/%40files/rawdata/gene_expression/", files)
     sapply(links, function(x){
-      download.file(url = links[1], destfile = file.path(destdir, basename(x)),
-                    method = "curl", extra = "-n")
+      download.file(url = links[1], 
+                    destfile = file.path(destdir, basename(x)),
+                    method = "curl", 
+                    extra = "-n")
     })
   }
 )
@@ -154,16 +155,17 @@
     list_files <- function(link){
       response <- NULL
       if (url.exists(url = link, netrc = TRUE)){
-        response_raw <- getURL(url = link, netrc = TRUE)
-        response_json <- fromJSON(response_raw)
-        response <- unlist(lapply(response_json$files, function(x) x$text))
+        response_json <- fromJSON(getURL(url = link, netrc = TRUE))
+        response <- unlist(lapply(response_json$files, function(x){ x$text } ))
       }
       response
     }
     
     check_links <- function (dataset, folder){
-      res <- data.frame(file_info_name = NULL, study_accession = NULL, 
-                        file_link = NULL, file_exists = NULL, 
+      res <- data.frame(file_info_name = NULL, 
+                        study_accession = NULL, 
+                        file_link = NULL, 
+                        file_exists = NULL, 
                         stringsAsFactors = FALSE)
       
       if (dataset %in% .self$available_datasets$Name){
@@ -175,18 +177,20 @@
                             temp$study_accession, "/%40files/rawdata/", folder, "/", 
                             sapply(temp$file_info_name, URLencode))
         
-        studies <- unique(temp$study_accession)
         folder_link <- paste0(config$labkey.url.base, "/_webdav/Studies/", 
-                              studies, "/%40files/rawdata/", folder, "?method=JSON")
+                              unique(temp$study_accession), "/%40files/rawdata/", folder, "?method=JSON")
         
         file_list <- unlist(mclapply(folder_link, list_files, mc.cores = detectCores()))
         
         file_exists <- temp$file_info_name %in% file_list
-        res <- data.frame(study = temp$study_accession, file_link = file_link, file_exists = file_exists, 
+        
+        res <- data.frame(study = temp$study_accession, 
+                          file_link = file_link, 
+                          file_exists = file_exists, 
                           stringsAsFactors = FALSE) 
+        
         print(paste0(sum(res$file_exists), "/", nrow(res), " ", dataset, " with valid links."))
       }
-      
       res
     }
     
@@ -213,8 +217,11 @@
                               "/%40files/protocols/", folders, "_protocol.zip")
       file_exists <- unlist(mclapply(file_link, url.exists, netrc = TRUE, mc.cores = detectCores()))
       
-      res <- data.frame(study = folders, file_link = file_link, file_exists = file_exists, 
+      res <- data.frame(study = folders, 
+                        file_link = file_link, 
+                        file_exists = file_exists, 
                         stringsAsFactors = FALSE)      
+      
       print(paste0(sum(res$file_exists), "/", nrow(res), " protocols with valid links."))
       ret$protocols <- res
     }
@@ -250,7 +257,9 @@
         print(paste0(sum(res$file_exists), "/", nrow(res), " ge_matrices with valid links."))
         
       } else {
-        res <- data.frame(file_link = NULL, file_exists = NULL, stringsAsFactors = FALSE)
+        res <- data.frame(file_link = NULL, 
+                          file_exists = NULL, 
+                          stringsAsFactors = FALSE)
       }
       
       ret$ge_matrices <- res
@@ -264,17 +273,20 @@
 ###############################################################################
 # internal method to make it less verbose to grab LK tables 
 .getLKtbl <- function(con, schema, query, showHidden = TRUE, ...){
-  df <- data.table(labkey.selectRows(baseUrl = con$config$labkey.url.base,
-                                     folderPath = con$config$labkey.url.path,
-                                     schemaName = schema,
-                                     queryName = query,
-                                     showHidden = showHidden,
-                                     ...),
-                   stringsAsFactors = FALSE)
+  data.table(labkey.selectRows(baseUrl = con$config$labkey.url.base,
+                               folderPath = con$config$labkey.url.path,
+                               schemaName = schema,
+                               queryName = query,
+                               showHidden = showHidden,
+                               ...),
+             stringsAsFactors = FALSE)
 }
 
 .ISCon$methods(
   listParticipantGroups = function(){
+    "$listParticipantGroups() returns a dataframe with all saved Participant Groups on
+    ImmuneSpace.\n"
+    
     if(config$labkey.url.path != "/Studies/"){
       stop("labkey.url.path must be /Studies/. Use CreateConnection with all studies.")
     }
@@ -303,6 +315,14 @@
 
 .ISCon$methods(
   getParticipantData = function(groupId, dataType){
+    "$getParticipantData() returns a dataframe with ImmuneSpace data subset by
+    groupId.\n
+    groupId: Use $listParticipantGroups() to find Participant Group Id.\n
+    dataType: Use $available_datasets to see possible dataType inputs.\n"
+    
+    if(config$labkey.url.path != "/Studies/"){
+      stop("labkey.url.path must be /Studies/. Use CreateConnection with all studies.")
+    }
     
     if(!(dataType %in% .self$available_datasets$Name)){
       stop("DataType must be in ", paste(.self$available_datasets$Name, collapse = ", "))
