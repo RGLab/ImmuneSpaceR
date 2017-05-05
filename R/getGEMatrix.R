@@ -76,7 +76,6 @@ NULL
   }
 )
 
-#' @importFrom Biobase ExpressionSet AnnotatedDataFrame
 .ISCon$methods(
   ConstructExpressionSet=function(matrix_name, summary){
     cache_name <- paste0(matrix_name, ifelse(summary, "_sum", ""))
@@ -206,7 +205,6 @@ NULL
 )
 
 # Combine EMs and output only genes available in all EMs.
-#' @importFrom Biobase fData fData<- combine
 .combineEMs <- function(EMlist){
   message("Combining ExpressionSets")
   fds <- lapply(EMlist, function(x){ droplevels(data.table(fData(x)))})
@@ -272,8 +270,6 @@ NULL
   }
 )
 
-
-#' @importFrom Biobase pData sampleNames
 .ISCon$methods(
   EMNames=function(EM = NULL, colType = "participant_id"){
     "Change the sampleNames of an ExpressionSet fetched by getGEMatrix using the

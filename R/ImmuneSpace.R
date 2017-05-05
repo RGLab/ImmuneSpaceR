@@ -284,8 +284,7 @@
 
 .ISCon$methods(
   listParticipantGroups = function(){
-    "$listParticipantGroups() returns a dataframe with all saved Participant Groups on
-    ImmuneSpace.\n"
+    "returns a dataframe with all saved Participant Groups on ImmuneSpace.\n"
     
     if(config$labkey.url.path != "/Studies/"){
       stop("labkey.url.path must be /Studies/. Use CreateConnection with all studies.")
@@ -315,10 +314,9 @@
 
 .ISCon$methods(
   getParticipantData = function(groupId, dataType){
-    "$getParticipantData() returns a dataframe with ImmuneSpace data subset by
-    groupId.\n
-    groupId: Use $listParticipantGroups() to find Participant Group Id.\n
-    dataType: Use $available_datasets to see possible dataType inputs.\n"
+    "returns a dataframe with ImmuneSpace data subset by groupId.\n
+    groupId: Use listParticipantGroups() to find Participant Group Id.\n
+    dataType: Use available_datasets() to see possible dataType inputs.\n"
     
     if(config$labkey.url.path != "/Studies/"){
       stop("labkey.url.path must be /Studies/. Use CreateConnection with all studies.")

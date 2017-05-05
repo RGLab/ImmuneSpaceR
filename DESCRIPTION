@@ -15,7 +15,6 @@ biocViews: DataImport, DataRepresentation, ThirdPartyClient
 URL: https://github.com/RGLab/ImmuneSpaceR
 BugReports: https://github.com/RGLab/ImmuneSpaceR/issues
 License: GPL-2
-Depends: utils
 Suggests:
     knitr,
     testthat
