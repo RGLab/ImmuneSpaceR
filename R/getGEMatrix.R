@@ -95,7 +95,7 @@ NULL
                               schema = "study",
                               query = "HM_InputSamplesQuerySnapshot",
                               containerFilter = "CurrentAndSubfolders",
-                              colNameOpt = "fieldname",
+                              colNameOpt = "caption",
                               colFilter = pheno_filter,
                               showHidden = FALSE))
     
@@ -103,11 +103,11 @@ NULL
     
     pheno <- data.frame(pheno, stringsAsFactors = F)
 
-    pheno <- pheno[, which(colnames(pheno) %in% c("biosample_accession", 
-                                                  "participantid", 
-                                                  "cohort",
-                                                  "study_time_collected", 
-                                                  "study_time_collected_unit")) ]
+    pheno <- pheno[, colnames(pheno) %in% c("biosample_accession", 
+                                            "participant_id", 
+                                            "cohort",
+                                            "study_time_collected", 
+                                            "study_time_collected_unit") ]
     
     if(summary){
       fdata <- data.frame(FeatureId = matrix$gene_symbol, 
@@ -140,7 +140,7 @@ NULL
     }
     
     exprs <- as.matrix(matrix[, -1L, with = FALSE])
-    exprs <- exprs[, colnames(exprs) %in% pheno$biosample_accession] #At project level, InputSamples may be filtered
+    exprs <- exprs[ , colnames(exprs) %in% pheno$biosample_accession] #At project level, InputSamples may be filtered
 
     rownames(pheno) <- pheno$biosample_accession
     pheno <- pheno[colnames(exprs), ]
