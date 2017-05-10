@@ -271,7 +271,31 @@
 ###############################################################################
 # -------------- PARTICIPANT FILTERING METHODS -------------------------------#
 ###############################################################################
-# internal method to make it less verbose to grab LK tables 
+# get all possible user emails from netrc file
+.getUsers <- function(){
+  sink(tempfile()); file <- check_netrc() ; sink();
+  netrc <- readLines(file)
+  login <- unique( netrc[ grep("login.", netrc) ] )
+  users <- gsub("login ", "", login)
+}
+
+# No return - errors out if userEmail not in users or more than one user
+.checkUser <- function(users, userEmail){
+  if( !is.null(userEmail) ){
+    valid <- userEmail %in% users
+    if( !valid ){
+      stop("User email entered as argument is not found in netrc file.")
+    }
+  }else{
+    if( length(users) > 1 ){
+      stop("Multiple users found in .netrc file.  Please select to use one via userEmail argument")
+    }else if( length(users) == 0 ){
+      stop("No users found in .netrc file. Please ensure file is formatted correctly")
+    }
+  }
+}
+
+# less verbose wrapper for LK.selectRows calls
 .getLKtbl <- function(con, schema, query, showHidden = TRUE, ...){
   data.table(labkey.selectRows(baseUrl = con$config$labkey.url.base,
                                folderPath = con$config$labkey.url.path,
@@ -283,20 +307,26 @@
 }
 
 .ISCon$methods(
-  listParticipantGroups = function(){
+  listParticipantGroups = function(userEmail = NULL){
     "returns a dataframe with all saved Participant Groups on ImmuneSpace.\n"
     
     if(config$labkey.url.path != "/Studies/"){
       stop("labkey.url.path must be /Studies/. Use CreateConnection with all studies.")
     }
     
+    # Checking to ensure only one user email is given for search
+    users <- .getUsers()
+    .checkUser(users, userEmail)
+    if( !is.null(userEmail) ){ users <- userEmail }
+    
+    # build participant group table from multiple schema
     pgrp <- .getLKtbl(con = .self, schema = "study", query = "ParticipantGroup")
     pcat <- .getLKtbl(con = .self, schema = "study", query = "ParticipantCategory")
     pmap <- .getLKtbl(con = .self, schema = "study", query = "ParticipantGroupMap")
     user2grp <- .getLKtbl(con = .self, schema = "core", query = "UsersAndGroups")
     
     preRes <- data.table(merge(pgrp, pcat, by.x = "Category Id", by.y = "Row Id"))
-    preRes[ user2grp, Created_by := `Display Name`, on = c(`Created By` = "User Id")]
+    preRes[ user2grp, Created_by := `Email`, on = c(`Created By` = "User Id")]
     
     result <- data.frame(Group_ID = preRes$`Row Id`, 
                          Label = preRes$Label.x, 
@@ -304,16 +334,20 @@
                          Created_By = preRes$Created_by,
                          stringsAsFactors = F)
     
-    pmap <- data.table(pmap)
     pmap[, Subs := .N, by = `Group Id`]
     result$Subject_Count <- pmap$Subs[ match(result$Group_ID, pmap$`Group Id`)]
+    result <- result[ result$Created_By == users, ]
+    
+    if( nrow(result) == 0 ){
+      stop(paste0("No participant groups found for user email: ", users))
+    }
 
     return(result)
   }
 )
 
 .ISCon$methods(
-  getParticipantData = function(groupId, dataType){
+  getParticipantData = function(groupId, dataType, userEmail = NULL){
     "returns a dataframe with ImmuneSpace data subset by groupId.\n
     groupId: Use listParticipantGroups() to find Participant Group Id.\n
     dataType: Use available_datasets() to see possible dataType inputs.\n"
@@ -326,6 +360,16 @@
       stop("DataType must be in ", paste(.self$available_datasets$Name, collapse = ", "))
     }
     
+    # Checking to ensure user is owner of groupID
+    users <- .getUsers()
+    .checkUser(users, userEmail)
+    if( !is.null(userEmail) ){ users <- userEmail }
+    validIds <- .self$listParticipantGroups(userEmail = users)$Group_ID
+    if( !(groupId %in% validIds) ){
+      stop(paste0(users, " is not listed as creator of participant group ", groupId))
+    }
+    
+    # Get data
     dt <- tolower(dataType)
     sql <- paste0("SELECT ", dt, ".*, pmap.GroupId As groupId ",
                   "FROM ", dt,
