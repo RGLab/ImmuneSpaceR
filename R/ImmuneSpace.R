@@ -271,28 +271,37 @@
 ###############################################################################
 # -------------- PARTICIPANT FILTERING METHODS -------------------------------#
 ###############################################################################
-# get all possible user emails from netrc file
-.getUsers <- function(){
-  sink(tempfile()); file <- check_netrc() ; sink();
-  netrc <- readLines(file)
-  login <- unique( netrc[ grep("login.", netrc) ] )
-  users <- gsub("login ", "", login)
-}
 
-# No return - errors out if userEmail not in users or more than one user
-.checkUser <- function(users, userEmail){
-  if( !is.null(userEmail) ){
-    valid <- userEmail %in% users
-    if( !valid ){
-      stop("User email entered as argument is not found in netrc file.")
+# Ensure only one valid user email is returned or possible errors handled 
+.validateUser <- function(){
+  # First Check for apiKey and netrc file
+  api <- Rlabkey:::ifApiKey()
+  sink(tempfile())
+  validNetrc <- tryCatch({
+    check_netrc()
+  }, error = function(e){
+    return(NULL)
+  })
+  sink()
+  
+  # Case 1: if apiKey, but no Netrc (possible in Integrated RStudio session UI)
+  # get user email from global environment, which is set by labkey.init and
+  # handle unexpected case of labkey.user.email not being found.
+  if( !is.null(api) & is.null(validNetrc) ){
+    user <- try( get("labkey.user.email"), silent = TRUE )
+    if( inherits(labkey.user.email, "try-error") ){
+      stop("labkey.user.email not found, please set")
     }
-  }else{
-    if( length(users) > 1 ){
-      stop("Multiple users found in .netrc file.  Please select to use one via userEmail argument")
-    }else if( length(users) == 0 ){
-      stop("No users found in .netrc file. Please ensure file is formatted correctly")
-    }
+    
+    # Case 2: valid netrc file (with or without ApiKey)
+    # To mimic LK.get() method - pull first login and use that
+  }else if( !is.null(validNetrc) ){
+    netrc <- readLines(validNetrc)
+    login <- unique( netrc[ grep("login.", netrc) ] )[1]
+    user <- gsub("login ", "", login)
   }
+  
+  return(user)
 }
 
 # less verbose wrapper for LK.selectRows calls
@@ -307,19 +316,16 @@
 }
 
 .ISCon$methods(
-  listParticipantGroups = function(userEmail = NULL){
+  listParticipantGroups = function(){
     "returns a dataframe with all saved Participant Groups on ImmuneSpace.\n"
     
     if(config$labkey.url.path != "/Studies/"){
       stop("labkey.url.path must be /Studies/. Use CreateConnection with all studies.")
     }
     
-    # Checking to ensure only one user email is given for search
-    users <- .getUsers()
-    .checkUser(users, userEmail)
-    if( !is.null(userEmail) ){ users <- userEmail }
+    user <- .validateUser()
     
-    # build participant group table from multiple schema
+    # build participant group table from multiple schema and filter by user
     pgrp <- .getLKtbl(con = .self, schema = "study", query = "ParticipantGroup")
     pcat <- .getLKtbl(con = .self, schema = "study", query = "ParticipantCategory")
     pmap <- .getLKtbl(con = .self, schema = "study", query = "ParticipantGroupMap")
@@ -336,10 +342,10 @@
     
     pmap[, Subs := .N, by = `Group Id`]
     result$Subject_Count <- pmap$Subs[ match(result$Group_ID, pmap$`Group Id`)]
-    result <- result[ result$Created_By == users, ]
+    result <- result[ result$Created_By == user, ]
     
     if( nrow(result) == 0 ){
-      stop(paste0("No participant groups found for user email: ", users))
+      stop(paste0("No participant groups found for user email: ", user))
     }
 
     return(result)
@@ -347,9 +353,9 @@
 )
 
 .ISCon$methods(
-  getParticipantData = function(groupId, dataType, userEmail = NULL){
+  getParticipantData = function(groupId, dataType){
     "returns a dataframe with ImmuneSpace data subset by groupId.\n
-    groupId: Use listParticipantGroups() to find Participant Group Id.\n
+    groupId: Use listParticipantGroups() to find Participant GroupId.\n
     dataType: Use available_datasets() to see possible dataType inputs.\n"
     
     if(config$labkey.url.path != "/Studies/"){
@@ -361,12 +367,10 @@
     }
     
     # Checking to ensure user is owner of groupID
-    users <- .getUsers()
-    .checkUser(users, userEmail)
-    if( !is.null(userEmail) ){ users <- userEmail }
-    validIds <- .self$listParticipantGroups(userEmail = users)$Group_ID
+    user <- .validateUser()
+    validIds <- .self$listParticipantGroups()$Group_ID
     if( !(groupId %in% validIds) ){
-      stop(paste0(users, " is not listed as creator of participant group ", groupId))
+      stop(paste0(user, " is not listed as creator of participant group ", groupId))
     }
     
     # Get data
@@ -404,6 +408,8 @@
                  "date")
     
     filtData <- allData[ , !(colnames(allData) %in% cols2rm) ]
+    
+    return(filtData)
   }
 )
 

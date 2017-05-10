@@ -108,7 +108,7 @@ gene-expression data.}
 
 \item{\code{getParticipantData(groupId, dataType)}}{returns a dataframe with ImmuneSpace data subset by groupId.
 
-    groupId: Use listParticipantGroups() to find Participant Group Id.
+    groupId: Use listParticipantGroups() to find Participant GroupId.
 
     dataType: Use available_datasets() to see possible dataType inputs.}
 
