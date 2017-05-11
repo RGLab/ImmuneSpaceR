@@ -273,7 +273,7 @@
 ###############################################################################
 
 # Ensure only one valid user email is returned or possible errors handled 
-.validateUser <- function(){
+.validateUser <- function(con){
   # First Check for apiKey and netrc file
   api <- Rlabkey:::ifApiKey()
   sink(tempfile())
@@ -294,10 +294,13 @@
     }
     
     # Case 2: valid netrc file (with or without ApiKey)
-    # To mimic LK.get() method - pull first login and use that
+    # To mimic LK.get() method - pull first login and use that one.
+    # Need to differentiate between test / prod too.
   }else if( !is.null(validNetrc) ){
     netrc <- readLines(validNetrc)
-    login <- unique( netrc[ grep("login.", netrc) ] )[1]
+    machine <- gsub("https://", "machine ", con$config$labkey.url.base)
+    loc <- which(netrc == machine)[1]
+    login <- netrc[ loc + 1 ]
     user <- gsub("login ", "", login)
   }
   
@@ -323,7 +326,7 @@
       stop("labkey.url.path must be /Studies/. Use CreateConnection with all studies.")
     }
     
-    user <- .validateUser()
+    user <- .validateUser(con = .self)
     
     # build participant group table from multiple schema and filter by user
     pgrp <- .getLKtbl(con = .self, schema = "study", query = "ParticipantGroup")
@@ -366,11 +369,16 @@
       stop("DataType must be in ", paste(.self$available_datasets$Name, collapse = ", "))
     }
     
-    # Checking to ensure user is owner of groupID
-    user <- .validateUser()
+    # Checking to ensure user is owner of groupID on correct machine
+    user <- .validateUser(con = .self)
     validIds <- .self$listParticipantGroups()$Group_ID
     if( !(groupId %in% validIds) ){
-      stop(paste0(user, " is not listed as creator of participant group ", groupId))
+      stop(paste0("groupId ", 
+                  groupId, 
+                  " is not in the set of groupIds created by ",
+                  user, 
+                  " on ",
+                  .self$config$labkey.url.base))
     }
     
     # Get data
