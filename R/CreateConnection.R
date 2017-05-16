@@ -65,6 +65,25 @@ CreateConnection = function(study = NULL, login = NULL, password = NULL, use.dat
   } else{
     nf <- try(get("labkey.netrc.file", .GlobalEnv), silent = TRUE)
   }
+  
+  #Test code
+  if(!is.null(login)) {
+    if(grep("^SDY\\d{3}$", login) == 1) {
+      answer <- readline(paste("Multiple studies must be combined into one vector. Press [y] to continue as ", login))
+      if (answer == "y" || answer == "Y") {
+        nf <- write_netrc(login, password)
+      } else {
+        stop("Cancelled connection")
+      }
+    } else {
+      nf <- write_netrc(login, password)
+    }
+  } else {
+    nf <- try(get("labkey.netrc.file", .GlobalEnv), silent = TRUE)
+  }
+  #
+  
+  
   if(!inherits(nf, "try-error") && !is.null(nf)){
     curlOptions <- labkey.setCurlOptions(ssl.verifyhost = 2, sslversion = 1, netrc.file = nf, useragent = paste("ImmuneSpaceR", packageVersion("ImmuneSpaceR")))
   } else{

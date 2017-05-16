@@ -45,7 +45,6 @@ test_that("Existing study can be loaded", {
   expect_true(res$study == "SDY400")
 })
 
-
 # cleanup ------------------------------------------------------
 if(exists("netrc_file")){
   file.remove(netrc_file)
