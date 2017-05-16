@@ -274,11 +274,10 @@ NULL
     if(isTRUE(show_virus_strain)){
       dt <- dt[, analyte := virus]
     }
-  } else if(dataset == "pcr"){
-    if(all(is.na(dt[, threshold_cycles]))){
+  } else if(dataset == "pcr") {
+    if(!all(dt[, unit_reported] == "Ct")) {
       stop("PCR results cannot be displayed for studies that do not use threshold cycles.")
     }
-    dt <- dt[, value_reported := threshold_cycles]
     dt <- dt[, analyte := entrez_gene_id]
     logT <- FALSE #Threshold cycle is already log transformed
   } else if(dataset == "mbaa"){
