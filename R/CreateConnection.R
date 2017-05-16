@@ -60,28 +60,14 @@ CreateConnection = function(study = NULL, login = NULL, password = NULL, use.dat
   # (Ideally labkey.selectRows should optionally parse the options from its argument besides package environment)
   # 
   # for now we assume they all share the same setting and init it only once here
-  if(!is.null(login) & !is.null(password)){
+  if(!is.null(login) & is.null(password)) {
+    stop(paste0("login = ", login, " given without password. Please try again with password"))
+  } else if( !is.null(login) & !is.null(password) ) {
     nf <- write_netrc(login, password)
-  } else{
-    nf <- try(get("labkey.netrc.file", .GlobalEnv), silent = TRUE)
-  }
-  
-  #Test code
-  if(!is.null(login)) {
-    if(grep("^SDY\\d{3}$", login) == 1) {
-      answer <- readline(paste("Multiple studies must be combined into one vector. Press [y] to continue as ", login))
-      if (answer == "y" || answer == "Y") {
-        nf <- write_netrc(login, password)
-      } else {
-        stop("Cancelled connection")
-      }
-    } else {
-      nf <- write_netrc(login, password)
-    }
   } else {
     nf <- try(get("labkey.netrc.file", .GlobalEnv), silent = TRUE)
   }
-  #
+
   
   
   if(!inherits(nf, "try-error") && !is.null(nf)){
