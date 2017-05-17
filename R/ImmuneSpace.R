@@ -2,8 +2,7 @@
   .munge=function(x){
     new <- tolower(gsub(" ","_",basename(x)))
     idx <- which(duplicated(new) | duplicated(new, fromLast = TRUE))
-    if(length(idx)>0)
-      new[idx] <- .munge(gsub("(.*)/.*$", "\\1", x[idx]))
+    if( length(idx) > 0 ){ new[idx] <- .munge(gsub("(.*)/.*$", "\\1", x[idx])) }
     return(new)
   }
 )
@@ -11,30 +10,31 @@
 # Returns TRUE if the connection is at project level ("/Studies")
 .ISCon$methods(
   .isProject=function()
-    if(config$labkey.url.path == "/Studies/"){
-      TRUE
-    } else{
-      FALSE
-    }
+    res <- config$labkey.url.path == "/Studies/"
 )
+
 .ISCon$methods(
   GeneExpressionInputs=function(){
     if(!is.null(data_cache[[constants$matrix_inputs]])){
       data_cache[[constants$matrix_inputs]]
     }else{
-      ge<-data.table(labkey.selectRows(baseUrl = config$labkey.url.base,config$labkey.url.path,schemaName = "assay.ExpressionMatrix.matrix",queryName = "InputSamples",colNameOpt = "fieldname",viewName = "gene_expression_matrices",showHidden=TRUE))
+      ge <- .getLKtbl(con = .self, 
+                      schema = "assay.Expressionmatrix.matrix",
+                      query = "InputSamples",
+                      viewName = "gene_expression_matrices",
+                      colNameOpt = "fieldname")
       setnames(ge,.self$.munge(colnames(ge)))
-      data_cache[[constants$matrix_inputs]]<<-ge
+      data_cache[[constants$matrix_inputs]] <<- ge
     }
   }
 )
-
 
 .ISCon$methods(
   .isRunningLocally=function(path){
     file.exists(path)
   }
 )
+
 .ISCon$methods(
   .localStudyPath=function(urlpath){
     LOCALPATH <- "/share/files/"
@@ -54,6 +54,7 @@
           cat(sprintf("\t%s\n",available_datasets[i,Name]))
         }
       }
+      
       if("expression" %in% which){
         if(!is.null(data_cache[[constants$matrices]])){
           cat("Expression Matrices\n")
@@ -62,26 +63,30 @@
           }
         }
       }
-    })
-
+    }
+)
 
 .ISCon$methods(
     listGEAnalysis = function(){
       "List available gene expression analysis for the connection."
-      GEA <- data.table(labkey.selectRows(config$labkey.url.base,
-                                          config$labkey.url.path,
-                                          "gene_expression",
-                                          "gene_expression_analysis",
-                                          colNameOpt = "rname"))
-      return(GEA)
-    })
+      GEA <- .getLKtbl(con = .self, 
+                       schema = "gene_expression",
+                       query = "gene_expression_analysis",
+                       showHidden = FALSE,
+                       colNameOpt = "rname")
+    }
+)
 
 .ISCon$methods(
   getGEAnalysis = function(...){
     "Downloads data from the gene expression analysis results table.\n
     '...': A list of arguments to be passed to labkey.selectRows."
-    GEAR <- data.table(labkey.selectRows(config$labkey.url.base, config$labkey.url.path,
-        "gene_expression", "DGEA_filteredGEAR",  "DGEAR", colNameOpt = "caption", ...))
+    GEAR <- .getLKtbl(con = .self, 
+                      schema = "gene_expression",
+                      query = "DGEA_filteredGEAR",
+                      viewName = "DGEAR",
+                      colNameOpt = "caption",
+                      ...)
     setnames(GEAR, .self$.munge(colnames(GEAR)))
     return(GEAR)
   }
@@ -93,22 +98,32 @@
     data_cache[grep("^GE", names(data_cache), invert = TRUE)] <<- NULL
   }
 )
+
 .ISCon$methods(
     show=function(){
     "Display information about the object."
       cat(sprintf("Immunespace Connection to study %s\n",study))
-      cat(sprintf("URL: %s\n",file.path(gsub("/$","",config$labkey.url.base),gsub("^/","",config$labkey.url.path))))
+      
+      cat(sprintf("URL: %s\n",
+                  file.path(gsub("/$","",config$labkey.url.base),
+                            gsub("^/","",config$labkey.url.path)))
+          )
+      
       cat(sprintf("User: %s\n",config$labkey.user.email))
+      
       cat("Available datasets\n")
+      
       for(i in 1:nrow(available_datasets)){
         cat(sprintf("\t%s\n",available_datasets[i,Name]))
       }
+      
       if(!is.null(data_cache[[constants$matrices]])){
         cat("Expression Matrices\n")
         for(i in 1:nrow(data_cache[[constants$matrices]])){
           cat(sprintf("\t%s\n",data_cache[[constants$matrices]][i, name]))
         }
       }
+      
     }
 )
 
@@ -121,8 +136,10 @@
                     config$labkey.url.path,
                     "/%40files/rawdata/gene_expression/", files)
     sapply(links, function(x){
-      download.file(url = links[1], destfile = file.path(destdir, basename(x)),
-                    method = "curl", extra = "-n")
+      download.file(url = links[1], 
+                    destfile = file.path(destdir, basename(x)),
+                    method = "curl", 
+                    extra = "-n")
     })
   }
 )
@@ -138,16 +155,17 @@
     list_files <- function(link){
       response <- NULL
       if (url.exists(url = link, netrc = TRUE)){
-        response_raw <- getURL(url = link, netrc = TRUE)
-        response_json <- fromJSON(response_raw)
-        response <- unlist(lapply(response_json$files, function(x) x$text))
+        response_json <- fromJSON(getURL(url = link, netrc = TRUE))
+        response <- unlist(lapply(response_json$files, function(x){ x$text } ))
       }
       response
     }
     
     check_links <- function (dataset, folder){
-      res <- data.frame(file_info_name = NULL, study_accession = NULL, 
-                        file_link = NULL, file_exists = NULL, 
+      res <- data.frame(file_info_name = NULL, 
+                        study_accession = NULL, 
+                        file_link = NULL, 
+                        file_exists = NULL, 
                         stringsAsFactors = FALSE)
       
       if (dataset %in% .self$available_datasets$Name){
@@ -159,18 +177,20 @@
                             temp$study_accession, "/%40files/rawdata/", folder, "/", 
                             sapply(temp$file_info_name, URLencode))
         
-        studies <- unique(temp$study_accession)
         folder_link <- paste0(config$labkey.url.base, "/_webdav/Studies/", 
-                              studies, "/%40files/rawdata/", folder, "?method=JSON")
+                              unique(temp$study_accession), "/%40files/rawdata/", folder, "?method=JSON")
         
         file_list <- unlist(mclapply(folder_link, list_files, mc.cores = detectCores()))
         
         file_exists <- temp$file_info_name %in% file_list
-        res <- data.frame(study = temp$study_accession, file_link = file_link, file_exists = file_exists, 
+        
+        res <- data.frame(study = temp$study_accession, 
+                          file_link = file_link, 
+                          file_exists = file_exists, 
                           stringsAsFactors = FALSE) 
+        
         print(paste0(sum(res$file_exists), "/", nrow(res), " ", dataset, " with valid links."))
       }
-      
       res
     }
     
@@ -197,8 +217,11 @@
                               "/%40files/protocols/", folders, "_protocol.zip")
       file_exists <- unlist(mclapply(file_link, url.exists, netrc = TRUE, mc.cores = detectCores()))
       
-      res <- data.frame(study = folders, file_link = file_link, file_exists = file_exists, 
+      res <- data.frame(study = folders, 
+                        file_link = file_link, 
+                        file_exists = file_exists, 
                         stringsAsFactors = FALSE)      
+      
       print(paste0(sum(res$file_exists), "/", nrow(res), " protocols with valid links."))
       ret$protocols <- res
     }
@@ -208,21 +231,137 @@
                                           schemaName = "assay.ExpressionMatrix.matrix")
       
       if ("OutputDatas" %in% matrix_queries$queryName) {
-        ge<-data.frame(labkey.selectRows( baseUrl = config$labkey.url.base, folderPath = config$labkey.url.path,  
-                        schemaName = "assay.ExpressionMatrix.matrix", queryName = "OutputDatas", colNameOpt = "rname", viewName = "links"))
-        output <- lapply(ge[4], function(x) gsub("@", "%40", gsub("file:/share/files", 
-                        paste0(config$labkey.url.base, "/_webdav"), x)))
-        file_exists <- unlist(mclapply(output$data_datafileurl, url.exists, netrc = TRUE, mc.cores = detectCores()))
-        res <- data.frame(file_link = output$data_datafileurl, file_exists = file_exists, 
-                        stringsAsFactors = FALSE)
+        ge <-.getLKtbl(con = .self, 
+                       schema = "assay.ExpressionMatrix.matrix", 
+                       query = "OutputDatas", 
+                       colNameOpt = "rname", 
+                       viewName = "links")
+        
+        output <- lapply(ge[4], function(x){
+                          gsub("@", 
+                               "%40", 
+                               gsub("file:/share/files", 
+                                    paste0(config$labkey.url.base, "/_webdav"), 
+                                    x))} 
+                        )
+        
+        file_exists <- unlist(mclapply(output$data_datafileurl, 
+                                       url.exists, 
+                                       netrc = TRUE, 
+                                       mc.cores = detectCores()))
+        
+        res <- data.frame(file_link = output$data_datafileurl, 
+                          file_exists = file_exists, 
+                          stringsAsFactors = FALSE)
+        
         print(paste0(sum(res$file_exists), "/", nrow(res), " ge_matrices with valid links."))
+        
       } else {
-        res <- data.frame(file_link = NULL, file_exists = NULL, stringsAsFactors = FALSE)
+        res <- data.frame(file_link = NULL, 
+                          file_exists = NULL, 
+                          stringsAsFactors = FALSE)
       }
       
       ret$ge_matrices <- res
     }
     return(ret)
+  }
+)
+
+###############################################################################
+# -------------- PARTICIPANT FILTERING METHODS -------------------------------#
+###############################################################################
+# internal method to make it less verbose to grab LK tables 
+.getLKtbl <- function(con, schema, query, showHidden = TRUE, ...){
+  data.table(labkey.selectRows(baseUrl = con$config$labkey.url.base,
+                               folderPath = con$config$labkey.url.path,
+                               schemaName = schema,
+                               queryName = query,
+                               showHidden = showHidden,
+                               ...),
+             stringsAsFactors = FALSE)
+}
+
+.ISCon$methods(
+  listParticipantGroups = function(){
+    "$listParticipantGroups() returns a dataframe with all saved Participant Groups on
+    ImmuneSpace.\n"
+    
+    if(config$labkey.url.path != "/Studies/"){
+      stop("labkey.url.path must be /Studies/. Use CreateConnection with all studies.")
+    }
+    
+    pgrp <- .getLKtbl(con = .self, schema = "study", query = "ParticipantGroup")
+    pcat <- .getLKtbl(con = .self, schema = "study", query = "ParticipantCategory")
+    pmap <- .getLKtbl(con = .self, schema = "study", query = "ParticipantGroupMap")
+    user2grp <- .getLKtbl(con = .self, schema = "core", query = "UsersAndGroups")
+    
+    preRes <- data.table(merge(pgrp, pcat, by.x = "Category Id", by.y = "Row Id"))
+    preRes[ user2grp, Created_by := `Display Name`, on = c(`Created By` = "User Id")]
+    
+    result <- data.frame(Group_ID = preRes$`Row Id`, 
+                         Label = preRes$Label.x, 
+                         Created = preRes$Created, 
+                         Created_By = preRes$Created_by,
+                         stringsAsFactors = F)
+    
+    pmap <- data.table(pmap)
+    pmap[, Subs := .N, by = `Group Id`]
+    result$Subject_Count <- pmap$Subs[ match(result$Group_ID, pmap$`Group Id`)]
+
+    return(result)
+  }
+)
+
+.ISCon$methods(
+  getParticipantData = function(groupId, dataType){
+    "$getParticipantData() returns a dataframe with ImmuneSpace data subset by
+    groupId.\n
+    groupId: Use $listParticipantGroups() to find Participant Group Id.\n
+    dataType: Use $available_datasets to see possible dataType inputs.\n"
+    
+    if(config$labkey.url.path != "/Studies/"){
+      stop("labkey.url.path must be /Studies/. Use CreateConnection with all studies.")
+    }
+    
+    if(!(dataType %in% .self$available_datasets$Name)){
+      stop("DataType must be in ", paste(.self$available_datasets$Name, collapse = ", "))
+    }
+    
+    dt <- tolower(dataType)
+    sql <- paste0("SELECT ", dt, ".*, pmap.GroupId As groupId ",
+                  "FROM ", dt,
+                  " JOIN ParticipantGroupMap AS pmap ON ", 
+                  dt, ".ParticipantId = pmap.ParticipantId",
+                  " WHERE groupId = ", as.character(groupId))
+    
+    allData <- labkey.executeSql(baseUrl = .self$config$labkey.url.base, 
+                                 folderPath = .self$config$labkey.url.path,
+                                 schemaName = "study",
+                                 sql = sql,
+                                 colNameOpt = "fieldname")
+    
+    cols2rm <- c("Container", 
+                 "lsid",
+                 "ParticipantSequenceNum",
+                 "sourcelsid",
+                 "Created",
+                 "CreatedBy",
+                 "Modified",
+                 "ModifiedBy",
+                 "SequenceNum",
+                 "workspace_id",
+                 "Dataset",
+                 "VisitRowId",
+                 "Folder",
+                 "_key",
+                 "filesize",
+                 "unique_id",
+                 "QCState",
+                 "dsrowid",
+                 "date")
+    
+    filtData <- allData[ , !(colnames(allData) %in% cols2rm) ]
   }
 )
 
