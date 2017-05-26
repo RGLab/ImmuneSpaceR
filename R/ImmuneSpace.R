@@ -11,20 +11,33 @@
 # Returns TRUE if the connection is at project level ("/Studies")
 .ISCon$methods(
   .isProject=function()
-    if(config$labkey.url.path == "/Studies/"){
-      TRUE
-    } else{
-      FALSE
-    }
+    return( config$labkey.url.path == "/Studies/" )
 )
+
 .ISCon$methods(
   GeneExpressionInputs=function(){
-    if(!is.null(data_cache[[constants$matrix_inputs]])){
-      data_cache[[constants$matrix_inputs]]
+    if( .self$.isProject() == TRUE){
+      stop("con$GeneExpressionInputs() cannot be run at project level.")
     }else{
-      ge<-data.table(labkey.selectRows(baseUrl = config$labkey.url.base,config$labkey.url.path,schemaName = "assay.ExpressionMatrix.matrix",queryName = "InputSamples",colNameOpt = "fieldname",viewName = "gene_expression_matrices",showHidden=TRUE))
-      setnames(ge,.self$.munge(colnames(ge)))
-      data_cache[[constants$matrix_inputs]]<<-ge
+      if(!is.null(data_cache[[constants$matrix_inputs]])){
+        data_cache[[constants$matrix_inputs]]
+      }else{
+        ge <- tryCatch(
+          data.table(labkey.selectRows(baseUrl = config$labkey.url.base,
+                                       config$labkey.url.path,
+                                       schemaName = "assay.ExpressionMatrix.matrix",
+                                       queryName = "InputSamples",
+                                       colNameOpt = "fieldname",
+                                       viewName = "gene_expression_matrices",
+                                       showHidden = TRUE)),
+          error = function(e) return(e)
+        )
+        if( length(ge$message) > 0 ){
+          stop("Gene Expression Inputs not found for study.")
+        }
+        setnames(ge,.self$.munge(colnames(ge)))
+        data_cache[[constants$matrix_inputs]]<<-ge
+      }
     }
   }
 )
@@ -35,6 +48,7 @@
     file.exists(path)
   }
 )
+
 .ISCon$methods(
   .localStudyPath=function(urlpath){
     LOCALPATH <- "/share/files/"
@@ -80,8 +94,19 @@
   getGEAnalysis = function(...){
     "Downloads data from the gene expression analysis results table.\n
     '...': A list of arguments to be passed to labkey.selectRows."
-    GEAR <- data.table(labkey.selectRows(config$labkey.url.base, config$labkey.url.path,
-        "gene_expression", "DGEA_filteredGEAR",  "DGEAR", colNameOpt = "caption", ...))
+    GEAR <- tryCatch(
+      data.table(labkey.selectRows(config$labkey.url.base, 
+                                           config$labkey.url.path,
+                                           "gene_expression", 
+                                           "DGEA_filteredGEAR",  
+                                           "DGEAR", 
+                                           colNameOpt = "caption", ...)),
+      error = function(e) return(e)
+    )
+    if( length(GEAR$message) > 0 ){
+      stop("Gene Expression Analysis not found for study.")
+    }
+    
     setnames(GEAR, .self$.munge(colnames(GEAR)))
     return(GEAR)
   }
@@ -113,7 +138,7 @@
 )
 
 .ISCon$methods(
-  getGEFiles=function(files, destdir = "."){
+  getGEFiles=function(files, destdir = ".", quiet = FALSE){
     "Download gene expression raw data files.\n
     files: A character. Filenames as shown on the gene_expression_files dataset.\n
     destdir: A character. The loacal path to store the downloaded files."
@@ -121,11 +146,19 @@
                     config$labkey.url.path,
                     "/%40files/rawdata/gene_expression/", files)
     sapply(links, function(x){
-      download.file(url = links[1], destfile = file.path(destdir, basename(x)),
-                    method = "curl", extra = "-n")
+      download.file(url = links[1], 
+                    destfile = file.path(destdir, basename(x)),
+                    method = "curl", 
+                    extra = "-n",
+                    quiet = quiet)
     })
   }
 )
+
+#################################################################################
+###                     MAINTAINENANCE FN                                     ###
+#################################################################################
+
 
 # Returns a list of data frames where TRUE in file_exists column marks files that are accessible.
 # This function is used for administrative purposes to check that the flat files
@@ -231,5 +264,132 @@
     return(ret)
   }
 )
+
+
+#-------------------GEM CLEANUP------------------------------------
+# This function outputs a list of studies without expr mx, but with rawdata
+# or gene expression files (according to con$getDataset("gene_expression_files")).
+.ISCon$methods(
+  .sdysWithoutGems = function(){
+    
+    res <- list()
+    
+    # This version returns NULL if folder doesn't exist, TRUE if files are present
+    # and FALSE if empty folder
+    list_files <- function(link){
+      response <- NULL
+      if (url.exists(url = link, netrc = TRUE)){
+        response_raw <- getURL(url = link, netrc = TRUE)
+        response_json <- fromJSON(response_raw)
+        response <- unlist(lapply(response_json$files, function(x) x$text))
+        response <- length(response) > 0 
+      }
+      return(response)
+    }
+    
+    # get list of matrices and determine which sdys they represent
+    gems <- .self$data_cache$GE_matrices
+    withGems <- unique(gems$folder)
+    
+    # create list of sdy folders
+    studies <- labkey.getFolders(baseUrl = .self$config$labkey.url.base, 
+                                      folderPath = "/Studies/")
+    studies <- studies[, 1]
+    studies <- studies[ !studies %in% c("SDY_template","Studies") ]
+    
+    
+    # check webdav folder for presence of rawdata
+    file_list <- mclapply(studies, mc.cores = detectCores(), FUN = function(sdy){
+      folder_link <-  paste0(.self$config$labkey.url.base, 
+                             "/_webdav/Studies/", 
+                             sdy, 
+                             "/%40files/rawdata/gene_expression?method=JSON")
+      files <- list_files(folder_link)
+    })
+    names(file_list) <- studies
+    file_list <- file_list[ file_list != "NULL" ]
+    emptyFolders <- names(file_list)[ file_list == FALSE ]
+    withRawData <- names(file_list)[ file_list == TRUE ]
+    
+    # Compare lists
+    res$gemAndRaw <- intersect(withRawData, withGems)
+    res$gemNoRaw <- setdiff(withGems, withRawData)
+    res$rawNoGem <- setdiff(withRawData, withGems)
+    
+    # Check which studies without gems have gef in IS
+    ge <- con$getDataset("gene_expression_files")
+    geNms <- unique(ge$participant_id)
+    gefSdys <- unique(sapply(geNms, FUN = function(x){
+      res <- strsplit(x, ".", fixed = T)
+      return(res[[1]][2])
+    }))
+    gefSdys <- paste0("SDY", gefSdys)
+    res$gefNoGem <- gefSdys[ !(gefSdys %in% withGems) ]
+    
+    res$gefNoRaw <- setdiff(res$gefNoGem, res$rawNoGem)
+    res$rawNoGef <- setdiff(res$rawNoGem, res$gefNoGem)
+    
+    return( res )
+  }
+)
+
+# Remove gene expression matrices that do not correspond to a run currently on prod or test
+# Important to change the labkey.url.base variable depending on prod / test to ensure you
+# are not deleting any incorrectly.
+.ISCon$methods(
+  rmOrphanGems = function(){
+    if( .self$.isProject == FALSE){
+      stop("Can only be run at project level")
+    }
+    runs <- data.table( labkey.selectRows( baseUrl = labkey.url.base,
+                                           folderPath = labkey.url.path,
+                                           schemaName = "assay.ExpressionMatrix.matrix",
+                                           queryName = "Runs",
+                                           showHidden = T))
+    
+    # get flat files list
+    sdyLs <- list.dirs(path = "/share/files/Studies")
+    emDirs <- sdyLs[ grep("*exprs_matrices", sdyLs) ]
+    emFls <- unname(unlist(sapply(emDirs, function(dir){
+      if(length(list.files(dir)) != 0){ return(paste0(dir, "/", list.files(dir))) }
+    })))
+    
+    # get names for comparing to db
+    emRedux <- emFls[grep("*summary", emFls)]
+    emSdys <- list()
+    emNms <- list()
+    for(i in 1:length(emRedux)){
+      spl <- strsplit(emRedux[[i]], split = "/", fixed = T)
+      emSdys[[i]] <- spl[[1]][5]
+      tmp <- strsplit(spl[[1]][8], split = ".", fixed = T)
+      emNms[[i]] <- tmp[[1]][1]
+    }
+    
+    # check runs for file names - assume if not in runs$Name then ok to delete!
+    noRunPres <- which(!(emNms %in% runs$Name))
+    
+    sum2Rm <- emRedux[ noRunPres ]
+    tsv2Rm <- unname(sapply(sum2Rm, function(x){
+      substr(x, start = 1, stop = nchar(x) - 8)
+    }))
+    all2Rm <- c(sum2Rm,tsv2Rm)
+    
+    # Show, confirm, then delete
+    print(all2Rm)
+    ok2rm <- readline(prompt = "Ok to remove all files? [Y / n] ")
+    if(toupper(ok2rm) == "Y" | ok2rm == ""){
+      sapply(all2Rm, file.remove)
+    }else{
+      stop("deletion not permitted. Ending operations.")
+    }
+  }
+)
+
+
+
+
+
+
+
 
 
