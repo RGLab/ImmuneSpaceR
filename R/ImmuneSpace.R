@@ -230,7 +230,7 @@
         folder_link <- paste0(config$labkey.url.base, "/_webdav/Studies/", 
                               studies, "/%40files/rawdata/", folder, "?method=JSON")
         
-        file_list <- unlist(mclapply(folder_link, .list_files, mc.cores = detectCores()))
+        file_list <- unlist(mclapply(folder_link, .listISFiles, mc.cores = detectCores()))
         
         file_exists <- temp$file_info_name %in% file_list
         res <- data.frame(study = temp$study_accession, file_link = file_link, file_exists = file_exists, 
