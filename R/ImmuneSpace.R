@@ -308,6 +308,15 @@
     
     res <- list()
     
+    spSort <- function(vec){
+      if(length(vec) > 0 ){
+        vec <- sort(as.numeric(gsub("SDY","",vec)))
+        vec <- paste0("SDY", as.character(vec))
+      }else{
+        vec <- NULL
+      }
+    }
+    
     # get list of matrices and determine which sdys they represent
     gems <- .self$data_cache$GE_matrices
     withGems <- unique(gems$folder)
@@ -318,9 +327,9 @@
     withRawData <- names(file_list)[ file_list == TRUE ]
     
     # Compare lists
-    res$gemAndRaw <- intersect(withRawData, withGems)
-    res$gemNoRaw <- setdiff(withGems, withRawData)
-    res$rawNoGem <- setdiff(withRawData, withGems)
+    res$gemAndRaw <- spSort(intersect(withRawData, withGems))
+    res$gemNoRaw <- spSort(setdiff(withGems, withRawData))
+    res$rawNoGem <- spSort(setdiff(withRawData, withGems))
     
     # Check which studies without gems have gef in IS
     ge <- con$getDataset("gene_expression_files")
@@ -330,10 +339,10 @@
       return(res[[1]][2])
     }))
     gefSdys <- paste0("SDY", gefSdys)
-    res$gefNoGem <- gefSdys[ !(gefSdys %in% withGems) ]
     
-    res$gefNoRaw <- setdiff(res$gefNoGem, res$rawNoGem)
-    res$rawNoGef <- setdiff(res$rawNoGem, res$gefNoGem)
+    res$gefNoGem <- spSort(gefSdys[ !(gefSdys %in% withGems) ])
+    res$gefNoRaw <- spSort(setdiff(res$gefNoGem, res$rawNoGem))
+    res$rawNoGef <- spSort(setdiff(res$rawNoGem, res$gefNoGem))
     
     return( res )
   }
@@ -406,13 +415,13 @@
                    sdy = names(noRunPres)[i],
                    .self = .self)
       }
+      noRunPresPost <- .getNoRunPres(.self = .self, runs = runs)
+      print("Remaining Files with No Runs Present")
+      print(noRunPresPost)
+      print("************")
     }else{
-      stop("deletion not permitted. Ending operations.")
+      print("Operation aborted.")
     }
-    noRunPresPost <- .getNoRunPres(.self = .self, runs = runs)
-    print("Remaining Files with No Runs Present")
-    print(noRunPresPost)
-    print("************")
   }
 )
 
