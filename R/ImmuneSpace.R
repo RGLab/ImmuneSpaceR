@@ -208,8 +208,14 @@
                                           schemaName = "assay.ExpressionMatrix.matrix")
       
       if ("OutputDatas" %in% matrix_queries$queryName) {
-        ge<-data.frame(labkey.selectRows( baseUrl = config$labkey.url.base, folderPath = config$labkey.url.path,  
-                        schemaName = "assay.ExpressionMatrix.matrix", queryName = "OutputDatas", colNameOpt = "rname", viewName = "links"))
+        ge <- data.frame( labkey.selectRows(  baseUrl = config$labkey.url.base,
+                                              folderPath = config$labkey.url.path,
+                                              schemaName = "assay.ExpressionMatrix.matrix",
+                                              queryName = "OutputDatas",
+                                              colNameOpt = "rname",
+                                              viewName = "links"
+                                           )
+                        )
         output <- lapply(ge[4], function(x) gsub("@", "%40", gsub("file:/share/files", 
                         paste0(config$labkey.url.base, "/_webdav"), x)))
         file_exists <- unlist(mclapply(output$data_datafileurl, url.exists, netrc = TRUE, mc.cores = detectCores()))
