@@ -28,18 +28,6 @@ test_that("returns GE inputs df if study has inputs", {
   expect_true( (dim(res)[1] > 0) & (dim(res)[2] > 0) )
 })
 
-# broken
-# test_that("returns error if study does not have inputs", {
-#   res <- try_gei(sdy67)
-#   expect_true( res$message == "GE Inputs not available for study")
-# })
-
-# Takes too long
-# test_that("returns error if run at project level", {
-#   res <- try_gei(allsdy)
-#   expect_true( "project" %in% strsplit(res$message, split = " ")[[1]] )
-# })
-
 
 # cleanup ------------------------------------------------------
 if(exists("netrc_file")){

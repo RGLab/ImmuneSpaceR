@@ -33,29 +33,6 @@ try_ggef <- function(con){
 context("getGEFiles")
 
 destdir <- tempdir()
-# Still a WIP - commenting out for Pull Request 4/28/17 EH
-# test_that("returns df of GE analysis for single study if present", {
-#   sink(file = file.path(destdir,"aux"))
-#   res <- try_ggef(con)
-#   sink(NULL)
-#   expect_true( dim(res)[1] > 0 )
-# })
-# 
-# test_that("returns df of GE analysis using cohort filter", {
-#   filt <- makeFilter(c("cohort","equals","TIV Group 2008"))
-#   res <- try_ggef(sdy269, colFilter = filt)
-#   expect_true( dim(res)[1] > 0 )
-# })
-# 
-# test_that("fails gracefully if GE analysis not present", {
-#   res <- try_ggef(sdy67)
-#   expect_true( res$message == "Study does not have Gene Expression Analyses" )
-# })
-# 
-# test_that("returns df of GE analysis for all studies", {
-#   res <- try_ggef(allsdy)
-#   expect_true( dim(res)[1] > 0 )
-# })
 
 
 # cleanup ------------------------------------------------------
