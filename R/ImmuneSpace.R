@@ -24,7 +24,7 @@
       }else{
         ge <- tryCatch(
           data.table(labkey.selectRows(baseUrl = config$labkey.url.base,
-                                       config$labkey.url.path,
+                                       folderPath = config$labkey.url.path,
                                        schemaName = "assay.ExpressionMatrix.matrix",
                                        queryName = "InputSamples",
                                        colNameOpt = "fieldname",
@@ -82,10 +82,10 @@
 .ISCon$methods(
     listGEAnalysis = function(){
       "List available gene expression analysis for the connection."
-      GEA <- data.table(labkey.selectRows(config$labkey.url.base,
-                                          config$labkey.url.path,
-                                          "gene_expression",
-                                          "gene_expression_analysis",
+      GEA <- data.table(labkey.selectRows(baseUrl = config$labkey.url.base,
+                                          folderPath = config$labkey.url.path,
+                                          schemaName = "gene_expression",
+                                          queryName = "gene_expression_analysis",
                                           colNameOpt = "rname"))
       return(GEA)
     })
@@ -95,12 +95,12 @@
     "Downloads data from the gene expression analysis results table.\n
     '...': A list of arguments to be passed to labkey.selectRows."
     GEAR <- tryCatch(
-      data.table(labkey.selectRows(config$labkey.url.base, 
-                                           config$labkey.url.path,
-                                           "gene_expression", 
-                                           "DGEA_filteredGEAR",  
-                                           "DGEAR", 
-                                           colNameOpt = "caption", ...)),
+      data.table(labkey.selectRows(baseUrl = config$labkey.url.base, 
+                                   folderPath = config$labkey.url.path,
+                                   schemaName = "gene_expression", 
+                                   queryName = "DGEA_filteredGEAR",  
+                                   viewName = "DGEAR", 
+                                   colNameOpt = "caption", ...)),
       error = function(e) return(e)
     )
     if( length(GEAR$message) > 0 ){
@@ -275,18 +275,22 @@
                                           schemaName = "assay.ExpressionMatrix.matrix")
       
       if ("OutputDatas" %in% matrix_queries$queryName) {
-        ge <- data.frame( labkey.selectRows(  baseUrl = config$labkey.url.base,
-                                              folderPath = config$labkey.url.path,
-                                              schemaName = "assay.ExpressionMatrix.matrix",
-                                              queryName = "OutputDatas",
-                                              colNameOpt = "rname",
-                                              viewName = "links"
+        ge <- data.frame( labkey.selectRows(baseUrl = config$labkey.url.base,
+                                            folderPath = config$labkey.url.path,
+                                            schemaName = "assay.ExpressionMatrix.matrix",
+                                            queryName = "OutputDatas",
+                                            colNameOpt = "rname",
+                                            viewName = "links"
                                            )
                         )
         output <- lapply(ge[4], function(x) gsub("@", "%40", gsub("file:/share/files", 
                         paste0(config$labkey.url.base, "/_webdav"), x)))
-        file_exists <- unlist(mclapply(output$data_datafileurl, url.exists, netrc = TRUE, mc.cores = detectCores()))
-        res <- data.frame(file_link = output$data_datafileurl, file_exists = file_exists, 
+        file_exists <- unlist(mclapply(output$data_datafileurl, 
+                                       url.exists, 
+                                       netrc = TRUE, 
+                                       mc.cores = detectCores()))
+        res <- data.frame(file_link = output$data_datafileurl, 
+                          file_exists = file_exists, 
                         stringsAsFactors = FALSE)
         print(paste0(sum(res$file_exists), "/", nrow(res), " ge_matrices with valid links."))
       } else {
@@ -424,12 +428,3 @@
     }
   }
 )
-
-
-
-
-
-
-
-
-
