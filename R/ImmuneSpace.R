@@ -59,36 +59,37 @@
 )
 
 .ISCon$methods(
-    listDatasets=function(which = c("datasets", "expression")){
-      "List the datasets available in the study or studies of the connection."
-      
-      if("datasets" %in% which){
-        cat("datasets\n")
-        for(i in 1:nrow(available_datasets)){
-          cat(sprintf("\t%s\n",available_datasets[i,Name]))
+  listDatasets=function(which = c("datasets", "expression")){
+    "List the datasets available in the study or studies of the connection."
+    
+    if("datasets" %in% which){
+      cat("datasets\n")
+      for(i in 1:nrow(available_datasets)){
+        cat(sprintf("\t%s\n",available_datasets[i,Name]))
+      }
+    }
+    if("expression" %in% which){
+      if(!is.null(data_cache[[constants$matrices]])){
+        cat("Expression Matrices\n")
+        for(i in 1:nrow(data_cache[[constants$matrices]])){
+          cat(sprintf("\t%s\n",data_cache[[constants$matrices]][i, name]))
         }
       }
-      if("expression" %in% which){
-        if(!is.null(data_cache[[constants$matrices]])){
-          cat("Expression Matrices\n")
-          for(i in 1:nrow(data_cache[[constants$matrices]])){
-            cat(sprintf("\t%s\n",data_cache[[constants$matrices]][i, name]))
-          }
-        }
-      }
-    })
-
+    }
+  }
+)
 
 .ISCon$methods(
-    listGEAnalysis = function(){
-      "List available gene expression analysis for the connection."
-      GEA <- data.table(labkey.selectRows(baseUrl = config$labkey.url.base,
-                                          folderPath = config$labkey.url.path,
-                                          schemaName = "gene_expression",
-                                          queryName = "gene_expression_analysis",
-                                          colNameOpt = "rname"))
-      return(GEA)
-    })
+  listGEAnalysis = function(){
+    "List available gene expression analysis for the connection."
+    GEA <- data.table(labkey.selectRows(baseUrl = config$labkey.url.base,
+                                        folderPath = config$labkey.url.path,
+                                        schemaName = "gene_expression",
+                                        queryName = "gene_expression_analysis",
+                                        colNameOpt = "rname"))
+    return(GEA)
+  }
+)
 
 .ISCon$methods(
   getGEAnalysis = function(...){
@@ -118,23 +119,26 @@
     data_cache[grep("^GE", names(data_cache), invert = TRUE)] <<- NULL
   }
 )
+
 .ISCon$methods(
-    show=function(){
-    "Display information about the object."
-      cat(sprintf("Immunespace Connection to study %s\n",study))
-      cat(sprintf("URL: %s\n",file.path(gsub("/$","",config$labkey.url.base),gsub("^/","",config$labkey.url.path))))
-      cat(sprintf("User: %s\n",config$labkey.user.email))
-      cat("Available datasets\n")
-      for(i in 1:nrow(available_datasets)){
-        cat(sprintf("\t%s\n",available_datasets[i,Name]))
-      }
-      if(!is.null(data_cache[[constants$matrices]])){
-        cat("Expression Matrices\n")
-        for(i in 1:nrow(data_cache[[constants$matrices]])){
-          cat(sprintf("\t%s\n",data_cache[[constants$matrices]][i, name]))
-        }
+  show=function(){
+  "Display information about the object."
+    cat(sprintf("Immunespace Connection to study %s\n",study))
+    cat(sprintf("URL: %s\n",
+                file.path(gsub("/$","",config$labkey.url.base),
+                          gsub("^/","",config$labkey.url.path))))
+    cat(sprintf("User: %s\n",config$labkey.user.email))
+    cat("Available datasets\n")
+    for(i in 1:nrow(available_datasets)){
+      cat(sprintf("\t%s\n",available_datasets[i,Name]))
+    }
+    if(!is.null(data_cache[[constants$matrices]])){
+      cat("Expression Matrices\n")
+      for(i in 1:nrow(data_cache[[constants$matrices]])){
+        cat(sprintf("\t%s\n",data_cache[[constants$matrices]][i, name]))
       }
     }
+  }
 )
 
 .ISCon$methods(
@@ -198,7 +202,6 @@
   names(file_list) <- studies
   return(file_list)
 }
-
 
 # Returns a list of data frames where TRUE in file_exists column marks files that are accessible.
 # This function is used for administrative purposes to check that the flat files
@@ -302,7 +305,6 @@
     return(ret)
   }
 )
-
 
 #-------------------GEM CLEANUP------------------------------------
 # This function outputs a list of studies without expr mx, but with rawdata
