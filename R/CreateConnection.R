@@ -60,11 +60,16 @@ CreateConnection = function(study = NULL, login = NULL, password = NULL, use.dat
   # (Ideally labkey.selectRows should optionally parse the options from its argument besides package environment)
   # 
   # for now we assume they all share the same setting and init it only once here
-  if(!is.null(login) & !is.null(password)){
+  if(!is.null(login) & is.null(password)) {
+    stop(paste0("login = ", login, " given without password. Please try again with password"))
+  } else if( !is.null(login) & !is.null(password) ) {
     nf <- write_netrc(login, password)
-  } else{
+  } else {
     nf <- try(get("labkey.netrc.file", .GlobalEnv), silent = TRUE)
   }
+
+  
+  
   if(!inherits(nf, "try-error") && !is.null(nf)){
     curlOptions <- labkey.setCurlOptions(ssl.verifyhost = 2, 
                                          sslversion = 1, 

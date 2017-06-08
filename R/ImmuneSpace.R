@@ -231,6 +231,7 @@
                                           schemaName = "assay.ExpressionMatrix.matrix")
       
       if ("OutputDatas" %in% matrix_queries$queryName) {
+
         ge <-.getLKtbl(con = .self, 
                        schema = "assay.ExpressionMatrix.matrix", 
                        query = "OutputDatas", 

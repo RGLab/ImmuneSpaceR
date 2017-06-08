@@ -5,6 +5,3 @@
 *.Rproj
 .Rproj.*
 .*.Rnb.cached
-.sass-cache/
-inst/themes/IStemplate.css.map
-

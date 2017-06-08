@@ -172,9 +172,22 @@ NULL
   show_rnames <- ifelse(nrow(mat) < 50, TRUE, FALSE)
   cluster_rows <- ifelse(nrow(mat) > 2 & ncol(mat) > 2, TRUE, FALSE)
   
-  if (interactive){
-    heatmaply(x = mat, colors = rev(palette), col_side_colors = t(anno), 
-                   dendrogram = "row")
+  if (interactive) {
+    e <- try({
+    p <- heatmaply(x = mat, 
+              colors = rev(palette), 
+              col_side_colors = anno, 
+              dendrogram = "row", 
+              scale = scale)
+    }, silent = TRUE)
+    if (inherits(e, "try-error")) {
+      p <- heatmaply(x = mat, 
+                colors = rev(palette), 
+                col_side_colors = anno, 
+                dendrogram = "none", 
+                scale = scale)
+    }
+    p
   } else {
     e <- try({
       p <- pheatmap(mat = mat, annotation = anno, show_colnames = FALSE,
@@ -182,8 +195,8 @@ NULL
                     cluster_rows = cluster_rows, color = palette,
                     scale = scale, breaks = breaks,
                     fontsize = text_size, annotation_colors = anno_color)
-    })
-    if(inherits(e, "try-error")){
+    }, silent = TRUE)
+    if (inherits(e, "try-error")) {
       p <- pheatmap(mat = mat, annotation = anno, show_colnames = FALSE,
                     show_rownames = show_rnames, cluster_cols = FALSE,
                     cluster_rows = FALSE, color = palette,
@@ -260,11 +273,10 @@ NULL
     if(isTRUE(show_virus_strain)){
       dt <- dt[, analyte := virus]
     }
-  } else if(dataset == "pcr"){
-    if(all(is.na(dt[, threshold_cycles]))){
+  } else if(dataset == "pcr") {
+    if(!all(dt[, unit_reported] == "Ct")) {
       stop("PCR results cannot be displayed for studies that do not use threshold cycles.")
     }
-    dt <- dt[, value_reported := threshold_cycles]
     dt <- dt[, analyte := entrez_gene_id]
     logT <- FALSE #Threshold cycle is already log transformed
   } else if(dataset == "mbaa"){
