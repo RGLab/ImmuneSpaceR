@@ -48,7 +48,6 @@ test_that("argument of EM returns error when no EM present", {
   expect_true( res == "No Expression Matrices Available")
 })
 
-
 # cleanup ------------------------------------------------------
 if(exists("netrc_file")){
   file.remove(netrc_file)

@@ -18,7 +18,6 @@ try_gei <- function(con){
   )
 }
 
-
 # Tests --------------------------------------------------------
 context("GeneExpressionInputs")
 
@@ -31,7 +30,6 @@ test_that("returns error if study does not have inputs", {
   res <- try_gei(sdy67)
   expect_true( res$message == "Gene Expression Inputs not found for study.")
 })
-
 
 # cleanup ------------------------------------------------------
 if(exists("netrc_file")){

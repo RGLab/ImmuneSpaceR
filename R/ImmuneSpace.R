@@ -67,6 +67,7 @@
     }
     
     if("datasets" %in% output){
+
       cat("datasets\n")
       for(i in 1:nrow(available_datasets)){
         cat(sprintf("\t%s\n",available_datasets[i,Name]))
@@ -83,7 +84,7 @@
         cat("No Expression Matrices Available")
       }
     }
-    
+
   }
 )
 
@@ -101,6 +102,7 @@
     if( length(GEA$message) > 0 ){
       stop("Study does not have Gene Expression Analyses.")
     }
+
     return(GEA)
   }
 )
@@ -137,6 +139,7 @@
 .ISCon$methods(
   show=function(){
     "Display information about the object."
+
     cat(sprintf("Immunespace Connection to study %s\n",study))
     cat(sprintf("URL: %s\n",
                 file.path(gsub("/$","",config$labkey.url.base),
@@ -206,6 +209,50 @@
                        "/_webdav/Studies/", 
                        sdy, 
                        suffix)
+    files <- .listISFiles(dirLink)
+    if(rawdata == TRUE){
+      if( !is.null(files) ){ files <- length(files) > 0 }
+    }
+    return(files)
+  })
+  
+  names(file_list) <- studies
+  return(file_list)
+}
+
+#################################################################################
+###                     MAINTAINENANCE FN                                     ###
+#################################################################################
+
+# Helper FNS --------------------------------------------------------------------
+# get names of files in a single folder from webdav link
+.listISFiles <- function(link){
+  response <- NULL
+  if (url.exists(url = link, netrc = TRUE)){
+    response_raw <- getURL(url = link, netrc = TRUE)
+    response_json <- fromJSON(response_raw)
+    response <- unlist(lapply(response_json$files, function(x) x$text))
+  }
+  return(response)
+}
+
+# Generate named list of files in either rawdata or analysis/exprs_matrices folders
+.getGEFileNms <- function(.self, rawdata){
+  # create list of sdy folders
+  studies <- labkey.getFolders(baseUrl = .self$config$labkey.url.base, 
+                               folderPath = "/Studies/")
+  studies <- studies[, 1]
+  studies <- studies[ !studies %in% c("SDY_template","Studies") ]
+  
+  # check webdav folder for presence of rawdata
+  file_list <- mclapply(studies, mc.cores = detectCores(), FUN = function(sdy){
+    suffix <- ifelse(rawdata == TRUE,
+                     "/%40files/rawdata/gene_expression?method=JSON",
+                     "/%40files/analysis/exprs_matrices?method=JSON")
+    dirLink <-  paste0(.self$config$labkey.url.base, 
+                           "/_webdav/Studies/", 
+                           sdy, 
+                           suffix)
     files <- .listISFiles(dirLink)
     if(rawdata == TRUE){
       if( !is.null(files) ){ files <- length(files) > 0 }
@@ -297,11 +344,12 @@
                                             schemaName = "assay.ExpressionMatrix.matrix",
                                             queryName = "OutputDatas",
                                             colNameOpt = "rname",
-                                            viewName = "links"
-        )
-        )
+                                            viewName = "links"))
+        
         output <- lapply(ge[4], function(x) gsub("@", "%40", gsub("file:/share/files", 
-                                                                  paste0(config$labkey.url.base, "/_webdav"), x)))
+                                                                  paste0(config$labkey.url.base, 
+                                                                         "/_webdav"), x)))
+
         file_exists <- unlist(mclapply(output$data_datafileurl, 
                                        url.exists, 
                                        netrc = TRUE, 
@@ -309,6 +357,7 @@
         res <- data.frame(file_link = output$data_datafileurl, 
                           file_exists = file_exists, 
                           stringsAsFactors = FALSE)
+
         print(paste0(sum(res$file_exists), "/", nrow(res), " ge_matrices with valid links."))
       } else {
         res <- data.frame(file_link = NULL, file_exists = NULL, stringsAsFactors = FALSE)

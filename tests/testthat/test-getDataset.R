@@ -73,6 +73,7 @@ test_that("get_hla_typing", {
  test_dataset(sdy28, "hla_typing", common_cols, specif_cols = hlaCols)
 })
 
+
 # cleanup ------------------------------------------------------
 if(exists("netrc_file")){
   file.remove(netrc_file)
