@@ -374,7 +374,7 @@
 # 1. $gemAndRaw = study has gene expression matrix flat file and raw data
 # 2. $gemNoRaw = study has gene expression matrix flat file but no raw data (unlikely)
 # 3. $rawNoGem = study has raw data but no gene expression flat file, which is likely
-#                in the case that no annotation pkg is availble in bioconductor or 
+#                in the case that no annotation pkg is availble in bioconductor or
 #                it is RNAseq and had trouble being processed.
 # 4. $gefNoGem = con$getDataset("gene_expression_files") reports raw data available, but
 #                no gene expression matrix flat file has been generated. Similar to rawNoGem.
@@ -477,7 +477,7 @@
     
     # Double check we are working at project level and on correct server!
     if( .self$.isProject() == FALSE){ stop("Can only be run at project level") }
-    chkBase <- readline(prompt = paste0("You are working on ", 
+    chkBase <- readline(prompt = paste0("You are working on ",
                                         .self$config$labkey.url.base,
                                         ". Continue? [T / f] "))
     if( !(chkBase %in% c("T","t",""))){ return("Operation Aborted.") }
