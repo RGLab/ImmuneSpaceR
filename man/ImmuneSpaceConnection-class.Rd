@@ -56,14 +56,6 @@ gene-expression data.}
 \section{Methods}{
 
 \describe{
-\item{\code{EMNames(EM = NULL, colType = "participant_id")}}{Change the sampleNames of an ExpressionSet fetched by getGEMatrix using the
-    information in the phenodData slot.
-
-    x: An ExpressionSet, as returned by getGEMatrix.
-
-    colType: A character. The type of column names. Valid options are 'expsample_accession'
-    and 'participant_id'.}
-
 \item{\code{addTrt(x = NULL)}}{Add treatment information to the phenoData of an expression matrix
      available in the connection object.
 
@@ -71,6 +63,14 @@ gene-expression data.}
     from the connection.}
 
 \item{\code{clear_cache()}}{Clear the data_cache. Remove downloaded datasets and expression matrices.}
+
+\item{\code{EMNames(EM = NULL, colType = "participant_id")}}{Change the sampleNames of an ExpressionSet fetched by getGEMatrix using the
+    information in the phenodData slot.
+
+    x: An ExpressionSet, as returned by getGEMatrix.
+
+    colType: A character. The type of column names. Valid options are 'expsample_accession'
+    and 'participant_id'.}
 
 \item{\code{getDataset(x, original_view = FALSE, reload = FALSE, colFilter = NULL,
   ...)}}{Get a dataset form the connection
@@ -95,7 +95,8 @@ gene-expression data.}
 
     destdir: A character. The loacal path to store the downloaded files.}
 
-\item{\code{getGEMatrix(x = NULL, cohort = NULL, summary = FALSE, reload = FALSE)}}{Downloads a normalized gene expression matrix from ImmuneSpace.
+\item{\code{getGEMatrix(x = NULL, cohort = NULL, summary = FALSE, currAnno = TRUE,
+  norm = TRUE, reload = FALSE)}}{Downloads a normalized gene expression matrix from ImmuneSpace.
 
     `x': A `character'. The name of the gene expression matrix to download.
 
