@@ -370,8 +370,19 @@
 )
 
 #-------------------GEM CLEANUP------------------------------------
-# This function outputs a list of studies without expr mx, but with rawdata
-# or gene expression files (according to con$getDataset("gene_expression_files")).
+# This function outputs a list of lists.  There are six possible sub-lists >
+# 1. $gemAndRaw = study has gene expression matrix flat file and raw data
+# 2. $gemNoRaw = study has gene expression matrix flat file but no raw data (unlikely)
+# 3. $rawNoGem = study has raw data but no gene expression flat file, which is likely
+#                in the case that no annotation pkg is availble in bioconductor or 
+#                it is RNAseq and had trouble being processed.
+# 4. $gefNoGem = con$getDataset("gene_expression_files") reports raw data available, but
+#                no gene expression matrix flat file has been generated. Similar to rawNoGem.
+# 5. $gefNoRaw = con$getDataset() reports files being available, but no rawdata found.  This
+#                may be due to files being in GEO, but not having been downloaded to ImmPort
+#                and ImmuneSpace.
+# 6. $rawNoGef = This would be unexpected. Rawdata present on server, but no gene expression
+#                files found by con$getDataset().
 .ISCon$methods(
   .sdysWithoutGems = function(){
     
@@ -418,8 +429,8 @@
 )
 
 # Remove gene expression matrices that do not correspond to a run currently on prod or test
-# Important to change the labkey.url.base variable depending on prod / test to ensure you
-# are not deleting any incorrectly.
+# in the query assay.ExpressionMatrix.matrix.Runs. NOTE: Important to change the labkey.url.base 
+# variable depending on prod / test to ensure you are not deleting any incorrectly.
 #' @importFrom RCurl httpDELETE
 .ISCon$methods(
   .rmOrphanGems = function(){
@@ -464,7 +475,12 @@
       )
     }
     
+    # Double check we are working at project level and on correct server!
     if( .self$.isProject() == FALSE){ stop("Can only be run at project level") }
+    chkBase <- readline(prompt = paste0("You are working on ", 
+                                        .self$config$labkey.url.base,
+                                        ". Continue? [T / f] "))
+    if( !(chkBase %in% c("T","t",""))){ return("Operation Aborted.") }
     
     # get runs listed in the proper table
     runs <- data.table( labkey.selectRows( baseUrl = .self$config$labkey.url.base,
@@ -475,8 +491,12 @@
     
     noRunPres <- .getNoRunPres(.self = .self, runs = runs)
     
-    # Show files to-be-rm, confirm rm ok, attempt delete, check results and report
-    print(noRunPres)
+    # if files to-be-rm, confirm rm ok, attempt delete, check results and report
+    if( length(noRunPres) == 0){ 
+      return("No orphans found. Hurray!")
+    }else{
+      print(noRunPres)
+    }
     ok2rm <- readline(prompt = "Ok to remove all files listed above? [Y / n] ")
     if(toupper(ok2rm) == "Y" | ok2rm == ""){
       for(i in 1:length(noRunPres)){
@@ -485,9 +505,13 @@
                    .self = .self)
       }
       noRunPresPost <- .getNoRunPres(.self = .self, runs = runs)
-      print("Remaining Files with No Runs Present")
-      print(noRunPresPost)
-      print("************")
+      if( length(noRunpresPost) == 0){ 
+        return("No orphans found after removal. Success!")
+      }else{
+        print("Problems Occurred. Remaining Files with No Runs Present")
+        print(noRunPresPost)
+        print("************")
+      }
     }else{
       print("Operation aborted.")
     }
