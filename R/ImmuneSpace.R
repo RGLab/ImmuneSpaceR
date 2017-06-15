@@ -59,34 +59,50 @@
 )
 
 .ISCon$methods(
-  listDatasets=function(which = c("datasets", "expression")){
+  listDatasets=function(output = c("datasets", "expression")){
     "List the datasets available in the study or studies of the connection."
     
-    if("datasets" %in% which){
+    if( !all(output %in% c("datasets", "expression")) ){
+      stop("output other than datasets and expressions not allowed")
+    }
+    
+    if("datasets" %in% output){
+
       cat("datasets\n")
       for(i in 1:nrow(available_datasets)){
         cat(sprintf("\t%s\n",available_datasets[i,Name]))
       }
     }
-    if("expression" %in% which){
+    
+    if("expression" %in% output){
       if(!is.null(data_cache[[constants$matrices]])){
         cat("Expression Matrices\n")
         for(i in 1:nrow(data_cache[[constants$matrices]])){
           cat(sprintf("\t%s\n",data_cache[[constants$matrices]][i, name]))
         }
+      }else{
+        cat("No Expression Matrices Available")
       }
     }
+
   }
 )
 
 .ISCon$methods(
   listGEAnalysis = function(){
     "List available gene expression analysis for the connection."
-    GEA <- data.table(labkey.selectRows(baseUrl = config$labkey.url.base,
-                                        folderPath = config$labkey.url.path,
-                                        schemaName = "gene_expression",
-                                        queryName = "gene_expression_analysis",
-                                        colNameOpt = "rname"))
+    GEA <- tryCatch(
+      data.table(labkey.selectRows(baseUrl = config$labkey.url.base,
+                                   folderPath = config$labkey.url.path,
+                                   schemaName = "gene_expression",
+                                   queryName = "gene_expression_analysis",
+                                   colNameOpt = "rname")),
+      error = function(e) return(e)
+    )
+    if( length(GEA$message) > 0 ){
+      stop("Study does not have Gene Expression Analyses.")
+    }
+
     return(GEA)
   }
 )
@@ -111,18 +127,19 @@
     setnames(GEAR, .self$.munge(colnames(GEAR)))
     return(GEAR)
   }
-)
+  )
 
 .ISCon$methods(
   clear_cache = function(){
-  "Clear the data_cache. Remove downloaded datasets and expression matrices."
+    "Clear the data_cache. Remove downloaded datasets and expression matrices."
     data_cache[grep("^GE", names(data_cache), invert = TRUE)] <<- NULL
   }
 )
 
 .ISCon$methods(
   show=function(){
-  "Display information about the object."
+    "Display information about the object."
+
     cat(sprintf("Immunespace Connection to study %s\n",study))
     cat(sprintf("URL: %s\n",
                 file.path(gsub("/$","",config$labkey.url.base),
@@ -157,7 +174,51 @@
                     quiet = quiet)
     })
   }
-)
+  )
+
+#################################################################################
+###                     MAINTAINENANCE FN                                     ###
+#################################################################################
+
+# Helper FNS --------------------------------------------------------------------
+# get names of files in a single folder from webdav link
+.listISFiles <- function(link){
+  response <- NULL
+  if (url.exists(url = link, netrc = TRUE)){
+    response_raw <- getURL(url = link, netrc = TRUE)
+    response_json <- fromJSON(response_raw)
+    response <- unlist(lapply(response_json$files, function(x) x$text))
+  }
+  return(response)
+}
+
+# Generate named list of files in either rawdata or analysis/exprs_matrices folders
+.getGEFileNms <- function(.self, rawdata){
+  # create list of sdy folders
+  studies <- labkey.getFolders(baseUrl = .self$config$labkey.url.base, 
+                               folderPath = "/Studies/")
+  studies <- studies[, 1]
+  studies <- studies[ !studies %in% c("SDY_template","Studies") ]
+  
+  # check webdav folder for presence of rawdata
+  file_list <- mclapply(studies, mc.cores = detectCores(), FUN = function(sdy){
+    suffix <- ifelse(rawdata == TRUE,
+                     "/%40files/rawdata/gene_expression?method=JSON",
+                     "/%40files/analysis/exprs_matrices?method=JSON")
+    dirLink <-  paste0(.self$config$labkey.url.base, 
+                       "/_webdav/Studies/", 
+                       sdy, 
+                       suffix)
+    files <- .listISFiles(dirLink)
+    if(rawdata == TRUE){
+      if( !is.null(files) ){ files <- length(files) > 0 }
+    }
+    return(files)
+  })
+  
+  names(file_list) <- studies
+  return(file_list)
+}
 
 #################################################################################
 ###                     MAINTAINENANCE FN                                     ###
@@ -264,7 +325,7 @@
       }
       
       file_link <- paste0(config$labkey.url.base, "/_webdav/Studies/", folders, 
-                              "/%40files/protocols/", folders, "_protocol.zip")
+                          "/%40files/protocols/", folders, "_protocol.zip")
       file_exists <- unlist(mclapply(file_link, url.exists, netrc = TRUE, mc.cores = detectCores()))
       
       res <- data.frame(study = folders, file_link = file_link, file_exists = file_exists, 
@@ -283,18 +344,20 @@
                                             schemaName = "assay.ExpressionMatrix.matrix",
                                             queryName = "OutputDatas",
                                             colNameOpt = "rname",
-                                            viewName = "links"
-                                           )
-                        )
+                                            viewName = "links"))
+        
         output <- lapply(ge[4], function(x) gsub("@", "%40", gsub("file:/share/files", 
-                        paste0(config$labkey.url.base, "/_webdav"), x)))
+                                                                  paste0(config$labkey.url.base, 
+                                                                         "/_webdav"), x)))
+
         file_exists <- unlist(mclapply(output$data_datafileurl, 
                                        url.exists, 
                                        netrc = TRUE, 
                                        mc.cores = detectCores()))
         res <- data.frame(file_link = output$data_datafileurl, 
                           file_exists = file_exists, 
-                        stringsAsFactors = FALSE)
+                          stringsAsFactors = FALSE)
+
         print(paste0(sum(res$file_exists), "/", nrow(res), " ge_matrices with valid links."))
       } else {
         res <- data.frame(file_link = NULL, file_exists = NULL, stringsAsFactors = FALSE)

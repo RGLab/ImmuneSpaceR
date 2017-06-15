@@ -23,6 +23,16 @@ try_ld <- function(con, ...){
 # Tests --------------------------------------------------------
 context("listDatasets")
 
+test_that("both datasets and EM returned without argument", {
+  res <- try_ld(sdy269)
+  expect_true( all(c("datasets", "Expression Matrices") %in% res) )
+})
+
+test_that("strings other than datasets and EM return error", {
+  res <- try_ld(sdy269, output = "my_fav_sdy")
+  expect_true( res$message == "output other than datasets and expressions not allowed")
+})
+
 test_that("argument of datasets returns only datasets", {
   res <- try_ld(sdy269, output = "datasets")
   expect_true( !("Expression Matrices" %in% res) )
@@ -33,6 +43,10 @@ test_that("argument of EM returns only EM", {
   expect_true( !("Datasets" %in% res) )
 })
 
+test_that("argument of EM returns error when no EM present", {
+  res <- try_ld(sdy67, output = "expression")
+  expect_true( res == "No Expression Matrices Available")
+})
 
 # cleanup ------------------------------------------------------
 if(exists("netrc_file")){

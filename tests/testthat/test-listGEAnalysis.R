@@ -29,6 +29,11 @@ test_that("returns df of GE analysis for single study if present", {
   expect_true( dim(res)[1] > 0 )
 })
 
+test_that("fails gracefully if GE analysis not present", {
+  res <- try_lgea(sdy67)
+  expect_true( res$message == "Study does not have Gene Expression Analyses." )
+})
+
 test_that("returns df of GE analysis for all studies", {
   res <- try_lgea(allsdy)
   expect_true( dim(res)[1] > 0 )
