@@ -174,51 +174,7 @@
                     quiet = quiet)
     })
   }
-  )
-
-#################################################################################
-###                     MAINTAINENANCE FN                                     ###
-#################################################################################
-
-# Helper FNS --------------------------------------------------------------------
-# get names of files in a single folder from webdav link
-.listISFiles <- function(link){
-  response <- NULL
-  if (url.exists(url = link, netrc = TRUE)){
-    response_raw <- getURL(url = link, netrc = TRUE)
-    response_json <- fromJSON(response_raw)
-    response <- unlist(lapply(response_json$files, function(x) x$text))
-  }
-  return(response)
-}
-
-# Generate named list of files in either rawdata or analysis/exprs_matrices folders
-.getGEFileNms <- function(.self, rawdata){
-  # create list of sdy folders
-  studies <- labkey.getFolders(baseUrl = .self$config$labkey.url.base, 
-                               folderPath = "/Studies/")
-  studies <- studies[, 1]
-  studies <- studies[ !studies %in% c("SDY_template","Studies") ]
-  
-  # check webdav folder for presence of rawdata
-  file_list <- mclapply(studies, mc.cores = detectCores(), FUN = function(sdy){
-    suffix <- ifelse(rawdata == TRUE,
-                     "/%40files/rawdata/gene_expression?method=JSON",
-                     "/%40files/analysis/exprs_matrices?method=JSON")
-    dirLink <-  paste0(.self$config$labkey.url.base, 
-                       "/_webdav/Studies/", 
-                       sdy, 
-                       suffix)
-    files <- .listISFiles(dirLink)
-    if(rawdata == TRUE){
-      if( !is.null(files) ){ files <- length(files) > 0 }
-    }
-    return(files)
-  })
-  
-  names(file_list) <- studies
-  return(file_list)
-}
+)
 
 #################################################################################
 ###                     MAINTAINENANCE FN                                     ###
