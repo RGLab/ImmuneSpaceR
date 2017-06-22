@@ -22,7 +22,13 @@
     if(!is.null(data_cache[[constants$matrix_inputs]])){
       data_cache[[constants$matrix_inputs]]
     }else{
-      ge<-data.table(labkey.selectRows(baseUrl = config$labkey.url.base,config$labkey.url.path,schemaName = "assay.ExpressionMatrix.matrix",queryName = "InputSamples",colNameOpt = "fieldname",viewName = "gene_expression_matrices",showHidden=TRUE))
+      ge<-data.table(labkey.selectRows(baseUrl = config$labkey.url.base,
+                                       folderPath = config$labkey.url.path,
+                                       schemaName = "assay.ExpressionMatrix.matrix",
+                                       queryName = "InputSamples",
+                                       colNameOpt = "fieldname",
+                                       viewName = "gene_expression_matrices",
+                                       showHidden = TRUE))
       setnames(ge,.self$.munge(colnames(ge)))
       data_cache[[constants$matrix_inputs]]<<-ge
     }

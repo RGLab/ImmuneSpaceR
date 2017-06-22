@@ -4,146 +4,136 @@ NULL
 #' @importFrom RCurl getCurlHandle curlPerform basicTextGatherer
 #' @importFrom preprocessCore normalize.quantiles
 .ISCon$methods(
-  downloadMatrix = function(x, summary = FALSE, currAnno = TRUE){
-    cache_name <- paste0(x, ifelse(summary, "_sum", ""))
+  downloadMatrix = function(matrixName, summary = FALSE, currAnno = FALSE){
+    cache_name <- paste0(matrixName, ifelse(summary, "_sum", ""))
     
-    if( is.null(data_cache[[cache_name]]) ){
-      if( nrow(subset(data_cache[[constants$matrices]], name %in% x)) == 0){
-        stop(sprintf("No matrix %s in study\n", x))
-      }
-      
-      summary <- ifelse(summary,
-                        ifelse( currAnno, ".summary", ".summary.orig"),
-                        "")
-      
-      if( config$labkey.url.path == "/Studies/" ){
-        path <- paste0("/Studies/", data_cache$GE_matrices[name == x, folder], "/")
-      } else{
-        path <- gsub("^/","",config$labkey.url.path)
-      }
-      
-      link <- URLdecode(file.path(gsub("http:",
-                                       "https:", 
-                                       gsub("/$","",config$labkey.url.base)),
-                                  "_webdav",  
-                                  path, 
-                                  "@files/analysis/exprs_matrices",
-                                  paste0(x, ".tsv", summary)))
-      
-      localpath <- .self$.localStudyPath(link)
-      
-      if( .self$.isRunningLocally(localpath) ){
-        message("Reading local matrix")
-        data_cache[[cache_name]] <<- fread(localpath, 
-                                           header = TRUE, 
-                                           showProgress = FALSE)
-      }else{
-        opts <- config$curlOptions
-        opts$netrc <- 1L
-        handle <- getCurlHandle(.opts=opts)
-        h <- basicTextGatherer()
-        message("Downloading matrix..")
-        curlPerform(url = link, curl = handle, writefunction = h$update)
-        fl <- tempfile()
-        write(h$value(), file = fl)
-        EM <- fread(fl, header = TRUE, showProgress = FALSE)
-        if(nrow(EM) == 0){
-          stop("The downloaded matrix has 0 rows. Something went wrong.")
-        }
-        data_cache[[cache_name]] <<- EM
-        file.remove(fl)
-      }
-      
+    # NOTE: No longer checking / serving matrix from cache as changes between
+    # currAnno = T and F cause problems in serving desired version of matrix
+    # while maintaining corresponding features in cache as well
+    
+    if( nrow( subset( data_cache[[constants$matrices]], name %in% matrixName) ) == 0 ){
+      stop(sprintf("No matrix %s in study\n", matrixName))
+    }
+    
+    summary <- ifelse(summary,
+                      ifelse( currAnno, ".summary", ".summary.orig"),
+                      "")
+    
+    if( config$labkey.url.path == "/Studies/" ){
+      path <- paste0("/Studies/", data_cache$GE_matrices[name == matrixName, folder], "/")
+    } else{
+      path <- gsub("^/","",config$labkey.url.path)
+    }
+    
+    link <- URLdecode(file.path(gsub("http:",
+                                     "https:", 
+                                     gsub("/$","",config$labkey.url.base)),
+                                "_webdav",  
+                                path, 
+                                "@files/analysis/exprs_matrices",
+                                paste0(matrixName, ".tsv", summary)))
+    
+    localpath <- .self$.localStudyPath(link)
+    
+    if( .self$.isRunningLocally(localpath) ){
+      message("Reading local matrix")
+      data_cache[[cache_name]] <<- fread(localpath, 
+                                         header = TRUE, 
+                                         showProgress = FALSE)
     }else{
-      data_cache[[cache_name]]
+      opts <- config$curlOptions
+      opts$netrc <- 1L
+      handle <- getCurlHandle(.opts=opts)
+      h <- basicTextGatherer()
+      message("Downloading matrix..")
+      curlPerform(url = link, curl = handle, writefunction = h$update)
+      fl <- tempfile()
+      write(h$value(), file = fl)
+      EM <- read.table(fl, header = TRUE, sep = "\t", stringsAsFactors = F) # fread not reading correctly!
+      if(nrow(EM) == 0){
+        stop("The downloaded matrix has 0 rows. Something went wrong.")
+      }
+      data_cache[[cache_name]] <<- EM
+      file.remove(fl)
     }
   }
 )
 
 .ISCon$methods(
-  GeneExpressionFeatures = function(matrix_name, summary = FALSE){
-    cache_name <- paste0(matrix_name, ifelse(summary, "_sum", ""))
+  GeneExpressionFeatures = function(matrixName, summary = FALSE, currAnno = FALSE){
+    cache_name <- paste0(matrixName, ifelse(summary, "_sum", ""))
     
-    if( !matrix_name %in% data_cache[[constants$matrices]][, name] ){
+    if( !matrixName %in% data_cache[[constants$matrices]]$name ){
       stop("Invalid gene expression matrix name");
     }
     
-    annotation_set_id <- .self$.getFeatureId(matrix_name)
+    runs <- labkey.selectRows(baseUrl = config$labkey.url.base,
+                              folderPath = config$labkey.url.path,
+                              schemaName = "Assay.ExpressionMatrix.Matrix",
+                              queryName = "Runs",
+                              showHidden = T)
     
-    if( is.null(data_cache[[.self$.mungeFeatureId(annotation_set_id)]]) ){
-      if( !summary ){
-        message("Downloading Features..")
-        featureAnnotationSetQuery = sprintf("SELECT * from FeatureAnnotation
-                                            where FeatureAnnotationSetId='%s';",
-                                            annotation_set_id);
-        features <- labkey.executeSql(config$labkey.url.base, 
-                                      config$labkey.url.path,
-                                      schemaName = "Microarray",
-                                      sql = featureAnnotationSetQuery,
-                                      colNameOpt = "fieldname")
-        setnames(features, "GeneSymbol", "gene_symbol")
-      }else{
-        features <- data.frame(FeatureId = data_cache[[cache_name]][,gene_symbol],
-                             gene_symbol = data_cache[[cache_name]][,gene_symbol])
-      }
-      data_cache[[.self$.mungeFeatureId(annotation_set_id)]] <<- features
+    getOrigFasId <- function(config, matrixName){
+      # Get annoSet based on name of FeatureAnnotationSet + "_orig" tag
+      faSets <- labkey.selectRows(baseUrl = config$labkey.url.base,
+                                  folderPath = config$labkey.url.path,
+                                  schemaName = "Microarray",
+                                  queryName = "FeatureAnnotationSet",
+                                  showHidden = T)
+      
+      fasId <- runs$`Feature Annotation Set`[ runs$Name == matrixName]
+      fasNm <- faSets$Name[ faSets$`Row Id` == fasId]
+      fasNm <- ifelse(currAnno, fasNm, paste0(fasNm, "_orig"))
+      annoSetId <- faSets$`Row Id`[ faSets$Name == fasNm ]
     }
+    
+    if( !summary ){
+      message("Downloading Features..")
+      annoSetId <- getOrigFasId(config, matrixName)
+      featureAnnotationSetQuery = sprintf("SELECT * from FeatureAnnotation
+                                          where FeatureAnnotationSetId='%s';",
+                                          annoSetId);
+      features <- labkey.executeSql(baseUrl = config$labkey.url.base, 
+                                    folderPath = config$labkey.url.path,
+                                    schemaName = "Microarray",
+                                    sql = featureAnnotationSetQuery,
+                                    colNameOpt = "fieldname")
+      setnames(features, "GeneSymbol", "gene_symbol")
+    }else{
+      # Get annotation from flat file b/c otherwise don't know order
+      features <- data.frame(FeatureId = data_cache[[cache_name]]$gene_symbol,
+                             gene_symbol = data_cache[[cache_name]]$gene_symbol)
+      if(currAnno){
+        # Still want annoSetId for comments in con$GE_matrices
+        annoSetId <- runs$`Feature Annotation Set`[ runs$Name == matrixName]
+      }else{
+        annoSetId <- getOrigFasId(config, matrixName)
+      }
+    }
+    
+    # update the data_cache$gematrices with correct fasid and make comment to clarify
+    data_cache$GE_matrices$featureset[ data_cache$GE_matrices$name == matrixName ] <<- annoSetId
+    
+    msg <- ifelse( currAnno,
+                   "Using Updated Annotation",
+                   "Using Original Annotation")
+    data_cache$GE_matrices$comments[ data_cache$GE_matrices$name == matrixName ] <<- msg
+    
+    # push features to cache
+    data_cache[[ paste0("featureset_", annoSetId) ]] <<- features
   }
 )
 
 .ISCon$methods(
-  ConstructExpressionSet = function(matrix_name, summary){
+  ConstructExpressionSet = function(matrixName, summary){
+    cache_name <- paste0(matrixName, ifelse(summary, "_sum", ""))
     
-    cache_name <- paste0(matrix_name, ifelse(summary, "_sum", ""))
-    
-    #matrix
+    # expression matrix
     message("Constructing ExpressionSet")
-    matrix <- data_cache[[cache_name]]
-    
-    #features
-    features <- data_cache[[.self$.mungeFeatureId(.self$.getFeatureId(matrix_name))]][,c("FeatureId","gene_symbol")]
-    
-    runID <- data_cache$GE_matrices[name == matrix_name, rowid]
-    
-    pheno_filter <- makeFilter(c("Run", 
-                                 "EQUAL", 
-                                 runID), 
-                               c("Biosample/biosample_accession", 
-                                 "IN", 
-                                 paste(colnames(matrix), collapse = ";")))
-    
-    pheno <- unique(data.table(labkey.selectRows(config$labkey.url.base, 
-                                                 config$labkey.url.path,
-                                                 "study", 
-                                                 "HM_InputSamplesQuerySnapshot",
-                                                 containerFilter = "CurrentAndSubfolders",
-                                                 colNameOpt = "caption", 
-                                                 colFilter = pheno_filter)))
-    
-    setnames(pheno, .self$.munge(colnames(pheno)))
-
-    pheno <- pheno[, list(biosample_accession, participant_id, cohort,
-                          study_time_collected, study_time_collected_unit)]
-    
-    # Fdata is coming from the flat file for summary, so currAnno flag not needed
-    if(summary){
-      fdata <- data.frame(FeatureId = matrix$gene_symbol, 
-                          gene_symbol = matrix$gene_symbol, 
-                          row.names = matrix$gene_symbol)
-      rownames(fdata) <- fdata$FeatureId
-      fdata <- AnnotatedDataFrame(fdata)
-    } else{
-      try(setnames(matrix, " ", "FeatureId"), silent = TRUE)
-      try(setnames(matrix, "V1", "FeatureId"), silent = TRUE)
-      fdata <- data.table(FeatureId = as.character(matrix$FeatureId))
-      fdata <- merge(fdata, features, by = "FeatureId", all.x = TRUE)
-      fdata <- as.data.frame(fdata)
-      rownames(fdata) <- fdata$FeatureId
-      fdata <- AnnotatedDataFrame(fdata)
-    }
+    matrix <- data_cache[[ cache_name ]]
     
     # Average expr vals for subs with multiple time points
-    dups <- colnames(matrix)[duplicated(colnames(matrix))]
+    dups <- colnames(matrix)[ duplicated(colnames(matrix)) ]
     if(length(dups) > 0){
       for(dup in dups){
         dupIdx <- grep(dup, colnames(matrix))
@@ -159,20 +149,54 @@ NULL
       }
     }
     
-    # rm gene_symbol?
-    exprs <- as.matrix(matrix[, -1L, with = FALSE])
+    # gene features
+    if( summary ){
+      fdata <- data.frame(FeatureId = matrix$gene_symbol, 
+                          gene_symbol = matrix$gene_symbol)
+      rownames(fdata) <- rownames(matrix) <- matrix$gene_symbol # rownames of assaydata and fData must match
+    }else{
+      annoSetId <- data_cache$GE_matrices$featureset[ data_cache$GE_matrices$name == matrixName]
+      features <- data_cache[[ paste0("featureset_", annoSetId)]][,c("FeatureId","gene_symbol")]
+      colnames(matrix)[[ which(colnames(matrix) %in% c(" ", "V1", "X")) ]] <- "FeatureId"
+      fdata <- data.frame(FeatureId = as.character(matrix$FeatureId), stringsAsFactors = F)
+      fdata <- merge(fdata, features, by = "FeatureId", all.x = TRUE)
+      rownames(matrix) <- rownames(fdata) <- fdata$FeatureId # rownames of assaydata and fData must match
+    }
     
-    #At project level, InputSamples may be filtered
-    exprs <- exprs[, colnames(exprs) %in% pheno$biosample_accession] 
-
-    pheno <- data.frame(pheno)
+    # pheno
+    runID <- data_cache$GE_matrices[name == matrixName, rowid]
+    pheno_filter <- makeFilter(c("Run", 
+                                 "EQUAL", 
+                                 runID), 
+                               c("Biosample/biosample_accession", 
+                                 "IN", 
+                                 paste(colnames(matrix), collapse = ";")))
+    
+    pheno <- unique(labkey.selectRows(baseUrl = config$labkey.url.base, 
+                                      folderPath = config$labkey.url.path,
+                                      schemaName = "study", 
+                                      queryName = "HM_InputSamplesQuerySnapshot",
+                                      containerFilter = "CurrentAndSubfolders",
+                                      colNameOpt = "caption", 
+                                      colFilter = pheno_filter))
+    
+    colnames(pheno) <- sapply(colnames(pheno), .self$.munge)
+    keep <- c("biosample_accession",
+              "participant_id",
+              "cohort",
+              "study_time_collected",
+              "study_time_collected_unit")
+    pheno <- pheno[ , colnames(pheno) %in% keep ]
     rownames(pheno) <- pheno$biosample_accession
-    pheno <- pheno[colnames(exprs), ]
-    ad_pheno <- AnnotatedDataFrame(data = pheno)
-    es <- ExpressionSet(assayData = exprs,
-                        phenoData = ad_pheno, 
-                        featureData = fdata)
-    data_cache[[cache_name]] <<- es
+    
+    # Prep Eset and push
+    # NOTES: At project level, InputSamples may be filtered
+    exprs <- matrix[, colnames(matrix) %in% pheno$biosample_accession] # this call rm gene_symbol!
+    pheno <- pheno[ colnames(exprs), ]
+    
+    data_cache[[cache_name]] <<- ExpressionSet(assayData = as.matrix(exprs),
+                                               phenoData = AnnotatedDataFrame(pheno), 
+                                               featureData = AnnotatedDataFrame(fdata))
   }
 )
 
@@ -181,7 +205,7 @@ NULL
   getGEMatrix = function(x = NULL, 
                          cohort = NULL, 
                          summary = FALSE, 
-                         currAnno = TRUE,
+                         currAnno = FALSE,
                          norm = TRUE,
                          reload = FALSE){
     
@@ -197,7 +221,7 @@ NULL
     cohort_name <- cohort #can't use cohort = cohort in d.t
     if( !is.null(cohort_name) ){
       if( all(cohort_name %in% data_cache$GE_matrices$cohort) ){
-        x <- data_cache$GE_matrices[cohort %in% cohort_name, name]
+        matrixName<- data_cache$GE_matrices[cohort %in% cohort_name, name]
       } else{
         validCohorts <- data_cache$GE_matrices[, cohort]
         stop(paste("No expression matrix for the given cohort.",
@@ -211,7 +235,7 @@ NULL
     if( length(x) > 1 ){
       data_cache[cache_name] <<- NULL
       lapply(x, downloadMatrix, summary, currAnno)
-      lapply(x, GeneExpressionFeatures, summary)
+      lapply(x, GeneExpressionFeatures, summary, currAnno)
       lapply(x, ConstructExpressionSet, summary)
       ret <- .combineEMs(data_cache[cache_name])
       if(dim(ret)[[1]] == 0){
@@ -227,13 +251,14 @@ NULL
       if( norm ){ exprs(ret) <- preprocessCore::normalize.quantiles(exprs(ret)) }
       
       return(ret)
+      
     }else{
       if( cache_name %in% names(data_cache) && !reload ){
         data_cache[[cache_name]]
       }else{
         data_cache[[cache_name]] <<- NULL
         downloadMatrix(x, summary, currAnno)
-        GeneExpressionFeatures(x, summary)
+        GeneExpressionFeatures(x, summary, currAnno)
         ConstructExpressionSet(x, summary)
         data_cache[[cache_name]]
       }
@@ -254,19 +279,19 @@ NULL
 
 # Add treatment information to the phenoData of an expression matrix available in the connection object.
 .ISCon$methods(
-  addTrt = function(x = NULL){
+  addTrt = function(matrixName = NULL){
     "Add treatment information to the phenoData of an expression matrix
      available in the connection object.\n
     x: A character. The name of a expression matrix that has been downloaded 
     from the connection."
     
-    if(is.null(x) | !x %in% names(data_cache)){
-      stop(paste(x, "is not a valid expression matrix."))
+    if(is.null(matrixName) | !matrixName %in% names(data_cache)){
+      stop(paste(matrixName, "is not a valid expression matrix."))
     } 
     
     bsFilter <- makeFilter(c("biosample_accession", 
                              "IN",
-                             paste(pData(data_cache[[x]])$biosample_accession, collapse = ";")))
+                             paste(pData(data_cache[[matrixName]])$biosample_accession, collapse = ";")))
     
     bs2es <- data.table(labkey.selectRows(config$labkey.url.base, 
                                           config$labkey.url.path,
@@ -300,21 +325,9 @@ NULL
     bs2trt <- merge(bs2es, es2trt, by = "expsample_accession")
     bs2trt <- merge(bs2trt, trt, by = "treatment_accession")
     
-    pData(data_cache[[x]])$treatment <<- bs2trt[match(pData(data_cache[[x]])$biosample_accession, biosample_accession), name]
+    pData(data_cache[[matrixName]])$treatment <<- bs2trt[match(pData(data_cache[[matrixName]])$biosample_accession, biosample_accession), name]
     
-    return(data_cache[[x]])
-  }
-)
-
-.ISCon$methods(
-  .getFeatureId = function(matrix_name){
-    subset(data_cache[[constants$matrices]],name%in%matrix_name)[, featureset]
-  }
-)
-
-.ISCon$methods(
-  .mungeFeatureId = function(annotation_set_id){
-    return(sprintf("featureset_%s",annotation_set_id))
+    return(data_cache[[matrixName]])
   }
 )
 
@@ -323,7 +336,7 @@ NULL
   EMNames = function(EM = NULL, colType = "participant_id"){
     "Change the sampleNames of an ExpressionSet fetched by getGEMatrix using the
     information in the phenodData slot.\n
-    x: An ExpressionSet, as returned by getGEMatrix.\n
+    EM: An ExpressionSet, as returned by getGEMatrix.\n
     colType: A character. The type of column names. Valid options are 'expsample_accession'
     and 'participant_id'."
     
