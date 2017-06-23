@@ -49,7 +49,7 @@ NULL
       curlPerform(url = link, curl = handle, writefunction = h$update)
       fl <- tempfile()
       write(h$value(), file = fl)
-      EM <- read.table(fl, header = TRUE, sep = "\t", stringsAsFactors = F) # fread not reading correctly!
+      EM <- fread(fl, header = TRUE) # fread not reading correctly!
       if(nrow(EM) == 0){
         stop("The downloaded matrix has 0 rows. Something went wrong.")
       }
@@ -191,6 +191,7 @@ NULL
     
     # Prep Eset and push
     # NOTES: At project level, InputSamples may be filtered
+    matrix <- data.frame(matrix) # for when on rsT / rsP
     exprs <- matrix[, colnames(matrix) %in% pheno$biosample_accession] # this call rm gene_symbol!
     pheno <- pheno[ colnames(exprs), ]
     
