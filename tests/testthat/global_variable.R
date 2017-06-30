@@ -3,9 +3,9 @@
 #
 
 # Environment ------------------------------------------------
-TEST <- "https://test.immunespace.org"
-PROD <- "https://www.immunespace.org"
-labkey.url.base <- PROD
+labkey.url.base <- ifelse(Sys.getenv("ISR_machine") == "",
+                          "https://www.immunespace.org",
+                          paste0("https://", Sys.getenv("ISR_machine")))
 
 
 #------DATASET-COLUMN-NAMES------------------------------------
@@ -30,9 +30,9 @@ gefCols     <- data.frame(name = c("file_info_name", "cohort"),
                           type = c("character", "character"))
 mbaaCols    <- data.frame(name = c("analyte_name", "concentration_value"))
 farCols     <- data.frame(name = c(#"population_cell_number", # declared as VARCHAR(500)
-  "population_definition_reported"),
+                                   "population_definition_reported"),
                           type = c(#"numeric",
-                            "character"))
+                                   "character"))
 fcsCols     <- data.frame(name = c("file_info_name"),
                           type = c("character"))
 fccCols     <- data.frame(name = c("sample_file", "control_file"),

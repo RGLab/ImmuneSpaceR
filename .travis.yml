@@ -12,7 +12,7 @@ r_github_packages:
 bioc_packages:
   - BiocCheck
 
-before_script: Rscript -e 'write(x = paste("machine www.immunespace.org login", Sys.getenv("ISR_login"), "password", Sys.getenv("ISR_pwd")), file = "~/.netrc")'
+before_script: Rscript -e 'write(x = paste("machine", Sys.getenv("ISR_machine"), "login", Sys.getenv("ISR_login"), "password", Sys.getenv("ISR_pwd")), file = "~/.netrc")'
 
 after_script:
   - ls -lah
