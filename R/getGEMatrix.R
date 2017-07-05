@@ -37,9 +37,9 @@ NULL
     
     if( .self$.isRunningLocally(localpath) ){
       message("Reading local matrix")
-      data_cache[[cache_name]] <<- fread(localpath, 
-                                         header = TRUE, 
-                                         showProgress = FALSE)
+      data_cache[[cache_name]] <<- fread(localpath,
+                                         header = T,
+                                         showProgress = T)
     }else{
       opts <- config$curlOptions
       opts$netrc <- 1L
@@ -49,7 +49,10 @@ NULL
       curlPerform(url = link, curl = handle, writefunction = h$update)
       fl <- tempfile()
       write(h$value(), file = fl)
-      EM <- read.table(fl, header = TRUE, sep = "\t", stringsAsFactors = F) # fread not reading correctly!
+      EM <- read.table(fl, 
+                       header = TRUE, 
+                       sep = "\t", 
+                       stringsAsFactors = F) # fread does not read correctly                                                   post download
       if(nrow(EM) == 0){
         stop("The downloaded matrix has 0 rows. Something went wrong.")
       }
@@ -87,7 +90,7 @@ NULL
       annoSetId <- faSets$`Row Id`[ faSets$Name == fasNm ]
     }
     
-    if( !summary ){
+    if( summary == F ){
       message("Downloading Features..")
       annoSetId <- getOrigFasId(config, matrixName)
       featureAnnotationSetQuery = sprintf("SELECT * from FeatureAnnotation
@@ -103,7 +106,7 @@ NULL
       # Get annotation from flat file b/c otherwise don't know order
       features <- data.frame(FeatureId = data_cache[[cache_name]]$gene_symbol,
                              gene_symbol = data_cache[[cache_name]]$gene_symbol)
-      if(currAnno){
+      if(currAnno == T){
         # Still want annoSetId for comments in con$GE_matrices
         annoSetId <- runs$`Feature Annotation Set`[ runs$Name == matrixName]
       }else{
@@ -150,7 +153,7 @@ NULL
     }
     
     # gene features
-    if( summary ){
+    if( summary == T ){
       fdata <- data.frame(FeatureId = matrix$gene_symbol, 
                           gene_symbol = matrix$gene_symbol)
       rownames(fdata) <- rownames(matrix) <- matrix$gene_symbol # rownames of assaydata and fData must match
@@ -222,7 +225,7 @@ NULL
     cohort_name <- cohort #can't use cohort = cohort in d.t
     if( !is.null(cohort_name) ){
       if( all(cohort_name %in% data_cache$GE_matrices$cohort) ){
-        matrixName<- data_cache$GE_matrices[cohort %in% cohort_name, name]
+        x <- data_cache$GE_matrices[cohort %in% cohort_name, name]
       } else{
         validCohorts <- data_cache$GE_matrices[, cohort]
         stop(paste("No expression matrix for the given cohort.",

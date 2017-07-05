@@ -133,9 +133,9 @@ sdy269$getGEMatrix(c("TIV_2008", "LAIV_2008"))
 ```
 
 Finally, the summary argument will let you download the matrix with gene symbols
-in place of priobe ids.
+in place of probe ids.
 ```{r getGEMatrix-summary}
-gs <- sdy269$getGEMatrix("TIV_2008", summary = TRUE)
+gs <- sdy269$getGEMatrix("TIV_2008", summary = TRUE, currAnno = TRUE)
 ```
 
 
