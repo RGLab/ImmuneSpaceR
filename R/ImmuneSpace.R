@@ -192,13 +192,19 @@
   return(response)
 }
 
-# Generate named list of files in either rawdata or analysis/exprs_matrices folders
-.getGEFileNms <- function(.self, rawdata){
+.getSdyVec <- function(.self){
   # create list of sdy folders
   studies <- labkey.getFolders(baseUrl = .self$config$labkey.url.base, 
                                folderPath = "/Studies/")
   studies <- studies[, 1]
   studies <- studies[ !studies %in% c("SDY_template","Studies") ]
+}
+
+# Generate named list of files in either rawdata or analysis/exprs_matrices folders
+.getGEFileNms <- function(.self, rawdata){
+  
+  # create list of sdy folders
+  studies <- .getSdyVec(.self)
   
   # check webdav folder for presence of rawdata
   file_list <- mclapply(studies, mc.cores = detectCores(), FUN = function(sdy){
@@ -473,3 +479,42 @@
     }
   }
 )
+
+#----------------MODULE-CHECK-------------------------------------------------
+# This method allows admin to check which studies have capability to run the 
+# three UI modules (GEE, IRP, GSEA) because they have multiple time points in 
+# their gene expression flat files and hai data.
+
+.ISCon$methods(
+  .uiModSdys = function(){
+    
+    # Setup
+    studies <- .getSdyVec(.self)
+    labkey.url.base <- .self$config$labkey.url.base
+    
+    # helper
+    checkDim <- function(dataNm){
+      res <- tryCatch(con$getDataset(dataNm),
+                      error = function(e){ return( NULL ) }
+      )
+    }
+    
+    res <- sapply(studies, FUN = function(sdy){
+      print(sdy)
+      con <- CreateConnection(sdy)
+      ge <- checkDim("gene_expression_files")
+      hai <- checkDim("hai")
+      
+      # if present, confirm overlap and multiple time points
+      if( !is.null(ge) & !is.null(hai) ){
+        gePlusHai <- ge[ ge$participant_id %in% hai$participant_id, ]
+        return( length(unique(gePlusHai$study_time_collected)) > 1 )
+      }else{
+        return( FALSE )
+      }
+  
+    })
+  }
+)
+
+
