@@ -37,9 +37,10 @@ NULL
     
     if( .self$.isRunningLocally(localpath) ){
       message("Reading local matrix")
-      data_cache[[cache_name]] <<- fread(localpath,
-                                         header = T,
-                                         showProgress = T)
+      data_cache[[cache_name]] <<- read.table(localpath,
+                                              header = T,
+                                              sep = "\t",
+                                              stringsAsFactors = F)
     }else{
       opts <- config$curlOptions
       opts$netrc <- 1L
@@ -138,6 +139,7 @@ NULL
     # Average expr vals for subs with multiple time points
     dups <- colnames(matrix)[ duplicated(colnames(matrix)) ]
     if(length(dups) > 0){
+      matrix <- data.table(matrix)
       for(dup in dups){
         dupIdx <- grep(dup, colnames(matrix))
         newNames <- paste0(dup, 1:length(dupIdx))

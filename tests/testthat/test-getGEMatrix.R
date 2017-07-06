@@ -29,7 +29,7 @@ test_that("gets TIV_2008 eSet non-summary", {
 })
 
 test_that("gets TIV_2008 eSet summary", {
-  EM <- sdy$getGEMatrix("TIV_2008", summary = T)
+  EM <- sdy$getGEMatrix("TIV_2008", summary = T, currAnno = T)
   test_EM(EM, summary = T) 
 })
 
@@ -39,7 +39,7 @@ test_that("get_multiple matrices non-summary", {
 })
 
 test_that("get_multiple matrices summary", {
-  EM <- sdy$getGEMatrix(c("TIV_2008","LAIV_2008"), summary = T)
+  EM <- sdy$getGEMatrix(c("TIV_2008","LAIV_2008"), summary = T, currAnno = T)
   test_EM(EM, summary = T)
 })
 
