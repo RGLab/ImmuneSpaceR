@@ -374,7 +374,7 @@
     res$rawNoGem <- spSort(setdiff(withRawData, withGems))
     
     # Check which studies without gems have gef in IS
-    ge <- con$getDataset("gene_expression_files")
+    ge <- .self$getDataset("gene_expression_files")
     geNms <- unique(ge$participant_id)
     gefSdys <- unique(sapply(geNms, FUN = function(x){
       res <- strsplit(x, ".", fixed = T)
@@ -383,8 +383,23 @@
     gefSdys <- paste0("SDY", gefSdys)
     
     res$gefNoGem <- spSort(gefSdys[ !(gefSdys %in% withGems) ])
-    res$gefNoRaw <- spSort(setdiff(res$gefNoGem, res$rawNoGem))
     res$rawNoGef <- spSort(setdiff(res$rawNoGem, res$gefNoGem))
+    
+    # check for GEO-only before saying "no Raw"
+    gefNoRaw <- spSort(setdiff(res$gefNoGem, res$rawNoGem))
+    geoPresent <- sapply(gefNoRaw, FUN = function(sdy){
+      cx <- CreateConnection(sdy)
+      dat <- cx$getDataset("gene_expression_files")
+      fileinfoName <- all(is.na(dat$file_info_name))
+      geoData <- all(is.na(dat$geo_accession))
+      if( geoData == FALSE & fileinfoName == TRUE){
+        return(TRUE)
+      }else{
+        return(FALSE)
+      }
+    })
+    geoPresent <- geoPresent[ geoPresent == TRUE ]
+    res$gefNoRaw <- spSort(gefNoRaw[ !(gefNoRaw %in% names(geoPresent)) ])
     
     return( res )
   }
