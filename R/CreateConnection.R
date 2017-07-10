@@ -43,7 +43,7 @@ CreateConnection = function(study = NULL, login = NULL, password = NULL, use.dat
   # that automatically assigns these variables in global environment
   labkey.url.base <- try(get("labkey.url.base", .GlobalEnv), silent = TRUE)
   if(inherits(labkey.url.base, "try-error"))
-    labkey.url.base <- "https://www.immunespace.org"
+    labkey.url.base <- "https://test.immunespace.org"
   labkey.url.base <- gsub("http:", "https:", labkey.url.base)
   if(length(grep("^https://", labkey.url.base)) == 0)
     labkey.url.base <- paste0("https://", labkey.url.base)

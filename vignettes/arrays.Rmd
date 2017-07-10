@@ -68,7 +68,7 @@ sdy269$listDatasets()
 ```
 Using `wich = "expression"`, we can remove the datasets from the output.
 ```{r listDatasets-which}
-all$listDatasets(which = "expression")
+all$listDatasets(output = "expression")
 ```
 
 Naturally, `all` contains every processed matrices available on ImmuneSpace as 
