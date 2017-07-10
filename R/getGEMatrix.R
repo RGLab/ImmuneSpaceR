@@ -410,7 +410,7 @@ NULL
                                             colFilter = bsFilter,
                                             colNameOpt = "rname"))
       pd <- merge(pd,
-                  bs2es[, list(biosample_accession, expsample_accession)], 
+                  bs2es[, list(biosample_accession, expsample_accession)],
                   by = "biosample_accession")
 
       es <- pd[match(sampleNames(EM), pd$biosample_accession), expsample_accession]
