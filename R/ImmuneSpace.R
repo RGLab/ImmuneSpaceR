@@ -238,4 +238,7 @@
   }
 )
 
+.runAsTest = function(){
+  labkey.url.base <<- "https://test.immunespace.org"
+}
 
