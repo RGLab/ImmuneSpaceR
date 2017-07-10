@@ -5,7 +5,7 @@
 # Environment ------------------------------------------------
 TEST <- "https://test.immunespace.org"
 PROD <- "https://www.immunespace.org"
-labkey.url.base <- PROD
+labkey.url.base <- TEST
 
 
 #------DATASET-COLUMN-NAMES------------------------------------

@@ -15,7 +15,7 @@ NULL
     # check if data in data_cache corresponds to current request
     # if it does, then no download needed
     if( summary == TRUE ){
-      status <- .self$data_cache$GE_matrices$comments
+      status <- .self$data_cache$GE_matrices$comments[ .self$data_cache$GE_matrices$name == matrixName ]
       if( !is.na(status) ){
         if( status == "Using Original Annotation" & currAnno == F ){
           message("Original GE Matrix already in data_cache")
@@ -26,7 +26,7 @@ NULL
         }
       }
     }
-    
+
     summary <- ifelse(summary,
                       ifelse( currAnno, ".summary", ".summary.orig"),
                       "")
@@ -252,6 +252,7 @@ NULL
     # length(x) > 1 means multiple cohorts
     if( length(matrixName) > 1 ){
       data_cache[cache_name] <<- NULL
+      data_cache$GE_matrices$comments <<- NA
       lapply(matrixName, downloadMatrix, summary, currAnno)
       lapply(matrixName, GeneExpressionFeatures, summary, currAnno)
       lapply(matrixName, ConstructExpressionSet, summary)
@@ -283,7 +284,7 @@ NULL
         # check if data in data_cache corresponds to current request
         # if it does, then no download needed
         if( summary == TRUE ){
-          status <- .self$data_cache$GE_matrices$comments
+          status <- .self$data_cache$GE_matrices$comments[ .self$data_cache$GE_matrices$name == matrixName ]
           if( !is.na(status) ){
             if( status == "Using Original Annotation" & currAnno == F ){
               message("Returning Original expressionSet from data_cache")
