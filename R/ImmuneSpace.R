@@ -67,7 +67,6 @@
     }
     
     if("datasets" %in% output){
-      
       cat("datasets\n")
       for(i in 1:nrow(available_datasets)){
         cat(sprintf("\t%s\n",available_datasets[i,Name]))
@@ -84,7 +83,7 @@
         cat("No Expression Matrices Available")
       }
     }
-    
+
   }
 )
 
@@ -102,7 +101,7 @@
     if( length(GEA$message) > 0 ){
       stop("Study does not have Gene Expression Analyses.")
     }
-    
+
     return(GEA)
   }
 )
@@ -139,7 +138,7 @@
 .ISCon$methods(
   show=function(){
     "Display information about the object."
-    
+
     cat(sprintf("Immunespace Connection to study %s\n",study))
     cat(sprintf("URL: %s\n",
                 file.path(gsub("/$","",config$labkey.url.base),
@@ -174,7 +173,7 @@
                     quiet = quiet)
     })
   }
-  )
+)
 
 #################################################################################
 ###                     MAINTAINENANCE FN                                     ###
@@ -305,7 +304,7 @@
         output <- lapply(ge[4], function(x) gsub("@", "%40", gsub("file:/share/files", 
                                                                   paste0(config$labkey.url.base, 
                                                                          "/_webdav"), x)))
-        
+
         file_exists <- unlist(mclapply(output$data_datafileurl, 
                                        url.exists, 
                                        netrc = TRUE, 
@@ -313,7 +312,7 @@
         res <- data.frame(file_link = output$data_datafileurl, 
                           file_exists = file_exists, 
                           stringsAsFactors = FALSE)
-        
+
         print(paste0(sum(res$file_exists), "/", nrow(res), " ge_matrices with valid links."))
       } else {
         res <- data.frame(file_link = NULL, file_exists = NULL, stringsAsFactors = FALSE)
@@ -477,4 +476,3 @@
 .runAsTest = function(){
   labkey.url.base <<- "https://test.immunespace.org"
 }
-
