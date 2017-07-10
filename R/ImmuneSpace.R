@@ -205,8 +205,8 @@
                      "/%40files/rawdata/gene_expression?method=JSON",
                      "/%40files/analysis/exprs_matrices?method=JSON")
     dirLink <-  paste0(.self$config$labkey.url.base, 
-                       "/_webdav/Studies/", 
-                       sdy, 
+                       "/_webdav/Studies/",
+                       sdy,
                        suffix)
     files <- .listISFiles(dirLink)
     if(rawdata == TRUE){
