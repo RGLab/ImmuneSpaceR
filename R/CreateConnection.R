@@ -14,6 +14,9 @@
 #'  return \code{data.frame} objects instead of \code{data.table}.
 #' @param verbose A \code{"logical"} whether to print the extra details for 
 #' troubleshooting. 
+#' @param onTest A \code{"logical"} whether to connect to the test server 
+#' (https://test.immunespace.org/) instead of the production server 
+#' (https://www.immunespace.org/).
 #' @description Constructor for \code{ImmuneSpaceConnection} class
 #' @details Instantiates an \code{ImmuneSpaceConnection} for \code{study}
 #' The constructor will try to take the values of the various `labkey.*` 
@@ -36,14 +39,19 @@
 #'   print("Read the Introduction vignette for more information on how to set up
 #'   a .netrc file.")
 #' }
-CreateConnection = function(study = NULL, login = NULL, password = NULL, use.data.frame = FALSE, verbose = FALSE){
+CreateConnection = function(study = NULL, 
+                            login = NULL, 
+                            password = NULL, 
+                            use.data.frame = FALSE, 
+                            verbose = FALSE, 
+                            onTest = FALSE){
   # Try to parse labkey options from global environment 
   # which really should have been done through option()/getOption() mechanism
   # Here we do this to be compatible to labkey online report system 
   # that automatically assigns these variables in global environment
   labkey.url.base <- try(get("labkey.url.base", .GlobalEnv), silent = TRUE)
   if(inherits(labkey.url.base, "try-error"))
-    labkey.url.base <- "https://www.immunespace.org"
+    labkey.url.base <- ifelse(onTest, "https://test.immunespace.org", "https://www.immunespace.org")
   labkey.url.base <- gsub("http:", "https:", labkey.url.base)
   if(length(grep("^https://", labkey.url.base)) == 0)
     labkey.url.base <- paste0("https://", labkey.url.base)

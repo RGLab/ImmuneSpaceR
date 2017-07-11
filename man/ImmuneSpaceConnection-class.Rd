@@ -106,7 +106,7 @@ gene-expression data.}
     `reload': A `logical'. If set to TRUE, the matrix will be downloaded again,
     even if a cached cop exist in the ImmuneSpaceConnection object.}
 
-\item{\code{listDatasets(which = c("datasets", "expression"))}}{List the datasets available in the study or studies of the connection.}
+\item{\code{listDatasets(output = c("datasets", "expression"))}}{List the datasets available in the study or studies of the connection.}
 
 \item{\code{listGEAnalysis()}}{List available gene expression analysis for the connection.}
 
