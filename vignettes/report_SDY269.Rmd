@@ -29,7 +29,7 @@ opts_chunk$set(cache=FALSE, echo=TRUE, message=FALSE, warning=FALSE,
 # This chunk is only useful for BioConductor checks and shouldn't affect any other setup
 if (!any(file.exists("~/.netrc", "~/_netrc"))) {
     labkey.netrc.file <- ImmuneSpaceR:::get_env_netrc()
-    labkey.url.base <- ImmuneSpaceR::get_env_url()
+    labkey.url.base <- ImmuneSpaceR:::get_env_url()
 }
 ```
 

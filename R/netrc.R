@@ -9,15 +9,15 @@
 #'  file. If left NULL, the netrc will be written into a temporary file.
 #' @export
 #' @return A character vector containing the file paths for netrc
-#' @examples 
+#' @examples
 #' write_netrc("immunespaceuser@gmail.com", "mypassword")
 #'
-write_netrc <- function(login, 
-                        password, 
-                        machine = "www.immunespace.org", 
+write_netrc <- function(login,
+                        password,
+                        machine = "www.immunespace.org",
                         file = NULL) {
-  string <- paste("machine", machine, 
-                  "login", login, 
+  string <- paste("machine", machine,
+                  "login", login,
                   "password", password)
   if (is.null(file)) {
     file <- tempfile()
@@ -35,9 +35,9 @@ write_netrc <- function(login,
 #' @return The name of the netrc file
 #'
 #' @details
-#' In order to connect to ImmuneSpace, you will need a `.netrc` file in your 
-#' contains a `machine` name (hostname of ImmuneSpace), and `login` and 
-#' `password`. See [here](https://www.labkey.org/wiki/home/Documentation/page.view?name=netrc) 
+#' In order to connect to ImmuneSpace, you will need a `.netrc` file in your
+#' contains a `machine` name (hostname of ImmuneSpace), and `login` and
+#' `password`. See [here](https://www.labkey.org/wiki/home/Documentation/page.view?name=netrc)
 #' for more information. By default \code{RCurl} will look for the file in your
 #' home directoty.
 #'
@@ -78,7 +78,7 @@ get_env_netrc <- function() {
                         "www.immunespace.org",
                         Sys.getenv("ISR_machine"))
   if (ISR_login != ""  &  ISR_pwd != "") {
-    write_netrc(login = ISR_login,password = ISR_pwd, machine = ISR_pwd)
+    write_netrc(login = ISR_login, password = ISR_pwd, machine = ISR_machine)
   }
 }
 
