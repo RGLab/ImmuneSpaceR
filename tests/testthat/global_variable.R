@@ -2,12 +2,6 @@
 #  Global variables
 #
 
-# Environment ------------------------------------------------
-labkey.url.base <- ifelse(Sys.getenv("ISR_machine") == "",
-                          "https://www.immunespace.org",
-                          paste0("https://", Sys.getenv("ISR_machine")))
-
-
 #------DATASET-COLUMN-NAMES------------------------------------
 demo <- c("age_reported", "gender", "race")
 idCols <- c("participant_id")

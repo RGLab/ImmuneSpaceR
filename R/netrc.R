@@ -12,15 +12,20 @@
 #' @examples 
 #' write_netrc("immunespaceuser@gmail.com", "mypassword")
 #'
-write_netrc <- function(login, password, file = NULL){
-  string <- paste("machine www.immunespace.org login", login, "password", password)
-  if(is.null(file)){
+write_netrc <- function(login, 
+                        password, 
+                        machine = "www.immunespace.org", 
+                        file = NULL) {
+  string <- paste("machine", machine, 
+                  "login", login, 
+                  "password", password)
+  if (is.null(file)) {
     file <- tempfile()
-  } else if(file.exists(file)){
+  } else if(file.exists(file)) {
     stop("The file you are trying to write to already exists. Remove manually if you wish to overwrite.")
   }
   write(string, file)
-  return(file)
+  file
 }
 
 #' Check netrc file
@@ -63,4 +68,23 @@ check_netrc <- function(){
   }
   print("The netrc looks valid.")
   return(netrc_file)
+}
+
+# Get (and create) temporary netrc file from environment variables
+get_env_netrc <- function() {
+  ISR_login <- Sys.getenv("ISR_login")
+  ISR_pwd <- Sys.getenv("ISR_pwd")
+  ISR_machine <- ifelse(Sys.getenv("ISR_machine") == "",
+                        "www.immunespace.org",
+                        Sys.getenv("ISR_machine"))
+  if (ISR_login != ""  &  ISR_pwd != "") {
+    write_netrc(login = ISR_login,password = ISR_pwd, machine = ISR_pwd)
+  }
+}
+
+# Get labkey.url.base from environment variable
+get_env_url <- function() {
+  ifelse(Sys.getenv("ISR_machine") == "",
+         "https://www.immunespace.org",
+         paste0("https://", Sys.getenv("ISR_machine")))
 }
