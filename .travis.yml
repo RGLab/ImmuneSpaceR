@@ -1,7 +1,7 @@
 # R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
 
 language: r
-r: 
+r:
 - bioc-devel
 - bioc-release
 cache: packages
@@ -11,8 +11,6 @@ r_github_packages:
   - jimhester/covr
 bioc_packages:
   - BiocCheck
-
-before_script: Rscript -e 'write(x = paste("machine", Sys.getenv("ISR_machine"), "login", Sys.getenv("ISR_login"), "password", Sys.getenv("ISR_pwd")), file = "~/.netrc")'
 
 after_script:
   - ls -lah
