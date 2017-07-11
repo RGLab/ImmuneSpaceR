@@ -67,7 +67,6 @@
     }
     
     if("datasets" %in% output){
-
       cat("datasets\n")
       for(i in 1:nrow(available_datasets)){
         cat(sprintf("\t%s\n",available_datasets[i,Name]))
@@ -206,9 +205,9 @@
                      "/%40files/rawdata/gene_expression?method=JSON",
                      "/%40files/analysis/exprs_matrices?method=JSON")
     dirLink <-  paste0(.self$config$labkey.url.base, 
-                           "/_webdav/Studies/", 
-                           sdy, 
-                           suffix)
+                       "/_webdav/Studies/",
+                       sdy,
+                       suffix)
     files <- .listISFiles(dirLink)
     if(rawdata == TRUE){
       if( !is.null(files) ){ files <- length(files) > 0 }
@@ -473,3 +472,7 @@
     }
   }
 )
+
+.runAsTest = function(){
+  labkey.url.base <<- "https://test.immunespace.org"
+}

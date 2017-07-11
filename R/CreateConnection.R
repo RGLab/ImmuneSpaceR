@@ -206,24 +206,24 @@ CreateConnection = function(study = NULL,
 .ISCon$methods(
   getAvailableDataSets=function(){
     if(length(available_datasets)==0){
-      df <- labkey.selectRows(baseUrl = config$labkey.url.base
-                        , config$labkey.url.path
-                        , schemaName = "study"
-                        , queryName = "ISC_study_datasets")
-      available_datasets <<- data.table(df)#[,list(Label,Name,Description,`Key Property Name`)]
+      available_datasets <<- data.table(labkey.selectRows(baseUrl = config$labkey.url.base,
+                                                          folderPath = config$labkey.url.path,
+                                                          schemaName = "study",
+                                                          queryName = "ISC_study_datasets"))
+      #[,list(Label,Name,Description,`Key Property Name`)]
     }
   }
 )
 
 .ISCon$methods(
-  GeneExpressionMatrices=function(verbose = FALSE){
+  GeneExpressionMatrices = function(verbose = FALSE){
     if(!is.null(data_cache[[constants$matrices]])){
       data_cache[[constants$matrices]]
     }else{
       if(verbose){
         ge <- try(data.table(
           labkey.selectRows(baseUrl = config$labkey.url.base,
-                            config$labkey.url.path,
+                            folderPath = config$labkey.url.path,
                             schemaName = "assay.ExpressionMatrix.matrix",
                             queryName = "Runs",
                             colNameOpt = "fieldname",
@@ -234,7 +234,7 @@ CreateConnection = function(study = NULL,
         suppressWarnings(
           ge <- try(data.table(
             labkey.selectRows(baseUrl = config$labkey.url.base,
-                              config$labkey.url.path,
+                              folderPath = config$labkey.url.path,
                               schemaName = "assay.ExpressionMatrix.matrix",
                               queryName = "Runs",
                               colNameOpt = "fieldname",
