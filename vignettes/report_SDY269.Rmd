@@ -40,6 +40,9 @@ if (ISR_login != ""  &  ISR_pwd != "") {
   write(x = netrc_string, file = netrc_file)
   labkey.netrc.file <- netrc_file
 }
+labkey.url.base <- ifelse(Sys.getenv("ISR_machine") == "",
+                          "https://www.immunespace.org",
+                          paste0("https://", Sys.getenv("ISR_machine")))
 ```
 
 #### Load ImmuneSpaceR and other libraries
