@@ -331,7 +331,7 @@
   }
 )
 
-#-------------------GEM CLEANUP------------------------------------
+#-------------------GEM CHECK------------------------------------
 # This function outputs a list of lists.  There are six possible sub-lists >
 # 1. $gemAndRaw = study has gene expression matrix flat file and raw data
 # 2. $gemNoRaw = study has gene expression matrix flat file but no raw data (unlikely)
@@ -346,7 +346,7 @@
 # 6. $rawNoGef = This would be unexpected. Rawdata present on server, but no gene expression
 #                files found by con$getDataset().
 .ISCon$methods(
-  .sdysWithoutGems = function(){
+  .sdysGemStatus = function(){
     
     res <- list()
     
@@ -405,6 +405,7 @@
   }
 )
 
+#-------------------GEM CLEANUP------------------------------------
 # Remove gene expression matrices that do not correspond to a run currently on prod or test
 # in the query assay.ExpressionMatrix.matrix.Runs. NOTE: Important to change the labkey.url.base 
 # variable depending on prod / test to ensure you are not deleting any incorrectly.
@@ -501,35 +502,55 @@
 # their gene expression flat files and hai data.
 
 .ISCon$methods(
-  .uiModSdys = function(){
+  .sdysModuleStatus = function(sdysWithGems){
+    # Note: sdysWithGems should be res$gemAndRaw from .sdysGemStatus()
     
-    # Setup
-    studies <- .getSdyVec(.self)
-    labkey.url.base <- .self$config$labkey.url.base
+    # Proj-wide Setup
+    baseUrl <- .self$config$labkey.url.base
     
-    # helper
-    checkDim <- function(dataNm){
-      res <- tryCatch(con$getDataset(dataNm),
-                      error = function(e){ return( NULL ) }
-      )
-    }
-    
-    res <- sapply(studies, FUN = function(sdy){
-      print(sdy)
-      con <- CreateConnection(sdy)
-      ge <- checkDim("gene_expression_files")
-      hai <- checkDim("hai")
+    res <- sapply(sdysWithGems, FUN = function(sdy){
       
-      # if present, confirm overlap and multiple time points
-      if( !is.null(ge) & !is.null(hai) ){
-        gePlusHai <- ge[ ge$participant_id %in% hai$participant_id, ]
-        return( length(unique(gePlusHai$study_time_collected)) > 1 )
-      }else{
-        return( FALSE )
+      #sdy specific setup
+      GEE <- IRP <- GSEA <- FALSE
+      sdyCon <- CreateConnection(sdy)
+      
+      # check for matrices and get immune response data if present
+      ems <- sdyCon$data_cache$GE_matrices
+      ge <- tryCatch(sdyCon$getDataset("gene_expression_files"),
+                     error = function(e){ return( NULL ) })
+      
+      # if ems present, then GEE capable b/c uses con$getGEMatrix(ems)
+      if( !is.null(ems$name) ){
+        GEE <- TRUE
+        hai <- tryCatch(sdyCon$getDataset("hai"),
+                        error = function(e){ return( NULL ) })
+        nab <- tryCatch(sdyCon$getDataset("neut_ab_titer"),
+                        error = function(e){ return( NULL ) })
+        immResp <- if( is.null(hai) ){ nab }else{ hai }
+        
+        # if ems present, check overlap with hai/nab and multiple time points
+        if( !is.null(immResp) ){
+          gePlusIR <- ge[ ge$participant_id %in% immResp$participant_id, ]
+          
+          # if multiple timepoints, then IRP possible - calcs done in IRP.Rmd
+          if( length(unique(gePlusIR$study_time_collected)) > 1 ){
+            IRP <- TRUE
+            gearPresent <- labkey.selectRows(baseUrl = baseUrl,
+                                             folderPath = "/Studies/",
+                                             schemaName = "gene_expression",
+                                             queryName = "gene_expression_analysis_results")
+            
+            # if GEAR present, then capable of GSEA module b/c tbl used in GSEA.Rmd file
+            if( nrow(gearPresent) > 0 ){ GSEA <- TRUE }
+          }
+        }
       }
-  
+      
+      ret <- c(GEE, IRP, GSEA)
+      names(ret) <- c("GEE", "IRP", "GSEA")
+      return(ret)
     })
+    
+    return( data.frame(res, stringsAsFactors = F) )
   }
 )
-
-
