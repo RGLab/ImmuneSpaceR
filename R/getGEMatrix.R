@@ -14,13 +14,13 @@ NULL
 
     # check if data in data_cache corresponds to current request
     # if it does, then no download needed
-    if( summary == TRUE ){
+    if(summary){
       status <- .self$data_cache$GE_matrices$comments[ .self$data_cache$GE_matrices$name == matrixName ]
       if( !is.na(status) ){
-        if( status == "Using Original Annotation" & currAnno == F ){
+        if( status == "Using Original Annotation" & !currAnno ){
           message("Original GE Matrix already in data_cache")
           return()
-        }else if( status == "Using Updated Annotation" & currAnno == T ){
+        }else if( status == "Using Updated Annotation" & currAnno ){
           message("Updated GE matrix already in data_cache")
           return()
         }
@@ -50,9 +50,9 @@ NULL
     if( .self$.isRunningLocally(localpath) ){
       message("Reading local matrix")
       data_cache[[cache_name]] <<- read.table(localpath,
-                                              header = T,
+                                              header = TRUE,
                                               sep = "\t",
-                                              stringsAsFactors = F)
+                                              stringsAsFactors = FALSE)
     }else{
       opts <- config$curlOptions
       opts$netrc <- 1L
@@ -65,7 +65,7 @@ NULL
       EM <- read.table(fl,
                        header = TRUE,
                        sep = "\t",
-                       stringsAsFactors = F) # fread does not read correctly
+                       stringsAsFactors = FALSE) # fread does not read correctly
       if(nrow(EM) == 0){
         stop("The downloaded matrix has 0 rows. Something went wrong.")
       }
@@ -87,7 +87,7 @@ NULL
                               folderPath = config$labkey.url.path,
                               schemaName = "Assay.ExpressionMatrix.Matrix",
                               queryName = "Runs",
-                              showHidden = T)
+                              showHidden = TRUE)
 
     getOrigFasId <- function(config, matrixName){
       # Get annoSet based on name of FeatureAnnotationSet + "_orig" tag
@@ -95,7 +95,7 @@ NULL
                                   folderPath = config$labkey.url.path,
                                   schemaName = "Microarray",
                                   queryName = "FeatureAnnotationSet",
-                                  showHidden = T)
+                                  showHidden = TRUE)
 
       fasId <- runs$`Feature Annotation Set`[ runs$Name == matrixName]
       fasNm <- faSets$Name[ faSets$`Row Id` == fasId]
@@ -103,7 +103,7 @@ NULL
       annoSetId <- faSets$`Row Id`[ faSets$Name == fasNm ]
     }
 
-    if( summary == F ){
+    if(!summary){
       message("Downloading Features..")
       annoSetId <- getOrigFasId(config, matrixName)
       featureAnnotationSetQuery = sprintf("SELECT * from FeatureAnnotation
@@ -119,7 +119,7 @@ NULL
       # Get annotation from flat file b/c otherwise don't know order
       features <- data.frame(FeatureId = data_cache[[cache_name]]$gene_symbol,
                              gene_symbol = data_cache[[cache_name]]$gene_symbol)
-      if(currAnno == T){
+      if(currAnno){
         # Still want annoSetId for comments in con$GE_matrices
         annoSetId <- runs$`Feature Annotation Set`[ runs$Name == matrixName]
       }else{
@@ -167,7 +167,7 @@ NULL
     }
 
     # gene features
-    if( summary == T ){
+    if(summary){
       fdata <- data.frame(FeatureId = matrix$gene_symbol,
                           gene_symbol = matrix$gene_symbol)
       rownames(fdata) <- rownames(matrix) <- matrix$gene_symbol # rownames of assaydata and fData must match
@@ -175,7 +175,7 @@ NULL
       annoSetId <- data_cache$GE_matrices$featureset[ data_cache$GE_matrices$name == matrixName]
       features <- data_cache[[ paste0("featureset_", annoSetId)]][,c("FeatureId","gene_symbol")]
       colnames(matrix)[[ which(colnames(matrix) %in% c(" ", "V1", "X")) ]] <- "FeatureId"
-      fdata <- data.frame(FeatureId = as.character(matrix$FeatureId), stringsAsFactors = F)
+      fdata <- data.frame(FeatureId = as.character(matrix$FeatureId), stringsAsFactors = FALSE)
       fdata <- merge(fdata, features, by = "FeatureId", all.x = TRUE)
       rownames(matrix) <- rownames(fdata) <- fdata$FeatureId # rownames of assaydata and fData must match
     }
@@ -283,7 +283,7 @@ NULL
       if( cache_name %in% names(data_cache) & !reload ){
         # check if data in data_cache corresponds to current request
         # if it does, then no download needed
-        if( summary == TRUE ){
+        if(summary){
           status <- .self$data_cache$GE_matrices$comments[ .self$data_cache$GE_matrices$name == matrixName ]
           if( !is.na(status) ){
             if( status == "Using Original Annotation" & !currAnno ){

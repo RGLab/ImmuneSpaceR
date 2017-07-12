@@ -16,7 +16,7 @@
 
 .ISCon$methods(
   GeneExpressionInputs=function(){
-    if( .self$.isProject() == TRUE){
+    if(.self$.isProject()){
       stop("con$GeneExpressionInputs() cannot be run at project level.")
     }else{
       if(!is.null(data_cache[[constants$matrix_inputs]])){
@@ -209,7 +209,7 @@
                        sdy,
                        suffix)
     files <- .listISFiles(dirLink)
-    if(rawdata == TRUE){
+    if(rawdata){
       if( !is.null(files) ){ files <- length(files) > 0 }
     }
     return(files)
@@ -370,7 +370,7 @@
     ge <- con$getDataset("gene_expression_files")
     geNms <- unique(ge$participant_id)
     gefSdys <- unique(sapply(geNms, FUN = function(x){
-      res <- strsplit(x, ".", fixed = T)
+      res <- strsplit(x, ".", fixed = TRUE)
       return(res[[1]][2])
     }))
     gefSdys <- paste0("SDY", gefSdys)
@@ -431,7 +431,7 @@
     }
     
     # Double check we are working at project level and on correct server!
-    if( .self$.isProject() == FALSE){ stop("Can only be run at project level") }
+    if(!.self$.isProject()) stop("Can only be run at project level")
     chkBase <- readline(prompt = paste0("You are working on ",
                                         .self$config$labkey.url.base,
                                         ". Continue? [T / f] "))

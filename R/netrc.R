@@ -5,6 +5,7 @@
 #' @param login A \code{character}. The email address used for loging in on
 #'  ImmuneSpace.
 #' @param password A \code{character}. The password associated with the login.
+#' @param machine A \code{character}. The server to connect.
 #' @param file A \code{character}. The credentials will be written into that
 #'  file. If left NULL, the netrc will be written into a temporary file.
 #' @export

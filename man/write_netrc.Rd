@@ -12,6 +12,8 @@ ImmuneSpace.}
 
 \item{password}{A \code{character}. The password associated with the login.}
 
+\item{machine}{A \code{character}. The server to connect.}
+
 \item{file}{A \code{character}. The credentials will be written into that
 file. If left NULL, the netrc will be written into a temporary file.}
 }
