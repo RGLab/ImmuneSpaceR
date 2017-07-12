@@ -12,6 +12,11 @@ r_github_packages:
 bioc_packages:
   - BiocCheck
 
+script:
+  - |
+    travis_wait 20 R CMD build . --no-manual
+    travis_wait 20 R CMD check --no-manual ImmuneSpaceR*tar.gz
+
 after_script:
   - ls -lah
   - FILE=$(ls -1t *.tar.gz | head -n 1)
