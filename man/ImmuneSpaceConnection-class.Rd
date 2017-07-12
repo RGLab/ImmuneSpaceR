@@ -56,8 +56,8 @@ gene-expression data.}
 \section{Methods}{
 
 \describe{
-\item{\code{addTrt(x = NULL)}}{Add treatment information to the phenoData of an expression matrix
-     available in the connection object.
+\item{\code{addTreatment(matrixName = NULL)}}{Add treatment information to the phenoData of an expression matrix
+    available in the connection object.
 
     x: A character. The name of a expression matrix that has been downloaded 
     from the connection.}
@@ -95,8 +95,8 @@ gene-expression data.}
 
     destdir: A character. The loacal path to store the downloaded files.}
 
-\item{\code{getGEMatrix(x = NULL, cohort = NULL, summary = FALSE, currAnno = TRUE,
-  norm = TRUE, reload = FALSE)}}{Downloads a normalized gene expression matrix from ImmuneSpace.
+\item{\code{getGEMatrix(matrixName = NULL, cohort = NULL, summary = FALSE,
+  currAnno = FALSE, norm = TRUE, reload = FALSE)}}{Downloads a normalized gene expression matrix from ImmuneSpace.
 
     `x': A `character'. The name of the gene expression matrix to download.
 

@@ -35,7 +35,8 @@ Imports:
     heatmaply (>= 0.7.0), 
     rjson,
     rmarkdown,
-    preprocessCore
+    preprocessCore,
+    parallel
 Collate:
     'CreateConnection.R'
     'ImmuneSpace.R'

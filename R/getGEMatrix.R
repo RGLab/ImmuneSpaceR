@@ -286,9 +286,9 @@ NULL
         if( summary == TRUE ){
           status <- .self$data_cache$GE_matrices$comments[ .self$data_cache$GE_matrices$name == matrixName ]
           if( !is.na(status) ){
-            if( status == "Using Original Annotation" & currAnno == F ){
+            if( status == "Using Original Annotation" & !currAnno ){
               message("Returning Original expressionSet from data_cache")
-            }else if( status == "Using Updated Annotation" & currAnno == T ){
+            }else if( status == "Using Updated Annotation" & currAnno ){
               message("Returning Updated expressionSet from data_cache")
             }else{
               .getNewEset(matrixName, summary, currAnno)

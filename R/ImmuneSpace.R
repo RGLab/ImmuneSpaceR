@@ -442,7 +442,7 @@
                                            folderPath = .self$config$labkey.url.path,
                                            schemaName = "assay.ExpressionMatrix.matrix",
                                            queryName = "Runs",
-                                           showHidden = T))
+                                           showHidden = TRUE))
     
     noRunPres <- .getNoRunPres(.self = .self, runs = runs)
     
