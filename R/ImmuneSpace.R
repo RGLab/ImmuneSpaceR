@@ -503,7 +503,6 @@
       print(sdy)
       con <- CreateConnection(sdy)
       ge <- checkDim("gene_expression_files")
-      print("gef")
       hai <- checkDim("hai")
       
       # if present, confirm overlap and multiple time points
