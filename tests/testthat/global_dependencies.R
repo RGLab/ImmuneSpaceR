@@ -1,5 +1,5 @@
 # Global Dependencies
 
-library(testthat)
-library(ImmuneSpaceR)
-library(Biobase)
+suppressPackageStartupMessages(library(testthat))
+suppressPackageStartupMessages(library(ImmuneSpaceR))
+suppressPackageStartupMessages(library(Biobase))

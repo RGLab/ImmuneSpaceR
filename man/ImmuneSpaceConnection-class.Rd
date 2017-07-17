@@ -56,8 +56,8 @@ gene-expression data.}
 \section{Methods}{
 
 \describe{
-\item{\code{addTrt(x = NULL)}}{Add treatment information to the phenoData of an expression matrix
-     available in the connection object.
+\item{\code{addTreatment(matrixName = NULL)}}{Add treatment information to the phenoData of an expression matrix
+    available in the connection object.
 
     x: A character. The name of a expression matrix that has been downloaded 
     from the connection.}
@@ -95,7 +95,8 @@ gene-expression data.}
 
     destdir: A character. The loacal path to store the downloaded files.}
 
-\item{\code{getGEMatrix(x = NULL, cohort = NULL, summary = FALSE, reload = FALSE)}}{Downloads a normalized gene expression matrix from ImmuneSpace.
+\item{\code{getGEMatrix(matrixName = NULL, cohort = NULL, summary = FALSE,
+  currAnno = FALSE, norm = TRUE, reload = FALSE)}}{Downloads a normalized gene expression matrix from ImmuneSpace.
 
     `x': A `character'. The name of the gene expression matrix to download.
 
@@ -106,7 +107,7 @@ gene-expression data.}
     `reload': A `logical'. If set to TRUE, the matrix will be downloaded again,
     even if a cached cop exist in the ImmuneSpaceConnection object.}
 
-\item{\code{listDatasets(which = c("datasets", "expression"))}}{List the datasets available in the study or studies of the connection.}
+\item{\code{listDatasets(output = c("datasets", "expression"))}}{List the datasets available in the study or studies of the connection.}
 
 \item{\code{listGEAnalysis()}}{List available gene expression analysis for the connection.}
 

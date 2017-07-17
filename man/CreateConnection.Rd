@@ -5,7 +5,7 @@
 \title{CreateConnection}
 \usage{
 CreateConnection(study = NULL, login = NULL, password = NULL,
-  use.data.frame = FALSE, verbose = FALSE)
+  use.data.frame = FALSE, verbose = FALSE, onTest = FALSE)
 }
 \arguments{
 \item{study}{A \code{"character"} vector naming the study.}
@@ -22,6 +22,10 @@ return \code{data.frame} objects instead of \code{data.table}.}
 
 \item{verbose}{A \code{"logical"} whether to print the extra details for 
 troubleshooting.}
+
+\item{onTest}{A \code{"logical"} whether to connect to the test server 
+(https://test.immunespace.org/) instead of the production server 
+(https://www.immunespace.org/).}
 }
 \value{
 an instance of an \code{ImmuneSpaceConnection}

@@ -16,7 +16,7 @@
 
 .ISCon$methods(
   GeneExpressionInputs=function(){
-    if( .self$.isProject() == TRUE){
+    if(.self$.isProject()){
       stop("con$GeneExpressionInputs() cannot be run at project level.")
     }else{
       if(!is.null(data_cache[[constants$matrix_inputs]])){
@@ -67,7 +67,6 @@
     }
     
     if("datasets" %in% output){
-
       cat("datasets\n")
       for(i in 1:nrow(available_datasets)){
         cat(sprintf("\t%s\n",available_datasets[i,Name]))
@@ -206,11 +205,11 @@
                      "/%40files/rawdata/gene_expression?method=JSON",
                      "/%40files/analysis/exprs_matrices?method=JSON")
     dirLink <-  paste0(.self$config$labkey.url.base, 
-                           "/_webdav/Studies/", 
-                           sdy, 
-                           suffix)
+                       "/_webdav/Studies/",
+                       sdy,
+                       suffix)
     files <- .listISFiles(dirLink)
-    if(rawdata == TRUE){
+    if(rawdata){
       if( !is.null(files) ){ files <- length(files) > 0 }
     }
     return(files)
@@ -371,7 +370,7 @@
     ge <- con$getDataset("gene_expression_files")
     geNms <- unique(ge$participant_id)
     gefSdys <- unique(sapply(geNms, FUN = function(x){
-      res <- strsplit(x, ".", fixed = T)
+      res <- strsplit(x, ".", fixed = TRUE)
       return(res[[1]][2])
     }))
     gefSdys <- paste0("SDY", gefSdys)
@@ -432,7 +431,7 @@
     }
     
     # Double check we are working at project level and on correct server!
-    if( .self$.isProject() == FALSE){ stop("Can only be run at project level") }
+    if(!.self$.isProject()) stop("Can only be run at project level")
     chkBase <- readline(prompt = paste0("You are working on ",
                                         .self$config$labkey.url.base,
                                         ". Continue? [T / f] "))
@@ -443,7 +442,7 @@
                                            folderPath = .self$config$labkey.url.path,
                                            schemaName = "assay.ExpressionMatrix.matrix",
                                            queryName = "Runs",
-                                           showHidden = T))
+                                           showHidden = TRUE))
     
     noRunPres <- .getNoRunPres(.self = .self, runs = runs)
     
@@ -473,3 +472,7 @@
     }
   }
 )
+
+.runAsTest = function(){
+  labkey.url.base <<- "https://test.immunespace.org"
+}
