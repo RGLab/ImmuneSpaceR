@@ -11,7 +11,7 @@ CreateConnection(study = NULL, login = NULL, password = NULL,
 \item{study}{A \code{"character"} vector naming the study.}
 
 \item{login}{A \code{"character"}. Optional argument. If there is no netrc
-file a temporary one can be written by passing login and password of an 
+file a temporary one can be written by passing login and password of an
 active ImmuneSpace account.}
 
 \item{password}{A \code{"character"}. Optional. The password for the selected
@@ -20,11 +20,11 @@ login.}
 \item{use.data.frame}{A \code{"logical"}. If set to TRUE, the functions will
 return \code{data.frame} objects instead of \code{data.table}.}
 
-\item{verbose}{A \code{"logical"} whether to print the extra details for 
+\item{verbose}{A \code{"logical"} whether to print the extra details for
 troubleshooting.}
 
-\item{onTest}{A \code{"logical"} whether to connect to the test server 
-(https://test.immunespace.org/) instead of the production server 
+\item{onTest}{A \code{"logical"} whether to connect to the test server
+(https://test.immunespace.org/) instead of the production server
 (https://www.immunespace.org/).}
 }
 \value{
@@ -35,14 +35,14 @@ Constructor for \code{ImmuneSpaceConnection} class
 }
 \details{
 Instantiates an \code{ImmuneSpaceConnection} for \code{study}
-The constructor will try to take the values of the various `labkey.*` 
-parameters from the global environment. If they don't exist, it will use 
-default values. These are assigned to `options`, which are then used by the 
+The constructor will try to take the values of the various `labkey.*`
+parameters from the global environment. If they don't exist, it will use
+default values. These are assigned to `options`, which are then used by the
 \code{ImmuneSpaceConnection} class.
 }
 \examples{
 \dontrun{
-  # Single study 
+  # Single study
   con <- CreateConnection("SDY269")
   # Cross study
   con <- CreateConnection("")

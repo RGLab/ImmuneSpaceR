@@ -1,8 +1,8 @@
 ImmuneSpaceR
 ============
 
-[![Build Status](https://travis-ci.org/RGLab/ImmuneSpaceR.svg?branch=dev)](https://travis-ci.org/RGLab/ImmuneSpaceR)
-[![codecov](https://codecov.io/gh/RGLab/ImmuneSpaceR/branch/dev/graph/badge.svg)](https://codecov.io/gh/RGLab/ImmuneSpaceR/branch/dev)
+[![Build Status](https://travis-ci.org/RGLab/ImmuneSpaceR.svg?branch=master)](https://travis-ci.org/RGLab/ImmuneSpaceR)
+[![codecov](https://codecov.io/gh/RGLab/ImmuneSpaceR/branch/master/graph/badge.svg)](https://codecov.io/gh/RGLab/ImmuneSpaceR/branch/master)
 [![bioc](http://www.bioconductor.org/shields/downloads/ImmuneSpaceR.svg)](https://bioconductor.org/packages/stats/bioc/ImmuneSpaceR/) 
 [![bioc](http://www.bioconductor.org/shields/years-in-bioc/ImmuneSpaceR.svg)](http://bioconductor.org/packages/devel/bioc/html/ImmuneSpaceR.html)
 
