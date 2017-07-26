@@ -99,7 +99,19 @@ NULL
 
       fasId <- runs$`Feature Annotation Set`[ runs$Name == matrixName]
       fasNm <- faSets$Name[ faSets$`Row Id` == fasId]
-      fasNm <- ifelse(currAnno, fasNm, paste0(fasNm, "_orig"))
+
+      # Impt to use current fasNm if currAnno == T and also in case where
+      # currAnno == F, but the matrix was made using the original annotation
+      # AFTER a newer version of annotation was generated. E.g. SDY400 where
+      # EH had to make matrices for ImmSig project using orig annotation at probe lvl.
+      # Second logic makes it feasible to use the current annotation with such a study
+      # if currAnno == T
+      if(currAnno == F & !grepl("_orig", fasNm, fixed = T)){
+        fasNm <- paste0(fasNm, "_orig")
+      }else if(currAnno == T & grepl("_orig", fasNm, fixed = T)){
+        fasNm <- gsub("_orig", "", fasNm, fixed = T)
+      }
+
       annoSetId <- faSets$`Row Id`[ faSets$Name == fasNm ]
     }
 
