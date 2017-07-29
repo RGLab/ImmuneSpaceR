@@ -529,7 +529,7 @@
         immResp <- if( is.null(hai) ){ nab }else{ hai }
         
         # if ems present, check overlap with hai/nab and multiple time points
-        if( !is.null(immResp) ){
+        #if( !is.null(immResp) ){
           gePlusIR <- ge[ ge$participant_id %in% immResp$participant_id, ]
           
           # if multiple timepoints, then IRP possible - calcs done in IRP.Rmd
@@ -543,7 +543,7 @@
             # if GEAR present, then capable of GSEA module b/c tbl used in GSEA.Rmd file
             if( nrow(gearPresent) > 0 ){ GSEA <- TRUE }
           }
-        }
+        #}
       }
       
       ret <- c(GEE, IRP, GSEA)
@@ -552,5 +552,172 @@
     })
     
     return( data.frame(res, stringsAsFactors = F) )
+  }
+)
+
+#------ My test method goes here! Merging modulestatus and gemstatus into one method -----
+.ISCon$methods(
+  .studiesComplianceCheck = function(){
+    
+    #labels for data frame output
+    GEF <- RAW <- GEO <- GEM <- DE <- GEE <- IRP <- GSEA <- FALSE
+    
+    allsdys <- .getSdyVec(.self)
+    
+    df <- sapply(allsdys, FUN = function(x){
+      ret <- c(GEF, RAW, GEO, GEM, DE, GEE, IRP, GSEA)
+      names(ret) <- c("GEF", "RAW", "GEO", "GEM", "DE", "GEE", "IRP", "GSEA")
+      return(ret)
+    })
+    
+    #Final dataframe output compDF will hold a table of each study's true/false compliance with various datasets
+    compDF <- t(data.frame(df, stringsAsFactors = FALSE))
+    
+    #ensure table format correct
+    print(compDF)
+
+    res <- list()
+    
+    #helper function to sort studies by number
+    spSort <- function(vec){
+      if(length(vec) > 0 ){
+        vec <- sort(as.numeric(gsub("SDY","",vec)))
+        vec <- paste0("SDY", as.character(vec))
+      }else{
+        vec <- NULL
+      }
+    }
+    
+    # get list of matrices and determine which sdys they represent
+    gems <- .self$data_cache$GE_matrices
+    withGems <- unique(gems$folder)
+    
+    file_list <- .getGEFileNms(.self = .self, rawdata = TRUE)
+    file_list <- file_list[ file_list != "NULL" ]
+    emptyFolders <- names(file_list)[ file_list == FALSE ]
+    withRawData <- names(file_list)[ file_list == TRUE ]
+    
+    # Compare lists
+    res$gemAndRaw <- spSort(intersect(withRawData, withGems))
+    res$gemNoRaw <- spSort(setdiff(withGems, withRawData))
+    res$rawNoGem <- spSort(setdiff(withRawData, withGems))
+    
+    compliantGEM <- withGems #GEM DATA
+    compliantRAW <- withRawData #RAW DATA
+    
+    # Check which studies without gems have gef in IS
+    ge <- .self$getDataset("gene_expression_files")
+    geNms <- unique(ge$participant_id)
+    gefSdys <- unique(sapply(geNms, FUN = function(x){
+      res <- strsplit(x, ".", fixed = T)
+      return(res[[1]][2])
+    }))
+    gefSdys <- paste0("SDY", gefSdys)
+    
+    res$gefNoGem <- spSort(gefSdys[ !(gefSdys %in% withGems) ])
+    res$rawNoGef <- spSort(setdiff(res$rawNoGem, res$gefNoGem))
+    
+    compliantGEF <- union(GEM, gefSdys) #GEF DATA (assumes GEM requires GEF trivially)
+    
+    print ("Checkpoint A")
+    
+    # check for GEO-only before saying "no Raw"
+    gefNoRaw <- spSort(setdiff(res$gefNoGem, res$rawNoGem))
+    geoPresent <- sapply(allsdys, FUN = function(sdy){
+      cx <- CreateConnection(sdy)
+      dat <- cx$getDataset("gene_expression_files")
+      fileinfoName <- all(is.na(dat$file_info_name))
+      geoData <- all(is.na(dat$geo_accession))
+      if( geoData == FALSE & fileinfoName == TRUE){
+        return(TRUE)
+      }else{
+        return(FALSE)
+      }
+    })
+    
+    compliantGEO <- geoPresent #GEO DATA
+    
+    geoPresent <- geoPresent[ geoPresent == TRUE ]
+    res$gefNoRaw <- spSort(gefNoRaw[ !(gefNoRaw %in% names(geoPresent)) ])
+    
+    print("Checkpoint B")
+    
+    #Each study in the compliant list for each datatype is reflected as TRUE in compDF
+    sapply(compliantGEF, FUN=function(sdy){
+      compDF[grep(sdy, rownames(compDF)), grep("GEF", colnames(compDF))] <- TRUE
+    })
+    sapply(compliantGEO, FUN=function(sdy){
+      compDF[grep(sdy, rownames(compDF)), grep("GEO", colnames(compDF))] <- TRUE
+    })
+    sapply(compliantRAW, FUN=function(sdy){
+      compDF[grep(sdy, rownames(compDF)), grep("RAW", colnames(compDF))] <- TRUE
+    })
+    sapply(compliantGEM, FUN=function(sdy){
+      compDF[grep(sdy, rownames(compDF)), grep("GEM", colnames(compDF))] <- TRUE
+    })
+    
+    #TODO::: DE
+
+    
+    
+    sdysWithGems <- res$gemAndRaw
+    
+    baseUrl <- .self$config$labkey.url.base
+    
+    res <- sapply(sdysWithGems, FUN = function(sdy){
+      
+      print("Checkpoint C")
+      
+      #sdy specific setup
+      sdyCon <- CreateConnection(sdy)
+      
+      
+      #By virtue of progressing this far, everything in sdysWithGems has GEM and RAW
+
+      # check for matrices and get immune response data if present
+      ems <- sdyCon$data_cache$GE_matrices
+      ge <- tryCatch(sdyCon$getDataset("gene_expression_files"),
+                     error = function(e){ return( NULL ) })
+      
+      # if ems present, then GEE capable b/c uses con$getGEMatrix(ems)
+      if( !is.null(ems$name) ){
+        
+        compDF[grep(sdy, rownames(compDF)), grep("GEE", colnames(compDF))] <- TRUE
+        
+        hai <- tryCatch(sdyCon$getDataset("hai"),
+                        error = function(e){ return( NULL ) })
+        nab <- tryCatch(sdyCon$getDataset("neut_ab_titer"),
+                        error = function(e){ return( NULL ) })
+        immResp <- if( is.null(hai) ){ nab }else{ hai }
+        
+        # if ems present, check overlap with hai/nab and multiple time points
+        #if( !is.null(immResp) ){
+        gePlusIR <- ge[ ge$participant_id %in% immResp$participant_id, ]
+        
+        # if multiple timepoints, then IRP possible - calcs done in IRP.Rmd
+        if( length(unique(gePlusIR$study_time_collected)) > 1 ){
+          compDF[grep(sdy, rownames(compDF)), grep("IRP", colnames(compDF))] <- TRUE
+          gearPresent <- labkey.selectRows(baseUrl = baseUrl,
+                                           folderPath = "/Studies/",
+                                           schemaName = "gene_expression",
+                                           queryName = "gene_expression_analysis_results")
+          
+          # if GEAR present, then capable of GSEA module b/c tbl used in GSEA.Rmd file
+          if( nrow(gearPresent) > 0 ){         
+            compDF[grep(sdy, rownames(compDF)), grep("GSEA", colnames(compDF))] <- TRUE
+          }
+        }
+        #}
+      }
+      
+      #ret <- c(GEF, RAW, GEO, GEM, DE, GEE, IRP, GSEA)
+      #names(ret) <- c("GEF", "RAW", "GEO", "GEM", "DE", "GEE", "IRP", "GSEA")
+      #return(ret)
+    })
+    
+    print("Checkpoint D")
+    
+    return( compDF )
+    
   }
 )
