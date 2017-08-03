@@ -603,9 +603,6 @@
     compliantGEM <- withGems #GEM DATA
     compliantRAW <- withRawData #RAW DATA
     
-    print(compliantGEM)
-    print(compliantRAW)
-    
     # Check which studies without gems have gef in IS
     ge <- .self$getDataset("gene_expression_files")
     geNms <- unique(ge$participant_id)
@@ -623,6 +620,9 @@
 
     # check for GEO-only before saying "no Raw"
     gefNoRaw <- spSort(setdiff(res$gefNoGem, res$rawNoGem))
+    
+    compliantGEO = c()
+
     geoPresent <- sapply(allsdys, FUN = function(sdy){
       cx <- CreateConnection(sdy)
       dat <- tryCatch(cx$getDataset("gene_expression_files"),
@@ -631,13 +631,23 @@
       fileinfoName <- all(is.na(dat$file_info_name))
       geoData <- all(is.na(dat$geo_accession))
       if( geoData == FALSE & fileinfoName == TRUE){
+        print(sdy)
+        #compliantGEO <- c(compliantGEO, sdy)
+        
         return(TRUE)
       }else{
         return(FALSE)
       }
     })
     
-    compliantGEO <- geoPresent #GEO DATA
+    
+    for (i in 1:length(allsdys)) {
+      if (geoPresent[i] == TRUE) {
+        compDF[grep(paste(allsdys[i], "$", sep = ""), rownames(compDF)), grep("GEO", colnames(compDF))] <- TRUE
+      }
+    }
+    
+    #print(compliantGEO)
     
     geoPresent <- geoPresent[ geoPresent == TRUE ]
     res$gefNoRaw <- spSort(gefNoRaw[ !(gefNoRaw %in% names(geoPresent)) ])
@@ -647,9 +657,9 @@
     for (sdy in compliantGEF){
       compDF[grep(paste(sdy, "$", sep = ""), rownames(compDF)), grep("GEF", colnames(compDF))] <- TRUE
     }
-    for (sdy in compliantGEO){
-      compDF[grep(paste(sdy, "$", sep = ""), rownames(compDF)), grep("GEO", colnames(compDF))] <- TRUE
-    }
+    #for (sdy in compliantGEO){
+      #compDF[grep(paste(sdy, "$", sep = ""), rownames(compDF)), grep("GEO", colnames(compDF))] <- TRUE
+    #}
     for (sdy in compliantRAW){
       compDF[grep(paste(sdy, "$", sep = ""), rownames(compDF)), grep("RAW", colnames(compDF))] <- TRUE
     }
