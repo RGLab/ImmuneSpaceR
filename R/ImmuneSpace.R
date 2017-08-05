@@ -631,9 +631,6 @@
       fileinfoName <- all(is.na(dat$file_info_name))
       geoData <- all(is.na(dat$geo_accession))
       if( geoData == FALSE & fileinfoName == TRUE){
-        print(sdy)
-        #compliantGEO <- c(compliantGEO, sdy)
-        
         return(TRUE)
       }else{
         return(FALSE)
@@ -647,19 +644,14 @@
       }
     }
     
-    #print(compliantGEO)
-    
     geoPresent <- geoPresent[ geoPresent == TRUE ]
     res$gefNoRaw <- spSort(gefNoRaw[ !(gefNoRaw %in% names(geoPresent)) ])
     
 
-    #Each study in the compliant list for each datatype is reflected as TRUE in compDF
+    #Each study in the compliant list for each dataset is reflected as TRUE in compDF
     for (sdy in compliantGEF){
       compDF[grep(paste(sdy, "$", sep = ""), rownames(compDF)), grep("GEF", colnames(compDF))] <- TRUE
     }
-    #for (sdy in compliantGEO){
-      #compDF[grep(paste(sdy, "$", sep = ""), rownames(compDF)), grep("GEO", colnames(compDF))] <- TRUE
-    #}
     for (sdy in compliantRAW){
       compDF[grep(paste(sdy, "$", sep = ""), rownames(compDF)), grep("RAW", colnames(compDF))] <- TRUE
     }
@@ -667,22 +659,31 @@
       compDF[grep(paste(sdy, "$", sep = ""), rownames(compDF)), grep("GEM", colnames(compDF))] <- TRUE
     }
     
-    print(compDF)
     
-    #TODO::: DE
-
-    
+    print("a")
     
     sdysWithGems <- res$gemAndRaw
     
     baseUrl <- .self$config$labkey.url.base
     
-    #res <- sapply(sdysWithGems, FUN = function(sdy){
     for (sdy in sdysWithGems) {
       
-
+      print(sdy)
+      
       #sdy specific setup
       sdyCon <- CreateConnection(sdy)
+      
+      #if any of the following datasets are available, DE is enambled
+      sets <- sdyCon$available_datasets
+      for (name in sets[1:length(sets), 1]) {
+        if (name == "neut_ab_titer" || name == "elisa" || name == "elispot"
+            || name == "hai" || name == "pcr" || name == "fcs_analyzed_result"
+            || name == "mbaa" || name == "DGEA_filteredGEAR") {
+          compDF[grep(paste(sdy, "$", sep = ""), rownames(compDF)), grep("DE", colnames(compDF))] <- TRUE
+          break
+        }
+        
+      }
       
       
       #By virtue of progressing this far, everything in sdysWithGems has GEM and RAW
@@ -720,15 +721,11 @@
             compDF[grep(paste(sdy, "$", sep = ""), rownames(compDF)), grep("GSEA", colnames(compDF))] <- TRUE
           }
         }
-        #}
       }
       
-      #ret <- c(GEF, RAW, GEO, GEM, DE, GEE, IRP, GSEA)
-      #names(ret) <- c("GEF", "RAW", "GEO", "GEM", "DE", "GEE", "IRP", "GSEA")
-      #return(ret)
-    } #)
+    } 
+    print(compDF)
     
-
     return( compDF )
     
   }
