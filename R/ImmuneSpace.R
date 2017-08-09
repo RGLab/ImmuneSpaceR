@@ -373,7 +373,7 @@
 )
 
 .ISCon$methods(
-  getParticipantData = function(group, dataType){
+  getParticipantData = function(group, dataType, original_view = F){
     "returns a dataframe with ImmuneSpace data subset by groupId.\n
     group: Use listParticipantGroups() to find Participant groupId or groupName.\n
     dataType: Use con$available_datasets to see possible dataType inputs.\n"
@@ -452,9 +452,17 @@
                                      maxRows = 1)
 
     # b/c of lookups defaultCols has versions of demo / arm fieldnames with path
-    possibleNames <- c( colnames(defaultCols), "race", "gender", "age_reported", "arm_name" )
+    baseCols <- c( colnames(defaultCols), "arm_name" )
 
-    filtData <- assayData[ , (colnames(assayData) %in% possibleNames) ]
+    # Based on column names of con$getDataset(original_view = T / F)
+    if(original_view == T){
+      finalCols <- c( baseCols, "arm_accession", "biosample_accession", "expsample_accession",
+                          "study_accession", "value_preferred", "unit_reported", "unit_preferred" )
+    }else{
+      finalCols <- c( baseCols, "race", "gender", "age_reported" )
+    }
+
+    filtData <- assayData[ , (colnames(assayData) %in% finalCols) ]
     
     return(filtData)
   }
