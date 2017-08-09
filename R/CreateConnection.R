@@ -205,7 +205,7 @@ CreateConnection = function(study = NULL, login = NULL, password = NULL, use.dat
 )
 
 .ISCon$methods(
-  getAvailableDataSets=function(){
+  setAvailableDatasets=function(){
     if( length(available_datasets) == 0 ){
       available_datasets <<- .getLKtbl(con = .self,
                                        schema = "study",
@@ -261,7 +261,7 @@ CreateConnection = function(study = NULL, login = NULL, password = NULL, use.dat
       checkStudy(config$verbose)
     }
     
-    getAvailableDataSets()
+    setAvailableDatasets()
 
     gematrices_success <- GeneExpressionMatrices()
     

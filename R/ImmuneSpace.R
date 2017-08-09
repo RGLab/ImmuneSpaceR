@@ -329,27 +329,43 @@
     
     user <- .validateUser(con = .self)
     
-    # build participant group table from multiple schema and filter by user
-    pgrp <- .getLKtbl(con = .self, schema = "study", query = "ParticipantGroup")
-    pcat <- .getLKtbl(con = .self, schema = "study", query = "ParticipantCategory")
-    pmap <- .getLKtbl(con = .self, schema = "study", query = "ParticipantGroupMap")
-    user2grp <- .getLKtbl(con = .self, schema = "core", query = "UsersAndGroups")
+    # get userId from email, need separate call b/c of different schema
+    userSql <- sprintf("SELECT UserId FROM Users WHERE Email='%s'", user)
+    userId <- labkey.executeSql(config$labkey.url.base,
+                                config$labkey.url.path,
+                                schemaName = "core",
+                                sql = userSql,
+                                colNameOpt = "fieldname")
     
-    preRes <- data.table(merge(pgrp, pcat, by.x = "Category Id", by.y = "Row Id"))
-    preRes[ user2grp, Created_by := `Email`, on = c(`Created By` = "User Id")]
+    # get rowId (for ParticipantCategory) with userId
+    pcatSql <- sprintf("SELECT rowId FROM ParticipantCategory WHERE OwnerId='%s'", userId)
     
-    result <- data.frame(Group_ID = preRes$`Row Id`, 
-                         Label = preRes$Label.x, 
-                         Created = preRes$Created, 
-                         Created_By = preRes$Created_by,
-                         stringsAsFactors = F)
+    # get GroupId (rowId in ParticipantGroup), label from CategoryId (rowId in PartCat)
+    pgrpSql <- paste0("SELECT RowId, Label FROM ParticipantGroup WHERE CategoryId IN (", pcatSql, ")")
+    pgrpIds <- labkey.executeSql(config$labkey.url.base,
+                                config$labkey.url.path,
+                                schemaName = "study",
+                                sql = pgrpSql,
+                                colNameOpt = "fieldname",
+                                showHidden = TRUE)
     
-    pmap[, Subs := .N, by = `Group Id`]
-    result$Subject_Count <- pmap$Subs[ match(result$Group_ID, pmap$`Group Id`)]
-    result <- result[ result$Created_By == user, ]
+    # get number of participants in group
+    grpStr <- paste( pgrpIds$RowId, collapse = ",")
+    sumSql <- paste0("SELECT GroupId FROM ParticipantGroupMap WHERE GroupId IN (", grpStr, ")")
+    sumGrps <- data.table(labkey.executeSql(config$labkey.url.base,
+                                 config$labkey.url.path,
+                                 schemaName = "study",
+                                 sql = sumSql,
+                                 colNameOpt = "fieldname"))
+
+    # Create results table with label, groupId, and number of participants
+    sumGrps <- sumGrps[, Subjects := .N, by = "GroupId" ]
+    sumGrps <- data.frame(sumGrps[ !duplicated(sumGrps), ])
+    result <- merge(sumGrps, pgrpIds, by.x = "GroupId", by.y = "RowId")
+    colnames(result) <- c("groupId", "subjects", "groupName")
     
     if( nrow(result) == 0 ){
-      stop(paste0("No participant groups found for user email: ", user))
+      warning(paste0("No participant groups found for user email: ", user))
     }
 
     return(result)
@@ -357,10 +373,10 @@
 )
 
 .ISCon$methods(
-  getParticipantData = function(groupId, dataType){
+  getParticipantData = function(group, dataType){
     "returns a dataframe with ImmuneSpace data subset by groupId.\n
-    groupId: Use listParticipantGroups() to find Participant GroupId.\n
-    dataType: Use available_datasets() to see possible dataType inputs.\n"
+    group: Use listParticipantGroups() to find Participant groupId or groupName.\n
+    dataType: Use con$available_datasets to see possible dataType inputs.\n"
     
     if(config$labkey.url.path != "/Studies/"){
       stop("labkey.url.path must be /Studies/. Use CreateConnection with all studies.")
@@ -370,56 +386,76 @@
       stop("DataType must be in ", paste(.self$available_datasets$Name, collapse = ", "))
     }
     
-    # Checking to ensure user is owner of groupID on correct machine
+    # Checking to ensure user is owner of group on correct machine
+    # Note that groupId is used for actually sql statement later regardless of user input
     user <- .validateUser(con = .self)
-    validIds <- .self$listParticipantGroups()$Group_ID
-    if( !(groupId %in% validIds) ){
-      stop(paste0("groupId ", 
-                  groupId, 
-                  " is not in the set of groupIds created by ",
-                  user, 
-                  " on ",
-                  .self$config$labkey.url.base))
+    validGrps <- .self$listParticipantGroups()
+    if(typeof(group) == "double"){
+      col <- "groupId"
+      groupId <- group
+    }else if( typeof(group) == "character"){
+      col <- "groupName"
+      groupId <- validGrps$groupId[ validGrps$groupName == group ]
+    }else{
+      stop("Group ID or Name not interpretable as double or character. Please reset")
     }
     
+    if( !( group %in% validGrps[[col]] ) ){
+      stop(paste0("group ", group,
+                  " is not in the set of ", col,
+                  " created by ", user,
+                  " on ", .self$config$labkey.url.base))
+    }
+
     # Get data
     dt <- tolower(dataType)
-    sql <- paste0("SELECT ", dt, ".*, pmap.GroupId As groupId ",
-                  "FROM ", dt,
-                  " JOIN ParticipantGroupMap AS pmap ON ", 
-                  dt, ".ParticipantId = pmap.ParticipantId",
+
+    # assay data + participantGroup + demographic data
+    sqlAssay <- paste0("SELECT ",
+                  dt, ".*,",
+                  "pmap.GroupId AS groupId, ",
+                  "demo.age_reported AS age_reported, ",
+                  "demo.race AS race, ",
+                  "demo.gender AS gender, ",
+                  "FROM ",
+                  dt,
+                  " JOIN ParticipantGroupMap AS pmap ",
+                  "ON ", dt, ".ParticipantId = pmap.ParticipantId",
+                  " JOIN Demographics AS demo ",
+                  "ON ", dt, ".ParticipantId = demo.ParticipantId",
                   " WHERE groupId = ", as.character(groupId))
     
-    allData <- labkey.executeSql(baseUrl = .self$config$labkey.url.base, 
+    assayData <- labkey.executeSql(baseUrl = .self$config$labkey.url.base,
                                  folderPath = .self$config$labkey.url.path,
                                  schemaName = "study",
-                                 sql = sql,
+                                 sql = sqlAssay,
                                  colNameOpt = "fieldname")
     
-    cols2rm <- c("Container", 
-                 "lsid",
-                 "ParticipantSequenceNum",
-                 "sourcelsid",
-                 "Created",
-                 "CreatedBy",
-                 "Modified",
-                 "ModifiedBy",
-                 "SequenceNum",
-                 "workspace_id",
-                 "Dataset",
-                 "VisitRowId",
-                 "Folder",
-                 "_key",
-                 "filesize",
-                 "unique_id",
-                 "QCState",
-                 "dsrowid",
-                 "date")
-    
-    filtData <- allData[ , !(colnames(allData) %in% cols2rm) ]
+    # Arm Data needs to come from different schema so need second call
+    sqlArm <- "SELECT name, arm_accession FROM arm_or_cohort"
+    armData <- labkey.executeSql(baseUrl = .self$config$labkey.url.base,
+                                 folderPath = .self$config$labkey.url.path,
+                                 schemaName = "immport",
+                                 sql = sqlArm,
+                                 colNameOpt = "fieldname")
+
+    # Add Arm data to assayData
+    assayData$arm_name <- armData$name[ match(assayData$arm_accession, armData$arm_accession) ]
+
+    # SelectRows = easiest way to grab original columns since DataType could be one of
+    # a number of possibilities. Leave one row otherwise have to handle empty df warning msg
+    defaultCols <- labkey.selectRows(baseUrl = .self$config$labkey.url.base,
+                                     folderPath = .self$config$labkey.url.path,
+                                     schemaName = "study",
+                                     queryName = dataType,
+                                     colNameOpt = "fieldname",
+                                     maxRows = 1)
+
+    # b/c of lookups defaultCols has versions of demo / arm fieldnames with path
+    possibleNames <- c( colnames(defaultCols), "race", "gender", "age_reported", "arm_name" )
+
+    filtData <- assayData[ , (colnames(assayData) %in% possibleNames) ]
     
     return(filtData)
   }
 )
-
-
