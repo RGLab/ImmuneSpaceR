@@ -329,14 +329,6 @@
     
     user <- .validateUser(con = .self)
     
-    # get userId from email, need separate call b/c of different schema
-    userSql <- sprintf("SELECT UserId FROM Users WHERE Email='%s'", user)
-    userId <- labkey.executeSql(config$labkey.url.base,
-                                config$labkey.url.path,
-                                schemaName = "core",
-                                sql = userSql,
-                                colNameOpt = "fieldname")
-    
     # Get summary data
     pgrpSql <- paste0("SELECT ",
                         "ParticipantGroup.RowId AS GroupId, ",
@@ -350,7 +342,12 @@
                         "ParticipantGroup.CategoryId IN (",
                           "SELECT rowId ",
                           "FROM ParticipantCategory ",
-                          "WHERE OwnerId = ", userId, ") ",
+                          "WHERE OwnerId = (",
+                            "SELECT Users.UserId ",
+                            "FROM core.Users ",
+                            "WHERE Users.Email = ",
+                            sprintf("'%s'", user), " )", # need single quotes for string
+                        ") ",
                       "GROUP BY ",
                         "ParticipantGroup.RowId, ",
                         "ParticipantGroup.Label ")
@@ -394,10 +391,10 @@
     validGrps <- .self$listParticipantGroups()
 
     if(typeof(group) == "double"){
-      col <- "groupId"
+      col <- "GroupId"
       groupId <- group
     }else if( typeof(group) == "character"){
-      col <- "groupName"
+      col <- "GroupName"
       groupId <- validGrps$groupId[ validGrps$groupName == group ]
     }else{
       stop("Group ID or Name not interpretable as double or character. Please reset")
@@ -413,39 +410,35 @@
     dt <- tolower(dataType) # ensure formatting is correct, regardless of user entry
 
     # Get assay data + participantGroup + demographic data
-    # handle possible dup column error if dt == demographics
+    # Handle dt == demographics specially b/c diff columns
     sqlAssay <- paste0("SELECT ",
-                  dt, ".*, ",
-                  "pmap.GroupId AS groupId, ",
-                  ifelse(dt != "demographics",
-                         paste0("demo.age_reported AS age_reported, ",
-                                "demo.race AS race, ",
-                                "demo.gender AS gender, "),
-                         ""),
-                  "FROM ",
-                  dt,
-                  " JOIN ParticipantGroupMap AS pmap ",
-                  "ON ", dt, ".ParticipantId = pmap.ParticipantId",
-                  " JOIN Demographics AS demo ",
-                  "ON ", dt, ".ParticipantId = demo.ParticipantId",
-                  " WHERE groupId = ", as.character(groupId))
+                        dt, ".*, ",
+                        "pmap.GroupId AS groupId, ",
+                        ifelse(dt != "demographics",
+                               paste0("demo.age_reported AS age_reported, ",
+                                      "demo.race AS race, ",
+                                      "demo.gender AS gender, ",
+                                      "arm_or_cohort.name AS arm_name "),
+                               "cohort_membership.name AS Cohort "),
+                      "FROM ",
+                        dt,
+                      " JOIN ParticipantGroupMap AS pmap ",
+                        "ON ", dt, ".ParticipantId = pmap.ParticipantId",
+                      " JOIN Demographics AS demo ",
+                        "ON ", dt, ".ParticipantId = demo.ParticipantId",
+                      ifelse(dt != "demographics",
+                             paste0(" JOIN immport.arm_or_cohort ",
+                             "ON ", dt, ".arm_accession = arm_or_cohort.arm_accession "),
+                             paste0(" JOIN cohort_membership ",
+                                    "ON ",
+                                    dt, ".ParticipantId = cohort_membership.ParticipantId ")),
+                      " WHERE pmap.GroupId = ", as.character(groupId))
     
     assayData <- labkey.executeSql(baseUrl = .self$config$labkey.url.base,
                                    folderPath = .self$config$labkey.url.path,
                                    schemaName = "study",
                                    sql = sqlAssay,
                                    colNameOpt = "fieldname")
-    
-    # Arm Data needs to come from different schema so need second call
-    sqlArm <- "SELECT name, arm_accession FROM arm_or_cohort"
-    armData <- labkey.executeSql(baseUrl = .self$config$labkey.url.base,
-                                 folderPath = .self$config$labkey.url.path,
-                                 schemaName = "immport",
-                                 sql = sqlArm,
-                                 colNameOpt = "fieldname")
-
-    # Add Arm data to assayData
-    assayData$arm_name <- armData$name[ match(assayData$arm_accession, armData$arm_accession) ]
 
     # SelectRows = easiest way to grab original columns since DataType could be one of
     # a number of possibilities. Leave one row otherwise have to handle empty df warning msg
@@ -457,12 +450,16 @@
                              maxRows = 1)
 
     # b/c of lookups defaultCols has versions of demo / arm fieldnames with path
-    baseCols <- c( colnames(defaultCols), "arm_name" )
+    baseCols <- c( colnames(defaultCols), "arm_name", "Cohort" ) # Cohort is for demo only
 
     # Based on column names of con$getDataset(original_view = T / F)
     if(original_view == T){
-      finalCols <- c( baseCols, "arm_accession", "biosample_accession", "expsample_accession",
-                          "study_accession", "value_preferred", "unit_reported", "unit_preferred" )
+      if(dt == "demographics"){
+        finalCols <- c(baseCols, "strain", "strain_characteristics", "race_specify")
+      }else{
+        finalCols <- c( baseCols, "arm_accession", "biosample_accession", "expsample_accession",
+                        "study_accession", "value_preferred", "unit_reported", "unit_preferred" )
+      }
     }else{
       finalCols <- c( baseCols, "race", "gender", "age_reported" )
     }
