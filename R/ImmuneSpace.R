@@ -555,14 +555,31 @@
   }
 )
 
+#
 #------ My test method goes here! Merging modulestatus and gemstatus into one method -----
+#
+
+
 .ISCon$methods(
   .studiesComplianceCheck = function(){
+    
+    #helper function to sort studies by number
+    spSort <- function(vec){
+      if(length(vec) > 0 ){
+        vec <- sort(as.numeric(gsub("SDY","",vec)))
+        vec <- paste0("SDY", as.character(vec))
+      }else{
+        vec <- NULL
+      }
+    }
     
     #labels for data frame output
     GEF <- RAW <- GEO <- GEM <- DE <- GEE <- IRP <- GSEA <- FALSE
     
-    allsdys <- .getSdyVec(.self)
+    deSets <- c("neut_ab_titer", "elisa", "elispot", "hai", "pcr", 
+                "fcs_analyzed_result", "mbaa", "DGEA_filteredGEAR")
+    
+    allsdys <- spSort(.getSdyVec(.self))
     
     df <- sapply(allsdys, FUN = function(x){
       ret <- c(GEF, RAW, GEO, GEM, DE, GEE, IRP, GSEA)
@@ -576,15 +593,9 @@
     
     res <- list()
     
-    #helper function to sort studies by number
-    spSort <- function(vec){
-      if(length(vec) > 0 ){
-        vec <- sort(as.numeric(gsub("SDY","",vec)))
-        vec <- paste0("SDY", as.character(vec))
-      }else{
-        vec <- NULL
-      }
-    }
+    
+    
+    print(compDF)
     
     # get list of matrices and determine which sdys they represent
     gems <- .self$data_cache$GE_matrices
@@ -666,23 +677,27 @@
     
     baseUrl <- .self$config$labkey.url.base
     
-    for (sdy in sdysWithGems) {
+    for (sdy in allsdys) {
       
       print(sdy)
       
       #sdy specific setup
       sdyCon <- CreateConnection(sdy)
       
-      #if any of the following datasets are available, DE is enambled
+      #if any of the following datasets are available, DE is enambled 
+      #NOTE: THIS NEEDS TO BE MOVED AND WRAPPED AROUND APPLYING TO ALL STUDIES, NOT JUST GEM
       sets <- sdyCon$available_datasets
-      for (name in sets[1:length(sets), 1]) {
-        if (name == "neut_ab_titer" || name == "elisa" || name == "elispot"
-            || name == "hai" || name == "pcr" || name == "fcs_analyzed_result"
-            || name == "mbaa" || name == "DGEA_filteredGEAR") {
-          compDF[grep(paste(sdy, "$", sep = ""), rownames(compDF)), grep("DE", colnames(compDF))] <- TRUE
-          break
+      for (vecNames in sets[1:length(sets), 1]) {
+        for (name in vecNames) {
+          if (name %in% deSets) {
+            compDF[grep(paste(sdy, "$", sep = ""), rownames(compDF)), grep("DE", colnames(compDF))] <- TRUE
+            break
+          }
         }
-        
+      }
+      
+      if (!(sdy %in% sdysWithGems)) {
+        next
       }
       
       
@@ -724,7 +739,7 @@
       }
       
     } 
-    print(compDF)
+    
     
     return( compDF )
     
