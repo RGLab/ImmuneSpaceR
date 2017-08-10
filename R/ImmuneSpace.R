@@ -337,32 +337,31 @@
                                 sql = userSql,
                                 colNameOpt = "fieldname")
     
-    # get rowId (for ParticipantCategory) with userId
-    pcatSql <- sprintf("SELECT rowId FROM ParticipantCategory WHERE OwnerId='%s'", userId)
+    # Get summary data
+    pgrpSql <- paste0("SELECT ",
+                        "ParticipantGroup.RowId AS GroupId, ",
+                        "ParticipantGroup.Label AS GroupName, ",
+                        "COUNT(*) AS Subjects ",
+                      "FROM ",
+                        "ParticipantGroupMap ",
+                      "FULL OUTER JOIN ParticipantGroup ",
+                        "ON ParticipantGroupMap.GroupId=ParticipantGroup.RowId ",
+                      "WHERE ",
+                        "ParticipantGroup.CategoryId IN (",
+                          "SELECT rowId ",
+                          "FROM ParticipantCategory ",
+                          "WHERE OwnerId = ", userId, ") ",
+                      "GROUP BY ",
+                        "ParticipantGroup.RowId, ",
+                        "ParticipantGroup.Label ")
     
-    # get GroupId (rowId in ParticipantGroup), label from CategoryId (rowId in PartCat)
-    pgrpSql <- paste0("SELECT RowId, Label FROM ParticipantGroup WHERE CategoryId IN (", pcatSql, ")")
-    pgrpIds <- labkey.executeSql(config$labkey.url.base,
-                                config$labkey.url.path,
-                                schemaName = "study",
-                                sql = pgrpSql,
-                                colNameOpt = "fieldname",
-                                showHidden = TRUE)
-    
-    # get number of participants in group
-    grpStr <- paste( pgrpIds$RowId, collapse = ",")
-    sumSql <- paste0("SELECT GroupId FROM ParticipantGroupMap WHERE GroupId IN (", grpStr, ")")
-    sumGrps <- data.table(labkey.executeSql(config$labkey.url.base,
-                                 config$labkey.url.path,
-                                 schemaName = "study",
-                                 sql = sumSql,
-                                 colNameOpt = "fieldname"))
-
-    # Create results table with label, groupId, and number of participants
-    sumGrps <- sumGrps[, Subjects := .N, by = "GroupId" ]
-    sumGrps <- data.frame(sumGrps[ !duplicated(sumGrps), ])
-    result <- merge(sumGrps, pgrpIds, by.x = "GroupId", by.y = "RowId")
-    colnames(result) <- c("groupId", "subjects", "groupName")
+    # cache for future use
+    .self$data_cache$ParticipantGroups <- result <- labkey.executeSql(config$labkey.url.base,
+                                                                      config$labkey.url.path,
+                                                                      schemaName = "study",
+                                                                      sql = pgrpSql,
+                                                                      colNameOpt = "fieldname",
+                                                                      showHidden = TRUE)
     
     if( nrow(result) == 0 ){
       warning(paste0("No participant groups found for user email: ", user))
@@ -377,19 +376,23 @@
     "returns a dataframe with ImmuneSpace data subset by groupId.\n
     group: Use listParticipantGroups() to find Participant groupId or groupName.\n
     dataType: Use con$available_datasets to see possible dataType inputs.\n"
-    
+
     if(config$labkey.url.path != "/Studies/"){
       stop("labkey.url.path must be /Studies/. Use CreateConnection with all studies.")
     }
-    
+
     if(!(dataType %in% .self$available_datasets$Name)){
       stop("DataType must be in ", paste(.self$available_datasets$Name, collapse = ", "))
     }
-    
+
     # Checking to ensure user is owner of group on correct machine
     # Note that groupId is used for actually sql statement later regardless of user input
     user <- .validateUser(con = .self)
+
+    # Must rerun this to ensure valid groups are only for that user and are not changed
+    # within cache.
     validGrps <- .self$listParticipantGroups()
+
     if(typeof(group) == "double"){
       col <- "groupId"
       groupId <- group
@@ -407,16 +410,18 @@
                   " on ", .self$config$labkey.url.base))
     }
 
-    # Get data
-    dt <- tolower(dataType)
+    dt <- tolower(dataType) # ensure formatting is correct, regardless of user entry
 
-    # assay data + participantGroup + demographic data
+    # Get assay data + participantGroup + demographic data
+    # handle possible dup column error if dt == demographics
     sqlAssay <- paste0("SELECT ",
-                  dt, ".*,",
+                  dt, ".*, ",
                   "pmap.GroupId AS groupId, ",
-                  "demo.age_reported AS age_reported, ",
-                  "demo.race AS race, ",
-                  "demo.gender AS gender, ",
+                  ifelse(dt != "demographics",
+                         paste0("demo.age_reported AS age_reported, ",
+                                "demo.race AS race, ",
+                                "demo.gender AS gender, "),
+                         ""),
                   "FROM ",
                   dt,
                   " JOIN ParticipantGroupMap AS pmap ",
@@ -426,10 +431,10 @@
                   " WHERE groupId = ", as.character(groupId))
     
     assayData <- labkey.executeSql(baseUrl = .self$config$labkey.url.base,
-                                 folderPath = .self$config$labkey.url.path,
-                                 schemaName = "study",
-                                 sql = sqlAssay,
-                                 colNameOpt = "fieldname")
+                                   folderPath = .self$config$labkey.url.path,
+                                   schemaName = "study",
+                                   sql = sqlAssay,
+                                   colNameOpt = "fieldname")
     
     # Arm Data needs to come from different schema so need second call
     sqlArm <- "SELECT name, arm_accession FROM arm_or_cohort"
@@ -444,12 +449,12 @@
 
     # SelectRows = easiest way to grab original columns since DataType could be one of
     # a number of possibilities. Leave one row otherwise have to handle empty df warning msg
-    defaultCols <- labkey.selectRows(baseUrl = .self$config$labkey.url.base,
-                                     folderPath = .self$config$labkey.url.path,
-                                     schemaName = "study",
-                                     queryName = dataType,
-                                     colNameOpt = "fieldname",
-                                     maxRows = 1)
+    defaultCols <- .getLKtbl(con = .self,
+                             schema = "study",
+                             query = dataType,
+                             colNameOpt = "fieldname",
+                             showHidden = F,
+                             maxRows = 1)
 
     # b/c of lookups defaultCols has versions of demo / arm fieldnames with path
     baseCols <- c( colnames(defaultCols), "arm_name" )
