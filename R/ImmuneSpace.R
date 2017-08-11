@@ -241,6 +241,7 @@
 .ISCon$methods(
   .test_files = function(what = c("gene_expression_files",
                                   "fcs_sample_files",
+                                  "fcs_control_files",
                                   "protocols",
                                   "ge_matrices")) {
 
