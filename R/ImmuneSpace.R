@@ -688,6 +688,14 @@
     
     for (sdy in allsdys) {
       
+      #Skips studies with no gene expression data when GEonly enabled
+      if (GEonly){
+        if (compDF[sdy, "GEO"] == FALSE && compDF[sdy, "GEF"] == FALSE) {
+          next
+        }
+        
+      }
+      
       #sdy specific setup
       sdyCon <- suppressMessages(CreateConnection(sdy))
       
@@ -753,6 +761,7 @@
       
     } 
     
+    #Remove entries with no gene expression when GEonly enabled
     if (GEonly){
       compDF <- compDF[!((compDF[, "GEO"] == FALSE) & (compDF[, "GEF"] == FALSE)), ]
     }
