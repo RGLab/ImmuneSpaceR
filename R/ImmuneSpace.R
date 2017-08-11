@@ -561,7 +561,7 @@
 
 
 .ISCon$methods(
-  .studiesComplianceCheck = function(){
+  .studiesComplianceCheck = function(verbose=FALSE, GEonly=FALSE){
     
     #helper function to sort studies by number
     spSort <- function(vec){
@@ -576,26 +576,28 @@
     #labels for data frame output
     GEF <- RAW <- GEO <- GEM <- DE <- GEE <- IRP <- GSEA <- FALSE
     
+    #labels of Data Explorer compliant datasets
     deSets <- c("neut_ab_titer", "elisa", "elispot", "hai", "pcr", 
                 "fcs_analyzed_result", "mbaa", "DGEA_filteredGEAR")
     
+    #List of all studies
     allsdys <- spSort(.getSdyVec(.self))
     
+    #Setting up dataframe of results
     df <- sapply(allsdys, FUN = function(x){
       ret <- c(GEF, RAW, GEO, GEM, DE, GEE, IRP, GSEA)
       names(ret) <- c("GEF", "RAW", "GEO", "GEM", "DE", "GEE", "IRP", "GSEA")
       return(ret)
     })
     
-    #Final dataframe output compDF will hold a table of each study's true/false compliance with various datasets
+    #Final dataframe output compDF will hold a table of each study's true/false compliance with various modules
     compDF <- t(data.frame(df, stringsAsFactors = FALSE))
-    
     
     res <- list()
     
-    
-    
-    print(compDF)
+    if (verbose) {
+      print("Dataframe setup complete")
+    }
     
     # get list of matrices and determine which sdys they represent
     gems <- .self$data_cache$GE_matrices
@@ -611,8 +613,8 @@
     res$gemNoRaw <- spSort(setdiff(withGems, withRawData))
     res$rawNoGem <- spSort(setdiff(withRawData, withGems))
     
-    compliantGEM <- withGems #GEM DATA
-    compliantRAW <- withRawData #RAW DATA
+    compliantGEM <- withGems #GEM compliant studies
+    compliantRAW <- withRawData #RAW compliant studies
     
     # Check which studies without gems have gef in IS
     ge <- .self$getDataset("gene_expression_files")
@@ -626,16 +628,15 @@
     res$gefNoGem <- spSort(gefSdys[ !(gefSdys %in% withGems) ])
     res$rawNoGef <- spSort(setdiff(res$rawNoGem, res$gefNoGem))
     
-    compliantGEF <- union(GEM, gefSdys) #GEF DATA (assumes GEM requires GEF trivially)
+    compliantGEF <- union(GEM, gefSdys) #GEF compliant studies (assumes GEM requires GEF trivially)
     
 
     # check for GEO-only before saying "no Raw"
     gefNoRaw <- spSort(setdiff(res$gefNoGem, res$rawNoGem))
     
-    compliantGEO = c()
-
+    #List of each study's GEO compliance
     geoPresent <- sapply(allsdys, FUN = function(sdy){
-      cx <- CreateConnection(sdy)
+      cx <- suppressMessages(CreateConnection(sdy))
       dat <- tryCatch(cx$getDataset("gene_expression_files"),
                       error = function(e){ return( NULL ) })
       
@@ -648,7 +649,7 @@
       }
     })
     
-    
+    #Notes all GEO compliant studies in compDF
     for (i in 1:length(allsdys)) {
       if (geoPresent[i] == TRUE) {
         compDF[grep(paste(allsdys[i], "$", sep = ""), rownames(compDF)), grep("GEO", colnames(compDF))] <- TRUE
@@ -658,34 +659,39 @@
     geoPresent <- geoPresent[ geoPresent == TRUE ]
     res$gefNoRaw <- spSort(gefNoRaw[ !(gefNoRaw %in% names(geoPresent)) ])
     
+    if (verbose) {
+      print("GEO complete") 
+    }
 
     #Each study in the compliant list for each dataset is reflected as TRUE in compDF
     for (sdy in compliantGEF){
       compDF[grep(paste(sdy, "$", sep = ""), rownames(compDF)), grep("GEF", colnames(compDF))] <- TRUE
     }
+    if (verbose) {
+      print("GEF complete")
+    }
     for (sdy in compliantRAW){
       compDF[grep(paste(sdy, "$", sep = ""), rownames(compDF)), grep("RAW", colnames(compDF))] <- TRUE
+    }
+    if (verbose) {
+      print("RAW complete")
     }
     for (sdy in compliantGEM) {
       compDF[grep(paste(sdy, "$", sep = ""), rownames(compDF)), grep("GEM", colnames(compDF))] <- TRUE
     }
-    
-    
-    print("a")
+    if (verbose) {
+      print("GEM complete")
+    }
     
     sdysWithGems <- res$gemAndRaw
-    
     baseUrl <- .self$config$labkey.url.base
     
     for (sdy in allsdys) {
       
-      print(sdy)
-      
       #sdy specific setup
-      sdyCon <- CreateConnection(sdy)
+      sdyCon <- suppressMessages(CreateConnection(sdy))
       
-      #if any of the following datasets are available, DE is enambled 
-      #NOTE: THIS NEEDS TO BE MOVED AND WRAPPED AROUND APPLYING TO ALL STUDIES, NOT JUST GEM
+      #if any DE compliant datasets present, DE is enabled 
       sets <- sdyCon$available_datasets
       for (vecNames in sets[1:length(sets), 1]) {
         for (name in vecNames) {
@@ -696,13 +702,16 @@
         }
       }
       
+      #If a sdy is not in sdysWithGems it will not be compliant with remaining modules 
+      #  and therefore doesn't need to be checked
       if (!(sdy %in% sdysWithGems)) {
         next
       }
       
+      if (verbose) {
+        print(paste(sdy, " in progress..."))
+      }
       
-      #By virtue of progressing this far, everything in sdysWithGems has GEM and RAW
-
       # check for matrices and get immune response data if present
       ems <- sdyCon$data_cache$GE_matrices
       ge <- tryCatch(sdyCon$getDataset("gene_expression_files"),
@@ -738,8 +747,15 @@
         }
       }
       
+      if (verbose) {
+        print("       complete")
+      }
+      
     } 
     
+    if (GEonly){
+      compDF <- compDF[!((compDF[, "GEO"] == FALSE) & (compDF[, "GEF"] == FALSE)), ]
+    }
     
     return( compDF )
     
