@@ -352,13 +352,12 @@
                         "ParticipantGroup.RowId, ",
                         "ParticipantGroup.Label ")
     
-    # cache for future use
-    .self$data_cache$ParticipantGroups <- result <- labkey.executeSql(config$labkey.url.base,
-                                                                      config$labkey.url.path,
-                                                                      schemaName = "study",
-                                                                      sql = pgrpSql,
-                                                                      colNameOpt = "fieldname",
-                                                                      showHidden = TRUE)
+    result <- labkey.executeSql(config$labkey.url.base,
+                                config$labkey.url.path,
+                                schemaName = "study",
+                                sql = pgrpSql,
+                                colNameOpt = "fieldname",
+                                showHidden = TRUE)
     
     if( nrow(result) == 0 ){
       warning(paste0("No participant groups found for user email: ", user))
@@ -372,7 +371,7 @@
   getParticipantData = function(group, dataType, original_view = F){
     "returns a dataframe with ImmuneSpace data subset by groupId.\n
     group: Use listParticipantGroups() to find Participant groupId or groupName.\n
-    dataType: Use con$available_datasets to see possible dataType inputs.\n"
+    dataType: Use con$listDatasets('datasets') to see possible dataType inputs.\n"
 
     if(config$labkey.url.path != "/Studies/"){
       stop("labkey.url.path must be /Studies/. Use CreateConnection with all studies.")
@@ -407,31 +406,43 @@
                   " on ", .self$config$labkey.url.base))
     }
 
-    dt <- tolower(dataType) # ensure formatting is correct, regardless of user entry
-
     # Get assay data + participantGroup + demographic data
-    # Handle dt == demographics specially b/c diff columns
+    # Handle special cases
+    if( dt == "demographics"){
+      varSelect <- "cohort_membership.name AS Cohort "
+      varJoin <- paste0(" JOIN cohort_membership ",
+                        "ON ",
+                        dt, ".ParticipantId = cohort_membership.ParticipantId ")
+    }else{
+      varSelect <- paste0("demo.age_reported, ",
+                          "demo.race, ",
+                          "demo.gender, ")
+      varJoin <- paste0(" JOIN immport.arm_or_cohort ",
+                        "ON ", 
+                        dt, ".arm_accession = arm_or_cohort.arm_accession ")
+      if( dt %in% c("gene_expression_files", "cohort_membership" ) ){
+        varSelect <- paste0( varSelect,
+                             "demo.age_unit, ",
+                             "demo.age_event, ",
+                             "demo.ethnicity, ",
+                             "demo.species, ",
+                             "demo.phenotype ")
+      }else{
+        varSelect <- paste0( varSelect, "arm_or_cohort.name AS arm_name ")
+      }
+    } 
+    
     sqlAssay <- paste0("SELECT ",
                         dt, ".*, ",
                         "pmap.GroupId AS groupId, ",
-                        ifelse(dt != "demographics",
-                               paste0("demo.age_reported AS age_reported, ",
-                                      "demo.race AS race, ",
-                                      "demo.gender AS gender, ",
-                                      "arm_or_cohort.name AS arm_name "),
-                               "cohort_membership.name AS Cohort "),
+                        varSelect,
                       "FROM ",
                         dt,
                       " JOIN ParticipantGroupMap AS pmap ",
                         "ON ", dt, ".ParticipantId = pmap.ParticipantId",
                       " JOIN Demographics AS demo ",
                         "ON ", dt, ".ParticipantId = demo.ParticipantId",
-                      ifelse(dt != "demographics",
-                             paste0(" JOIN immport.arm_or_cohort ",
-                             "ON ", dt, ".arm_accession = arm_or_cohort.arm_accession "),
-                             paste0(" JOIN cohort_membership ",
-                                    "ON ",
-                                    dt, ".ParticipantId = cohort_membership.ParticipantId ")),
+                      varJoin,
                       " WHERE pmap.GroupId = ", as.character(groupId))
     
     assayData <- labkey.executeSql(baseUrl = .self$config$labkey.url.base,
