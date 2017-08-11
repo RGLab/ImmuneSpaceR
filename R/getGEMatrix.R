@@ -99,7 +99,12 @@ NULL
 
       fasId <- runs$`Feature Annotation Set`[ runs$Name == matrixName]
       fasNm <- faSets$Name[ faSets$`Row Id` == fasId]
-      fasNm <- ifelse(currAnno, fasNm, paste0(fasNm, "_orig"))
+
+      # not adding "_orig" when it's already there is crucial or it throws error
+      if( currAnno == F & !grepl("_orig", fasNm) ){
+          fasNm <- paste0(fasNm, "_orig")
+      }
+
       annoSetId <- faSets$`Row Id`[ faSets$Name == fasNm ]
     }
 
@@ -177,7 +182,10 @@ NULL
       colnames(matrix)[[ which(colnames(matrix) %in% c(" ", "V1", "X")) ]] <- "FeatureId"
       fdata <- data.frame(FeatureId = as.character(matrix$FeatureId), stringsAsFactors = FALSE)
       fdata <- merge(fdata, features, by = "FeatureId", all.x = TRUE)
-      rownames(matrix) <- rownames(fdata) <- fdata$FeatureId # rownames of assaydata and fData must match
+      rownames(fdata) <- fdata$FeatureId
+
+      # rownames of assaydata and fData must match in terms of order!
+      fdata <- fdata[ order(match(fdata$FeatureId, matrix$FeatureId)), ]
     }
 
     # pheno
