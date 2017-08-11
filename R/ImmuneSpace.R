@@ -253,6 +253,13 @@
 
       if (dataset %in% .self$available_datasets$Name) {
         temp <- .self$getDataset(dataset, original_view = TRUE)
+
+        if (dataset == "fcs_control_files") {
+          temp <- temp[, file_info_name := control_file]
+          temp <- temp[, c("pid", "sid") := tstrsplit(participant_id, "\\.")]
+          temp <- temp[, study_accession := paste0("SDY", sid)]
+        }
+
         temp <- temp[!is.na(file_info_name)]
         temp <- unique(temp[, list(study_accession, file_info_name)])
 
@@ -303,6 +310,9 @@
     }
     if ("fcs_sample_files" %in% what) {
       ret$fcs_sample_files <- check_links("fcs_sample_files", "flow_cytometry")
+    }
+    if ("fcs_control_files" %in% what) {
+      ret$fcs_control_files <- check_links("fcs_control_files", "flow_cytometry")
     }
     if ("protocols" %in% what) {
       if (.self$.isProject()) {
