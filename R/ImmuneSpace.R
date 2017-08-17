@@ -750,11 +750,16 @@
         
         if( length(unique(gePlusIR$study_time_collected)) > 1 ){
           compDF[grep(paste(sdy, "$", sep = ""), rownames(compDF)), grep("IRP", colnames(compDF))] <- TRUE
-          gearPresent <- labkey.selectRows(baseUrl = baseUrl,
+          #gearPresent <- labkey.selectRows(baseUrl = baseUrl,
+          #                                 folderPath = "/Studies/",
+          #                                 schemaName = "gene_expression",
+          #                                 queryName = "gene_expression_analysis_results",
+          #                                 maxRows = 1)
+          
+          gearPresent <- labkey.executeSql(baseUrl = baseUrl,
                                            folderPath = "/Studies/",
                                            schemaName = "gene_expression",
-                                           queryName = "gene_expression_analysis_results",
-                                           maxRows = 1)
+                                           sql = "SELECT COUNT (*) FROM gene_expression_analysis_results")
           
           # if GEAR present, then capable of GSEA module b/c tbl used in GSEA.Rmd file
           if( nrow(gearPresent) > 0 ){         
