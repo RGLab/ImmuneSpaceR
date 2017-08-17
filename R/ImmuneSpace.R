@@ -580,8 +580,12 @@
     deSets <- c("neut_ab_titer", "elisa", "elispot", "hai", "pcr", 
                 "fcs_analyzed_result", "mbaa", "DGEA_filteredGEAR")
     
-    #List of all studies
-    allsdys <- spSort(.getSdyVec(.self))
+    if (.self$study != "Studies") {
+      allsdys <- c(.self$study)
+    } else {
+      #List of all studies
+      allsdys <- spSort(.getSdyVec(.self))
+    }
     
     #Setting up dataframe of results
     df <- sapply(allsdys, FUN = function(x){
@@ -598,6 +602,8 @@
     if (verbose) {
       print("Dataframe setup complete")
     }
+    
+    
     
     # get list of matrices and determine which sdys they represent
     gems <- .self$data_cache$GE_matrices
@@ -741,12 +747,14 @@
         gePlusIR <- ge[ ge$participant_id %in% immResp$participant_id, ]
         
         # if multiple timepoints, then IRP possible - calcs done in IRP.Rmd
+        
         if( length(unique(gePlusIR$study_time_collected)) > 1 ){
           compDF[grep(paste(sdy, "$", sep = ""), rownames(compDF)), grep("IRP", colnames(compDF))] <- TRUE
           gearPresent <- labkey.selectRows(baseUrl = baseUrl,
                                            folderPath = "/Studies/",
                                            schemaName = "gene_expression",
-                                           queryName = "gene_expression_analysis_results")
+                                           queryName = "gene_expression_analysis_results",
+                                           maxRows = 1)
           
           # if GEAR present, then capable of GSEA module b/c tbl used in GSEA.Rmd file
           if( nrow(gearPresent) > 0 ){         
