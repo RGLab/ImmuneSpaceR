@@ -2,9 +2,7 @@
   .munge = function(x) {
     new <- tolower(gsub(" ", "_", basename(x)))
     idx <- which(duplicated(new) | duplicated(new, fromLast = TRUE))
-
     if (length(idx) > 0) new[idx] <- .munge(gsub("(.*)/.*$", "\\1", x[idx]))
-
     return(new)
   }
 )
