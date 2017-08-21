@@ -58,8 +58,8 @@ setCacheName <- function(matrixName, outputType){
                                 "@files/analysis/exprs_matrices",
                                 paste0(matrixName, ".tsv", fileSuffix)))
 
-    localpath <- .localStudyPath(link)
-    if( .isRunningLocally(localpath) ){
+    localpath <- .self$.localStudyPath(link)
+    if( .self$.isRunningLocally(localpath) ){
       message("Reading local matrix")
       data_cache[[cache_name]] <<- read.table(localpath,
                                                     header = TRUE,
@@ -129,12 +129,22 @@ setCacheName <- function(matrixName, outputType){
 
       annoSetId <- faSets$`Row Id`[ faSets$Name == fasNm ]
     }
-
+    
+    # ImmuneSignatures data needs mapping from when manuscript was created, not
+    # 'original' when IS matrices were created. Set 35 was generated from the
+    # union of three yale studies (SDY63, SDY404, SDY400).
+    if( annotation == "ImmSig" ){
+      annoSetId <- 35
+    }else if( annotation == "original"){
+      annoSetId <- getOrigFasId(config, matrixName)
+    }else if( annotation == "latest"){
+      annoSetId <- runs$`Feature Annotation Set`[ runs$Name == matrixName]
+    }
+    
     if(outputType != "summary"){
       message("Downloading Features..")
-      annoSetId <- getOrigFasId(config, matrixName)
       featureAnnotationSetQuery = sprintf("SELECT * from FeatureAnnotation
-                                          where FeatureAnnotationSetId='%s';",
+                                        where FeatureAnnotationSetId='%s';",
                                           annoSetId);
       features <- labkey.executeSql(baseUrl = config$labkey.url.base,
                                     folderPath = config$labkey.url.path,
@@ -146,13 +156,6 @@ setCacheName <- function(matrixName, outputType){
       # Get annotation from flat file b/c otherwise don't know order
       features <- data.frame(FeatureId = data_cache[[cache_name]]$gene_symbol,
                              gene_symbol = data_cache[[cache_name]]$gene_symbol)
-      
-      annoSetId <- if(annotation == "latest"){
-        # Still want annoSetId for comments in con$GE_matrices
-        runs$`Feature Annotation Set`[ runs$Name == matrixName]
-      }else{
-        getOrigFasId(config, matrixName)
-      }
     }
 
     # update the data_cache$gematrices with correct fasid 
