@@ -28,8 +28,8 @@ setCacheName <- function(matrixName, outputType){
     if(outputType == "summary"){
       status <- data_cache$GE_matrices$comments[ data_cache$GE_matrices$name == matrixName ]
       if( !is.na(status) ){
-        if( status == "Using Original Annotation" & annotation == "original" ){
-          message("Original GE Matrix already in data_cache")
+        if( status == "Using default Annotation" & annotation == "default" ){
+          message("default GE Matrix already in data_cache")
           return()
         }else if( status == "Using Updated Annotation" & annotation == "latest" ){
           message("Updated GE matrix already in data_cache")
@@ -39,7 +39,7 @@ setCacheName <- function(matrixName, outputType){
     }
 
     fileSuffix <- if(outputType == "summary"){
-      switch(annotation, "latest" = ".summary", "original" = ".summary.orig")
+      switch(annotation, "latest" = ".summary", "default" = ".summary.orig")
     }else{
       switch(outputType, "normalized" = "", "raw" = ".raw")
     }
@@ -121,7 +121,7 @@ setCacheName <- function(matrixName, outputType){
       # EH had to make matrices for ImmSig project using orig annotation at probe lvl.
       # Second logic makes it feasible to use the current annotation with such a study
       # if currAnno == T
-      if(annotation == "original" & !grepl("_orig", fasNm, fixed = T)){
+      if(annotation == "default" & !grepl("_orig", fasNm, fixed = T)){
         fasNm <- paste0(fasNm, "_orig")
       }else if(annotation == "latest" & grepl("_orig", fasNm, fixed = T)){
         fasNm <- gsub("_orig", "", fasNm, fixed = T)
@@ -130,12 +130,17 @@ setCacheName <- function(matrixName, outputType){
       annoSetId <- faSets$`Row Id`[ faSets$Name == fasNm ]
     }
     
-    # ImmuneSignatures data needs mapping from when manuscript was created, not
-    # 'original' when IS matrices were created. Set 35 was generated from the
-    # union of three yale studies (SDY63, SDY404, SDY400).
+    # ImmuneSignatures data needs mapping from when microarray was was read, not
+    # 'original' when IS matrices were created.
     if( annotation == "ImmSig" ){
-      annoSetId <- 35
-    }else if( annotation == "original"){
+      sdy <- gsub("/Studies/", "", config$labkey.url.path)
+      annoSetId <- switch(sdy,
+                          "SDY212" = 36,
+                          "SDY63" = 37,
+                          "SDY404" = 38,
+                          "SDY400" = 39,
+                          "SDY67" = 40)
+    }else if( annotation == "default"){
       annoSetId <- getOrigFasId(config, matrixName)
     }else if( annotation == "latest"){
       annoSetId <- runs$`Feature Annotation Set`[ runs$Name == matrixName]
@@ -154,18 +159,20 @@ setCacheName <- function(matrixName, outputType){
       setnames(features, "GeneSymbol", "gene_symbol")
     }else{
       # Get annotation from flat file b/c otherwise don't know order
+      # NOTE: For ImmSig studies, this means that summaries use the latest
+      # annotation even though that was not used in the manuscript for summarizing.
       features <- data.frame(FeatureId = data_cache[[cache_name]]$gene_symbol,
                              gene_symbol = data_cache[[cache_name]]$gene_symbol)
     }
 
-    # update the data_cache$gematrices with correct fasid 
+    # update the data_cache$gematrices with correct fasId
     data_cache$GE_matrices$featureset[ data_cache$GE_matrices$name == matrixName ] <<- annoSetId
 
     # make comment to clarify
     data_cache$GE_matrices$comments[ data_cache$GE_matrices$name == matrixName ] <<- ifelse(
       annotation == "latest",
      "Using Updated Annotation",
-     "Using Original Annotation")
+     "Using Default Annotation")
 
     # push features to cache
     data_cache[[ paste0("featureset_", annoSetId) ]] <<- features
@@ -334,8 +341,8 @@ setCacheName <- function(matrixName, outputType){
         if(outputType == "summary"){
           status <- data_cache$GE_matrices$comments[ data_cache$GE_matrices$name == matrixName ]
           if( !is.na(status) ){
-            if( status == "Using Original Annotation" & annotation == "original" ){
-              message("Returning Original expressionSet from data_cache")
+            if( status == "Using Default Annotation" & annotation == "default" ){
+              message("Returning Default expressionSet from data_cache")
             }else if( status == "Using Updated Annotation" & annotation == "latest" ){
               message("Returning Updated expressionSet from data_cache")
             }else{
