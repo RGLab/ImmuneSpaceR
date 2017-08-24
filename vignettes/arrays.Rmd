@@ -111,7 +111,7 @@ with gene symbols instead of probes.  You should use `currAnno` set to `TRUE` to
 use the latest official gene symbols mapped for each probe, but you can also set
 this to `FALSE` to retrieve the original mappings from when the matrix was created.
 ```{r summary}
-TIV_2008_sum <- sdy269$getGEMatrix("TIV_2008", summary = TRUE, currAnno = TRUE)
+TIV_2008_sum <- sdy269$getGEMatrix("TIV_2008", outputType = "summary", annotation = "latest")
 ```
 Probes that do not map to a unique gene are removed and expression is averaged 
 by gene.
@@ -136,7 +136,9 @@ always necessary when combining data from multiple studies.
 # Within a study
 em269 <- sdy269$getGEMatrix(c("TIV_2008", "LAIV_2008"))
 # Combining across studies
-TIV_seasons <- all$getGEMatrix(c("TIV_2008", "TIV_2011"), summary = TRUE, currAnno = TRUE)
+TIV_seasons <- all$getGEMatrix(c("TIV_2008", "TIV_2011"), 
+                               outputType = "summary",
+                               annotation = "latest")
 ```
 
 

@@ -259,6 +259,11 @@ CreateConnection <- function(study = NULL,
             silent = TRUE)
         )
       }
+      
+      # adding cols to allow for getGEMatrix() to update
+      ge[ , annotation := "" ]
+      ge[ , outputType := "" ]
+      
       if (inherits(ge, "try-error") || nrow(ge) == 0) {
         # No assay or no runs
         message("No gene expression data")

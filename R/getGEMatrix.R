@@ -24,18 +24,11 @@ setCacheName <- function(matrixName, outputType){
     }
 
     # check if data in data_cache corresponds to current request
-    # if it does, then no download needed
-    if(outputType == "summary"){
-      status <- data_cache$GE_matrices$comments[ data_cache$GE_matrices$name == matrixName ]
-      if( !is.na(status) ){
-        if( status == "Using default Annotation" & annotation == "default" ){
-          message("default GE Matrix already in data_cache")
-          return()
-        }else if( status == "Using Updated Annotation" & annotation == "latest" ){
-          message("Updated GE matrix already in data_cache")
-          return()
-        }
-      }
+    # if it does, then no download needed.
+    status <- data_cache$GE_matrices$outputtype[ data_cache$GE_matrices$name == matrixName ]
+    if( !is.na(status) & status == outputType ){
+      message(paste0("returning ", outputType, " matrix from cache"))
+      return()
     }
 
     fileSuffix <- if(outputType == "summary"){
@@ -84,6 +77,9 @@ setCacheName <- function(matrixName, outputType){
       data_cache[[cache_name]] <<- EM
       file.remove(fl)
     }
+    
+    # Be sure to note which output is already in cache. Colnames are "munged"
+    data_cache$GE_matrices$outputtype[ data_cache$GE_matrices$name == matrixName] <<- outputType
   }
 )
 
@@ -96,6 +92,12 @@ setCacheName <- function(matrixName, outputType){
 
     if( !matrixName %in% data_cache[[constants$matrices]]$name ){
       stop("Invalid gene expression matrix name");
+    }
+    
+    status <- data_cache$GE_matrices$annotation[ data_cache$GE_matrices$name == matrixName ]
+    if( !is.na(status) & status == annotation ){
+      message(paste0("returning ", annotation, " annotation from cache"))
+      return()
     }
 
     runs <- labkey.selectRows(baseUrl = config$labkey.url.base,
@@ -168,11 +170,8 @@ setCacheName <- function(matrixName, outputType){
     # update the data_cache$gematrices with correct fasId
     data_cache$GE_matrices$featureset[ data_cache$GE_matrices$name == matrixName ] <<- annoSetId
 
-    # make comment to clarify
-    data_cache$GE_matrices$comments[ data_cache$GE_matrices$name == matrixName ] <<- ifelse(
-      annotation == "latest",
-     "Using Updated Annotation",
-     "Using Default Annotation")
+    # Change ge_matrices$annotation
+    data_cache$GE_matrices$annotation[ data_cache$GE_matrices$name == matrixName] <<- annotation
 
     # push features to cache
     data_cache[[ paste0("featureset_", annoSetId) ]] <<- features
@@ -182,6 +181,12 @@ setCacheName <- function(matrixName, outputType){
 .ISCon$methods(
   ConstructExpressionSet = function(matrixName, outputType){
     cache_name <- setCacheName(matrixName, outputType)
+    esetName <- paste0(cache_name, "_eset")
+    
+    if(esetName %in% data_cache){
+      message(paste0("returning ", esetName, " from cache"))
+      return()
+    }
 
     # expression matrix
     message("Constructing ExpressionSet")
@@ -269,8 +274,8 @@ setCacheName <- function(matrixName, outputType){
     if(runID == 469){ posNames <- c(posNames, "BS694717.1") } # for SDY212
     exprs <- matrix[, colnames(matrix) %in% posNames] # rms gene_symbol!
     pheno <- pheno[ colnames(exprs), ]
-
-    data_cache[[cache_name]] <<- ExpressionSet(assayData = as.matrix(exprs),
+    
+    data_cache[[esetName]] <<- ExpressionSet(assayData = as.matrix(exprs),
                                                phenoData = AnnotatedDataFrame(pheno),
                                                featureData = AnnotatedDataFrame(fdata))
   }
@@ -287,9 +292,16 @@ setCacheName <- function(matrixName, outputType){
     "Downloads a normalized gene expression matrix from ImmuneSpace.\n
     `x': A `character'. The name of the gene expression matrix to download.\n
     `cohort': A `character'. The name of a cohort that has an associated gene
-    expression matrix. Note that if `cohort' isn't NULL, then `x' is ignored.
-    `summary': A `logical'. If set to TRUE, Downloads a matrix with expression
-    averaged by gene symbol.
+    expression matrix. Note that if `cohort' isn't NULL, then `x' is ignored.\n
+    `outputType': one of 'raw', 'normalized' or 'summary'. If 'raw' then returns
+    an expression matrix of non-normalized values by probe. 'normalized' returns
+    normalized values by probe.  'summary' returns normalized values averaged
+    by gene symbol.\n
+    `annotation': one of 'default', 'latest', or 'ImmSig'.  Determines which feature
+    annotation set is used.  'default' uses the fas from when the matrix was generated.
+    'latest' uses a recently updated fas based on the original.  'ImmSig' is specific to
+    studies involved in the ImmuneSignatures project and uses the annotation from when 
+    the meta-study's manuscript was created.\n
     `reload': A `logical'. If set to TRUE, the matrix will be downloaded again,
     even if a cached cop exist in the ImmuneSpaceConnection object."
 
@@ -305,15 +317,14 @@ setCacheName <- function(matrixName, outputType){
     }
 
     cache_name <- setCacheName(matrixName, outputType)
+    esetName <- paste0(cache_name, "_eset")
 
     # length(x) > 1 means multiple cohorts
     if( length(matrixName) > 1 ){
-      data_cache[cache_name] <<- NULL
-      data_cache$GE_matrices$comments <<- NA
       lapply(matrixName, downloadMatrix, outputType, annotation)
       lapply(matrixName, GeneExpressionFeatures, outputType, annotation)
       lapply(matrixName, ConstructExpressionSet, outputType)
-      ret <- .combineEMs(data_cache[cache_name])
+      ret <- .combineEMs(data_cache[esetName])
       if(dim(ret)[[1]] == 0){
         # No features shared
         warn <- "Returned ExpressionSet has 0 rows. No feature is shared across the selected runs or cohorts."
@@ -327,35 +338,16 @@ setCacheName <- function(matrixName, outputType){
       return(ret)
 
     }else{
-
-      .getNewEset = function(matrixName, outputType, annotation){
-        data_cache[[cache_name]] <<- NULL
+      if( esetName %in% names(data_cache) & !reload ){
+        message(paste0("returning ", esetName, " from cache"))
+      }else{
+        data_cache[[esetName]] <<- NULL
         downloadMatrix(matrixName, outputType, annotation)
         GeneExpressionFeatures(matrixName, outputType, annotation)
         ConstructExpressionSet(matrixName, outputType)
       }
-
-      if( cache_name %in% names(data_cache) & !reload ){
-        # check if data in data_cache corresponds to current request
-        # if it does, then no download needed
-        if(outputType == "summary"){
-          status <- data_cache$GE_matrices$comments[ data_cache$GE_matrices$name == matrixName ]
-          if( !is.na(status) ){
-            if( status == "Using Default Annotation" & annotation == "default" ){
-              message("Returning Default expressionSet from data_cache")
-            }else if( status == "Using Updated Annotation" & annotation == "latest" ){
-              message("Returning Updated expressionSet from data_cache")
-            }else{
-              .getNewEset(matrixName, outputType, annotation)
-            }
-          }
-        }
-
-      }else{
-        .getNewEset(matrixName, outputType, annotation)
-      }
       
-      return(data_cache[[cache_name]])
+      return(data_cache[[esetName]])
     }
   }
 )
