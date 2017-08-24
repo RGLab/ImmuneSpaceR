@@ -13,8 +13,8 @@ em_list[["SDY404"]] <- c("SDY404_young_PBMC_year2",
 
 
 # Helper Functions ---------------------------------------------
-chk_mats <- function(study, exp_mat_names){
-  con <- CreateConnection(study, verbose = TRUE)
+chk_mats <- function(sdy, exp_mat_names){
+  con <- CreateConnection(sdy, verbose = TRUE)
   expect_true(!is.null(con$config$labkey.url.base))
   
   mats <- con$GeneExpressionMatrices()

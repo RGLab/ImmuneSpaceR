@@ -7,7 +7,7 @@ library(Biobase)
 
 # CreateConnection ------------------------------------------
 sdy <- CreateConnection("SDY269", onTest = TRUE)
-print(sdy)
+sdy212 <- CreateConnection("SDY212", onTest = TRUE)
 # Helper Function -------------------------------------------
 
 test_EM <- function(EM, summary){
@@ -47,6 +47,21 @@ test_that("get_multiple matrices summary", {
 test_that("get_multiple matrices summary without cache error", {
   EM <- sdy$getGEMatrix(c("TIV_2008","LAIV_2008"), outputType = "summary", annotation = "latest")
   test_EM(EM, summary = T)
+})
+
+test_that("get_multiple matrices summary with reload", {
+  EM <- sdy$getGEMatrix(c("TIV_2008","LAIV_2008"),
+                        outputType = "summary",
+                        annotation = "latest",
+                        reload = TRUE)
+  test_EM(EM, summary = T)
+})
+
+test_that("get ImmSig Study - SDY212 with correct anno and summary", {
+  EM <- sdy212$getGEMatrix(sdy212$data_cache$GE_matrices$name,
+                           outputType = "raw",
+                           annotation = "ImmSig")
+  test_EM(EM, summary = F)
 })
 
 # cleanup ------------------------------------------------------

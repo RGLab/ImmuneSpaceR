@@ -13,7 +13,10 @@ setCacheName <- function(matrixName, outputType){
 #' @importFrom RCurl getCurlHandle curlPerform basicTextGatherer
 #' @importFrom preprocessCore normalize.quantiles
 .ISCon$methods(
-  downloadMatrix = function(matrixName, outputType = "summary", annotation = "latest"){
+  downloadMatrix = function(matrixName,
+                            outputType = "summary",
+                            annotation = "latest",
+                            reload = FALSE){
   
     cache_name <- setCacheName(matrixName, outputType)
 
@@ -26,7 +29,7 @@ setCacheName <- function(matrixName, outputType){
     # check if data in data_cache corresponds to current request
     # if it does, then no download needed.
     status <- data_cache$GE_matrices$outputtype[ data_cache$GE_matrices$name == matrixName ]
-    if( !is.na(status) & status == outputType ){
+    if( status == outputType & reload != TRUE ){
       message(paste0("returning ", outputType, " matrix from cache"))
       return()
     }
@@ -86,16 +89,17 @@ setCacheName <- function(matrixName, outputType){
 .ISCon$methods(
   GeneExpressionFeatures = function(matrixName, 
                                     outputType = "summary", 
-                                    annotation = "latest"){
+                                    annotation = "latest",
+                                    reload = FALSE){
     
     cache_name <- setCacheName(matrixName, outputType)
 
-    if( !matrixName %in% data_cache[[constants$matrices]]$name ){
+    if( !(matrixName %in% data_cache[[constants$matrices]]$name) ){
       stop("Invalid gene expression matrix name");
     }
     
     status <- data_cache$GE_matrices$annotation[ data_cache$GE_matrices$name == matrixName ]
-    if( !is.na(status) & status == annotation ){
+    if( status == annotation & reload != TRUE ){
       message(paste0("returning ", annotation, " annotation from cache"))
       return()
     }
@@ -132,16 +136,17 @@ setCacheName <- function(matrixName, outputType){
       annoSetId <- faSets$`Row Id`[ faSets$Name == fasNm ]
     }
     
-    # ImmuneSignatures data needs mapping from when microarray was was read, not
+    # ImmuneSignatures data needs mapping from when microarray was read, not
     # 'original' when IS matrices were created.
     if( annotation == "ImmSig" ){
-      sdy <- gsub("/Studies/", "", config$labkey.url.path)
-      annoSetId <- switch(sdy,
-                          "SDY212" = 36,
-                          "SDY63" = 37,
-                          "SDY404" = 38,
-                          "SDY400" = 39,
-                          "SDY67" = 40)
+      faSets <- labkey.selectRows(baseUrl = config$labkey.url.base,
+                                  folderPath = config$labkey.url.path,
+                                  schemaName = "Microarray",
+                                  queryName = "FeatureAnnotationSet",
+                                  showHidden = TRUE)
+
+      sdy <- tolower(gsub("/Studies/", "", config$labkey.url.path))
+      annoSetId <- faSets$`Row Id`[ faSets$Name == paste0("ImmSig_", sdy) ]
     }else if( annotation == "default"){
       annoSetId <- getOrigFasId(config, matrixName)
     }else if( annotation == "latest"){
@@ -182,11 +187,6 @@ setCacheName <- function(matrixName, outputType){
   ConstructExpressionSet = function(matrixName, outputType){
     cache_name <- setCacheName(matrixName, outputType)
     esetName <- paste0(cache_name, "_eset")
-    
-    if(esetName %in% data_cache){
-      message(paste0("returning ", esetName, " from cache"))
-      return()
-    }
 
     # expression matrix
     message("Constructing ExpressionSet")
@@ -305,6 +305,11 @@ setCacheName <- function(matrixName, outputType){
     `reload': A `logical'. If set to TRUE, the matrix will be downloaded again,
     even if a cached cop exist in the ImmuneSpaceConnection object."
 
+    if(outputType == "summary" & annotation == "ImmSig"){
+      stop("Not able to provide summary eSets for ImmSig annotated studies. Please use
+          'raw' as outputType with ImmSig studies.")
+    }
+
     cohort_name <- cohort #can't use cohort = cohort in d.t
     if( !is.null(cohort_name) ){
       if( all(cohort_name %in% data_cache$GE_matrices$cohort) ){
@@ -321,8 +326,8 @@ setCacheName <- function(matrixName, outputType){
 
     # length(x) > 1 means multiple cohorts
     if( length(matrixName) > 1 ){
-      lapply(matrixName, downloadMatrix, outputType, annotation)
-      lapply(matrixName, GeneExpressionFeatures, outputType, annotation)
+      lapply(matrixName, downloadMatrix, outputType, annotation, reload)
+      lapply(matrixName, GeneExpressionFeatures, outputType, annotation, reload)
       lapply(matrixName, ConstructExpressionSet, outputType)
       ret <- .combineEMs(data_cache[esetName])
       if(dim(ret)[[1]] == 0){

@@ -233,48 +233,40 @@ CreateConnection <- function(study = NULL,
 
 .ISCon$methods(
   GeneExpressionMatrices = function(verbose = FALSE) {
-    if (!is.null(data_cache[[constants$matrices]])) {
-      data_cache[[constants$matrices]]
-    } else {
-      if (verbose) {
-        ge <- try(data.table(
-          labkey.selectRows(baseUrl = config$labkey.url.base,
-                            folderPath = config$labkey.url.path,
-                            schemaName = "assay.ExpressionMatrix.matrix",
-                            queryName = "Runs",
-                            colNameOpt = "fieldname",
-                            showHidden = TRUE,
-                            viewName = "expression_matrices")),
-          silent = TRUE)
+    getGE <- function(config){
+      ge <- try(data.table(
+              labkey.selectRows(baseUrl = config$labkey.url.base,
+                                folderPath = config$labkey.url.path,
+                                schemaName = "assay.ExpressionMatrix.matrix",
+                                queryName = "Runs",
+                                colNameOpt = "fieldname",
+                                showHidden = TRUE,
+                                viewName = "expression_matrices")),
+              silent = TRUE)
+    }
+
+    if( is.null(data_cache[[constants$matrices]]) ){
+      if( verbose == TRUE ){
+        ge <- getGE(config)
       } else {
-        suppressWarnings(
-          ge <- try(data.table(
-            labkey.selectRows(baseUrl = config$labkey.url.base,
-                              folderPath = config$labkey.url.path,
-                              schemaName = "assay.ExpressionMatrix.matrix",
-                              queryName = "Runs",
-                              colNameOpt = "fieldname",
-                              showHidden = TRUE,
-                              viewName = "expression_matrices")),
-            silent = TRUE)
-        )
+        ge <- suppressWarnings(getGE(config))
       }
       
-      # adding cols to allow for getGEMatrix() to update
-      ge[ , annotation := "" ]
-      ge[ , outputType := "" ]
-      
-      if (inherits(ge, "try-error") || nrow(ge) == 0) {
+      if( inherits(ge, "try-error") || nrow(ge) == 0 ){
         # No assay or no runs
         message("No gene expression data")
         data_cache[[constants$matrices]] <<- NULL
       } else {
-        setnames(ge,.self$.munge(colnames(ge)))
+        # adding cols to allow for getGEMatrix() to update
+        ge[ , annotation := "" ]
+        ge[ , outputType := "" ]
+        setnames(ge, .self$.munge(colnames(ge)) )
         data_cache[[constants$matrices]] <<- ge
       }
     }
 
     return(data_cache[[constants$matrices]])
+
   }
 )
 
