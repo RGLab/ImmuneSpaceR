@@ -406,6 +406,8 @@
                   " on ", .self$config$labkey.url.base))
     }
 
+    dt <- dataType # for brevity
+
     # Get assay data + participantGroup + demographic data
     # Handle special cases
     if( dt == "demographics"){
@@ -453,29 +455,30 @@
 
     # SelectRows = easiest way to grab original columns since DataType could be one of
     # a number of possibilities. Leave one row otherwise have to handle empty df warning msg
+    viewName <- if(original_view == TRUE){ "full" }else{ NULL }
     defaultCols <- .getLKtbl(con = .self,
                              schema = "study",
                              query = dataType,
                              colNameOpt = "fieldname",
                              showHidden = F,
-                             maxRows = 1)
+                             maxRows = 1,
+                             viewName = viewName)
 
-    # b/c of lookups defaultCols has versions of demo / arm fieldnames with path
-    baseCols <- c( colnames(defaultCols), "arm_name", "Cohort" ) # Cohort is for demo only
-
-    # Based on column names of con$getDataset(original_view = T / F)
-    if(original_view == T){
-      if(dt == "demographics"){
-        finalCols <- c(baseCols, "strain", "strain_characteristics", "race_specify")
-      }else{
-        finalCols <- c( baseCols, "arm_accession", "biosample_accession", "expsample_accession",
-                        "study_accession", "value_preferred", "unit_reported", "unit_preferred" )
-      }
-    }else{
-      finalCols <- c( baseCols, "race", "gender", "age_reported" )
+    # Some names from assayData do not match default cols and need to be specified.
+    # E.g. for demo data assayData comes with 'Cohort' and defaultCols has 'ParticipantId/Cohort'.
+    finalCols <- colnames(defaultCols)
+    if( dt == "demographics" & original_view == FALSE ){
+      finalCols <- c(finalCols, "Cohort")
+    }else if( dt != "demographics" & original_view == FALSE ){
+      finalCols <- c(finalCols, "arm_name", "gender", "race", "age_reported")
     }
 
-    filtData <- assayData[ , (colnames(assayData) %in% finalCols) ]
+    filtData <- assayData[ , colnames(assayData) %in% finalCols ]
+
+    # for non-demo data, assayData comes with 'arm_name' but usual detDataset() calls uses 'cohort'
+    if(dt != "demographics" & original_view == FALSE){
+      colnames(filtData)[ grep("arm_name", colnames(filtData)) ] <- "cohort"
+    }
     
     return(filtData)
   }
