@@ -15,12 +15,10 @@ bioc_packages:
 script:
   - travis_wait 40 ./.pkg-build.sh
 
-after_script:
+after_success:
   - ls -lah
   - FILE=$(ls -1t *.tar.gz | head -n 1)
   - Rscript -e "library(BiocCheck); BiocCheck(\"${FILE}\")"
-
-after_success:
   - Rscript -e 'covr::codecov()'
 
 notifications:
