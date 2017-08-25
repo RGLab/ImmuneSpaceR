@@ -13,7 +13,7 @@ bioc_packages:
   - BiocCheck
 
 script:
-  - ./.pkg-build.sh
+  - travis_wait 40 ./.pkg-build.sh
 
 after_script:
   - ls -lah
