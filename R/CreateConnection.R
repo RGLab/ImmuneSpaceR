@@ -51,23 +51,26 @@ CreateConnection <- function(study = NULL,
   # Here we do this to be compatible to labkey online report system
   # that automatically assigns these variables in global environment
   labkey.url.base <- try(get("labkey.url.base", .GlobalEnv), silent = TRUE)
-  if (inherits(labkey.url.base, "try-error"))
+  if (inherits(labkey.url.base, "try-error")){
     labkey.url.base <- ifelse(onTest,
                               "https://test.immunespace.org",
                               "https://www.immunespace.org")
+  }
   labkey.url.base <- gsub("http:", "https:", labkey.url.base)
-  if (length(grep("^https://", labkey.url.base)) == 0)
+  if (length(grep("^https://", labkey.url.base)) == 0){
     labkey.url.base <- paste0("https://", labkey.url.base)
+  }
   labkey.user.email <- try(get("labkey.user.email", .GlobalEnv), silent = TRUE)
-  if (inherits(labkey.user.email, "try-error"))
+  if (inherits(labkey.user.email, "try-error")){
     labkey.user.email <- "unknown_user at not_a_domain.com"
+  }
 
   # set curoption for Rlabkey package
   #
   # Rlabkey stores the Curl options in its package environment through labkey.setCurlOptions call.
   # So in theory we need to reset it prior to each Rlabkey query
   # because  multiple connections created by user indiviudally (not as ImmuneSystemConnectionList)
-  # may have different different urls and ssl settings.
+  # may have different urls and ssl settings.
   # (Ideally labkey.selectRows should optionally parse the options from its argument besides package environment)
   #
   # for now we assume they all share the same setting and init it only once here
