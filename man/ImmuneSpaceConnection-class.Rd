@@ -40,7 +40,7 @@ the host name like "www.immunespace.org".
 \item{\code{study}}{A \code{character}. The study accession number. Use an empty
 string ("") to create a connection at the project level.}
 
-\item{\code{config}}{A \code{list}. Stores configuration of the connection object 
+\item{\code{config}}{A \code{list}. Stores configuration of the connection object
 such as URL, path and username.}
 
 \item{\code{available_datasets}}{A \code{data.table}. The table of datasets available
@@ -49,15 +49,15 @@ in the connection object.}
 \item{\code{data_cache}}{A \code{list}. Stores the data to avoid downloading the same
 tables multiple times.}
 
-\item{\code{constants}}{A \code{list}. Used to store information regarding 
+\item{\code{constants}}{A \code{list}. Used to store information regarding
 gene-expression data.}
 }}
 
 \section{Methods}{
 
 \describe{
-\item{\code{addTrt(x = NULL)}}{Add treatment information to the phenoData of an expression matrix
-     available in the connection object.
+\item{\code{addTreatment(matrixName = NULL)}}{Add treatment information to the phenoData of an expression matrix
+    available in the connection object.
 
     x: A character. The name of a expression matrix that has been downloaded 
     from the connection.}
@@ -89,13 +89,14 @@ gene-expression data.}
 
     '...': A list of arguments to be passed to labkey.selectRows.}
 
-\item{\code{getGEFiles(files, destdir = ".")}}{Download gene expression raw data files.
+\item{\code{getGEFiles(files, destdir = ".", quiet = FALSE)}}{Download gene expression raw data files.
 
     files: A character. Filenames as shown on the gene_expression_files dataset.
 
     destdir: A character. The loacal path to store the downloaded files.}
 
-\item{\code{getGEMatrix(x = NULL, cohort = NULL, summary = FALSE, reload = FALSE)}}{Downloads a normalized gene expression matrix from ImmuneSpace.
+\item{\code{getGEMatrix(matrixName = NULL, cohort = NULL, summary = FALSE,
+  currAnno = FALSE, norm = TRUE, reload = FALSE)}}{Downloads a normalized gene expression matrix from ImmuneSpace.
 
     `x': A `character'. The name of the gene expression matrix to download.
 
@@ -133,19 +134,19 @@ gene-expression data.}
 
     filter: A filter as created by the makeFilter function from Rlabkey.
 
-    facet: The facetting for ggplot2 based plots. Valid choices are 'grid' and 
+    facet: The facetting for ggplot2 based plots. Valid choices are 'grid' and
     'wrap'.
 
     text_size: The size of all text elements in the plot.
 
     legend: A character. Columns of the dataset or demographics to be added as
-    legend on the heatmap. This argument is ignored if the plot type isn't 
+    legend on the heatmap. This argument is ignored if the plot type isn't
     heatmap.
 
     show_virus_strain: A logical. Should all the virus strains be shown or should
     the values be averaged. Only used when dataset = 'hai'.
 
-    interactive: A logical. If set to TRUE, an interactive plot will be created. 
+    interactive: A logical. If set to TRUE, an interactive plot will be created.
     The default is FALSE.
 
     '...': Extra argument to be passed to ggplot. e.g: shape = 'Age', color =

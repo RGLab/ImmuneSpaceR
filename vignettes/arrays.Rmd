@@ -16,13 +16,9 @@ opts_chunk$set(cache = FALSE)
 
 ```{r netrc_req, echo = FALSE}
 # This chunk is only useful for BioConductor checks and shouldn't affect any other setup
-ISR_login <- Sys.getenv("ISR_login")
-ISR_pwd <- Sys.getenv("ISR_pwd")
-if(ISR_login != ""  &  ISR_pwd != ""){
-  netrc_file <- tempfile("ImmuneSpaceR_tmp_netrc")
-  netrc_string <- paste("machine www.immunespace.org login", ISR_login, "password", ISR_pwd)
-  write(x = netrc_string, file = netrc_file)
-  labkey.netrc.file <- netrc_file
+if (!any(file.exists("~/.netrc", "~/_netrc"))) {
+    labkey.netrc.file <- ImmuneSpaceR:::get_env_netrc()
+    labkey.url.base <- ImmuneSpaceR:::get_env_url()
 }
 ```
 
@@ -61,14 +57,14 @@ On www.immunespace.org, in the study of interest or at the project level, the
 
 Printing the connections will, among other information, list the datasets
 availables. The `listDatasets` method will only display the downloadable data.
-looking for. With `which = "expression"`, the datasets wont be printed.
+looking for. With `output = "expression"`, the datasets wont be printed.
 
 ```{r listDatasets}
 sdy269$listDatasets()
 ```
-Using `wich = "expression"`, we can remove the datasets from the output.
+Using `output = "expression"`, we can remove the datasets from the output.
 ```{r listDatasets-which}
-all$listDatasets(which = "expression")
+all$listDatasets(output = "expression")
 ```
 
 Naturally, `all` contains every processed matrices available on ImmuneSpace as 
@@ -84,7 +80,7 @@ The `getGEMatrix` function will accept any of the run names listed in the
 connection.
 ```{r getGEMatrix}
 TIV_2008 <- sdy269$getGEMatrix("TIV_2008")
-TIV_2011 <- all$getGEMatrix(x = "TIV_2011")
+TIV_2011 <- all$getGEMatrix(matrixName = "TIV_2011")
 ```
 The matrices are returned as `ExpressionSet` where the phenoData slot contains
 basic demographic information and the featureData slot shows a mapping of probe
@@ -111,9 +107,11 @@ By default, the returned `ExpressionSet`s have probe names as features (or rows)
 However, multiple probes often match the same gene and merging experiments from
 different arrays is impossible at feature level.
 When they are available, the `summary` argument allows to return the matrices 
-with gene symbols instead of probes.
+with gene symbols instead of probes.  You should use `currAnno` set to `TRUE` to
+use the latest official gene symbols mapped for each probe, but you can also set
+this to `FALSE` to retrieve the original mappings from when the matrix was created.
 ```{r summary}
-TIV_2008_sum <- sdy269$getGEMatrix("TIV_2008", summary = TRUE)
+TIV_2008_sum <- sdy269$getGEMatrix("TIV_2008", summary = TRUE, currAnno = TRUE)
 ```
 Probes that do not map to a unique gene are removed and expression is averaged 
 by gene.
@@ -137,8 +135,8 @@ always necessary when combining data from multiple studies.
 ```{r multi}
 # Within a study
 em269 <- sdy269$getGEMatrix(c("TIV_2008", "LAIV_2008"))
-# Combining accross studies
-TIV_seasons <- all$getGEMatrix(c("TIV_2008", "TIV_2011"), summary = TRUE)
+# Combining across studies
+TIV_seasons <- all$getGEMatrix(c("TIV_2008", "TIV_2011"), summary = TRUE, currAnno = TRUE)
 ```
 
 

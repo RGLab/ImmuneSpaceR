@@ -3,7 +3,7 @@
 source("global_variable.R")
 source("global_dependencies.R")
 source("set_curlOptions.R")
-library(Rlabkey)
+suppressPackageStartupMessages(library(Rlabkey))
 
 
 # Connections --------------------------------------------------
@@ -34,6 +34,11 @@ test_that("returns df of GE analysis using cohort filter", {
   filt <- makeFilter(c("cohort","equals","TIV Group 2008"))
   res <- try_ggea(sdy269, colFilter = filt)
   expect_true( dim(res)[1] > 0 )
+})
+
+test_that("fails gracefully if GE analysis not present", {
+  res <- try_ggea(sdy67)
+  expect_true( res$message == "Gene Expression Analysis not found for study." )
 })
 
 test_that("returns df of GE analysis for all studies", {

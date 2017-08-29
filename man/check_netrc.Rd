@@ -13,9 +13,9 @@ The name of the netrc file
 Check that there is a netrc file with a valid entry for ImmuneSpace.
 }
 \details{
-In order to connect to ImmuneSpace, you will need a `.netrc` file in your 
-contains a `machine` name (hostname of ImmuneSpace), and `login` and 
-`password`. See [here](https://www.labkey.org/wiki/home/Documentation/page.view?name=netrc) 
+In order to connect to ImmuneSpace, you will need a `.netrc` file in your
+contains a `machine` name (hostname of ImmuneSpace), and `login` and
+`password`. See [here](https://www.labkey.org/wiki/home/Documentation/page.view?name=netrc)
 for more information. By default \code{RCurl} will look for the file in your
 home directoty.
 

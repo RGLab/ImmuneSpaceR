@@ -5,22 +5,28 @@
 #' @param login A \code{character}. The email address used for loging in on
 #'  ImmuneSpace.
 #' @param password A \code{character}. The password associated with the login.
+#' @param machine A \code{character}. The server to connect.
 #' @param file A \code{character}. The credentials will be written into that
 #'  file. If left NULL, the netrc will be written into a temporary file.
 #' @export
 #' @return A character vector containing the file paths for netrc
-#' @examples 
+#' @examples
 #' write_netrc("immunespaceuser@gmail.com", "mypassword")
 #'
-write_netrc <- function(login, password, file = NULL){
-  string <- paste("machine www.immunespace.org login", login, "password", password)
-  if(is.null(file)){
+write_netrc <- function(login,
+                        password,
+                        machine = "www.immunespace.org",
+                        file = NULL) {
+  string <- paste("machine", machine,
+                  "login", login,
+                  "password", password)
+  if (is.null(file)) {
     file <- tempfile()
-  } else if(file.exists(file)){
+  } else if(file.exists(file)) {
     stop("The file you are trying to write to already exists. Remove manually if you wish to overwrite.")
   }
   write(string, file)
-  return(file)
+  file
 }
 
 #' Check netrc file
@@ -30,9 +36,9 @@ write_netrc <- function(login, password, file = NULL){
 #' @return The name of the netrc file
 #'
 #' @details
-#' In order to connect to ImmuneSpace, you will need a `.netrc` file in your 
-#' contains a `machine` name (hostname of ImmuneSpace), and `login` and 
-#' `password`. See [here](https://www.labkey.org/wiki/home/Documentation/page.view?name=netrc) 
+#' In order to connect to ImmuneSpace, you will need a `.netrc` file in your
+#' contains a `machine` name (hostname of ImmuneSpace), and `login` and
+#' `password`. See [here](https://www.labkey.org/wiki/home/Documentation/page.view?name=netrc)
 #' for more information. By default \code{RCurl} will look for the file in your
 #' home directoty.
 #'
@@ -63,4 +69,23 @@ check_netrc <- function(){
   }
   print("The netrc looks valid.")
   return(netrc_file)
+}
+
+# Get (and create) temporary netrc file from environment variables
+get_env_netrc <- function() {
+  ISR_login <- Sys.getenv("ISR_login")
+  ISR_pwd <- Sys.getenv("ISR_pwd")
+  ISR_machine <- ifelse(Sys.getenv("ISR_machine") == "",
+                        "www.immunespace.org",
+                        Sys.getenv("ISR_machine"))
+  if (ISR_login != ""  &  ISR_pwd != "") {
+    write_netrc(login = ISR_login, password = ISR_pwd, machine = ISR_machine)
+  }
+}
+
+# Get labkey.url.base from environment variable
+get_env_url <- function() {
+  ifelse(Sys.getenv("ISR_machine") == "",
+         "https://www.immunespace.org",
+         paste0("https://", Sys.getenv("ISR_machine")))
 }
