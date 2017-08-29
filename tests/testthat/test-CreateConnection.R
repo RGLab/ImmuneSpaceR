@@ -45,6 +45,12 @@ test_that("Existing study can be loaded", {
   expect_true(res$study == "SDY400")
 })
 
+test_that("ImmuneSignatures study can be loaded", {
+  res <- try_con("IS1")
+  expect_equal(res$study, "IS1")
+  expect_equal(res$config$labkey.url.path, "/HIPC/IS1")
+})
+
 # cleanup ------------------------------------------------------
 if(exists("netrc_file")){
   file.remove(netrc_file)

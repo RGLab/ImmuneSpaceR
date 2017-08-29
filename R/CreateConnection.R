@@ -119,7 +119,11 @@ CreateConnection <- function(study = NULL,
     if (is.null(study)) {
       stop("study cannot be NULL")
     }
-    labkey.url.path <- paste0("/Studies/", study)
+    if (study == "IS1") {
+      labkey.url.path <- paste0("/HIPC/", study)
+    } else {
+      labkey.url.path <- paste0("/Studies/", study)
+    }
   } else if (!is.null(study)) {
     labkey.url.path <- file.path(dirname(labkey.url.path),study)
   }
@@ -207,7 +211,7 @@ CreateConnection <- function(study = NULL,
                                    value = TRUE))
     req_study <- basename(config$labkey.url.path)
 
-    if (!req_study %in% c("", validStudies)) {
+    if (!req_study %in% c("", validStudies, "IS1")) {
       if (!verbose) {
         stop(paste0(req_study, " is not a valid study"))
       } else {
