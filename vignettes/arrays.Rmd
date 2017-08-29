@@ -80,7 +80,7 @@ The `getGEMatrix` function will accept any of the run names listed in the
 connection.
 ```{r getGEMatrix}
 TIV_2008 <- sdy269$getGEMatrix("TIV_2008")
-TIV_2011 <- all$getGEMatrix(matrixName = "TIV_2011")
+TIV_2011 <- all$getGEMatrix(matrixName = "SDY144_TIV2011")
 ```
 The matrices are returned as `ExpressionSet` where the phenoData slot contains
 basic demographic information and the featureData slot shows a mapping of probe
@@ -136,7 +136,7 @@ always necessary when combining data from multiple studies.
 # Within a study
 em269 <- sdy269$getGEMatrix(c("TIV_2008", "LAIV_2008"))
 # Combining across studies
-TIV_seasons <- all$getGEMatrix(c("TIV_2008", "TIV_2011"), summary = TRUE, currAnno = TRUE)
+TIV_seasons <- all$getGEMatrix(c("TIV_2008", "SDY144_TIV2011"), summary = TRUE, currAnno = TRUE)
 ```
 
 

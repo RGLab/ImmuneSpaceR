@@ -2,46 +2,35 @@
   .munge = function(x) {
     new <- tolower(gsub(" ", "_", basename(x)))
     idx <- which(duplicated(new) | duplicated(new, fromLast = TRUE))
-
-    if (length(idx) > 0) new[idx] <- .munge(gsub("(.*)/.*$", "\\1", x[idx]))
-
+    if( length(idx) > 0 ){ new[idx] <- .munge(gsub("(.*)/.*$", "\\1", x[idx])) }
     return(new)
   }
 )
 
 # Returns TRUE if the connection is at project level ("/Studies")
 .ISCon$methods(
-  .isProject = function()
-    return(config$labkey.url.path == "/Studies/")
+  .isProject=function()
+    res <- config$labkey.url.path == "/Studies/"
 )
 
 .ISCon$methods(
-  GeneExpressionInputs = function() {
-    if (.self$.isProject()) {
-      stop("con$GeneExpressionInputs() cannot be run at project level.")
-    } else {
-      if (!is.null(data_cache[[constants$matrix_inputs]])) {
-        data_cache[[constants$matrix_inputs]]
-      } else {
-        ge <- tryCatch(
-          data.table(labkey.selectRows(baseUrl = config$labkey.url.base,
-                                       folderPath = config$labkey.url.path,
-                                       schemaName = "assay.ExpressionMatrix.matrix",
-                                       queryName = "InputSamples",
-                                       colNameOpt = "fieldname",
-                                       viewName = "gene_expression_matrices",
-                                       showHidden = TRUE)),
-          error = function(e) return(e)
-        )
-
-        if (length(ge$message) > 0) {
-          stop("Gene Expression Inputs not found for study.")
-        }
-
-        setnames(ge,.self$.munge(colnames(ge)))
-
-        data_cache[[constants$matrix_inputs]] <<- ge
+  GeneExpressionInputs=function(){
+    if(!is.null(data_cache[[constants$matrix_inputs]])){
+      data_cache[[constants$matrix_inputs]]
+    }else{
+      ge <- tryCatch(.getLKtbl(con = .self, 
+                      schema = "assay.Expressionmatrix.matrix",
+                      query = "InputSamples",
+                      viewName = "gene_expression_matrices",
+                      colNameOpt = "fieldname"),
+                     error = function(e) return(e))
+      
+      if (length(ge$message) > 0) {
+        stop("Gene Expression Inputs not found for study.")
       }
+      
+      setnames(ge,.self$.munge(colnames(ge)))
+      data_cache[[constants$matrix_inputs]] <<- ge
     }
   }
 )
@@ -89,42 +78,40 @@
         cat("No Expression Matrices Available")
       }
     }
-
   }
 )
 
 .ISCon$methods(
-  listGEAnalysis = function() {
-    "List available gene expression analysis for the connection."
-    GEA <- tryCatch(
-      data.table(labkey.selectRows(baseUrl = config$labkey.url.base,
-                                   folderPath = config$labkey.url.path,
-                                   schemaName = "gene_expression",
-                                   queryName = "gene_expression_analysis",
-                                   colNameOpt = "rname")),
-      error = function(e) return(e)
-    )
-    if(length(GEA$message) > 0) {
-      stop("Study does not have Gene Expression Analyses.")
+    listGEAnalysis = function(){
+      "List available gene expression analysis for the connection."
+      GEA <- tryCatch(.getLKtbl(con = .self, 
+                       schema = "gene_expression",
+                       query = "gene_expression_analysis",
+                       showHidden = FALSE,
+                       colNameOpt = "rname"),
+                      error = function(e) return(e) )
+      
+      if( length(GEA$message) > 0 ){
+        stop("Study does not have Gene Expression Analyses.")
+      }
+      
+      return(GEA)
     }
-
-    return(GEA)
-  }
 )
 
 .ISCon$methods(
   getGEAnalysis = function(...) {
     "Downloads data from the gene expression analysis results table.\n
     '...': A list of arguments to be passed to labkey.selectRows."
-    GEAR <- tryCatch(
-      data.table(labkey.selectRows(baseUrl = config$labkey.url.base,
-                                   folderPath = config$labkey.url.path,
-                                   schemaName = "gene_expression",
-                                   queryName = "DGEA_filteredGEAR",
-                                   viewName = "DGEAR",
-                                   colNameOpt = "caption", ...)),
-      error = function(e) return(e)
-    )
+
+    GEAR <- tryCatch(.getLKtbl(con = .self, 
+                      schema = "gene_expression",
+                      query = "DGEA_filteredGEAR",
+                      viewName = "DGEAR",
+                      colNameOpt = "caption",
+                      ...),
+                     error = function(e) return(e))
+    
     if(length(GEAR$message) > 0) {
       stop("Gene Expression Analysis not found for study.")
     }
@@ -133,7 +120,7 @@
 
     return(GEAR)
   }
-  )
+)
 
 .ISCon$methods(
   clear_cache = function() {
@@ -145,23 +132,26 @@
 .ISCon$methods(
   show = function() {
     "Display information about the object."
-
-    cat(sprintf("Immunespace Connection to study %s\n", study))
+    
+    cat(sprintf("Immunespace Connection to study %s\n",study))
+    
     cat(sprintf("URL: %s\n",
-                file.path(gsub("/$","", config$labkey.url.base),
-                          gsub("^/","", config$labkey.url.path))))
-    cat(sprintf("User: %s\n", config$labkey.user.email))
+                file.path(gsub("/$","",config$labkey.url.base),
+                          gsub("^/","",config$labkey.url.path)))
+        )
+    
+    cat(sprintf("User: %s\n",config$labkey.user.email))
+    
     cat("Available datasets\n")
-
-    for (i in 1:nrow(available_datasets)) {
-      cat(sprintf("\t%s\n", available_datasets[i, Name]))
+    
+    for(i in 1:nrow(available_datasets)){
+      cat(sprintf("\t%s\n",available_datasets[i,Name]))
     }
-
-    if (!is.null(data_cache[[constants$matrices]])) {
+    
+    if(!is.null(data_cache[[constants$matrices]])){
       cat("Expression Matrices\n")
-
-      for (i in 1:nrow(data_cache[[constants$matrices]])) {
-        cat(sprintf("\t%s\n", data_cache[[constants$matrices]][i, name]))
+      for(i in 1:nrow(data_cache[[constants$matrices]])){
+        cat(sprintf("\t%s\n",data_cache[[constants$matrices]][i, name]))
       }
     }
   }
@@ -171,7 +161,7 @@
   getGEFiles = function(files, destdir = ".", quiet = FALSE) {
     "Download gene expression raw data files.\n
     files: A character. Filenames as shown on the gene_expression_files dataset.\n
-    destdir: A character. The loacal path to store the downloaded files."
+    destdir: A character. The local path to store the downloaded files."
     links <- paste0(config$labkey.url.base, "/_webdav/",
                     config$labkey.url.path,
                     "/%40files/rawdata/gene_expression/", files)
@@ -298,7 +288,6 @@
                      dataset,
                      " with valid links."))
       }
-
       res
     }
 
@@ -345,7 +334,7 @@
                    "/",
                    nrow(res),
                    " protocols with valid links."))
-
+      
       ret$protocols <- res
     }
     if ("ge_matrices" %in% what) {
@@ -354,32 +343,34 @@
                                           schemaName = "assay.ExpressionMatrix.matrix")
 
       if ("OutputDatas" %in% matrix_queries$queryName) {
-        ge <- data.frame(labkey.selectRows(baseUrl = config$labkey.url.base,
-                                           folderPath = config$labkey.url.path,
-                                           schemaName = "assay.ExpressionMatrix.matrix",
-                                           queryName = "OutputDatas",
-                                           colNameOpt = "rname",
-                                           viewName = "links"))
-
-        output <- lapply(ge[4], function(x) gsub("@", "%40", gsub("file:/share/files",
-                                                                  paste0(config$labkey.url.base,
-                                                                         "/_webdav"), x)))
-
-        file_exists <- unlist(mclapply(output$data_datafileurl,
-                                       url.exists,
-                                       netrc = TRUE,
+        ge <-.getLKtbl(con = .self, 
+                       schema = "assay.ExpressionMatrix.matrix", 
+                       query = "OutputDatas", 
+                       colNameOpt = "rname", 
+                       viewName = "links")
+        
+        output <- lapply(ge[4], function(x){
+                          gsub("@", 
+                               "%40", 
+                               gsub("file:/share/files", 
+                                    paste0(config$labkey.url.base, "/_webdav"), 
+                                    x))} 
+                        )
+        
+        file_exists <- unlist(mclapply(output$data_datafileurl, 
+                                       url.exists, 
+                                       netrc = TRUE, 
                                        mc.cores = detectCores()))
-        res <- data.frame(file_link = output$data_datafileurl,
-                          file_exists = file_exists,
+        
+        res <- data.frame(file_link = output$data_datafileurl, 
+                          file_exists = file_exists, 
                           stringsAsFactors = FALSE)
-
-        print(paste0(sum(res$file_exists),
-                     "/",
-                     nrow(res),
-                     " ge_matrices with valid links."))
+        
+        print(paste0(sum(res$file_exists), "/", nrow(res), " ge_matrices with valid links."))
+        
       } else {
-        res <- data.frame(file_link = NULL,
-                          file_exists = NULL,
+        res <- data.frame(file_link = NULL, 
+                          file_exists = NULL, 
                           stringsAsFactors = FALSE)
       }
 
@@ -387,6 +378,226 @@
     }
 
     return(ret)
+  }
+)
+
+
+###############################################################################
+# -------------- PARTICIPANT FILTERING METHODS -------------------------------#
+###############################################################################
+
+# Ensure only one valid user email is returned or possible errors handled 
+.validateUser <- function(con){
+  # First Check for apiKey and netrc file
+  api <- Rlabkey:::ifApiKey()
+  sink(tempfile())
+  validNetrc <- tryCatch({
+    check_netrc()
+  }, error = function(e){
+    return(NULL)
+  })
+  sink()
+  
+  # Case 1: if apiKey, but no Netrc (possible in Integrated RStudio session UI)
+  # get user email from global environment, which is set by labkey.init and
+  # handle unexpected case of labkey.user.email not being found.
+  if( !is.null(api) & is.null(validNetrc) ){
+    user <- try( get("labkey.user.email"), silent = TRUE )
+    if( inherits(labkey.user.email, "try-error") ){
+      stop("labkey.user.email not found, please set")
+    }
+    
+    # Case 2: valid netrc file (with or without ApiKey)
+    # To mimic LK.get() method - pull first login and use that one.
+    # Need to differentiate between test / prod too.
+  }else if( !is.null(validNetrc) ){
+    netrc <- readLines(validNetrc)
+    machine <- gsub("https://", "machine ", con$config$labkey.url.base)
+    loc <- which(netrc == machine)[1]
+    login <- netrc[ loc + 1 ]
+    user <- gsub("login ", "", login)
+  }
+  
+  return(user)
+}
+
+# less verbose wrapper for LK.selectRows calls
+.getLKtbl <- function(con, schema, query, showHidden = TRUE, ...){
+  data.table(labkey.selectRows(baseUrl = con$config$labkey.url.base,
+                               folderPath = con$config$labkey.url.path,
+                               schemaName = schema,
+                               queryName = query,
+                               showHidden = showHidden,
+                               ...),
+             stringsAsFactors = FALSE)
+}
+
+.ISCon$methods(
+  listParticipantGroups = function(){
+    "returns a dataframe with all saved Participant Groups on ImmuneSpace.\n"
+    
+    if(config$labkey.url.path != "/Studies/"){
+      stop("labkey.url.path must be /Studies/. Use CreateConnection with all studies.")
+    }
+    
+    user <- .validateUser(con = .self)
+    
+    # Get summary data
+    pgrpSql <- paste0("SELECT ",
+                        "ParticipantGroup.RowId AS GroupId, ",
+                        "ParticipantGroup.Label AS GroupName, ",
+                        "COUNT(*) AS Subjects ",
+                      "FROM ",
+                        "ParticipantGroupMap ",
+                      "FULL OUTER JOIN ParticipantGroup ",
+                        "ON ParticipantGroupMap.GroupId=ParticipantGroup.RowId ",
+                      "WHERE ",
+                        "ParticipantGroup.CategoryId IN (",
+                          "SELECT rowId ",
+                          "FROM ParticipantCategory ",
+                          "WHERE OwnerId = (",
+                            "SELECT Users.UserId ",
+                            "FROM core.Users ",
+                            "WHERE Users.Email = ",
+                            sprintf("'%s'", user), " )", # need single quotes for string
+                        ") ",
+                      "GROUP BY ",
+                        "ParticipantGroup.RowId, ",
+                        "ParticipantGroup.Label ")
+    
+    result <- labkey.executeSql(config$labkey.url.base,
+                                config$labkey.url.path,
+                                schemaName = "study",
+                                sql = pgrpSql,
+                                colNameOpt = "fieldname",
+                                showHidden = TRUE)
+    
+    if( nrow(result) == 0 ){
+      warning(paste0("No participant groups found for user email: ", user))
+    }
+
+    return(result)
+  }
+)
+
+.ISCon$methods(
+  getParticipantData = function(group, dataType, original_view = F){
+    "returns a dataframe with ImmuneSpace data subset by groupId.\n
+    group: Use con$listParticipantGroups() to find Participant groupId or groupName.\n
+    dataType: Use con$listDatasets('datasets') to see possible dataType inputs.\n"
+
+    if(config$labkey.url.path != "/Studies/"){
+      stop("labkey.url.path must be /Studies/. Use CreateConnection with all studies.")
+    }
+
+    if(!(dataType %in% .self$available_datasets$Name)){
+      stop("DataType must be in ", paste(.self$available_datasets$Name, collapse = ", "))
+    }
+
+    # Checking to ensure user is owner of group on correct machine
+    # Note that groupId is used for actually sql statement later regardless of user input
+    user <- .validateUser(con = .self)
+
+    # Must rerun this to ensure valid groups are only for that user and are not changed
+    # within cache.
+    validGrps <- .self$listParticipantGroups()
+
+    if(typeof(group) == "double"){
+      col <- "GroupId"
+      groupId <- group
+    }else if( typeof(group) == "character"){
+      col <- "GroupName"
+      groupId <- validGrps$groupId[ validGrps$groupName == group ]
+    }else{
+      stop("Group ID or Name not interpretable as double or character. Please reset")
+    }
+    
+    if( !( group %in% validGrps[[col]] ) ){
+      stop(paste0("group ", group,
+                  " is not in the set of ", col,
+                  " created by ", user,
+                  " on ", .self$config$labkey.url.base))
+    }
+
+    dt <- dataType # for brevity
+
+    # Get assay data + participantGroup + demographic data
+    # Handle special cases
+    if( dt == "demographics"){
+      varSelect <- "cohort_membership.name AS Cohort "
+      varJoin <- paste0(" JOIN cohort_membership ",
+                        "ON ",
+                        dt, ".ParticipantId = cohort_membership.ParticipantId ")
+    }else{
+      varSelect <- paste0("demo.age_reported, ",
+                          "demo.race, ",
+                          "demo.gender, ")
+      varJoin <- paste0(" JOIN immport.arm_or_cohort ",
+                        "ON ", 
+                        dt, ".arm_accession = arm_or_cohort.arm_accession ")
+      if( dt %in% c("gene_expression_files", "cohort_membership" ) ){
+        varSelect <- paste0( varSelect,
+                             "demo.age_unit, ",
+                             "demo.age_event, ",
+                             "demo.ethnicity, ",
+                             "demo.species, ",
+                             "demo.phenotype ")
+      }else{
+        varSelect <- paste0( varSelect, "arm_or_cohort.name AS arm_name ")
+      }
+    } 
+    
+    sqlAssay <- paste0("SELECT ",
+                        dt, ".*, ",
+                        "pmap.GroupId AS groupId, ",
+                        varSelect,
+                      "FROM ",
+                        dt,
+                      " JOIN ParticipantGroupMap AS pmap ",
+                        "ON ", dt, ".ParticipantId = pmap.ParticipantId",
+                      " JOIN Demographics AS demo ",
+                        "ON ", dt, ".ParticipantId = demo.ParticipantId",
+                      varJoin,
+                      " WHERE pmap.GroupId = ", as.character(groupId))
+    
+    assayData <- labkey.executeSql(baseUrl = .self$config$labkey.url.base,
+                                   folderPath = .self$config$labkey.url.path,
+                                   schemaName = "study",
+                                   sql = sqlAssay,
+                                   colNameOpt = "fieldname")
+
+    # SelectRows = easiest way to grab original columns since DataType could be one of
+    # a number of possibilities. Leave one row otherwise have to handle empty df warning msg
+    viewName <- if(original_view == TRUE){ "full" }else{ NULL }
+    defaultCols <- .getLKtbl(con = .self,
+                             schema = "study",
+                             query = dataType,
+                             colNameOpt = "fieldname",
+                             showHidden = F,
+                             maxRows = 1,
+                             viewName = viewName)
+
+    # Some names from assayData do not match default cols and need to be specified.
+    # E.g. for demo data assayData comes with 'Cohort' and defaultCols has 'ParticipantId/Cohort'.
+    finalCols <- colnames(defaultCols)
+    if( dt == "demographics" & original_view == FALSE ){
+      finalCols <- c(finalCols, "Cohort")
+    }else if( dt != "demographics" & original_view == FALSE ){
+      finalCols <- c(finalCols, "arm_name", "gender", "race", "age_reported")
+    }
+
+    filtData <- assayData[ , colnames(assayData) %in% finalCols ]
+
+    # for non-demo data, assayData comes with 'arm_name' but usual detDataset() calls uses 'cohort'
+    if(dt != "demographics" & original_view == FALSE){
+      colnames(filtData)[ grep("arm_name", colnames(filtData)) ] <- "cohort"
+    }
+    
+    if( nrow(filtData) == 100000){
+      warning("100k Rows returned. Some data may not have been pulled. Issue is currently being worked on.")
+    }
+    
+    return(filtData)
   }
 )
 

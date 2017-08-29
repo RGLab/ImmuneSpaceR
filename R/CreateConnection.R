@@ -81,7 +81,6 @@ CreateConnection <- function(study = NULL,
     nf <- try(get("labkey.netrc.file", .GlobalEnv), silent = TRUE)
   }
 
-
   useragent <- paste("ImmuneSpaceR", packageVersion("ImmuneSpaceR"))
   if (!inherits(nf, "try-error") && !is.null(nf)) {
     curlOptions <- labkey.setCurlOptions(ssl.verifyhost = 2,
@@ -219,48 +218,33 @@ CreateConnection <- function(study = NULL,
 )
 
 .ISCon$methods(
-  getAvailableDataSets = function() {
-    if (length(available_datasets) == 0) {
-      available_datasets <<- data.table(
-          labkey.selectRows(baseUrl = config$labkey.url.base,
-                            folderPath = config$labkey.url.path,
-                            schemaName = "study",
-                            queryName = "ISC_study_datasets"))
-      #[,list(Label,Name,Description,`Key Property Name`)]
+  setAvailableDatasets=function(){
+    if( length(available_datasets) == 0 ){
+      available_datasets <<- .getLKtbl(con = .self,
+                                       schema = "study",
+                                       query = "ISC_study_datasets")
     }
   }
 )
 
 .ISCon$methods(
-  GeneExpressionMatrices = function(verbose = FALSE) {
-    if (!is.null(data_cache[[constants$matrices]])) {
+  GeneExpressionMatrices=function(verbose = FALSE){
+    getData <- function(){
+      res <- try(.getLKtbl(con = .self,
+                       schema = "assay.ExpressionMatrix.matrix",
+                       query = "Runs",
+                       colNameOpt = "fieldname",
+                       viewName = "expression_matrices"),
+                 silent = TRUE)
+    }
+    
+    if( !is.null(data_cache[[constants$matrices]]) ){
       data_cache[[constants$matrices]]
-    } else {
-      if (verbose) {
-        ge <- try(data.table(
-          labkey.selectRows(baseUrl = config$labkey.url.base,
-                            folderPath = config$labkey.url.path,
-                            schemaName = "assay.ExpressionMatrix.matrix",
-                            queryName = "Runs",
-                            colNameOpt = "fieldname",
-                            showHidden = TRUE,
-                            viewName = "expression_matrices")),
-          silent = TRUE)
-      } else {
-        suppressWarnings(
-          ge <- try(data.table(
-            labkey.selectRows(baseUrl = config$labkey.url.base,
-                              folderPath = config$labkey.url.path,
-                              schemaName = "assay.ExpressionMatrix.matrix",
-                              queryName = "Runs",
-                              colNameOpt = "fieldname",
-                              showHidden = TRUE,
-                              viewName = "expression_matrices")),
-            silent = TRUE)
-        )
-      }
-      if (inherits(ge, "try-error") || nrow(ge) == 0) {
-        # No assay or no runs
+    }else{
+      ge <- if(verbose){ getData() } else { suppressWarnings(getData()) }
+      
+      if(inherits(ge, "try-error") || nrow(ge) == 0 ){
+        #No assay or no runs
         message("No gene expression data")
         data_cache[[constants$matrices]] <<- NULL
       } else {
@@ -279,17 +263,20 @@ CreateConnection <- function(study = NULL,
     #invoke the default init routine in case it needs to be invoked
     #(e.g. when using $new(object) to construct the new object based on the exiting object)
     callSuper(...)
-
-    constants <<- list(matrices = "GE_matrices",
-                       matrix_inputs = "GE_inputs")
-
-    if(!is.null(config)) config <<- config
+    
+    constants <<- list(matrices = "GE_matrices", matrix_inputs = "GE_inputs")
+    
+    if(!is.null(config))
+      config <<- config
 
     study <<- basename(config$labkey.url.path)
-    if (config$verbose) checkStudy(config$verbose)
+    
+    if(config$verbose){
+      checkStudy(config$verbose)
+    }
+    
+    setAvailableDatasets()
 
-    getAvailableDataSets()
-
-    gematrices_success <- GeneExpressionMatrices(verbose = FALSE)
+    gematrices_success <- GeneExpressionMatrices()
   }
 )

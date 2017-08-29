@@ -107,11 +107,19 @@ gene-expression data.}
     `reload': A `logical'. If set to TRUE, the matrix will be downloaded again,
     even if a cached cop exist in the ImmuneSpaceConnection object.}
 
-\item{\code{listDatasets(output = c("datasets", "expression"))}}{List the datasets available in the study or studies of the connection.}
+\item{\code{getParticipantData(groupId, dataType)}}{returns a dataframe with ImmuneSpace data subset by groupId.
+
+    groupId: Use listParticipantGroups() to find Participant GroupId.
+
+    dataType: Use available_datasets() to see possible dataType inputs.}
+
+\item{\code{listDatasets(which = c("datasets", "expression"))}}{List the datasets available in the study or studies of the connection.}
 
 \item{\code{listGEAnalysis()}}{List available gene expression analysis for the connection.}
 
-\item{\code{quick_plot(...)}}{Plots a selected dataset. This is the function used by the DataExplorer
+\item{\code{listParticipantGroups()}}{returns a dataframe with all saved Participant Groups on ImmuneSpace.}
+
+\item{\code{quick_plot(...)}}{Plots a selected dataset. This is the function used by the DataExplorer 
     module on ImmuneSpace.
 
     dataset: A character. The name of the dataset to plot, as displayed by the
