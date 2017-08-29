@@ -370,7 +370,7 @@
 .ISCon$methods(
   getParticipantData = function(group, dataType, original_view = F){
     "returns a dataframe with ImmuneSpace data subset by groupId.\n
-    group: Use listParticipantGroups() to find Participant groupId or groupName.\n
+    group: Use con$listParticipantGroups() to find Participant groupId or groupName.\n
     dataType: Use con$listDatasets('datasets') to see possible dataType inputs.\n"
 
     if(config$labkey.url.path != "/Studies/"){
