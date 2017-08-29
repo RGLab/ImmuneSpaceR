@@ -24,7 +24,6 @@ test_EM <- function(EM, summary){
 context("getGEMatrix")
 
 test_that("gets TIV_2008 eSet non-summary", {
-  print(sdy$config$labkey.url.base)
   EM <- sdy$getGEMatrix("TIV_2008", summary = F)
   test_EM(EM, summary = F)
 })
@@ -40,11 +39,6 @@ test_that("get_multiple matrices non-summary", {
 })
 
 test_that("get_multiple matrices summary", {
-  EM <- sdy$getGEMatrix(c("TIV_2008","LAIV_2008"), summary = T, currAnno = T)
-  test_EM(EM, summary = T)
-})
-
-test_that("get_multiple matrices summary without cache error", {
   EM <- sdy$getGEMatrix(c("TIV_2008","LAIV_2008"), summary = T, currAnno = T)
   test_EM(EM, summary = T)
 })

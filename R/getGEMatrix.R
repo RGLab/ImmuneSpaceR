@@ -101,10 +101,15 @@ NULL
       fasNm <- faSets$Name[ faSets$`Row Id` == fasId]
 
       # not adding "_orig" when it's already there is crucial or it throws error
-      if( currAnno == F & !grepl("_orig", fasNm) ){
+      # TODO: rm config logic once all anno work is on prod
+      if(config$labkey.url.base == "test.immunespace.org"){
+        if( currAnno == F & !grepl("_orig", fasNm) ){
           fasNm <- paste0(fasNm, "_orig")
+        }else if( currAnno == T & grepl("_orig", fasNm) ){
+          fasNm <- gsub("_orig", "", fasNm, fixed = T)
+        }
       }
-
+      
       annoSetId <- faSets$`Row Id`[ faSets$Name == fasNm ]
     }
 
@@ -154,9 +159,9 @@ NULL
     matrix <- data_cache[[cache_name]]
     
     #features
-    features <- data_cache[[.self$.mungeFeatureId(.self$.getFeatureId(matrix_name))]][,c("FeatureId","gene_symbol")]
+    features <- data_cache[[.self$.mungeFeatureId(.self$.getFeatureId(matrixName))]][,c("FeatureId","gene_symbol")]
     
-    runID <- data_cache$GE_matrices[name == matrix_name, rowid]
+    runID <- data_cache$GE_matrices[name == matrixName, rowid]
     pheno_filter <- makeFilter(c("Run", "EQUAL", runID), 
                                c("Biosample/biosample_accession", 
                                  "IN", 

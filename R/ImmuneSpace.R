@@ -18,11 +18,17 @@
     if(!is.null(data_cache[[constants$matrix_inputs]])){
       data_cache[[constants$matrix_inputs]]
     }else{
-      ge <- .getLKtbl(con = .self, 
+      ge <- tryCatch(.getLKtbl(con = .self, 
                       schema = "assay.Expressionmatrix.matrix",
                       query = "InputSamples",
                       viewName = "gene_expression_matrices",
-                      colNameOpt = "fieldname")
+                      colNameOpt = "fieldname"),
+                     error = function(e) return(e))
+      
+      if (length(ge$message) > 0) {
+        stop("Gene Expression Inputs not found for study.")
+      }
+      
       setnames(ge,.self$.munge(colnames(ge)))
       data_cache[[constants$matrix_inputs]] <<- ge
     }
@@ -72,16 +78,24 @@
         cat("No Expression Matrices Available")
       }
     }
+  }
 )
 
 .ISCon$methods(
     listGEAnalysis = function(){
       "List available gene expression analysis for the connection."
-      GEA <- .getLKtbl(con = .self, 
+      GEA <- tryCatch(.getLKtbl(con = .self, 
                        schema = "gene_expression",
                        query = "gene_expression_analysis",
                        showHidden = FALSE,
-                       colNameOpt = "rname")
+                       colNameOpt = "rname"),
+                      error = function(e) return(e) )
+      
+      if( length(GEA$message) > 0 ){
+        stop("Study does not have Gene Expression Analyses.")
+      }
+      
+      return(GEA)
     }
 )
 
@@ -90,12 +104,13 @@
     "Downloads data from the gene expression analysis results table.\n
     '...': A list of arguments to be passed to labkey.selectRows."
 
-    GEAR <- .getLKtbl(con = .self, 
+    GEAR <- tryCatch(.getLKtbl(con = .self, 
                       schema = "gene_expression",
                       query = "DGEA_filteredGEAR",
                       viewName = "DGEAR",
                       colNameOpt = "caption",
-                      ...)
+                      ...),
+                     error = function(e) return(e))
     
     if(length(GEAR$message) > 0) {
       stop("Gene Expression Analysis not found for study.")
@@ -118,28 +133,26 @@
   show = function() {
     "Display information about the object."
     
-      cat(sprintf("Immunespace Connection to study %s\n",study))
-      
-      cat(sprintf("URL: %s\n",
-                  file.path(gsub("/$","",config$labkey.url.base),
-                            gsub("^/","",config$labkey.url.path)))
-          )
-      
-      cat(sprintf("User: %s\n",config$labkey.user.email))
-      
-      cat("Available datasets\n")
-      
-      for(i in 1:nrow(available_datasets)){
-        cat(sprintf("\t%s\n",available_datasets[i,Name]))
+    cat(sprintf("Immunespace Connection to study %s\n",study))
+    
+    cat(sprintf("URL: %s\n",
+                file.path(gsub("/$","",config$labkey.url.base),
+                          gsub("^/","",config$labkey.url.path)))
+        )
+    
+    cat(sprintf("User: %s\n",config$labkey.user.email))
+    
+    cat("Available datasets\n")
+    
+    for(i in 1:nrow(available_datasets)){
+      cat(sprintf("\t%s\n",available_datasets[i,Name]))
+    }
+    
+    if(!is.null(data_cache[[constants$matrices]])){
+      cat("Expression Matrices\n")
+      for(i in 1:nrow(data_cache[[constants$matrices]])){
+        cat(sprintf("\t%s\n",data_cache[[constants$matrices]][i, name]))
       }
-      
-      if(!is.null(data_cache[[constants$matrices]])){
-        cat("Expression Matrices\n")
-        for(i in 1:nrow(data_cache[[constants$matrices]])){
-          cat(sprintf("\t%s\n",data_cache[[constants$matrices]][i, name]))
-        }
-      }
-      
     }
   }
 )
@@ -580,7 +593,13 @@
       colnames(filtData)[ grep("arm_name", colnames(filtData)) ] <- "cohort"
     }
     
+    if( nrow(filtData) == 100000){
+      warning("100k Rows returned. Some data may not have been pulled. Issue is currently being worked on.")
+    }
+    
     return(filtData)
+  }
+)
 
 #-------------------GEM CLEANUP------------------------------------
 # This function outputs a list of lists.  There are six possible sub-lists >
