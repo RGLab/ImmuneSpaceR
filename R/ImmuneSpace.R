@@ -507,7 +507,7 @@
       groupId <- group
     }else if( typeof(group) == "character"){
       col <- "GroupName"
-      groupId <- validGrps$groupId[ validGrps$groupName == group ]
+      groupId <- validGrps$GroupId[ validGrps$GroupName == group ]
     }else{
       stop("Group ID or Name not interpretable as double or character. Please reset")
     }
@@ -535,7 +535,7 @@
       varJoin <- paste0(" JOIN immport.arm_or_cohort ",
                         "ON ", 
                         dt, ".arm_accession = arm_or_cohort.arm_accession ")
-      if( dt %in% c("gene_expression_files", "cohort_membership" ) ){
+      if( dt %in% c("gene_expression_files", "cohort_membership", "fcs_sample_files" ) ){
         varSelect <- paste0( varSelect,
                              "demo.age_unit, ",
                              "demo.age_event, ",
