@@ -99,7 +99,17 @@ NULL
 
       fasId <- runs$`Feature Annotation Set`[ runs$Name == matrixName]
       fasNm <- faSets$Name[ faSets$`Row Id` == fasId]
-      fasNm <- ifelse(currAnno, fasNm, paste0(fasNm, "_orig"))
+
+      # not adding "_orig" when it's already there is crucial or it throws error
+      # TODO: rm config logic once all anno work is on prod
+      if(config$labkey.url.base == "test.immunespace.org"){
+        if( currAnno == F & !grepl("_orig", fasNm) ){
+          fasNm <- paste0(fasNm, "_orig")
+        }else if( currAnno == T & grepl("_orig", fasNm) ){
+          fasNm <- gsub("_orig", "", fasNm, fixed = T)
+        }
+      }
+      
       annoSetId <- faSets$`Row Id`[ faSets$Name == fasNm ]
     }
 
@@ -146,10 +156,53 @@ NULL
 
     # expression matrix
     message("Constructing ExpressionSet")
-    matrix <- data_cache[[ cache_name ]]
+    matrix <- data_cache[[cache_name]]
+    
+    #features
+    features <- data_cache[[.self$.mungeFeatureId(.self$.getFeatureId(matrixName))]][,c("FeatureId","gene_symbol")]
+    
+    runID <- data_cache$GE_matrices[name == matrixName, rowid]
+    pheno_filter <- makeFilter(c("Run", "EQUAL", runID), 
+                               c("Biosample/biosample_accession", 
+                                 "IN", 
+                                 paste(colnames(matrix), collapse = ";")))
 
-    # Average expr vals for subs with multiple time points
-    dups <- colnames(matrix)[ duplicated(colnames(matrix)) ]
+    pheno <- unique(.getLKtbl(con = .self,
+                              schema = "study",
+                              query = "HM_InputSamplesQuerySnapshot",
+                              containerFilter = "CurrentAndSubfolders",
+                              colNameOpt = "caption",
+                              colFilter = pheno_filter,
+                              showHidden = FALSE))
+    
+    setnames(pheno, .self$.munge(colnames(pheno)))
+    
+    pheno <- data.frame(pheno, stringsAsFactors = F)
+
+    pheno <- pheno[, colnames(pheno) %in% c("biosample_accession", 
+                                            "participant_id", 
+                                            "cohort",
+                                            "study_time_collected", 
+                                            "study_time_collected_unit") ]
+    
+    if(summary){
+      fdata <- data.frame(FeatureId = matrix$gene_symbol, 
+                          gene_symbol = matrix$gene_symbol, 
+                          row.names = matrix$gene_symbol)
+      rownames(fdata) <- fdata$FeatureId
+      fdata <- AnnotatedDataFrame(fdata)
+    } else{
+      try(setnames(matrix, " ", "FeatureId"), silent = TRUE)
+      try(setnames(matrix, "V1", "FeatureId"), silent = TRUE)
+      fdata <- data.table(FeatureId = as.character(matrix$FeatureId))
+      fdata <- merge(fdata, features, by = "FeatureId", all.x = TRUE)
+      fdata <- as.data.frame(fdata)
+      rownames(fdata) <- fdata$FeatureId
+      fdata <- AnnotatedDataFrame(fdata)
+    }
+    
+    dups <- colnames(matrix)[duplicated(colnames(matrix))]
+
     if(length(dups) > 0){
       matrix <- data.table(matrix)
       for(dup in dups){
@@ -177,7 +230,10 @@ NULL
       colnames(matrix)[[ which(colnames(matrix) %in% c(" ", "V1", "X")) ]] <- "FeatureId"
       fdata <- data.frame(FeatureId = as.character(matrix$FeatureId), stringsAsFactors = FALSE)
       fdata <- merge(fdata, features, by = "FeatureId", all.x = TRUE)
-      rownames(matrix) <- rownames(fdata) <- fdata$FeatureId # rownames of assaydata and fData must match
+      rownames(fdata) <- fdata$FeatureId
+
+      # rownames of assaydata and fData must match in terms of order!
+      fdata <- fdata[ order(match(fdata$FeatureId, matrix$FeatureId)), ]
     }
 
     # pheno
@@ -305,7 +361,6 @@ NULL
 )
 
 # Combine EMs and output only genes available in all EMs.
-#' @importFrom Biobase fData
 .combineEMs <- function(EMlist){
   message("Combining ExpressionSets")
   fds <- lapply(EMlist, function(x){ droplevels(data.table(fData(x))) })
@@ -327,42 +382,37 @@ NULL
       stop(paste(matrixName, "is not a valid expression matrix."))
     } 
 
-    bsFilter <- makeFilter(c("biosample_accession",
-                             "IN",
-                             paste(pData(data_cache[[matrixName]])$biosample_accession, collapse = ";")))
-    bs2es <- data.table(labkey.selectRows(baseUrl = config$labkey.url.base,
-                                          folderPath = config$labkey.url.path,
-                                          schemaName = "immport",
-                                          queryName = "expsample_2_biosample",
-                                          colFilter = bsFilter,
-                                          colNameOpt = "rname"))
-
-    esFilter <- makeFilter(c("expsample_accession",
-                             "IN",
+    bsFilter <- makeFilter(c("biosample_accession", "IN",
+                             paste(pData(data_cache[[x]])$biosample_accession, collapse = ";")))
+    bs2es <- .getLKtbl(con = .self,
+                       schema = "immport",
+                       query = "expsample_2_biosample",
+                       colFilter = bsFilter,
+                       colNameOpt = "rname")
+    
+    esFilter <- makeFilter(c("expsample_accession", "IN",
                              paste(bs2es$expsample_accession, collapse = ";")))
-    es2trt <- data.table(labkey.selectRows(baseUrl = config$labkey.url.base,
-                                           folderPath = config$labkey.url.path,
-                                           schemaName = "immport",
-                                           queryName = "expsample_2_treatment",
-                                           colFilter = esFilter,
-                                           colNameOpt = "rname"))
-
-    trtFilter <- makeFilter(c("treatment_accession",
-                              "IN",
+    es2trt <- .getLKtbl(con = .self,
+                        schema = "immport",
+                        query = "expsample_2_treatment",
+                        colFilter = esFilter,
+                        colNameOpt = "rname")
+    
+    trtFilter <- makeFilter(c("treatment_accession", "IN",
                               paste(es2trt$treatment_accession, collapse = ";")))
-    trt <- data.table(labkey.selectRows(baseUrl = config$labkey.url.base,
-                                        folderPath = config$labkey.url.path,
-                                        schemaName = "immport",
-                                        queryName = "treatment",
-                                        colFilter = trtFilter,
-                                        colNameOpt = "rname"))
-
+    trt <- .getLKtbl(con = .self,
+                     schema = "immport",
+                     query = "treatment",
+                     colFilter = trtFilter,
+                     colNameOpt = "rname")
+    
     bs2trt <- merge(bs2es, es2trt, by = "expsample_accession")
     bs2trt <- merge(bs2trt, trt, by = "treatment_accession")
+    
+    pData(data_cache[[x]])$treatment <<- bs2trt[match(pData(data_cache[[x]])$biosample_accession, 
+                                                      biosample_accession), name]
+    return(data_cache[[x]])
 
-    pData(data_cache[[matrixName]])$treatment <<- bs2trt[match(pData(data_cache[[matrixName]])$biosample_accession, biosample_accession), name]
-
-    return(data_cache[[matrixName]])
   }
 )
 
@@ -378,8 +428,6 @@ NULL
   }
 )
 
-
-#' @importFrom Biobase pData sampleNames
 .ISCon$methods(
   EMNames=function(EM = NULL, colType = "participant_id"){
     "Change the sampleNames of an ExpressionSet fetched by getGEMatrix using the
@@ -387,49 +435,49 @@ NULL
     x: An ExpressionSet, as returned by getGEMatrix.\n
     colType: A character. The type of column names. Valid options are 'expsample_accession'
     and 'participant_id'."
-
+    
     if(is.null(EM) | !is(EM, "ExpressionSet")){
       stop("EM should be a valid ExpressionSet, as returned by getGEMatrix")
     }
-
+    
     if(!all(grepl("^BS", sampleNames(EM)))){
       stop("All sampleNames should be biosample_accession, as returned by getGEMatrix")
     }
-
+    
     pd <- data.table(pData(EM))
     colType <- gsub("_.*$", "", tolower(colType))
-
+    
     if(colType == "expsample"){
-      bsFilter <- makeFilter(c("biosample_accession",
-                               "IN",
-                               paste(pd$biosample_accession, collapse = ";")))
-      bs2es <- data.table(labkey.selectRows(baseUrl = config$labkey.url.base,
-                                            folderPath = config$labkey.url.path,
-                                            schemaName = "immport",
-                                            queryName = "expsample_2_biosample",
-                                            colFilter = bsFilter,
-                                            colNameOpt = "rname"))
-      pd <- merge(pd,
-                  bs2es[, list(biosample_accession, expsample_accession)],
+      bsFilter <- makeFilter(c("biosample_accession", "IN",
+                                 paste(pd$biosample_accession, collapse = ";")))
+      bs2es <- .getLKtbl(con = .self,
+                         schema = "immport",
+                         query = "expsample_2_biosample",
+                         colFilter = bsFilter,
+                         colNameOpt = "rname")
+      pd <- merge(pd, 
+                  bs2es[ , list(biosample_accession, expsample_accession)], 
                   by = "biosample_accession")
-
-      es <- pd[match(sampleNames(EM), pd$biosample_accession), expsample_accession]
-      sampleNames(EM) <- pData(EM)$expsample_accession <- es
-
+      
+      sampleNames(EM) <- pData(EM)$expsample_accession <- pd[match(sampleNames(EM), 
+                                                                   pd$biosample_accession), 
+                                                             expsample_accession]
+      
     } else if(colType %in% c("participant", "subject")){
-      pd <- pd[, nID := paste0(participant_id,
-                               "_",
-                               tolower(substr(study_time_collected_unit, 1, 1)),
-                               study_time_collected)]
+      pd[, nID := paste0(participant_id, 
+                         "_", 
+                         tolower(substr(study_time_collected_unit, 1, 1)), 
+                         study_time_collected)
+         ]
       sampleNames(EM) <- pd[ match(sampleNames(EM), pd$biosample_accession), nID]
-
+      
     } else if(colType == "biosample"){
       warning("Nothing done, the column names should already be biosample_accession numbers.")
-
-    } else {
+      
+    } else{
       stop("colType should be one of 'expsample_accession', 'biosample_accession', 'participant_id'.")
     }
-
+    
     return(EM)
   }
 )
