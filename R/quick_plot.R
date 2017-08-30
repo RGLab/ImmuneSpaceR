@@ -42,6 +42,7 @@ NULL
                         show_virus_strain = FALSE,
                         interactive = FALSE,
                         ...) {
+  
   logT <- TRUE #By default, log transform the value_reported
   extras <- list(...)
 

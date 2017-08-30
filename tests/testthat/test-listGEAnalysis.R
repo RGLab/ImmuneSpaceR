@@ -7,17 +7,14 @@ source("set_curlOptions.R")
 
 # Connections --------------------------------------------------
 sdy269 <- CreateConnection("SDY269", verbose = TRUE)
-sdy67 <- CreateConnection("SDY67")
+sdy34 <- CreateConnection("SDY34")
 allsdy <- CreateConnection("")
 
 
 # Helper Functions ---------------------------------------------
 try_lgea <- function(con){
-  tryCatch(
-    con$listGEAnalysis(),
-    warning = function(w) return(w),
-    error = function(e) return(e)
-  )
+    res <- tryCatch(con$listGEAnalysis(),
+                    error = function(e) return(e) )
 }
 
 
@@ -30,7 +27,7 @@ test_that("returns df of GE analysis for single study if present", {
 })
 
 test_that("fails gracefully if GE analysis not present", {
-  res <- try_lgea(sdy67)
+  res <- try_lgea(sdy34)
   expect_true( res$message == "Study does not have Gene Expression Analyses." )
 })
 
