@@ -580,6 +580,7 @@
     deSets <- c("neut_ab_titer", "elisa", "elispot", "hai", "pcr", 
                 "fcs_analyzed_result", "mbaa", "DGEA_filteredGEAR")
     
+    #"Studies" corresponds to a connection to all studies
     if (.self$study != "Studies") {
       allsdys <- c(.self$study)
     } else {
