@@ -3,9 +3,17 @@ Type: Package
 Title: A Thin Wrapper around the ImmuneSpace Database
 Version: 1.5.4
 Date: 2014-06-12
-Author: Greg Finak, Renan Sauteraud, Mike Jiang, Gil Guday, Leo Dashevskiy, 
-        Evan Henrich, Ju Yeong Kim
-Maintainer: ImmuneSpace Package Maintainer <immunespace@gmail.com>
+Authors@R: c(person("Greg", "Finak", role = "aut"),
+             person("Renan", "Sauteraud", role = "aut"),
+             person("Mike", "Jiang", role = "aut"),
+             person("Gil", "Guday", role = "aut"),
+             person("Leo", "Dashevskiy", role = "aut"),
+             person("Evan", "Henrich", role = "aut"),
+             person("Ju Yeong", "Kim", role = "aut"),
+             person("Raphael", "Gottardo", role = "aut"),
+             person("ImmuneSpace Package Maintainer",
+                    email = "immunespace@gmail.com",
+                    role = c("cre", "cph")))
 VignetteBuilder: knitr
 Description: Provides a convenient API for accessing data sets within
     ImmuneSpace (www.immunespace.org), the data repository and
@@ -19,6 +27,7 @@ Suggests:
     knitr,
     testthat
 Imports:
+    utils,
     methods,
     data.table,
     RCurl,
@@ -34,7 +43,9 @@ Imports:
     plotly,
     heatmaply (>= 0.7.0), 
     rjson,
-    rmarkdown
+    rmarkdown,
+    preprocessCore,
+    parallel
 Collate:
     'CreateConnection.R'
     'ImmuneSpace.R'
