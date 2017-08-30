@@ -830,6 +830,15 @@
       }
     }
     
+    #helper function
+    .getSdyVec <- function(.self){
+      # create list of sdy folders
+      studies <- labkey.getFolders(baseUrl = .self$config$labkey.url.base, 
+                                   folderPath = "/Studies/")
+      studies <- studies[, 1]
+      studies <- studies[ !studies %in% c("SDY_template","Studies") ]
+    }
+    
     #labels for data frame output
     GEF <- RAW <- GEO <- GEM <- DE <- GEE <- IRP <- GSEA <- FALSE
     
@@ -884,7 +893,7 @@
     ge <- .self$getDataset("gene_expression_files")
     geNms <- unique(ge$participant_id)
     gefSdys <- unique(sapply(geNms, FUN = function(x){
-      res <- strsplit(x, ".", fixed = T)
+      res <- strsplit(x, ".", fixed = TRUE)
       return(res[[1]][2])
     }))
     gefSdys <- paste0("SDY", gefSdys)
