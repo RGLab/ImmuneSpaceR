@@ -566,33 +566,22 @@
                                    sql = sqlAssay,
                                    colNameOpt = "fieldname")
 
-    # SelectRows = easiest way to grab original columns since DataType could be one of
-    # a number of possibilities. Leave one row otherwise have to handle empty df warning msg
-    viewName <- if(original_view == TRUE){ "full" }else{ NULL }
-    defaultCols <- .getLKtbl(con = .self,
-                             schema = "study",
-                             query = dataType,
-                             colNameOpt = "fieldname",
-                             showHidden = F,
-                             maxRows = 1,
-                             viewName = viewName)
+    # Want to match getDataset() results in terms of colnames / order
+    defaultCols <- colnames(con$getDataset(x = dt,
+                                  original_view = original_view,
+                                  maxRows = 1))
 
-    # Some names from assayData do not match default cols and need to be specified.
-    # E.g. for demo data assayData comes with 'Cohort' and defaultCols has 'ParticipantId/Cohort'.
-    finalCols <- colnames(defaultCols)
-    if( dt == "demographics" & original_view == FALSE ){
-      finalCols <- c(finalCols, "Cohort")
-    }else if( dt != "demographics" & original_view == FALSE ){
-      finalCols <- c(finalCols, "arm_name", "gender", "race", "age_reported")
+    # Some names from assayData do not match default cols and need to changed manually.
+    colnames(assayData)[ grep("ParticipantId", colnames(assayData)) ] <- "participant_id"
+
+    if( original_view == FALSE){
+      changeCol <- ifelse( dt == "demographics", "Cohort", "arm_name")
+      colnames(assayData)[ grep(changeCol, colnames(assayData)) ] <- "cohort"
     }
 
-    filtData <- assayData[ , colnames(assayData) %in% finalCols ]
+    filtData <- assayData[ , colnames(assayData) %in% defaultCols ]
+    filtData <- filtData[ , order( match(colnames(filtData), defaultCols)) ]
 
-    # for non-demo data, assayData comes with 'arm_name' but usual detDataset() calls uses 'cohort'
-    if(dt != "demographics" & original_view == FALSE){
-      colnames(filtData)[ grep("arm_name", colnames(filtData)) ] <- "cohort"
-    }
-    
     if( nrow(filtData) == 100000){
       warning("100k Rows returned. Some data may not have been pulled. Issue is currently being worked on.")
     }
