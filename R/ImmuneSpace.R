@@ -754,70 +754,9 @@
   }
 )
 
-#----------------MODULE-CHECK-------------------------------------------------
-# This method allows admin to check which studies have capability to run the 
-# three UI modules (GEE, IRP, GSEA) because they have multiple time points in 
-# their gene expression flat files and hai data.
-
-.ISCon$methods(
-  .sdysModuleStatus = function(sdysWithGems){
-    # Note: sdysWithGems should be res$gemAndRaw from .sdysGemStatus()
-    
-    # Proj-wide Setup
-    baseUrl <- .self$config$labkey.url.base
-    
-    res <- sapply(sdysWithGems, FUN = function(sdy){
-      
-      #sdy specific setup
-      GEE <- IRP <- GSEA <- FALSE
-      sdyCon <- CreateConnection(sdy)
-      
-      # check for matrices and get immune response data if present
-      ems <- sdyCon$data_cache$GE_matrices
-      ge <- tryCatch(sdyCon$getDataset("gene_expression_files"),
-                     error = function(e){ return( NULL ) })
-      
-      # if ems present, then GEE capable b/c uses con$getGEMatrix(ems)
-      if( !is.null(ems$name) ){
-        GEE <- TRUE
-        hai <- tryCatch(sdyCon$getDataset("hai"),
-                        error = function(e){ return( NULL ) })
-        nab <- tryCatch(sdyCon$getDataset("neut_ab_titer"),
-                        error = function(e){ return( NULL ) })
-        immResp <- if( is.null(hai) ){ nab }else{ hai }
-        
-        # if ems present, check overlap with hai/nab and multiple time points
-        #if( !is.null(immResp) ){
-        gePlusIR <- ge[ ge$participant_id %in% immResp$participant_id, ]
-        
-        # if multiple timepoints, then IRP possible - calcs done in IRP.Rmd
-        if( length(unique(gePlusIR$study_time_collected)) > 1 ){
-          IRP <- TRUE
-          gearPresent <- labkey.selectRows(baseUrl = baseUrl,
-                                           folderPath = "/Studies/",
-                                           schemaName = "gene_expression",
-                                           queryName = "gene_expression_analysis_results")
-          
-          # if GEAR present, then capable of GSEA module b/c tbl used in GSEA.Rmd file
-          if( nrow(gearPresent) > 0 ){ GSEA <- TRUE }
-        }
-        #}
-      }
-      
-      ret <- c(GEE, IRP, GSEA)
-      names(ret) <- c("GEE", "IRP", "GSEA")
-      return(ret)
-    })
-    
-    return( data.frame(res, stringsAsFactors = F) )
-  }
-)
-
-#
-#------ My test method goes here! Merging modulestatus and gemstatus into one method -----
-#
-
-
+#----------------STUDY-CHECK-------------------------------------------------
+# This method allows admin to check which studies are compliant with the 
+# following modules/data files (GEF, RAW, GEO, GEM, DE, GEE, IRP, GSEA)
 .ISCon$methods(
   .studiesComplianceCheck = function(verbose=FALSE, GEonly=FALSE){
     
