@@ -575,8 +575,20 @@
     colnames(assayData)[ grep("ParticipantId", colnames(assayData)) ] <- "participant_id"
 
     if( original_view == FALSE){
-      changeCol <- ifelse( dt == "demographics", "Cohort", "arm_name")
+      changeCol <- if(dt == "demographics"){ 
+                     "Cohort"
+                   }else if(dt == "cohort_membership"){ 
+                     "name"
+                   }else{ 
+                     "arm_name"
+                   }
+                         
       colnames(assayData)[ grep(changeCol, colnames(assayData)) ] <- "cohort"
+    }else{
+      if( dt %in% c("gene_expression_files", "fcs_control_files") ){
+        colnames(assayData)[ grep("study_time_t0_event", colnames(assayData)) ] <- "study_time_t0event"
+        colnames(assayData)[ grep("arm_name", colnames(assayData)) ] <- "cohort"
+      }
     }
 
     filtData <- assayData[ , colnames(assayData) %in% defaultCols ]
