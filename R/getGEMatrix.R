@@ -106,7 +106,7 @@ NULL
         if( currAnno == F & !grepl("_orig", fasNm) ){
           fasNm <- paste0(fasNm, "_orig")
         }else if( currAnno == T & grepl("_orig", fasNm) ){
-          fasNm <- gsub("_orig", "", fasNm, fixed = T)
+          fasNm <- gsub("_orig", "", fasNm, fixed = TRUE)
         }
       }
       
@@ -177,7 +177,7 @@ NULL
     
     setnames(pheno, .self$.munge(colnames(pheno)))
     
-    pheno <- data.frame(pheno, stringsAsFactors = F)
+    pheno <- data.frame(pheno, stringsAsFactors = FALSE)
 
     pheno <- pheno[, colnames(pheno) %in% c("biosample_accession", 
                                             "participant_id", 
