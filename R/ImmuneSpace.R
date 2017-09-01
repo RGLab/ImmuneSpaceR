@@ -976,6 +976,7 @@
       
       if (verbose) {
         cat(" complete")
+        cat("\n")
       }
       
     } 
