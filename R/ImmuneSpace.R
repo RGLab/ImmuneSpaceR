@@ -481,7 +481,7 @@
 )
 
 .ISCon$methods(
-  getParticipantData = function(group, dataType, original_view = F){
+  getParticipantData = function(group, dataType, original_view = FALSE){
     "returns a dataframe with ImmuneSpace data subset by groupId.\n
     group: Use con$listParticipantGroups() to find Participant groupId or groupName.\n
     dataType: Use con$listDatasets('datasets') to see possible dataType inputs.\n"
