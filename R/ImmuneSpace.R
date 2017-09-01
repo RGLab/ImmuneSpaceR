@@ -807,9 +807,8 @@
     res <- list()
     
     if (verbose) {
-      print("Dataframe setup complete")
+      print("Initialization complete")
     }
-    
     
     
     # get list of matrices and determine which sdys they represent
@@ -873,7 +872,7 @@
     res$gefNoRaw <- spSort(gefNoRaw[ !(gefNoRaw %in% names(geoPresent)) ])
     
     if (verbose) {
-      print("GEO complete") 
+      print("GEO results complete across all studies") 
     }
     
     #Each study in the compliant list for each dataset is reflected as TRUE in compDF
@@ -881,19 +880,19 @@
       compDF[grep(paste(sdy, "$", sep = ""), rownames(compDF)), grep("GEF", colnames(compDF))] <- TRUE
     }
     if (verbose) {
-      print("GEF complete")
+      print("GEF results complete across all studies")
     }
     for (sdy in compliantRAW){
       compDF[grep(paste(sdy, "$", sep = ""), rownames(compDF)), grep("RAW", colnames(compDF))] <- TRUE
     }
     if (verbose) {
-      print("RAW complete")
+      print("RAW results complete across all studies")
     }
     for (sdy in compliantGEM) {
       compDF[grep(paste(sdy, "$", sep = ""), rownames(compDF)), grep("GEM", colnames(compDF))] <- TRUE
     }
     if (verbose) {
-      print("GEM complete")
+      print("GEM results complete across all studies")
     }
     
     sdysWithGems <- res$gemAndRaw
@@ -930,7 +929,7 @@
       }
       
       if (verbose) {
-        print(paste(sdy, " in progress..."))
+        cat(paste(sdy, " module checks in progress..."))
       }
       
       # check for matrices and get immune response data if present
@@ -976,7 +975,7 @@
       }
       
       if (verbose) {
-        print("       complete")
+        cat(" complete")
       }
       
     } 
