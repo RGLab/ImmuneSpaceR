@@ -564,7 +564,8 @@
                                    folderPath = .self$config$labkey.url.path,
                                    schemaName = "study",
                                    sql = sqlAssay,
-                                   colNameOpt = "fieldname")
+                                   colNameOpt = "fieldname",
+                                   maxRows = 500000)
 
     # Want to match getDataset() results in terms of colnames / order
     defaultCols <- colnames(con$getDataset(x = dt,
@@ -593,10 +594,6 @@
 
     filtData <- assayData[ , colnames(assayData) %in% defaultCols ]
     filtData <- filtData[ , order( match(colnames(filtData), defaultCols)) ]
-
-    if( nrow(filtData) == 100000){
-      warning("100k Rows returned. Some data may not have been pulled. Issue is currently being worked on.")
-    }
     
     return(filtData)
   }
