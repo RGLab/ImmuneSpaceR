@@ -587,7 +587,6 @@
       colnames(assayData)[ grep(changeCol, colnames(assayData)) ] <- "cohort"
     }else{
       if( dt %in% c("gene_expression_files", "fcs_control_files") ){
-        colnames(assayData)[ grep("study_time_t0_event", colnames(assayData)) ] <- "study_time_t0event"
         colnames(assayData)[ grep("arm_name", colnames(assayData)) ] <- "cohort"
       }
     }
