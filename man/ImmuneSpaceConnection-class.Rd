@@ -95,15 +95,25 @@ gene-expression data.}
 
     destdir: A character. The loacal path to store the downloaded files.}
 
-\item{\code{getGEMatrix(matrixName = NULL, cohort = NULL, summary = FALSE,
-  currAnno = FALSE, norm = TRUE, reload = FALSE)}}{Downloads a normalized gene expression matrix from ImmuneSpace.
+\item{\code{getGEMatrix(matrixName = NULL, cohort = NULL, outputType = "summary",
+  annotation = "latest", reload = FALSE)}}{Downloads a normalized gene expression matrix from ImmuneSpace.
 
     `x': A `character'. The name of the gene expression matrix to download.
 
     `cohort': A `character'. The name of a cohort that has an associated gene
     expression matrix. Note that if `cohort' isn't NULL, then `x' is ignored.
-    `summary': A `logical'. If set to TRUE, Downloads a matrix with expression
-    averaged by gene symbol.
+
+    `outputType': one of 'raw', 'normalized' or 'summary'. If 'raw' then returns
+    an expression matrix of non-normalized values by probe. 'normalized' returns
+    normalized values by probe.  'summary' returns normalized values averaged
+    by gene symbol.
+
+    `annotation': one of 'default', 'latest', or 'ImmSig'.  Determines which feature
+    annotation set is used.  'default' uses the fas from when the matrix was generated.
+    'latest' uses a recently updated fas based on the original.  'ImmSig' is specific to
+    studies involved in the ImmuneSignatures project and uses the annotation from when 
+    the meta-study's manuscript was created.
+
     `reload': A `logical'. If set to TRUE, the matrix will be downloaded again,
     even if a cached cop exist in the ImmuneSpaceConnection object.}
 
