@@ -218,7 +218,7 @@ setCacheName <- function(matrixName, outputType){
                                             "study_time_collected", 
                                             "study_time_collected_unit") ]
     
-    if(summary){
+    if(outputType == "summary"){
       fdata <- data.frame(FeatureId = matrix$gene_symbol, 
                           gene_symbol = matrix$gene_symbol, 
                           row.names = matrix$gene_symbol)
