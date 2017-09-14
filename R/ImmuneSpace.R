@@ -403,7 +403,7 @@
   # handle unexpected case of labkey.user.email not being found.
   if( !is.null(api) & is.null(validNetrc) ){
     user <- try( get("labkey.user.email"), silent = TRUE )
-    if( inherits(labkey.user.email, "try-error") ){
+    if( inherits(user, "try-error") ){
       stop("labkey.user.email not found, please set")
     }
     
