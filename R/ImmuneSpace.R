@@ -481,7 +481,7 @@
 )
 
 .ISCon$methods(
-  getParticipantData = function(group, dataType, original_view = FALSE){
+  getParticipantData = function(group, dataType, original_view = FALSE, maxRows = 500000, ...){
     "returns a dataframe with ImmuneSpace data subset by groupId.\n
     group: Use con$listParticipantGroups() to find Participant groupId or groupName.\n
     dataType: Use con$listDatasets('datasets') to see possible dataType inputs.\n"
@@ -565,12 +565,14 @@
                                    schemaName = "study",
                                    sql = sqlAssay,
                                    colNameOpt = "fieldname",
-                                   maxRows = 500000)
+                                   maxRows = maxRows,
+                                   ...) # allow for params to be passed as argument from main fn
 
     # Want to match getDataset() results in terms of colnames / order
     defaultCols <- colnames(con$getDataset(x = dt,
                                   original_view = original_view,
-                                  maxRows = 1))
+                                  maxRows = 1,
+                                  ...)) # allow for colSort to be set and then matched later
 
     # Some names from assayData do not match default cols and need to changed manually.
     colnames(assayData)[ grep("ParticipantId", colnames(assayData)) ] <- "participant_id"
