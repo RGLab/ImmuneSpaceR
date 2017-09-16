@@ -11,7 +11,7 @@ allSdy <- CreateConnection("")
 
 # Pgrp Id - for "readonly" user --------------------------------
 groupId <- 177 # for travis on test
-groupId <- 139 # for debugging
+# groupId <- 139 # for debugging
 
 # Helper Functions ---------------------------------------------
 testPgrp <- function(dt, groupId, maxRows = 1){

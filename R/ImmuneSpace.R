@@ -416,7 +416,13 @@
     loc <- which(netrc == machine)[1]
     login <- netrc[ loc + 1 ]
     user <- gsub("login ", "", login)
+  
+    # Case 3: Travis testing
+  }else if( is.null(api) & is.null(validNetrc)){
+    user <- "readonly@rglab.org"
   }
+  
+  
   
   return(user)
 }
@@ -569,10 +575,9 @@
                                    ...) # allow for params to be passed as argument from main fn
 
     # Want to match getDataset() results in terms of colnames / order
-    defaultCols <- colnames(con$getDataset(x = dt,
+    defaultCols <- colnames(.self$getDataset(x = dt,
                                   original_view = original_view,
-                                  maxRows = 1,
-                                  ...)) # allow for colSort to be set and then matched later
+                                  maxRows = 1)) 
 
     # Some names from assayData do not match default cols and need to changed manually.
     colnames(assayData)[ grep("ParticipantId", colnames(assayData)) ] <- "participant_id"
@@ -589,7 +594,6 @@
       colnames(assayData)[ grep(changeCol, colnames(assayData)) ] <- "cohort"
     }else{
       if( dt %in% c("gene_expression_files", "fcs_control_files") ){
-        colnames(assayData)[ grep("study_time_t0_event", colnames(assayData)) ] <- "study_time_t0event"
         colnames(assayData)[ grep("arm_name", colnames(assayData)) ] <- "cohort"
       }
     }
