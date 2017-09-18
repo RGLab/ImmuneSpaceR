@@ -1,4 +1,4 @@
 library(testthat)
 library(ImmuneSpaceR)
 
-# test_check("ImmuneSpaceR")
+if (Sys.info()["user"] != "biocbuild") test_check("ImmuneSpaceR")

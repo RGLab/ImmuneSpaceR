@@ -1,7 +1,7 @@
 # R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
 
 language: r
-r: 
+r:
 - bioc-devel
 - bioc-release
 cache: packages
@@ -12,14 +12,13 @@ r_github_packages:
 bioc_packages:
   - BiocCheck
 
-before_script: Rscript -e 'write(x = paste("machine www.immunespace.org login", Sys.getenv("ISR_login"), "password", Sys.getenv("ISR_pwd")), file = "~/.netrc")'
+script:
+  - travis_wait 40 ./.pkg-build.sh
 
-after_script:
+after_success:
   - ls -lah
   - FILE=$(ls -1t *.tar.gz | head -n 1)
   - Rscript -e "library(BiocCheck); BiocCheck(\"${FILE}\")"
-
-after_success:
   - Rscript -e 'covr::codecov()'
 
 notifications:

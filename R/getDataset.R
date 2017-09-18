@@ -1,13 +1,25 @@
 # Decode filters in case the user used column labels instead of column names
 #' @importFrom RCurl curlUnescape curlEscape
-.check_filter <- function(lub, lup, schema, query, view = "", colFilter){
+.check_filter <- function(con, schema, query, view = "", colFilter){
   # Get the names used in the filter
   old <- tolower(curlUnescape(gsub("~.*$", "", colFilter)))
   old[old == "participant_id"] <- "participant id"
+  
+  colFn <- function(colNameOpt){
+    res <- colnames(.getLKtbl(con = con,
+                              schema = schema, 
+                              query = query,
+                              viewName = view,
+                              maxRows = 0,
+                              colNameOpt = colNameOpt,
+                              showHidden = FALSE))
+  }
+  
   suppressWarnings({
-    labels <- tolower(colnames(labkey.selectRows(lub, lup, schema, query, view, maxRows = 0, colNameOpt = "caption")))
-    names <- colnames(labkey.selectRows(lub, lup, schema, query, view, maxRows = 0, colNameOpt = "fieldname"))
+    labels <- tolower(colFn(colNameOpt = "caption"))
+    names <- colFn(colNameOpt = "fieldname")
   })
+  
   # Get the new names
   idx <- which(old %in% labels)
   new <- curlEscape(names[match(old[idx], labels)])
@@ -20,6 +32,7 @@ filterDT <- function(table, col, value){
   table <- table[eval(as.name(col)) == value]
   return(table)
 }
+
 filter_cached_copy <- function(filters, data){
   decoded <- curlUnescape(filters)
   cols <- gsub(".*/", "", gsub("~.*", "", decoded))
@@ -40,7 +53,8 @@ filter_cached_copy <- function(filters, data){
     whether a cached version exist or not.\n
     colFilter: A character. A filter as returned by Rlabkey's makeFilter function.\n
     '...': Extra arguments to be passed to labkey.selectRows."
-    if(nrow(available_datasets[Name%in%x])==0){
+    
+    if( nrow(available_datasets[Name%in%x]) == 0 ){
       wstring <- paste0(study, " has invalid data set: ",x)
       if(config$verbose){
         wstring <- paste0(wstring, "\n",
@@ -48,48 +62,53 @@ filter_cached_copy <- function(filters, data){
                           paste(available_datasets$Name, collapse = ", "), ".")
       }
       stop(wstring)
-    } else{
+      
+    } else {
       cache_name <- paste0(x, ifelse(original_view, "_full", ""))
       nOpts <- length(list(...))
-      if(!is.null(data_cache[[cache_name]]) & !reload & is.null(colFilter) & nOpts == 0){ # Serve cache
+      
+      if( !is.null(data_cache[[cache_name]]) & !reload & is.null(colFilter) & nOpts == 0 ){ # Serve cache
         data <- data_cache[[cache_name]]
         #if(!is.null(colFilter)){
         #  data <- filter_cached_copy(colFilter, data)
         #  return(data)
         #} else{
         #}
-      } else{ # Download the data
+        
+      } else { # Download the data
         viewName <- NULL
-        if(original_view){
-          viewName <- "full"
-        }
+        if(original_view){ viewName <- "full"}
+        
         if(!is.null(colFilter)){
-          colFilter <- .check_filter(config$labkey.url.base, 
-                                     config$labkey.url.path, 
-                                     "study", x, viewName, colFilter)
+          colFilter <- .check_filter(con = .self, 
+                                     schema = "study", 
+                                     query = x, 
+                                     view = viewName, 
+                                     colFilter = colFilter)
           cache <- FALSE
         } else if(length(nOpts) > 0){
           cache <- FALSE
         } else{
           cache <- TRUE
         }
-        data <- data.table(
-          labkey.selectRows(baseUrl = config$labkey.url.base,
-                            config$labkey.url.path,
-                            schemaName = "study",
-                            queryName = x,
-                            viewName = viewName,
-                            colNameOpt = "caption",
-                            colFilter = colFilter,
-                            ...))
+        
+        data <- .getLKtbl(con = .self,
+                          schema = "study",
+                          query = x,
+                          viewName = viewName,
+                          colNameOpt = "caption",
+                          colFilter = colFilter,
+                          showHidden = FALSE,
+                          ...)
         setnames(data, .self$.munge(colnames(data)))
-        if(cache){
-          data_cache[[cache_name]] <<- data
-        }
+        
+        if( cache ){ data_cache[[cache_name]] <<- data }
       }
-      if(!is.null(config$use.data.frame) & config$use.data.frame){
+      
+      if( !is.null(config$use.data.frame) & config$use.data.frame ){
         data <- data.frame(data)
       }
+      
       return(data)
     }
   })

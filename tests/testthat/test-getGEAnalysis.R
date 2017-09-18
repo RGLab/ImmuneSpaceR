@@ -3,12 +3,12 @@
 source("global_variable.R")
 source("global_dependencies.R")
 source("set_curlOptions.R")
-library(Rlabkey)
+suppressPackageStartupMessages(library(Rlabkey))
 
 
 # Connections --------------------------------------------------
 sdy269 <- CreateConnection("SDY269", verbose = TRUE)
-suppressMessages(sdy67 <- CreateConnection("SDY67"))
+suppressMessages(sdy34 <- CreateConnection("SDY34"))
 allsdy <- CreateConnection("")
 
 
@@ -37,7 +37,7 @@ test_that("returns df of GE analysis using cohort filter", {
 })
 
 test_that("fails gracefully if GE analysis not present", {
-  res <- try_ggea(sdy67)
+  res <- try_ggea(sdy34)
   expect_true( res$message == "Gene Expression Analysis not found for study." )
 })
 
