@@ -989,5 +989,88 @@
     return( compDF )
     
   }
+  
+)
+
+.ISCon$methods(
+  .validateSdyCompliance = function(df) {
+    spSort <- function(vec){
+      if(length(vec) > 0 ){
+        vec <- sort(as.numeric(gsub("SDY","",vec)))
+        vec <- paste0("SDY", as.character(vec))
+      }else{
+        vec <- NULL
+      }
+    }
+    
+    de <- unlist(lapply(rjson::fromJSON(Rlabkey:::labkey.get("https://www.immunespace.org/immport/studies/containersformodule.api?name=DataExplorer"))[[1]], function(x) x[["name"]]))
+    de <- de[de != "SDY_template"]
+    de <- spSort(de[de != "Studies"])
+    gee <- unlist(lapply(rjson::fromJSON(Rlabkey:::labkey.get("https://www.immunespace.org/immport/studies/containersformodule.api?name=GeneExpressionExplorer"))[[1]], function(x) x[["name"]]))
+    gee <- spSort(gee[gee != "Studies"])
+    gsea <- unlist(lapply(rjson::fromJSON(Rlabkey:::labkey.get("https://www.immunespace.org/immport/studies/containersformodule.api?name=GeneSetEnrichmentAnalysis"))[[1]], function(x) x[["name"]]))
+    gsea <- spSort(gsea[gsea != "Studies"])
+    irp <- unlist(lapply(rjson::fromJSON(Rlabkey:::labkey.get("https://www.immunespace.org/immport/studies/containersformodule.api?name=ImmuneResponsePredictor"))[[1]], function(x) x[["name"]]))
+    irp <- spSort(irp[irp != "Studies"])
+    
+    allsdys <- spSort(.getSdyVec(.self))
+    
+    for (sdy in allsdys) {
+      if (sdy %in% de) {
+        if (df[sdy, "DE"] != TRUE) {
+          #throw
+          print(paste(sdy, " should be available for Data Explorer, but isn't"))
+        }
+      } else {
+        if (df[sdy, "DE"] == TRUE) {
+          #throw
+          print(paste(sdy, " shouldn't be available for Data Explorer, but is"))
+          
+        }
+      }
+      
+      if (sdy %in% gee) {
+        if (df[sdy, "GEE"] != TRUE) {
+          #throw
+          print(paste(sdy, " should be available for Gene Expression Explorer, but isn't"))
+          
+        }
+      } else {
+        if (df[sdy, "GEE"] == TRUE) {
+          #throw
+          print(paste(sdy, " shouldn't be available for Gene Expression Explorer, but is"))
+          
+        }
+      }
+      
+      if (sdy %in% gsea) {
+        if (df[sdy, "GSEA"] != TRUE) {
+          #throw
+          print(paste(sdy, " should be available for Gene Set Enrichment Analysis, but isn't"))
+          
+        }
+      } else {
+        if (df[sdy, "GSEA"] == TRUE) {
+          #throw
+          print(paste(sdy, " shouldn't be available for Gene Set Enrichment Analysis, but is"))
+          
+        }
+      }
+      
+      if (sdy %in% irp) {
+        if (df[sdy, "IRP"] != TRUE) {
+          #throw
+          print(paste(sdy, " should be available for Immune Response Predictor, but isn't"))
+          
+        }
+      } else {
+        if (df[sdy, "IRP"] == TRUE) {
+          #throw
+          print(paste(sdy, " shouldn't be available for Immune Response Predictor, but is"))
+          
+        }
+      }
+    }
+  }
 )
 
