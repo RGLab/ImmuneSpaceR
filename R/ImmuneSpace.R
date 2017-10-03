@@ -988,12 +988,22 @@
     
     return( compDF )
     
+    
   }
   
 )
 
 .ISCon$methods(
   .validateSdyCompliance = function(df) {
+    
+    .getSdyVec <- function(.self){
+      # create list of sdy folders
+      studies <- labkey.getFolders(baseUrl = .self$config$labkey.url.base, 
+                                   folderPath = "/Studies/")
+      studies <- studies[, 1]
+      studies <- studies[ !studies %in% c("SDY_template","Studies") ]
+    }
+    
     spSort <- function(vec){
       if(length(vec) > 0 ){
         vec <- sort(as.numeric(gsub("SDY","",vec)))
@@ -1019,55 +1029,55 @@
       if (sdy %in% de) {
         if (df[sdy, "DE"] != TRUE) {
           #throw
-          print(paste(sdy, " should be available for Data Explorer, but isn't"))
+          print(paste(sdy, " shouldn't be available for Data Explorer, but is"))
         }
       } else {
         if (df[sdy, "DE"] == TRUE) {
           #throw
-          print(paste(sdy, " shouldn't be available for Data Explorer, but is"))
           
+          print(paste(sdy, " should be available for Data Explorer, but isn't"))
         }
       }
       
       if (sdy %in% gee) {
         if (df[sdy, "GEE"] != TRUE) {
           #throw
-          print(paste(sdy, " should be available for Gene Expression Explorer, but isn't"))
+          print(paste(sdy, " shouldn't be available for Gene Expression Explorer, but is"))
           
         }
       } else {
         if (df[sdy, "GEE"] == TRUE) {
           #throw
-          print(paste(sdy, " shouldn't be available for Gene Expression Explorer, but is"))
           
+          print(paste(sdy, " should be available for Gene Expression Explorer, but isn't"))
         }
       }
       
       if (sdy %in% gsea) {
         if (df[sdy, "GSEA"] != TRUE) {
           #throw
-          print(paste(sdy, " should be available for Gene Set Enrichment Analysis, but isn't"))
+          print(paste(sdy, " shouldn't be available for Gene Set Enrichment Analysis, but is"))
           
         }
       } else {
         if (df[sdy, "GSEA"] == TRUE) {
           #throw
-          print(paste(sdy, " shouldn't be available for Gene Set Enrichment Analysis, but is"))
           
+          print(paste(sdy, " should be available for Gene Set Enrichment Analysis, but isn't"))
         }
       }
       
       if (sdy %in% irp) {
         if (df[sdy, "IRP"] != TRUE) {
           #throw
-          print(paste(sdy, " should be available for Immune Response Predictor, but isn't"))
+          print(paste(sdy, " shouldn't be available for Immune Response Predictor, but is"))
           
         }
       } else {
         if (df[sdy, "IRP"] == TRUE) {
           #throw
-          print(paste(sdy, " shouldn't be available for Immune Response Predictor, but is"))
           
+          print(paste(sdy, " should be available for Immune Response Predictor, but isn't"))
         }
       }
     }
