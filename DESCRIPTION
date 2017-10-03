@@ -1,7 +1,7 @@
 Package: ImmuneSpaceR
 Type: Package
 Title: A Thin Wrapper around the ImmuneSpace Database
-Version: 1.5.7
+Version: 1.5.8
 Date: 2014-06-12
 Authors@R: c(person("Greg", "Finak", role = "aut"),
              person("Renan", "Sauteraud", role = "aut"),
@@ -31,7 +31,7 @@ Imports:
     methods,
     data.table,
     RCurl,
-    Rlabkey (>= 2.1.127),
+    Rlabkey (>= 2.1.136),
     Biobase,
     pheatmap,
     ggplot2,
