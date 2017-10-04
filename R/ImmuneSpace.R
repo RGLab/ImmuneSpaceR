@@ -1029,55 +1029,55 @@
       if (sdy %in% de) {
         if (df[sdy, "DE"] != TRUE) {
           #throw
-          print(paste(sdy, " shouldn't be available for Data Explorer, but is"))
+          print(paste("Data Explorer is displayed but not available for ", sdy))
         }
       } else {
         if (df[sdy, "DE"] == TRUE) {
           #throw
           
-          print(paste(sdy, " should be available for Data Explorer, but isn't"))
+          print(paste("Data Explorer isn't displayed but is available for ", sdy))
         }
       }
       
       if (sdy %in% gee) {
         if (df[sdy, "GEE"] != TRUE) {
           #throw
-          print(paste(sdy, " shouldn't be available for Gene Expression Explorer, but is"))
+          print(paste("Gene Expression Explorer is displayed but not available for ", sdy))
           
         }
       } else {
         if (df[sdy, "GEE"] == TRUE) {
           #throw
           
-          print(paste(sdy, " should be available for Gene Expression Explorer, but isn't"))
+          print(paste("Gene Expression Explorer isn't displayed but is available for ", sdy))
         }
       }
       
       if (sdy %in% gsea) {
         if (df[sdy, "GSEA"] != TRUE) {
           #throw
-          print(paste(sdy, " shouldn't be available for Gene Set Enrichment Analysis, but is"))
+          print(paste("Gene Set Enrichment Analysis is displayed but not available for ", sdy))
           
         }
       } else {
         if (df[sdy, "GSEA"] == TRUE) {
           #throw
           
-          print(paste(sdy, " should be available for Gene Set Enrichment Analysis, but isn't"))
+          print(paste("Gene Set Enrichment Analysis isn't displayed but is available for ", sdy))
         }
       }
       
       if (sdy %in% irp) {
         if (df[sdy, "IRP"] != TRUE) {
           #throw
-          print(paste(sdy, " shouldn't be available for Immune Response Predictor, but is"))
+          print(paste("Immune Response Predictor is displayed but not available for ", sdy))
           
         }
       } else {
         if (df[sdy, "IRP"] == TRUE) {
           #throw
           
-          print(paste(sdy, " should be available for Immune Response Predictor, but isn't"))
+          print(paste("Immune Response Predictor isn't displayed but is available for ", sdy))
         }
       }
     }
