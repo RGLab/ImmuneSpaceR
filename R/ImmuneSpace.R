@@ -993,8 +993,16 @@
   
 )
 
+
+## ~~~---____## ~~~---____## ~~~---____## ~~~---____## ~~~---____## ~~~---____
+## ~~~---____## ~~~---____## ~~~---____## ~~~---____## ~~~---____## ~~~---____
+##
+## ~~~---____## ~~~---____## ~~~---____## ~~~---____## ~~~---____## ~~~---____
+## ~~~---____## ~~~---____## ~~~---____## ~~~---____## ~~~---____## ~~~---____
+
+
 .ISCon$methods(
-  .validateSdyCompliance = function(df) {
+  .validateSdyCompliance = function(df, GEonly = F, showAllColumns = F, showNonCompliantOnly = T) {
     
     .getSdyVec <- function(.self){
       # create list of sdy folders
@@ -1013,6 +1021,10 @@
       }
     }
     
+    
+    
+    
+    
     de <- unlist(lapply(rjson::fromJSON(Rlabkey:::labkey.get("https://www.immunespace.org/immport/studies/containersformodule.api?name=DataExplorer"))[[1]], function(x) x[["name"]]))
     de <- de[de != "SDY_template"]
     de <- spSort(de[de != "Studies"])
@@ -1025,62 +1037,121 @@
     
     allsdys <- spSort(.getSdyVec(.self))
     
+    GEF <- RAW <- GEO <- GEM <- DE_impl <- DE_act <- GEE_impl <- GEE_act <- IRP_impl <- IRP_act <- GSEA_impl <-
+       GSEA_act <- FALSE
+    
+    trps <- sapply(allsdys, FUN = function(x){
+      ret <- c(GEF, RAW, GEO, GEM, DE_impl, DE_act, GEE_impl, GEE_act, IRP_impl, IRP_act, GSEA_impl, 
+               GSEA_act)
+      names(ret) <- c("GEF", "RAW", "GEO", "GEM", "DE_impl", "DE_act", "GEE_impl", "GEE_act", "IRP_impl", "IRP_act", "GSEA_impl",
+                      "GSEA_act")
+      return(ret)
+    })
+    
+    #Final dataframe output compDF will hold a table of each study's true/false compliance with various modules
+    trps <- t(data.frame(trps, stringsAsFactors = FALSE))
+    
+    for (sdy in allsdys) {
+      trps[sdy, "GEF"] <- df[sdy, "GEF"]
+      trps[sdy, "RAW"] <- df[sdy, "RAW"]
+      trps[sdy, "GEO"] <- df[sdy, "GEO"]
+      trps[sdy, "GEM"] <- df[sdy, "GEM"]
+      trps[sdy, "DE_impl"] <- df[sdy, "DE"]
+      trps[sdy, "GEE_impl"] <- df[sdy, "GEE"]
+      trps[sdy, "IRP_impl"] <- df[sdy, "IRP"]
+      trps[sdy, "GSEA_impl"] <- df[sdy, "GSEA"]
+    }
+    
+    for (sdy in de) {
+      trps[sdy, "DE_act"] <- TRUE
+    }
+    for (sdy in gee) {
+      trps[sdy, "GEE_act"] <- TRUE
+    }
+    for (sdy in irp) {
+      trps[sdy, "IRP_act"] <- TRUE
+    }
+    for (sdy in gsea) {
+      trps[sdy, "GSEA_act"] <- TRUE
+    }
+    
     for (sdy in allsdys) {
       if (sdy %in% de) {
         if (df[sdy, "DE"] != TRUE) {
           #throw
-          print(paste("Data Explorer is displayed but not available for ", sdy))
+          #print(paste("Data Explorer is displayed but not available for ", sdy))
         }
       } else {
         if (df[sdy, "DE"] == TRUE) {
           #throw
           
-          print(paste("Data Explorer isn't displayed but is available for ", sdy))
+          #print(paste("Data Explorer isn't displayed but is available for ", sdy))
         }
       }
       
       if (sdy %in% gee) {
         if (df[sdy, "GEE"] != TRUE) {
           #throw
-          print(paste("Gene Expression Explorer is displayed but not available for ", sdy))
+          #print(paste("Gene Expression Explorer is displayed but not available for ", sdy))
           
         }
       } else {
         if (df[sdy, "GEE"] == TRUE) {
           #throw
           
-          print(paste("Gene Expression Explorer isn't displayed but is available for ", sdy))
+          #print(paste("Gene Expression Explorer isn't displayed but is available for ", sdy))
         }
       }
       
       if (sdy %in% gsea) {
         if (df[sdy, "GSEA"] != TRUE) {
           #throw
-          print(paste("Gene Set Enrichment Analysis is displayed but not available for ", sdy))
+          #print(paste("Gene Set Enrichment Analysis is displayed but not available for ", sdy))
           
         }
       } else {
         if (df[sdy, "GSEA"] == TRUE) {
           #throw
           
-          print(paste("Gene Set Enrichment Analysis isn't displayed but is available for ", sdy))
+          #print(paste("Gene Set Enrichment Analysis isn't displayed but is available for ", sdy))
         }
       }
       
       if (sdy %in% irp) {
         if (df[sdy, "IRP"] != TRUE) {
           #throw
-          print(paste("Immune Response Predictor is displayed but not available for ", sdy))
+          #print(paste("Immune Response Predictor is displayed but not available for ", sdy))
           
         }
       } else {
         if (df[sdy, "IRP"] == TRUE) {
           #throw
           
-          print(paste("Immune Response Predictor isn't displayed but is available for ", sdy))
+          #print(paste("Immune Response Predictor isn't displayed but is available for ", sdy))
         }
       }
     }
+    
+    
+    if (showNonCompliantOnly) {
+      for (sdy in allsdys) {
+        if (!(trps[sdy, "DE_impl"] == FALSE && trps[sdy, "DE_act"]) && !(trps[sdy, "GEE_impl"] == FALSE && trps[sdy, "GEE_act"]) && 
+            !(trps[sdy, "IRP_impl"] == FALSE && trps[sdy, "IRP_act"]) && !(trps[sdy, "GSEA_impl"] == FALSE && trps[sdy, "GSEA_act"])){
+          trps <- trps[! rownames(trps) %in% sdy, , drop=FALSE]
+        }
+      }
+    }
+    
+    if (GEonly){
+      trps <- trps[!((trps[, "GEO"] == FALSE) & (trps[, "GEF"] == FALSE)), , drop=FALSE]
+      #allsdys <- allsdys[! allsdys %in% sdy]
+    }
+    
+    if (!showAllColumns) {
+      trps <- trps[, -(1:4), drop=FALSE]
+    }
+    
+    return (trps)
   }
 )
 
