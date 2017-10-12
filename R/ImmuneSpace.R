@@ -571,8 +571,7 @@
                                    schemaName = "study",
                                    sql = sqlAssay,
                                    colNameOpt = "fieldname",
-                                   maxRows = maxRows,
-                                   ...) # allow for params to be passed as argument from main fn
+                                   ...) # allow for params to be passed, e.g. maxRows
 
     # Want to match getDataset() results in terms of colnames / order
     defaultCols <- colnames(.self$getDataset(x = dt,
