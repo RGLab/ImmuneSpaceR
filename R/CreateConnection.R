@@ -226,10 +226,10 @@ CreateConnection <- function(study = NULL,
 
 .ISCon$methods(
   setAvailableDatasets=function(){
-    if( length(available_datasets) == 0 ){
-      available_datasets <<- .getLKtbl(con = .self,
-                                       schema = "study",
-                                       query = "ISC_study_datasets")
+    if( length(.self$available_datasets) == 0 ){
+      res <- .getLKtbl(con = .self,
+                       schema = "study",
+                       query = "ISC_study_datasets")
     }
   }
 )
@@ -245,21 +245,21 @@ CreateConnection <- function(study = NULL,
                  silent = TRUE)
     }
     
-    if( !is.null(data_cache[[constants$matrices]]) ){
-      data_cache[[constants$matrices]]
+    if( !is.null(.self$data_cache[[constants$matrices]]) ){
+      .self$data_cache[[constants$matrices]]
     }else{
       ge <- if(verbose){ getData() } else { suppressWarnings(getData()) }
       
       if(inherits(ge, "try-error") || nrow(ge) == 0 ){
         #No assay or no runs
         message("No gene expression data")
-        data_cache[[constants$matrices]] <<- NULL
+        .self$data_cache[[constants$matrices]] <- NULL
       } else {
         # adding cols to allow for getGEMatrix() to update
         ge[ , annotation := "" ]
         ge[ , outputType := "" ]
         setnames(ge, .self$.munge(colnames(ge)) )
-        data_cache[[constants$matrices]] <<- ge
+        .self$data_cache[[constants$matrices]] <- ge
       }
     }
 
@@ -275,18 +275,18 @@ CreateConnection <- function(study = NULL,
     #(e.g. when using $new(object) to construct the new object based on the exiting object)
     callSuper(...)
     
-    constants <<- list(matrices = "GE_matrices", matrix_inputs = "GE_inputs")
+    .self$constants <- list(matrices = "GE_matrices", matrix_inputs = "GE_inputs")
     
-    if(!is.null(config))
-      config <<- config
+    if( !is.null(config) )
+      .self$config <- config
 
-    study <<- basename(config$labkey.url.path)
+    .self$study <- basename(config$labkey.url.path)
     
-    if(config$verbose){
-      checkStudy(config$verbose)
+    if( .self$config$verbose ){
+      checkStudy(.self$config$verbose)
     }
     
-    setAvailableDatasets()
+    .self$available_datasets <- setAvailableDatasets()
 
     gematrices_success <- GeneExpressionMatrices()
   }
