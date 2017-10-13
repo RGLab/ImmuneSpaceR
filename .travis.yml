@@ -20,7 +20,7 @@ after_success:
   - ls -lah
   - FILE=$(ls -1t *.tar.gz | head -n 1)
   - Rscript -e "library(BiocCheck); BiocCheck(\"${FILE}\")"
-  - Rscript -e 'covr::codecov()'
+  - travis_wait 15 Rscript -e 'covr::codecov()'
 
 notifications:
   email: false
