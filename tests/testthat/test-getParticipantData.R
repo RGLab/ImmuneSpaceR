@@ -9,16 +9,16 @@ source("set_curlOptions.R")
 # allSdy <- CreateConnection("", onTest = T) # for debugging
 allSdy <- CreateConnection("")
 
-# Pgrp Id - for "readonly" user --------------------------------
-groupId <- 177 # for travis on test
-# groupId <- 139 # for debugging
+# Pgrp Id - for "readonly" and ehenrich users -----------------
+# is composed of SDY80, SDY180, SDY269, and SDY422 to incl. all datatypes
+groupId <- "auto_test" # both travis and bioc on test / prod
 
 # Helper Functions ---------------------------------------------
-testPgrp <- function(dt, groupId, maxRows = 1){
-  pgrp_T <- allSdy$getParticipantData(group = groupId, dataType = dt, original_view = T, maxRows = maxRows)
-  pgrp_F <- allSdy$getParticipantData(group = groupId, dataType = dt, original_view = F, maxRows = maxRows)
-  orig_T <- allSdy$getDataset(dt, original_view = T, maxRows = maxRows)
-  orig_F <- allSdy$getDataset(dt, original_view = F, maxRows = maxRows)
+testPgrp <- function(dt, groupId){
+  pgrp_T <- allSdy$getParticipantData(group = groupId, dataType = dt, original_view = T, maxRows = 1)
+  pgrp_F <- allSdy$getParticipantData(group = groupId, dataType = dt, original_view = F, maxRows = 1)
+  orig_T <- allSdy$getDataset(dt, original_view = T, maxRows = 1)
+  orig_F <- allSdy$getDataset(dt, original_view = F, maxRows = 1)
   
   res <- list()
   res$view_T <- all.equal(colnames(pgrp_T), colnames(orig_T))
