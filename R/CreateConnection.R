@@ -209,9 +209,10 @@ CreateConnection <- function(study = NULL,
 .ISCon$methods(
   checkStudy = function(verbose = FALSE) {
     validStudies <- mixedsort(grep("^SDY",
-                                   basename(lsFolders(getSession(config$labkey.url.base, "Studies"))),
+                                   basename(lsFolders(getSession(.self$config$labkey.url.base, 
+                                                                 "Studies"))),
                                    value = TRUE))
-    req_study <- basename(config$labkey.url.path)
+    req_study <- basename(.self$config$labkey.url.path)
 
     if (!req_study %in% c("", validStudies, "IS1")) {
       if (!verbose) {
@@ -277,14 +278,11 @@ CreateConnection <- function(study = NULL,
     
     .self$constants <- list(matrices = "GE_matrices", matrix_inputs = "GE_inputs")
     
-    if( !is.null(config) )
-      .self$config <- config
-
+    if( !is.null(config) ){ .self$config <- config }
+      
     .self$study <- basename(config$labkey.url.path)
     
-    if( .self$config$verbose ){
-      checkStudy(.self$config$verbose)
-    }
+    if( .self$config$verbose ){ checkStudy(.self$config$verbose) }
     
     .self$available_datasets <- setAvailableDatasets()
 
