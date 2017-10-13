@@ -411,11 +411,9 @@
     # To mimic LK.get() method - pull first login and use that one.
     # Need to differentiate between test / prod too.
   }else if( !is.null(validNetrc) ){
-    netrc <- readLines(validNetrc)
-    machine <- gsub("https://", "machine ", con$config$labkey.url.base)
-    loc <- which(netrc == machine)[1]
-    login <- netrc[ loc + 1 ]
-    user <- gsub("login ", "", login)
+    netrc <- strsplit(readLines(validNetrc), split = " ")[[1]]
+    machine <- gsub("https://", "", con$config$labkey.url.base)
+    user <- netrc[ grep(machine, netrc) + 2 ]
   
     # Case 3: Travis testing
   }else if( is.null(api) & is.null(validNetrc)){
