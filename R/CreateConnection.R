@@ -118,14 +118,11 @@ CreateConnection <- function(study = NULL,
                               ...) {
   labkey.url.path <- try(get("labkey.url.path", .GlobalEnv), silent = TRUE)
   if (inherits(labkey.url.path,"try-error")) {
-    if (is.null(study)) {
-      stop("study cannot be NULL")
-    }
-    if (study == "IS1") {
-      labkey.url.path <- paste0("/HIPC/", study)
-    } else {
-      labkey.url.path <- paste0("/Studies/", study)
-    }
+    if (is.null(study)) { stop("study cannot be NULL") }
+    pathStr <- ifelse( grepl("^IS\\d{1,3}$", study),
+                       "/HIPC/",
+                       "/Studies/") 
+    labkey.url.path <- paste0(pathStr, study)
   } else if (!is.null(study)) {
     labkey.url.path <- file.path(dirname(labkey.url.path),study)
   }
@@ -208,18 +205,25 @@ CreateConnection <- function(study = NULL,
 #' @importFrom gtools mixedsort
 .ISCon$methods(
   checkStudy = function(verbose = FALSE) {
-    validStudies <- mixedsort(grep("^SDY",
-                                   basename(lsFolders(getSession(.self$config$labkey.url.base, 
-                                                                 "Studies"))),
-                                   value = TRUE))
-    req_study <- basename(.self$config$labkey.url.path)
-
-    if (!req_study %in% c("", validStudies, "IS1")) {
+    sdyNm <- basename(.self$config$labkey.url.path)
+    dirNm <- gsub("\\/", "", dirname(.self$config$labkey.url.path))
+    gTerm <- ifelse(dirNm == "HIPC", "^IS", "^SDY")
+    
+    validSdys <- mixedsort(grep(gTerm,
+                                basename(lsFolders(getSession(.self$config$labkey.url.base, 
+                                                             dirNm))),
+                                value = TRUE))
+    
+    if("SDY_template" %in% validSdys){
+      validSdys <- validSdys[ -grep("SDY_template", validSdys) ]
+    }
+    
+    if (!sdyNm %in% c("", validSdys)) {
       if (!verbose) {
-        stop(paste0(req_study, " is not a valid study"))
+        stop(paste0(sdyNm, " is not a valid study. \n Use `verbose = TRUE` to see list of valid studies."))
       } else {
-        stop(paste0(req_study, " is not a valid study\nValid studies: ",
-                    paste(validStudies, collapse=", ")))
+        stop(paste0(sdyNm, " is not a valid study\nValid studies: ",
+                    paste(validSdys, collapse=", ")))
       }
     }
   }
@@ -239,10 +243,10 @@ CreateConnection <- function(study = NULL,
   GeneExpressionMatrices=function(verbose = FALSE){
     getData <- function(){
       res <- try(.getLKtbl(con = .self,
-                       schema = "assay.ExpressionMatrix.matrix",
-                       query = "Runs",
-                       colNameOpt = "fieldname",
-                       viewName = "expression_matrices"),
+                           schema = "assay.ExpressionMatrix.matrix",
+                           query = "Runs",
+                           colNameOpt = "fieldname",
+                           viewName = "expression_matrices"),
                  silent = TRUE)
     }
     
@@ -273,7 +277,7 @@ CreateConnection <- function(study = NULL,
   initialize = function(..., config = NULL) {
 
     #invoke the default init routine in case it needs to be invoked
-    #(e.g. when using $new(object) to construct the new object based on the exiting object)
+    #(e.g. when using $new(object) to construct the new object based on the existing object)
     callSuper(...)
     
     .self$constants <- list(matrices = "GE_matrices", matrix_inputs = "GE_inputs")
@@ -282,7 +286,7 @@ CreateConnection <- function(study = NULL,
       
     .self$study <- basename(config$labkey.url.path)
     
-    if( .self$config$verbose ){ checkStudy(.self$config$verbose) }
+    checkStudy(.self$config$verbose)
     
     .self$available_datasets <- setAvailableDatasets()
 
