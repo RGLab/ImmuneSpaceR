@@ -36,7 +36,7 @@ First we initialize the connection to the selected study using `CreateConnection
 Then we grab the datasets of interests with the `getDataset` method.
 ```{r}
 con <- CreateConnection("SDY144")
-flow <- con$getDataset("fcs_analyzed_result")
+flow <- con$getDataset("fcs_analyzed_result", maxRows = 10000) # maxRows for Rlabkey 2.1.136 / LK 17.2
 hai  <- con$getDataset("hai")
 vn   <- con$getDataset("neut_ab_titer")
 ```

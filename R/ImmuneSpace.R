@@ -411,14 +411,12 @@
     # To mimic LK.get() method - pull first login and use that one.
     # Need to differentiate between test / prod too.
   }else if( !is.null(validNetrc) ){
-    netrc <- readLines(validNetrc)
-    machine <- gsub("https://", "machine ", con$config$labkey.url.base)
-    loc <- which(netrc == machine)[1]
-    login <- netrc[ loc + 1 ]
-    user <- gsub("login ", "", login)
+    netrc <- strsplit(readLines(validNetrc), split = " ")[[1]]
+    machine <- gsub("https://", "", con$config$labkey.url.base)
+    user <- netrc[ grep(machine, netrc) + 2 ]
   
-    # Case 3: Travis testing
-  }else if( is.null(api) & is.null(validNetrc)){
+    # Case 3: Travis testing ... not needed if env vars set
+  }else if( is.null(api) & is.null(validNetrc) ){
     user <- "readonly@rglab.org"
   }
   
@@ -487,7 +485,7 @@
 )
 
 .ISCon$methods(
-  getParticipantData = function(group, dataType, original_view = FALSE, maxRows = 500000, ...){
+  getParticipantData = function(group, dataType, original_view = FALSE, ...){
     "returns a dataframe with ImmuneSpace data subset by groupId.\n
     group: Use con$listParticipantGroups() to find Participant groupId or groupName.\n
     dataType: Use con$listDatasets('datasets') to see possible dataType inputs.\n"
@@ -571,8 +569,7 @@
                                    schemaName = "study",
                                    sql = sqlAssay,
                                    colNameOpt = "fieldname",
-                                   maxRows = maxRows,
-                                   ...) # allow for params to be passed as argument from main fn
+                                   ...) # allow for params to be passed, e.g. maxRows
 
     # Want to match getDataset() results in terms of colnames / order
     defaultCols <- colnames(.self$getDataset(x = dt,

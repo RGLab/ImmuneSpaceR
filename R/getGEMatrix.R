@@ -127,10 +127,10 @@ setCacheName <- function(matrixName, outputType){
       # EH had to make matrices for ImmSig project using orig annotation at probe lvl.
       # Second logic makes it feasible to use the current annotation with such a study
       # if currAnno == T
-      if(annotation == "default" & !grepl("_orig", fasNm, fixed = T)){
+      if(annotation == "default" & !grepl("_orig", fasNm, fixed = TRUE)){
         fasNm <- paste0(fasNm, "_orig")
-      }else if(annotation == "latest" & grepl("_orig", fasNm, fixed = T)){
-        fasNm <- gsub("_orig", "", fasNm, fixed = T)
+      }else if(annotation == "latest" & grepl("_orig", fasNm, fixed = TRUE)){
+        fasNm <- gsub("_orig", "", fasNm, fixed = TRUE)
       }
       annoSetId <- faSets$`Row Id`[ faSets$Name == fasNm ]
     }
