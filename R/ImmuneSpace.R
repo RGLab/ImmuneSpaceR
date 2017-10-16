@@ -415,8 +415,8 @@
     machine <- gsub("https://", "", con$config$labkey.url.base)
     user <- netrc[ grep(machine, netrc) + 2 ]
   
-    # Case 3: Travis testing
-  }else if( is.null(api) & is.null(validNetrc)){
+    # Case 3: Travis testing ... not needed if env vars set
+  }else if( is.null(api) & is.null(validNetrc) ){
     user <- "readonly@rglab.org"
   }
   
