@@ -207,18 +207,17 @@ CreateConnection <- function(study = NULL,
   checkStudy = function(verbose = FALSE) {
     sdyNm <- basename(.self$config$labkey.url.path)
     dirNm <- dirname(.self$config$labkey.url.path)
-    gTerm <- ifelse(dirNm == "/HIPC", "^IS", "^SDY")
-    
+    gTerm <- ifelse(dirNm == "/HIPC", "^IS\\d{1,3}$", "^SDY\\d{2,4}$")
+
     # adjust for "" connection
     if(sdyNm == "Studies"){
       sdyNm <- ""
       dirNm <- "/Studies"
     }
-    
+
     folders <- labkey.getFolders(.self$config$labkey.url.base, dirNm)
     subdirs <- gsub(paste0(dirNm, "/"), "", folders$folderPath)
-    validSdys <- mixedsort(subdirs[ -(subdirs == dirNm) ])
-    validSdys <- validSdys[ validSdys != "SDY_template" ] # for /Studies
+    validSdys <- mixedsort(subdirs[ grep(gTerm, subdirs) ])
 
     if ( !(sdyNm %in% c("", validSdys)) ) {
       if (verbose == FALSE) {
@@ -228,6 +227,7 @@ CreateConnection <- function(study = NULL,
                     paste(validSdys, collapse=", ")))
       }
     }
+
   }
 )
 

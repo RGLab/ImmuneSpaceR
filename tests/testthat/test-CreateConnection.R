@@ -51,6 +51,12 @@ test_that("ImmuneSignatures study can be loaded", {
   expect_equal(res$config$labkey.url.path, "/HIPC/IS1")
 })
 
+test_that("Lyoplate study cannot be loaded", {
+  res <- try_con("Lyoplate")
+  errMsg <- "Lyoplate is not a valid study. \n Use `verbose = TRUE` to see list of valid studies."
+  expect_true(errMsg == res$message)
+})
+
 # cleanup ------------------------------------------------------
 if(exists("netrc_file")){
   file.remove(netrc_file)
