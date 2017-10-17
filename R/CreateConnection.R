@@ -206,20 +206,22 @@ CreateConnection <- function(study = NULL,
 .ISCon$methods(
   checkStudy = function(verbose = FALSE) {
     sdyNm <- basename(.self$config$labkey.url.path)
-    dirNm <- gsub("\\/", "", dirname(.self$config$labkey.url.path))
-    gTerm <- ifelse(dirNm == "HIPC", "^IS", "^SDY")
+    dirNm <- dirname(.self$config$labkey.url.path)
+    gTerm <- ifelse(dirNm == "/HIPC", "^IS", "^SDY")
     
-    validSdys <- mixedsort(grep(gTerm,
-                                basename(lsFolders(getSession(.self$config$labkey.url.base, 
-                                                             dirNm))),
-                                value = TRUE))
-    
-    if("SDY_template" %in% validSdys){
-      validSdys <- validSdys[ -grep("SDY_template", validSdys) ]
+    # adjust for "" connection
+    if(sdyNm == "Studies"){
+      sdyNm <- ""
+      dirNm <- "/Studies"
     }
     
-    if (!sdyNm %in% c("", validSdys)) {
-      if (!verbose) {
+    folders <- labkey.getFolders(.self$config$labkey.url.base, dirNm)
+    subdirs <- gsub(paste0(dirNm, "/"), "", folders$folderPath)
+    validSdys <- mixedsort(subdirs[ -(subdirs == dirNm) ])
+    validSdys <- validSdys[ validSdys != "SDY_template" ] # for /Studies
+
+    if ( !(sdyNm %in% c("", validSdys)) ) {
+      if (verbose == FALSE) {
         stop(paste0(sdyNm, " is not a valid study. \n Use `verbose = TRUE` to see list of valid studies."))
       } else {
         stop(paste0(sdyNm, " is not a valid study\nValid studies: ",

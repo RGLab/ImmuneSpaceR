@@ -36,8 +36,8 @@ test_that("all studies can loaded with empty string", {
 
 test_that("Nonexistent study fails to load", {
   res <- try_con("SDY4000")
-  msg_list <- strsplit(res$message, split = " ")[[1]]
-  expect_true("HTTP" %in% msg_list)
+  errMsg <- "SDY4000 is not a valid study. \n Use `verbose = TRUE` to see list of valid studies."
+  expect_true(errMsg == res$message)
 })
 
 test_that("Existing study can be loaded", {
