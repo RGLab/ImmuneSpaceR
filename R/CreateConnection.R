@@ -118,14 +118,11 @@ CreateConnection <- function(study = NULL,
                               ...) {
   labkey.url.path <- try(get("labkey.url.path", .GlobalEnv), silent = TRUE)
   if (inherits(labkey.url.path,"try-error")) {
-    if (is.null(study)) {
-      stop("study cannot be NULL")
-    }
-    if (study == "IS1") {
-      labkey.url.path <- paste0("/HIPC/", study)
-    } else {
-      labkey.url.path <- paste0("/Studies/", study)
-    }
+    if (is.null(study)) { stop("study cannot be NULL") }
+    pathStr <- ifelse( grepl("^IS\\d{1,3}$", study),
+                       "/HIPC/",
+                       "/Studies/") 
+    labkey.url.path <- paste0(pathStr, study)
   } else if (!is.null(study)) {
     labkey.url.path <- file.path(dirname(labkey.url.path),study)
   }
@@ -208,28 +205,38 @@ CreateConnection <- function(study = NULL,
 #' @importFrom gtools mixedsort
 .ISCon$methods(
   checkStudy = function(verbose = FALSE) {
-    validStudies <- mixedsort(grep("^SDY",
-                                   basename(lsFolders(getSession(config$labkey.url.base, "Studies"))),
-                                   value = TRUE))
-    req_study <- basename(config$labkey.url.path)
+    sdyNm <- basename(.self$config$labkey.url.path)
+    dirNm <- dirname(.self$config$labkey.url.path)
+    gTerm <- ifelse(dirNm == "/HIPC", "^IS\\d{1,3}$", "^SDY\\d{2,4}$")
 
-    if (!req_study %in% c("", validStudies, "IS1")) {
-      if (!verbose) {
-        stop(paste0(req_study, " is not a valid study"))
+    # adjust for "" connection
+    if(sdyNm == "Studies"){
+      sdyNm <- ""
+      dirNm <- "/Studies"
+    }
+
+    folders <- labkey.getFolders(.self$config$labkey.url.base, dirNm)
+    subdirs <- gsub(paste0(dirNm, "/"), "", folders$folderPath)
+    validSdys <- mixedsort(subdirs[ grep(gTerm, subdirs) ])
+
+    if ( !(sdyNm %in% c("", validSdys)) ) {
+      if (verbose == FALSE) {
+        stop(paste0(sdyNm, " is not a valid study. \n Use `verbose = TRUE` to see list of valid studies."))
       } else {
-        stop(paste0(req_study, " is not a valid study\nValid studies: ",
-                    paste(validStudies, collapse=", ")))
+        stop(paste0(sdyNm, " is not a valid study\nValid studies: ",
+                    paste(validSdys, collapse=", ")))
       }
     }
+
   }
 )
 
 .ISCon$methods(
   setAvailableDatasets=function(){
-    if( length(available_datasets) == 0 ){
-      available_datasets <<- .getLKtbl(con = .self,
-                                       schema = "study",
-                                       query = "ISC_study_datasets")
+    if( length(.self$available_datasets) == 0 ){
+      res <- .getLKtbl(con = .self,
+                       schema = "study",
+                       query = "ISC_study_datasets")
     }
   }
 )
@@ -238,28 +245,28 @@ CreateConnection <- function(study = NULL,
   GeneExpressionMatrices=function(verbose = FALSE){
     getData <- function(){
       res <- try(.getLKtbl(con = .self,
-                       schema = "assay.ExpressionMatrix.matrix",
-                       query = "Runs",
-                       colNameOpt = "fieldname",
-                       viewName = "expression_matrices"),
+                           schema = "assay.ExpressionMatrix.matrix",
+                           query = "Runs",
+                           colNameOpt = "fieldname",
+                           viewName = "expression_matrices"),
                  silent = TRUE)
     }
     
-    if( !is.null(data_cache[[constants$matrices]]) ){
-      data_cache[[constants$matrices]]
+    if( !is.null(.self$data_cache[[constants$matrices]]) ){
+      .self$data_cache[[constants$matrices]]
     }else{
       ge <- if(verbose){ getData() } else { suppressWarnings(getData()) }
       
       if(inherits(ge, "try-error") || nrow(ge) == 0 ){
         #No assay or no runs
         message("No gene expression data")
-        data_cache[[constants$matrices]] <<- NULL
+        .self$data_cache[[constants$matrices]] <- NULL
       } else {
         # adding cols to allow for getGEMatrix() to update
         ge[ , annotation := "" ]
         ge[ , outputType := "" ]
         setnames(ge, .self$.munge(colnames(ge)) )
-        data_cache[[constants$matrices]] <<- ge
+        .self$data_cache[[constants$matrices]] <- ge
       }
     }
 
@@ -272,21 +279,18 @@ CreateConnection <- function(study = NULL,
   initialize = function(..., config = NULL) {
 
     #invoke the default init routine in case it needs to be invoked
-    #(e.g. when using $new(object) to construct the new object based on the exiting object)
+    #(e.g. when using $new(object) to construct the new object based on the existing object)
     callSuper(...)
     
-    constants <<- list(matrices = "GE_matrices", matrix_inputs = "GE_inputs")
+    .self$constants <- list(matrices = "GE_matrices", matrix_inputs = "GE_inputs")
     
-    if(!is.null(config))
-      config <<- config
-
-    study <<- basename(config$labkey.url.path)
+    if( !is.null(config) ){ .self$config <- config }
+      
+    .self$study <- basename(config$labkey.url.path)
     
-    if(config$verbose){
-      checkStudy(config$verbose)
-    }
+    checkStudy(.self$config$verbose)
     
-    setAvailableDatasets()
+    .self$available_datasets <- setAvailableDatasets()
 
     gematrices_success <- GeneExpressionMatrices()
   }
