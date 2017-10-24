@@ -602,7 +602,36 @@
   }
 )
 
-#-------------------GEM CLEANUP------------------------------------
+#################################################################
+###                       ADMIN WORK                          ###
+#################################################################
+
+#-------------------GENERAL HELPERS------------------------------
+# sort studies by number
+.spSort <- function(vec){
+  if(length(vec) > 0 ){
+    vec <- sort(as.numeric(gsub("SDY","",vec)))
+    vec <- paste0("SDY", as.character(vec))
+  }else{
+    vec <- NULL
+  }
+}
+
+# get vector of study folders
+.getSdyVec <- function(.self){
+  studies <- labkey.getFolders(baseUrl = .self$config$labkey.url.base, 
+                               folderPath = "/Studies/")[, 1]
+  studies <- studies[ !studies %in% c("SDY_template","Studies") ]
+}
+
+# helper to get sdy ids from subids
+.subidsToSdy <- function(subids){
+  sdys <- unique(gsub("^SUB.+", NA, unlist(strsplit(subids, split = "\\."))))
+  sdys <- sdys[ !is.na(sdys) ]
+  sdys <- paste0("SDY", sdys)
+}
+
+#-------------------GEM CLEANUP-----------------------------------
 # This function outputs a list of lists.  There are six possible sub-lists >
 # 1. $gemAndRaw = study has gene expression matrix flat file and raw data
 # 2. $gemNoRaw = study has gene expression matrix flat file but no raw data (unlikely)
@@ -621,15 +650,6 @@
 
     res <- list()
 
-    spSort <- function(vec) {
-      if (length(vec) > 0 ) {
-        vec <- sort(as.numeric(gsub("SDY","",vec)))
-        vec <- paste0("SDY", as.character(vec))
-      } else {
-        vec <- NULL
-      }
-    }
-
     # get list of matrices and determine which sdys they represent
     gems <- .self$data_cache$GE_matrices
     withGems <- unique(gems$folder)
@@ -640,9 +660,9 @@
     withRawData <- names(file_list)[file_list == TRUE]
 
     # Compare lists
-    res$gemAndRaw <- spSort(intersect(withRawData, withGems))
-    res$gemNoRaw <- spSort(setdiff(withGems, withRawData))
-    res$rawNoGem <- spSort(setdiff(withRawData, withGems))
+    res$gemAndRaw <- .spSort(intersect(withRawData, withGems))
+    res$gemNoRaw <- .spSort(setdiff(withGems, withRawData))
+    res$rawNoGem <- ..spSort(setdiff(withRawData, withGems))
 
     # Check which studies without gems have gef in IS
     ge <- con$getDataset("gene_expression_files")
@@ -653,9 +673,9 @@
     }))
     gefSdys <- paste0("SDY", gefSdys)
 
-    res$gefNoGem <- spSort(gefSdys[!(gefSdys %in% withGems)])
-    res$gefNoRaw <- spSort(setdiff(res$gefNoGem, res$rawNoGem))
-    res$rawNoGef <- spSort(setdiff(res$rawNoGem, res$gefNoGem))
+    res$gefNoGem <- .spSort(gefSdys[!(gefSdys %in% withGems)])
+    res$gefNoRaw <- .spSort(setdiff(res$gefNoGem, res$rawNoGem))
+    res$rawNoGef <- .spSort(setdiff(res$rawNoGem, res$gefNoGem))
 
     return(res)
   }
@@ -748,5 +768,105 @@
     } else {
       print("Operation aborted.")
     }
+  }
+)
+
+#----------------STUDY-CHECK-------------------------------------------------
+# This method allows admin to check which studies are compliant with the 
+# following modules/data files (GEF, RAW, GEO, GEM, DE, GEE, IRP, GSEA)
+.ISCon$methods(
+  .studiesComplianceCheck = function(GEonly = FALSE, validate = FALSE){
+    
+    baseUrl <- .self$config$labkey.url.base
+    
+    # "Studies" corresponds to a connection to all studies
+    if( .self$study != "Studies" ){
+      allSdys <- c(.self$study)
+    } else {
+      allSdys <- .spSort(.getSdyVec(.self))
+    }
+    
+    mods <- c("GEF", "RAW", "GEO", "GEM", "DE", "GEE", "GSEA", "IRP")
+    
+    # res table
+    compDF <- data.frame(matrix(nrow = length(allSdys),
+                                ncol = length(mods)),
+                         row.names = allSdys)
+    colnames(compDF) <- mods
+    
+    # GEM
+    withGems <- unique(.self$data_cache$GE_matrices$folder)
+    compDF$GEM <- rownames(compDF) %in% withGems
+    
+    # RAW
+    file_list <- .getGEFileNms(.self = .self, rawdata = TRUE)
+    file_list <- file_list[ file_list != "NULL" ]
+    withRawData <- names(file_list)[ file_list == TRUE ]
+    compDF$RAW <- rownames(compDF) %in% withRawData
+    
+    # GEF
+    gef <- .self$getDataset("gene_expression_files", maxRows = 10000)
+    withGef <- .subidsToSdy(gef$participant_id)
+    compDF$GEF <- rownames(compDF) %in% withGef
+    
+    # GEO
+    geoGef <- gef[!is.na(gef$geo_accession),]
+    withGeo <- .subidsToSdy(geoGef$participant_id)
+    compDF$GEO <- rownames(compDF) %in% withGeo
+    
+    # GEE
+    compDF$GEE <- compDF$GEM
+    
+    # GSEA
+    gear <- sapply(withGems, FUN = function(sdy){
+      res <- tryCatch(labkey.executeSql(baseUrl = baseUrl,
+                                        folderPath = paste0("/Studies/", sdy),
+                                        schemaName = "gene_expression",
+                                        sql = "SELECT COUNT (*) FROM gene_expression_analysis_results"),
+                      error = function(e){ return( NA ) })
+      output <- res[[1]] > 0 & !is.na(res)
+    })
+    compDF$GSEA <- rownames(compDF) %in% names(gear)[gear == TRUE]
+    
+    if( GEonly == FALSE){
+      # IRP
+      hai <- con$getDataset("hai", maxRows = 20000)
+      nab <- con$getDataset("neut_ab_titer", maxRows = 10000)
+      respPres <- .subidsToSdy( c(nab$participant_id, hai$participant_id) )
+      compDF$IRP <- rownames(compDF) %in% respPres & compDF$GEM == TRUE
+      
+      # DE
+      deSets <- c("Neutralizing antibody titer",
+                  "Enzyme-linked immunosorbent assay (ELISA)",
+                  "Enzyme-Linked ImmunoSpot (ELISPOT)",
+                  "Hemagglutination inhibition (HAI)",
+                  "Polymerisation chain reaction (PCR)",
+                  "Flow cytometry analyzed results",
+                  "Multiplex bead array asssay")
+      compDF$DE <- sapply(rownames(compDF), FUN = function(sdy){
+        res <- suppressWarnings(tryCatch(labkey.executeSql(baseUrl = baseUrl,
+                                                           folderPath = paste0("/Studies/", sdy),
+                                                           schemaName = "study",
+                                                           sql = "SELECT Label FROM ISC_datasets"),
+                                         error = function(e){ return( NA ) })
+                                )
+        output <- any(res[[1]] %in% deSets)
+      })
+    }
+    
+    if( validate == TRUE){
+      getModSdys <- function(name){
+        url <- paste0("https://www.immunespace.org/immport/studies/containersformodule.api?name=", name)
+        res <- unlist(lapply(fromJSON(Rlabkey:::labkey.get(url))[[1]], function(x) x[["name"]]))
+        res <- .spSort(res[ res != "Studies" & res != "SDY_template"])
+      }
+      
+      compDF$DE_act <- rownames(compDF) %in% getModSdys("DataExplorer")
+      compDF$GEE_act <- rownames(compDF) %in% getModSdys("GeneExpressionExplorer")
+      compDF$GSEA_act <- rownames(compDF) %in% getModSdys("GeneSetEnrichmentAnalysis")
+      compDF$IRP_act <- rownames(compDF) %in% getModSdys("ImmuneResponsePredictor")
+    }
+    
+    return( compDF )
   }
 )
