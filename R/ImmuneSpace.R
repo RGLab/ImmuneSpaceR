@@ -1,3 +1,7 @@
+########################################################################
+###                        IS CON HELPER FN                          ###
+########################################################################
+
 .ISCon$methods(
   .munge = function(x) {
     new <- tolower(gsub(" ", "_", basename(x)))
@@ -176,31 +180,48 @@
   }
 )
 
-#################################################################################
-###                     MAINTAINENANCE FN                                     ###
-#################################################################################
+#########################################################################
+###                 NON-CON HELPER FN                                 ###
+#########################################################################
 
-# Helper FNS --------------------------------------------------------------------
+# sort studies by number
+.spSort <- function(vec){
+  if( length(vec) > 0 ){
+    vec <- sort(as.numeric(gsub("SDY","",vec)))
+    vec <- paste0("SDY", as.character(vec))
+  }else{
+    vec <- NULL
+  }
+}
+
+# get vector of study folders
+.getSdyVec <- function(.self){
+  studies <- labkey.getFolders(baseUrl = .self$config$labkey.url.base, 
+                               folderPath = "/Studies/")[, 1]
+  studies <- studies[ !studies %in% c("SDY_template","Studies") ]
+}
+
+# helper to get sdy ids from subids
+.subidsToSdy <- function(subids){
+  sdys <- unique(gsub("^SUB.+", NA, unlist(strsplit(subids, split = "\\."))))
+  sdys <- sdys[ !is.na(sdys) ]
+  sdys <- paste0("SDY", sdys)
+}
+
 # get names of files in a single folder from webdav link
 .listISFiles <- function(link){
   response <- NULL
-  if (url.exists(url = link, netrc = TRUE)) {
-    response_raw <- getURL(url = link, netrc = TRUE)
-    response_json <- fromJSON(response_raw)
+  if( url.exists(url = link, netrc = TRUE) ){
+    response_json <- fromJSON(getURL(url = link, netrc = TRUE))
     response <- unlist(lapply(response_json$files, function(x) x$text))
   }
-
   return(response)
 }
 
 # Generate named list of files in either rawdata or analysis/exprs_matrices folders
 .getGEFileNms <- function(.self, rawdata) {
-  # create list of sdy folders
-  studies <- labkey.getFolders(baseUrl = .self$config$labkey.url.base,
-                               folderPath = "/Studies/")
-  studies <- studies[, 1]
-  studies <- studies[!studies %in% c("SDY_template","Studies")]
-
+  studies <- .getSdyVec(.self)
+  
   # check webdav folder for presence of rawdata
   file_list <- mclapply(studies, mc.cores = detectCores(), FUN = function(sdy) {
     suffix <- ifelse(rawdata == TRUE,
@@ -211,180 +232,29 @@
                        sdy,
                        suffix)
     files <- .listISFiles(dirLink)
-    if (rawdata) {
-      if (!is.null(files)) files <- length(files) > 0
+    if( rawdata == TRUE ){
+      if( !is.null(files) ){
+        files <- length(files) > 0
+      } 
     }
     return(files)
   })
-
+  
   names(file_list) <- studies
-
+  
   return(file_list)
 }
 
-# Returns a list of data frames where TRUE in file_exists column marks files that are accessible.
-# This function is used for administrative purposes to check that the flat files
-# are properly loaded and accessible to the users.
-#' @importFrom RCurl getURL url.exists
-#' @importFrom rjson fromJSON
-#' @importFrom parallel mclapply detectCores
-.ISCon$methods(
-  .test_files = function(what = c("gene_expression_files",
-                                  "fcs_sample_files",
-                                  "fcs_control_files",
-                                  "protocols",
-                                  "ge_matrices")) {
-
-    check_links <- function (dataset, folder) {
-      res <- data.frame(file_info_name = NULL,
-                        study_accession = NULL,
-                        file_link = NULL,
-                        file_exists = NULL,
-                        stringsAsFactors = FALSE)
-
-      if (dataset %in% .self$available_datasets$Name) {
-        temp <- .self$getDataset(dataset, original_view = TRUE)
-
-        if (dataset == "fcs_control_files") {
-          temp <- temp[, file_info_name := control_file]
-          temp <- temp[, c("pid", "sid") := tstrsplit(participant_id, "\\.")]
-          temp <- temp[, study_accession := paste0("SDY", sid)]
-        }
-
-        temp <- temp[!is.na(file_info_name)]
-        temp <- unique(temp[, list(study_accession, file_info_name)])
-
-        file_link <- paste0(config$labkey.url.base,
-                            "/_webdav/Studies/",
-                            temp$study_accession,
-                            "/%40files/rawdata/",
-                            folder,
-                            "/",
-                            sapply(temp$file_info_name, URLencode))
-
-        studies <- unique(temp$study_accession)
-        folder_link <- paste0(config$labkey.url.base,
-                              "/_webdav/Studies/",
-                              studies,
-                              "/%40files/rawdata/",
-                              folder,
-                              "?method=JSON")
-
-        file_list <- unlist(mclapply(folder_link,
-                                     .listISFiles,
-                                     mc.cores = detectCores()))
-
-        file_exists <- temp$file_info_name %in% file_list
-
-        res <- data.frame(study = temp$study_accession,
-                          file_link = file_link,
-                          file_exists = file_exists,
-                          stringsAsFactors = FALSE)
-
-        print(paste0(sum(res$file_exists),
-                     "/",
-                     nrow(res),
-                     " ",
-                     dataset,
-                     " with valid links."))
-      }
-      res
-    }
-
-    ret <- list()
-    what <- tolower(what)
-
-    if ("gene_expression_files" %in% what) {
-      ret$gene_expression_files <- check_links("gene_expression_files",
-                                               "gene_expression")
-    }
-    if ("fcs_sample_files" %in% what) {
-      ret$fcs_sample_files <- check_links("fcs_sample_files", "flow_cytometry")
-    }
-    if ("fcs_control_files" %in% what) {
-      ret$fcs_control_files <- check_links("fcs_control_files", "flow_cytometry")
-    }
-    if ("protocols" %in% what) {
-      if (.self$.isProject()) {
-        folders_list <- labkey.getFolders(baseUrl = config$labkey.url.base,
-                                          folderPath = "/Studies/")
-        folders <- folders_list[, 1]
-        folders <- folders[!folders %in% c("SDY_template","Studies")]
-      } else {
-        folders <- basename(config$labkey.url.path)
-      }
-
-      file_link <- paste0(config$labkey.url.base,
-                          "/_webdav/Studies/",
-                          folders,
-                          "/%40files/protocols/",
-                          folders,
-                          "_protocol.zip")
-      file_exists <- unlist(mclapply(file_link,
-                                     url.exists,
-                                     netrc = TRUE,
-                                     mc.cores = detectCores()))
-
-      res <- data.frame(study = folders,
-                        file_link = file_link,
-                        file_exists = file_exists,
-                        stringsAsFactors = FALSE)
-
-      print(paste0(sum(res$file_exists),
-                   "/",
-                   nrow(res),
-                   " protocols with valid links."))
-      
-      ret$protocols <- res
-    }
-    if ("ge_matrices" %in% what) {
-      matrix_queries <- labkey.getQueries(baseUrl = config$labkey.url.base,
-                                          folderPath = config$labkey.url.path,
-                                          schemaName = "assay.ExpressionMatrix.matrix")
-
-      if ("OutputDatas" %in% matrix_queries$queryName) {
-        ge <-.getLKtbl(con = .self, 
-                       schema = "assay.ExpressionMatrix.matrix", 
-                       query = "OutputDatas", 
-                       colNameOpt = "rname", 
-                       viewName = "links")
-        
-        output <- lapply(ge[4], function(x){
-                          gsub("@", 
-                               "%40", 
-                               gsub("file:/share/files", 
-                                    paste0(config$labkey.url.base, "/_webdav"), 
-                                    x))} 
-                        )
-        
-        file_exists <- unlist(mclapply(output$data_datafileurl, 
-                                       url.exists, 
-                                       netrc = TRUE, 
-                                       mc.cores = detectCores()))
-        
-        res <- data.frame(file_link = output$data_datafileurl, 
-                          file_exists = file_exists, 
-                          stringsAsFactors = FALSE)
-        
-        print(paste0(sum(res$file_exists), "/", nrow(res), " ge_matrices with valid links."))
-        
-      } else {
-        res <- data.frame(file_link = NULL, 
-                          file_exists = NULL, 
-                          stringsAsFactors = FALSE)
-      }
-
-      ret$ge_matrices <- res
-    }
-
-    return(ret)
-  }
-)
-
-
-###############################################################################
-# -------------- PARTICIPANT FILTERING METHODS -------------------------------#
-###############################################################################
+# less verbose wrapper for LK.selectRows calls
+.getLKtbl <- function(con, schema, query, showHidden = TRUE, ...){
+  data.table(labkey.selectRows(baseUrl = con$config$labkey.url.base,
+                               folderPath = con$config$labkey.url.path,
+                               schemaName = schema,
+                               queryName = query,
+                               showHidden = showHidden,
+                               ...),
+             stringsAsFactors = FALSE)
+}
 
 # Ensure only one valid user email is returned or possible errors handled 
 .validateUser <- function(con){
@@ -420,216 +290,171 @@
     user <- "readonly@rglab.org"
   }
   
-  
-  
   return(user)
 }
 
-# less verbose wrapper for LK.selectRows calls
-.getLKtbl <- function(con, schema, query, showHidden = TRUE, ...){
-  data.table(labkey.selectRows(baseUrl = con$config$labkey.url.base,
-                               folderPath = con$config$labkey.url.path,
-                               schemaName = schema,
-                               queryName = query,
-                               showHidden = showHidden,
-                               ...),
-             stringsAsFactors = FALSE)
-}
+#################################################################################
+###                     MAINTAINENANCE METHODS                                ###
+#################################################################################
 
+# Returns a list of data frames where TRUE in file_exists column marks files that are accessible.
+# This function is used for administrative purposes to check that the flat files
+# are properly loaded and accessible to the users.
+#' @importFrom RCurl getURL url.exists
+#' @importFrom rjson fromJSON
+#' @importFrom parallel mclapply detectCores
 .ISCon$methods(
-  listParticipantGroups = function(){
-    "returns a dataframe with all saved Participant Groups on ImmuneSpace.\n"
+  .test_files = function(what = c("gene_expression_files",
+                                  "fcs_sample_files",
+                                  "fcs_control_files",
+                                  "protocols",
+                                  "ge_matrices")) {
     
-    if(config$labkey.url.path != "/Studies/"){
-      stop("labkey.url.path must be /Studies/. Use CreateConnection with all studies.")
+    check_links <- function (dataset, folder) {
+      res <- data.frame(file_info_name = NULL,
+                        study_accession = NULL,
+                        file_link = NULL,
+                        file_exists = NULL,
+                        stringsAsFactors = FALSE)
+      
+      if (dataset %in% .self$available_datasets$Name) {
+        temp <- .self$getDataset(dataset, original_view = TRUE)
+        
+        if (dataset == "fcs_control_files") {
+          temp <- temp[, file_info_name := control_file]
+          temp <- temp[, c("pid", "sid") := tstrsplit(participant_id, "\\.")]
+          temp <- temp[, study_accession := paste0("SDY", sid)]
+        }
+        
+        temp <- temp[!is.na(file_info_name)]
+        temp <- unique(temp[, list(study_accession, file_info_name)])
+        
+        file_link <- paste0(config$labkey.url.base,
+                            "/_webdav/Studies/",
+                            temp$study_accession,
+                            "/%40files/rawdata/",
+                            folder,
+                            "/",
+                            sapply(temp$file_info_name, URLencode))
+        
+        studies <- unique(temp$study_accession)
+        folder_link <- paste0(config$labkey.url.base,
+                              "/_webdav/Studies/",
+                              studies,
+                              "/%40files/rawdata/",
+                              folder,
+                              "?method=JSON")
+        
+        file_list <- unlist(mclapply(folder_link,
+                                     .listISFiles,
+                                     mc.cores = detectCores()))
+        
+        file_exists <- temp$file_info_name %in% file_list
+        
+        res <- data.frame(study = temp$study_accession,
+                          file_link = file_link,
+                          file_exists = file_exists,
+                          stringsAsFactors = FALSE)
+        
+        print(paste0(sum(res$file_exists),
+                     "/",
+                     nrow(res),
+                     " ",
+                     dataset,
+                     " with valid links."))
+      }
+      res
     }
     
-    user <- .validateUser(con = .self)
+    ret <- list()
+    what <- tolower(what)
     
-    # Get summary data
-    pgrpSql <- paste0("SELECT ",
-                        "ParticipantGroup.RowId AS GroupId, ",
-                        "ParticipantGroup.Label AS GroupName, ",
-                        "COUNT(*) AS Subjects ",
-                      "FROM ",
-                        "ParticipantGroupMap ",
-                      "FULL OUTER JOIN ParticipantGroup ",
-                        "ON ParticipantGroupMap.GroupId=ParticipantGroup.RowId ",
-                      "WHERE ",
-                        "ParticipantGroup.CategoryId IN (",
-                          "SELECT rowId ",
-                          "FROM ParticipantCategory ",
-                          "WHERE OwnerId = (",
-                            "SELECT Users.UserId ",
-                            "FROM core.Users ",
-                            "WHERE Users.Email = ",
-                            sprintf("'%s'", user), " )", # need single quotes for string
-                        ") ",
-                      "GROUP BY ",
-                        "ParticipantGroup.RowId, ",
-                        "ParticipantGroup.Label ")
-    
-    result <- labkey.executeSql(config$labkey.url.base,
-                                config$labkey.url.path,
-                                schemaName = "study",
-                                sql = pgrpSql,
-                                colNameOpt = "fieldname",
-                                showHidden = TRUE)
-    
-    if( nrow(result) == 0 ){
-      warning(paste0("No participant groups found for user email: ", user))
+    if ("gene_expression_files" %in% what) {
+      ret$gene_expression_files <- check_links("gene_expression_files",
+                                               "gene_expression")
     }
-
-    return(result)
+    if ("fcs_sample_files" %in% what) {
+      ret$fcs_sample_files <- check_links("fcs_sample_files", "flow_cytometry")
+    }
+    if ("fcs_control_files" %in% what) {
+      ret$fcs_control_files <- check_links("fcs_control_files", "flow_cytometry")
+    }
+    if ("protocols" %in% what) {
+      if (.self$.isProject()) {
+        folders_list <- labkey.getFolders(baseUrl = config$labkey.url.base,
+                                          folderPath = "/Studies/")
+        folders <- folders_list[, 1]
+        folders <- folders[!folders %in% c("SDY_template","Studies")]
+      } else {
+        folders <- basename(config$labkey.url.path)
+      }
+      
+      file_link <- paste0(config$labkey.url.base,
+                          "/_webdav/Studies/",
+                          folders,
+                          "/%40files/protocols/",
+                          folders,
+                          "_protocol.zip")
+      file_exists <- unlist(mclapply(file_link,
+                                     url.exists,
+                                     netrc = TRUE,
+                                     mc.cores = detectCores()))
+      
+      res <- data.frame(study = folders,
+                        file_link = file_link,
+                        file_exists = file_exists,
+                        stringsAsFactors = FALSE)
+      
+      print(paste0(sum(res$file_exists),
+                   "/",
+                   nrow(res),
+                   " protocols with valid links."))
+      
+      ret$protocols <- res
+    }
+    if ("ge_matrices" %in% what) {
+      matrix_queries <- labkey.getQueries(baseUrl = config$labkey.url.base,
+                                          folderPath = config$labkey.url.path,
+                                          schemaName = "assay.ExpressionMatrix.matrix")
+      
+      if ("OutputDatas" %in% matrix_queries$queryName) {
+        ge <-.getLKtbl(con = .self, 
+                       schema = "assay.ExpressionMatrix.matrix", 
+                       query = "OutputDatas", 
+                       colNameOpt = "rname", 
+                       viewName = "links")
+        
+        output <- lapply(ge[4], function(x){
+          gsub("@", 
+               "%40", 
+               gsub("file:/share/files", 
+                    paste0(config$labkey.url.base, "/_webdav"), 
+                    x))} 
+        )
+        
+        file_exists <- unlist(mclapply(output$data_datafileurl, 
+                                       url.exists, 
+                                       netrc = TRUE, 
+                                       mc.cores = detectCores()))
+        
+        res <- data.frame(file_link = output$data_datafileurl, 
+                          file_exists = file_exists, 
+                          stringsAsFactors = FALSE)
+        
+        print(paste0(sum(res$file_exists), "/", nrow(res), " ge_matrices with valid links."))
+        
+      } else {
+        res <- data.frame(file_link = NULL, 
+                          file_exists = NULL, 
+                          stringsAsFactors = FALSE)
+      }
+      
+      ret$ge_matrices <- res
+    }
+    
+    return(ret)
   }
 )
-
-.ISCon$methods(
-  getParticipantData = function(group, dataType, original_view = FALSE, ...){
-    "returns a dataframe with ImmuneSpace data subset by groupId.\n
-    group: Use con$listParticipantGroups() to find Participant groupId or groupName.\n
-    dataType: Use con$listDatasets('datasets') to see possible dataType inputs.\n"
-
-    if(config$labkey.url.path != "/Studies/"){
-      stop("labkey.url.path must be /Studies/. Use CreateConnection with all studies.")
-    }
-
-    if(!(dataType %in% .self$available_datasets$Name)){
-      stop("DataType must be in ", paste(.self$available_datasets$Name, collapse = ", "))
-    }
-
-    # Checking to ensure user is owner of group on correct machine
-    # Note that groupId is used for actually sql statement later regardless of user input
-    user <- .validateUser(con = .self)
-
-    # Must rerun this to ensure valid groups are only for that user and are not changed
-    # within cache.
-    validGrps <- .self$listParticipantGroups()
-
-    if(typeof(group) == "double"){
-      col <- "GroupId"
-      groupId <- group
-    }else if( typeof(group) == "character"){
-      col <- "GroupName"
-      groupId <- validGrps$GroupId[ validGrps$GroupName == group ]
-    }else{
-      stop("Group ID or Name not interpretable as double or character. Please reset")
-    }
-    
-    if( !( group %in% validGrps[[col]] ) ){
-      stop(paste0("group ", group,
-                  " is not in the set of ", col,
-                  " created by ", user,
-                  " on ", .self$config$labkey.url.base))
-    }
-
-    dt <- dataType # for brevity
-
-    # Get assay data + participantGroup + demographic data
-    # Handle special cases
-    if( dt == "demographics"){
-      varSelect <- "cohort_membership.name AS Cohort "
-      varJoin <- paste0(" JOIN cohort_membership ",
-                        "ON ",
-                        dt, ".ParticipantId = cohort_membership.ParticipantId ")
-    }else{
-      varSelect <- paste0("demo.age_reported, ",
-                          "demo.race, ",
-                          "demo.gender, ")
-      varJoin <- paste0(" JOIN immport.arm_or_cohort ",
-                        "ON ", 
-                        dt, ".arm_accession = arm_or_cohort.arm_accession ")
-      if( dt %in% c("gene_expression_files", "cohort_membership", "fcs_sample_files" ) ){
-        varSelect <- paste0( varSelect,
-                             "demo.age_unit, ",
-                             "demo.age_event, ",
-                             "demo.ethnicity, ",
-                             "demo.species, ",
-                             "demo.phenotype ")
-      }else{
-        varSelect <- paste0( varSelect, "arm_or_cohort.name AS arm_name ")
-      }
-    } 
-    
-    sqlAssay <- paste0("SELECT ",
-                        dt, ".*, ",
-                        "pmap.GroupId AS groupId, ",
-                        varSelect,
-                      "FROM ",
-                        dt,
-                      " JOIN ParticipantGroupMap AS pmap ",
-                        "ON ", dt, ".ParticipantId = pmap.ParticipantId",
-                      " JOIN Demographics AS demo ",
-                        "ON ", dt, ".ParticipantId = demo.ParticipantId",
-                      varJoin,
-                      " WHERE pmap.GroupId = ", as.character(groupId))
-    
-    assayData <- labkey.executeSql(baseUrl = .self$config$labkey.url.base,
-                                   folderPath = .self$config$labkey.url.path,
-                                   schemaName = "study",
-                                   sql = sqlAssay,
-                                   colNameOpt = "fieldname",
-                                   ...) # allow for params to be passed, e.g. maxRows
-
-    # Want to match getDataset() results in terms of colnames / order
-    defaultCols <- colnames(.self$getDataset(x = dt,
-                                  original_view = original_view,
-                                  maxRows = 1)) 
-
-    # Some names from assayData do not match default cols and need to changed manually.
-    colnames(assayData)[ grep("ParticipantId", colnames(assayData)) ] <- "participant_id"
-
-    if( original_view == FALSE){
-      changeCol <- if(dt == "demographics"){ 
-                     "Cohort"
-                   }else if(dt == "cohort_membership"){ 
-                     "name"
-                   }else{ 
-                     "arm_name"
-                   }
-                         
-      colnames(assayData)[ grep(changeCol, colnames(assayData)) ] <- "cohort"
-    }else{
-      if( dt %in% c("gene_expression_files", "fcs_control_files") ){
-        colnames(assayData)[ grep("arm_name", colnames(assayData)) ] <- "cohort"
-      }
-    }
-
-    filtData <- assayData[ , colnames(assayData) %in% defaultCols ]
-    filtData <- filtData[ , order( match(colnames(filtData), defaultCols)) ]
-    
-    return(filtData)
-  }
-)
-
-#################################################################
-###                       ADMIN WORK                          ###
-#################################################################
-
-#-------------------GENERAL HELPERS------------------------------
-# sort studies by number
-.spSort <- function(vec){
-  if(length(vec) > 0 ){
-    vec <- sort(as.numeric(gsub("SDY","",vec)))
-    vec <- paste0("SDY", as.character(vec))
-  }else{
-    vec <- NULL
-  }
-}
-
-# get vector of study folders
-.getSdyVec <- function(.self){
-  studies <- labkey.getFolders(baseUrl = .self$config$labkey.url.base, 
-                               folderPath = "/Studies/")[, 1]
-  studies <- studies[ !studies %in% c("SDY_template","Studies") ]
-}
-
-# helper to get sdy ids from subids
-.subidsToSdy <- function(subids){
-  sdys <- unique(gsub("^SUB.+", NA, unlist(strsplit(subids, split = "\\."))))
-  sdys <- sdys[ !is.na(sdys) ]
-  sdys <- paste0("SDY", sdys)
-}
 
 #-------------------GEM CLEANUP-----------------------------------
 # This function outputs a list of lists.  There are six possible sub-lists >
@@ -779,40 +604,34 @@
     
     baseUrl <- .self$config$labkey.url.base
     
-    # "Studies" corresponds to a connection to all studies
+    # res table
     if( .self$study != "Studies" ){
-      allSdys <- c(.self$study)
+      allSdys <- c(.self$study) # single study
     } else {
-      allSdys <- .spSort(.getSdyVec(.self))
+      allSdys <- .spSort(.getSdyVec(.self)) # all studies
     }
     
     mods <- c("GEF", "RAW", "GEO", "GEM", "DE", "GEE", "GSEA", "IRP")
-    
-    # res table
     compDF <- data.frame(matrix(nrow = length(allSdys),
                                 ncol = length(mods)),
                          row.names = allSdys)
     colnames(compDF) <- mods
     
     # GEM
-    withGems <- unique(.self$data_cache$GE_matrices$folder)
-    compDF$GEM <- rownames(compDF) %in% withGems
+    compDF$GEM <- rownames(compDF) %in% unique(.self$data_cache$GE_matrices$folder)
     
     # RAW
     file_list <- .getGEFileNms(.self = .self, rawdata = TRUE)
     file_list <- file_list[ file_list != "NULL" ]
-    withRawData <- names(file_list)[ file_list == TRUE ]
-    compDF$RAW <- rownames(compDF) %in% withRawData
+    compDF$RAW <- rownames(compDF) %in% names(file_list)[ file_list == TRUE ]
     
     # GEF
     gef <- .self$getDataset("gene_expression_files", maxRows = 10000)
-    withGef <- .subidsToSdy(gef$participant_id)
-    compDF$GEF <- rownames(compDF) %in% withGef
+    compDF$GEF <- rownames(compDF) %in% .subidsToSdy(gef$participant_id)
     
     # GEO
     geoGef <- gef[!is.na(gef$geo_accession),]
-    withGeo <- .subidsToSdy(geoGef$participant_id)
-    compDF$GEO <- rownames(compDF) %in% withGeo
+    compDF$GEO <- rownames(compDF) %in% .subidsToSdy(geoGef$participant_id)
     
     # GEE
     compDF$GEE <- compDF$GEM

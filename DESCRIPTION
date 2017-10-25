@@ -1,7 +1,7 @@
 Package: ImmuneSpaceR
 Type: Package
 Title: A Thin Wrapper around the ImmuneSpace Database
-Version: 1.5.9
+Version: 1.5.10
 Date: 2014-06-12
 Authors@R: c(person("Greg", "Finak", role = "aut"),
              person("Renan", "Sauteraud", role = "aut"),
@@ -46,10 +46,11 @@ Imports:
     rmarkdown,
     preprocessCore,
     parallel
-Collate:
+Collate: 
     'CreateConnection.R'
     'ImmuneSpace.R'
     'ImmuneSpaceR.R'
+    'ParticipantGroupFns.R'
     'getDataset.R'
     'getGEMatrix.R'
     'netrc.R'
