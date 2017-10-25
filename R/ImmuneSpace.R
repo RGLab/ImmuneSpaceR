@@ -606,19 +606,20 @@
     
     # res table
     if( .self$study != "Studies" ){
-      allSdys <- c(.self$study) # single study
+      Sdys <- c(.self$study) # single study
     } else {
-      allSdys <- .spSort(.getSdyVec(.self)) # all studies
+      Sdys <- .spSort(.getSdyVec(.self)) # all studies
     }
     
     mods <- c("GEF", "RAW", "GEO", "GEM", "DE", "GEE", "GSEA", "IRP")
-    compDF <- data.frame(matrix(nrow = length(allSdys),
+    compDF <- data.frame(matrix(nrow = length(Sdys),
                                 ncol = length(mods)),
-                         row.names = allSdys)
+                         row.names = Sdys)
     colnames(compDF) <- mods
     
     # GEM
-    compDF$GEM <- rownames(compDF) %in% unique(.self$data_cache$GE_matrices$folder)
+    withGems <- unique(.self$data_cache$GE_matrices$folder)
+    compDF$GEM <- rownames(compDF) %in% withGems
     
     # RAW
     file_list <- .getGEFileNms(.self = .self, rawdata = TRUE)
@@ -673,7 +674,7 @@
       })
     }
     
-    if( validate == TRUE){
+    if( validate == TRUE ){
       getModSdys <- function(name){
         url <- paste0("https://www.immunespace.org/immport/studies/containersformodule.api?name=", name)
         res <- unlist(lapply(fromJSON(Rlabkey:::labkey.get(url))[[1]], function(x) x[["name"]]))
