@@ -627,7 +627,7 @@
     compDF$RAW <- rownames(compDF) %in% names(file_list)[ file_list == TRUE ]
     
     # GEF
-    gef <- .self$getDataset("gene_expression_files", maxRows = 10000)
+    gef <- .self$getDataset("gene_expression_files")
     compDF$GEF <- rownames(compDF) %in% .subidsToSdy(gef$participant_id)
     
     # GEO
@@ -650,8 +650,8 @@
     
     if( GEonly == FALSE){
       # IRP
-      hai <- con$getDataset("hai", maxRows = 20000)
-      nab <- con$getDataset("neut_ab_titer", maxRows = 10000)
+      hai <- con$getDataset("hai")
+      nab <- con$getDataset("neut_ab_titer")
       respPres <- .subidsToSdy( c(nab$participant_id, hai$participant_id) )
       compDF$IRP <- rownames(compDF) %in% respPres & compDF$GEM == TRUE
       
@@ -677,7 +677,7 @@
     if( validate == TRUE ){
       getModSdys <- function(name){
         url <- paste0("https://www.immunespace.org/immport/studies/containersformodule.api?name=", name)
-        res <- unlist(lapply(fromJSON(Rlabkey:::labkey.get(url))[[1]], function(x) x[["name"]]))
+        res <- unlist(lapply(fromJSON(Rlabkey:::labkey.get(url))[[1]], function(x){ x[["name"]]} ))
         res <- .spSort(res[ res != "Studies" & res != "SDY_template"])
       }
       
