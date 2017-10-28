@@ -223,7 +223,7 @@
   studies <- .getSdyVec(.self)
   
   # check webdav folder for presence of rawdata
-  file_list <- mclapply(studies, mc.cores = detectCores(), FUN = function(sdy) {
+  file_list <- lapply(studies, FUN = function(sdy) {
     suffix <- ifelse(rawdata == TRUE,
                      "/%40files/rawdata/gene_expression?method=JSON",
                      "/%40files/analysis/exprs_matrices?method=JSON")
@@ -600,8 +600,9 @@
 # This method allows admin to check which studies are compliant with the 
 # following modules/data files (GEF, RAW, GEO, GEM, DE, GEE, IRP, GSEA)
 .ISCon$methods(
-  .studiesComplianceCheck = function(onlyGE = FALSE, onlyProbs = TRUE){
+  .studiesComplianceCheck = function(filtNonGE = TRUE, showAllCols = FALSE, onlyShowNonCompliant = TRUE){
     
+    # For labkey.executeSql calls
     baseUrl <- .self$config$labkey.url.base
     
     # res table
@@ -611,7 +612,7 @@
       Sdys <- .spSort(.getSdyVec(.self)) # all studies
     }
     
-    mods <- c("GEF", "RAW", "GEO", "GEM", "DE", "GEE", "GSEA", "IRP")
+    mods <- c("GEF", "RAW", "GEO", "GEM", "DE_impl", "GEE_impl", "GSEA_impl", "IRP_impl")
     compDF <- data.frame(matrix(nrow = length(Sdys),
                                 ncol = length(mods)),
                          row.names = Sdys)
@@ -631,11 +632,11 @@
     compDF$GEF <- rownames(compDF) %in% .subidsToSdy(gef$participant_id)
     
     # GEO
-    geoGef <- gef[!is.na(gef$geo_accession),]
+    geoGef <- gef[ !is.na(gef$geo_accession), ]
     compDF$GEO <- rownames(compDF) %in% .subidsToSdy(geoGef$participant_id)
     
     # GEE
-    compDF$GEE <- compDF$GEM
+    compDF$GEE_impl <- compDF$GEM
     
     # GSEA
     gear <- sapply(withGems, FUN = function(sdy){
@@ -646,61 +647,75 @@
                       error = function(e){ return( NA ) })
       output <- res[[1]] > 0 & !is.na(res)
     })
-    compDF$GSEA <- rownames(compDF) %in% names(gear)[gear == TRUE]
-    
-    if( onlyGE == TRUE ){
-      return(compDF)
-    }else{
-      # IRP
-      hai <- con$getDataset("hai")
-      nab <- con$getDataset("neut_ab_titer")
-      respPres <- .subidsToSdy( c(nab$participant_id, hai$participant_id) )
-      compDF$IRP <- rownames(compDF) %in% respPres & compDF$GEM == TRUE
-      
-      # DE
-      deSets <- c("Neutralizing antibody titer",
-                  "Enzyme-linked immunosorbent assay (ELISA)",
-                  "Enzyme-Linked ImmunoSpot (ELISPOT)",
-                  "Hemagglutination inhibition (HAI)",
-                  "Polymerisation chain reaction (PCR)",
-                  "Flow cytometry analyzed results",
-                  "Multiplex bead array asssay")
-      compDF$DE <- sapply(rownames(compDF), FUN = function(sdy){
-        res <- suppressWarnings(tryCatch(labkey.executeSql(baseUrl = baseUrl,
-                                                           folderPath = paste0("/Studies/", sdy),
-                                                           schemaName = "study",
-                                                           sql = "SELECT Label FROM ISC_datasets"),
-                                         error = function(e){ return( NA ) })
-        )
-        ret <- any(res[[1]] %in% deSets)
-      })
+    compDF$GSEA_impl <- rownames(compDF) %in% names(gear)[gear == TRUE]
 
-      # Validation based on modules being turned on
-      getModSdys <- function(name){
-        url <- paste0("https://www.immunespace.org/immport/studies/containersformodule.api?name=", name)
-        res <- unlist(lapply(fromJSON(Rlabkey:::labkey.get(url))[[1]], function(x){ x[["name"]]} ))
-        res <- .spSort(res[ res != "Studies" & res != "SDY_template"])
-      }
+    # IRP - having GSEA implies multiple GE timepoints were available
+    hai <- .self$getDataset("hai")
+    nab <- .self$getDataset("neut_ab_titer")
+    respPres <- .subidsToSdy( c(nab$participant_id, hai$participant_id) )
+    compDF$IRP_impl <- (rownames(compDF) %in% respPres) & compDF$GSEA_impl == TRUE
 
-      compDF$DE_act <- rownames(compDF) %in% getModSdys("DataExplorer")
-      compDF$GEE_act <- rownames(compDF) %in% getModSdys("GeneExpressionExplorer")
-      compDF$GSEA_act <- rownames(compDF) %in% getModSdys("GeneSetEnrichmentAnalysis")
-      compDF$IRP_act <- rownames(compDF) %in% getModSdys("ImmuneResponsePredictor")
+    # tmpGef <- gef[ , colnames(gef) %in% c("participant_id", "study_time_collected"), with = F ]
+    # tmpGef <- tmpGef[ !duplicated(tmpGef), ]
+    # multipleGE <- sapply(tmpGef$participant_id, function(pid){
+    #   return( nrow(tmpGef[ tmpGef$participant_id == pid, ]) > 1 )
+    # })
+    # multiGePres <- .subidsToSdy( names(multipleGE[ multipleGE == TRUE ]) )
 
-      # Subset to only show problematic studies
-      if( onlyProbs == TRUE ){
-        compDF$DE_diff <- compDF$DE == compDF$DE_act
-        compDF$GEE_diff <- compDF$GEE == compDF$GEE_act
-        compDF$GSEA_diff <- compDF$GSEA == compDF$GSEA_act
-        compDF$IRP_diff <- compDF$IRP == compDF$IRP_act
+    # DE
+    deSets <- c("Neutralizing antibody titer",
+                "Enzyme-linked immunosorbent assay (ELISA)",
+                "Enzyme-Linked ImmunoSpot (ELISPOT)",
+                "Hemagglutination inhibition (HAI)",
+                "Polymerisation chain reaction (PCR)",
+                "Flow cytometry analyzed results",
+                "Multiplex bead array asssay")
+    compDF$DE_impl <- sapply(rownames(compDF), FUN = function(sdy){
+      res <- suppressWarnings(tryCatch(labkey.executeSql(baseUrl = baseUrl,
+                                                         folderPath = paste0("/Studies/", sdy),
+                                                         schemaName = "study",
+                                                         sql = "SELECT Label FROM ISC_datasets"),
+                                       error = function(e){ return( NA ) })
+      )
+      ret <- any(res[[1]] %in% deSets)
+    })
 
-        redux <- compDF[ , grep("diff", colnames(compDF)) ]
-        idx <- which(apply(redux, 1, all))
-        compDF <- compDF[-(idx), grep("diff|act", colnames(compDF))]
-
-        message("NOTE: \n Return object has columns marked with 'diff' that indicate a difference between the actual \n or 'act' column that was generated by a call to the module url and the believed column that \n was created by looking at the filesystem.  The 'act' column is included as a reference.")
-      }
-      return(compDF)
+    # Validation based on modules being turned on
+    getModSdys <- function(name){
+      url <- paste0("https://www.immunespace.org/immport/studies/containersformodule.api?name=", name)
+      res <- unlist( lapply(fromJSON(Rlabkey:::labkey.get(url))[[1]], function(x){ x[["name"]]} ) )
+      res <- .spSort( res[ res != "Studies" & res != "SDY_template"] )
     }
+
+    compDF$DE_act <- rownames(compDF) %in% getModSdys("DataExplorer")
+    compDF$GEE_act <- rownames(compDF) %in% getModSdys("GeneExpressionExplorer")
+    compDF$GSEA_act <- rownames(compDF) %in% getModSdys("GeneSetEnrichmentAnalysis")
+    compDF$IRP_act <- rownames(compDF) %in% getModSdys("ImmuneResponsePredictor")
+
+    # Filter out studies that don't have GE since this is basis for everything
+    if( filtNonGE == TRUE ){
+      compDF <- compDF[ compDF$GEO == TRUE | compDF$GEF == TRUE, ]
+    }
+
+    # Subset to only show problematic studies
+    if( onlyShowNonCompliant == TRUE ){
+      compDF$DE_diff <- compDF$DE_impl == compDF$DE_act
+      compDF$GEE_diff <- compDF$GEE_impl == compDF$GEE_act
+      compDF$GSEA_diff <- compDF$GSEA_impl == compDF$GSEA_act
+      compDF$IRP_diff <- compDF$IRP_impl == compDF$IRP_act
+
+      redux <- compDF[ , grep("diff", colnames(compDF)) ]
+      idx <- which(apply(redux, 1, all))
+      compDF <- compDF[-(idx), ]
+    }
+
+    # Defaults to showing only the actual module status and the difference with the implied
+    if( showAllCols == FALSE ){
+      compDF <- compDF[ , grep("diff|act", colnames(compDF)) ]
+      message("NOTE: \n Return object has columns marked with 'diff' that indicate a difference between the actual \n or 'act' column that was generated by a call to the module url and the believed column that \n was created by looking at the filesystem.  The 'act' column is included as a reference.")
+    }
+
+    return(compDF)
+
   }
 )
