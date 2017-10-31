@@ -202,7 +202,7 @@ setCacheName <- function(matrixName, outputType){
 
     pheno <- unique(.getLKtbl(con = .self,
                               schema = "study",
-                              query = "HM_InputSamplesQuerySnapshot",
+                              query = "HM_InputSamplesQuery",
                               containerFilter = "CurrentAndSubfolders",
                               colNameOpt = "caption",
                               colFilter = pheno_filter,
@@ -286,7 +286,7 @@ setCacheName <- function(matrixName, outputType){
     pheno <- unique(labkey.selectRows(baseUrl = config$labkey.url.base,
                                       folderPath = config$labkey.url.path,
                                       schemaName = "study",
-                                      queryName = "HM_InputSamplesQuerySnapshot",
+                                      queryName = "HM_InputSamplesQuery",
                                       containerFilter = "CurrentAndSubfolders",
                                       colNameOpt = "caption",
                                       colFilter = pheno_filter))
