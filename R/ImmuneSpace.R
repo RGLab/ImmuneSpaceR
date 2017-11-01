@@ -278,16 +278,11 @@
     }
     
     # Case 2: valid netrc file (with or without ApiKey)
-    # To mimic LK.get() method - pull first login and use that one.
-    # Need to differentiate between test / prod too.
+    # To mimic LK.get() method - use first login for correct machine
   }else if( !is.null(validNetrc) ){
-    netrc <- strsplit(readLines(validNetrc), split = " ")
     machine <- gsub("https://", "", con$config$labkey.url.base)
-    user <- netrc[ grep(machine, netrc) + 1 ][[1]][2]
-  
-    # Case 3: Travis testing ... not needed if env vars set
-  }else if( is.null(api) & is.null(validNetrc) ){
-    user <- "readonly@rglab.org"
+    netrc <- unlist(strsplit(readLines(validNetrc), split = " "))
+    user <- netrc[ grep(machine, netrc) + 2 ][[1]]
   }
   
   return(user)

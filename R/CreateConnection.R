@@ -217,7 +217,7 @@ CreateConnection <- function(study = NULL,
 
     folders <- labkey.getFolders(.self$config$labkey.url.base, dirNm)
     subdirs <- gsub(paste0(dirNm, "/"), "", folders$folderPath)
-    validSdys <- mixedsort(subdirs[ grep(gTerm, subdirs) ])
+    validSdys <- gtools::mixedsort(subdirs[ grep(gTerm, subdirs) ])
 
     if ( !(sdyNm %in% c("", validSdys)) ) {
       if (verbose == FALSE) {
