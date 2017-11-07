@@ -607,7 +607,7 @@
       Sdys <- .spSort(.getSdyVec(.self)) # all studies
     }
     
-    mods <- c("GEF", "RAW", "GEO", "GEM", "DE_impl", "GEE_impl", "GSEA_impl", "IRP_impl")
+    mods <- c("GEF", "RAW", "GEO", "GEM", "DE_implied", "GEE_implied", "GSEA_implied", "IRP_implied")
     compDF <- data.frame(matrix(nrow = length(Sdys),
                                 ncol = length(mods)),
                          row.names = Sdys)
@@ -641,7 +641,7 @@
                                 queryName = "HM_InputSamplesQuery",
                                 containerFilter = "CurrentAndSubfolders")
     exprResp <- intersect(hai$participant_id, inputSmpls$`Participant Id`)
-    compDF$GEE_impl <- rownames(compDF) %in% .subidsToSdy(exprResp)
+    compDF$GEE_implied <- rownames(compDF) %in% .subidsToSdy(exprResp)
     
     # GSEA - studies with subjects having GEAR results (i.e. compared multiple GEM timepoints)
     gear <- sapply(withGems, FUN = function(sdy){
@@ -652,7 +652,7 @@
                       error = function(e){ return( NA ) })
       output <- res[[1]] > 0 & !is.na(res)
     })
-    compDF$GSEA_impl <- rownames(compDF) %in% names(gear)[gear == TRUE]
+    compDF$GSEA_implied <- rownames(compDF) %in% names(gear)[gear == TRUE]
 
     # IRP - Studies with subjects from multiple cohorts with GEM data at both target
     # timepoint and baseline + response data
@@ -661,14 +661,14 @@
     library(dplyr)
     geCohortSubs <- inputSmpls %>%
                 group_by(study, `Study Time Collected`) %>%
-                filter( (length(unique(Cohort)) > 1) == TRUE) %>% 
+                filter( (length(unique(Cohort)) > 1) == TRUE ) %>% 
                 ungroup() %>%
                 group_by(study, Cohort) %>%
                 filter( (length(unique(`Study Time Collected`)) > 1) == TRUE)
     geHaiSubs <- merge(geCohortSubs, hai,
                        by.x = c("Participant Id", "Study Time Collected"),
-                       by.y = c("participant_id","study_time_collected"))
-    compDF$IRP_impl <- rownames(compDF) %in% .subidsToSdy(geHaiSubs$`Participant Id`)
+                       by.y = c("participant_id", "study_time_collected"))
+    compDF$IRP_implied <- rownames(compDF) %in% .subidsToSdy(geHaiSubs$`Participant Id`)
     studyTimepoints <- geHaiSubs %>%
                         group_by(study) %>%
                         summarize(timepoints = paste(unique(`Study Time Collected`), collapse = ","))
@@ -682,7 +682,7 @@
                 "Polymerisation chain reaction (PCR)",
                 "Flow cytometry analyzed results",
                 "Multiplex bead array asssay")
-    compDF$DE_impl <- sapply(rownames(compDF), FUN = function(sdy){
+    compDF$DE_implied <- sapply(rownames(compDF), FUN = function(sdy){
       res <- suppressWarnings(tryCatch(labkey.executeSql(baseUrl = baseUrl,
                                                          folderPath = paste0("/Studies/", sdy),
                                                          schemaName = "study",
@@ -699,10 +699,35 @@
       res <- .spSort( res[ res != "Studies" & res != "SDY_template"] )
     }
 
-    compDF$DE_act <- rownames(compDF) %in% getModSdys("DataExplorer")
-    compDF$GEE_act <- rownames(compDF) %in% getModSdys("GeneExpressionExplorer")
-    compDF$GSEA_act <- rownames(compDF) %in% getModSdys("GeneSetEnrichmentAnalysis")
-    compDF$IRP_act <- rownames(compDF) %in% getModSdys("ImmuneResponsePredictor")
+    compDF$DE_actual <- rownames(compDF) %in% getModSdys("DataExplorer")
+    compDF$GEE_actual <- rownames(compDF) %in% getModSdys("GeneExpressionExplorer")
+    compDF$GSEA_actual <- rownames(compDF) %in% getModSdys("GeneSetEnrichmentAnalysis")
+    compDF$IRP_actual <- rownames(compDF) %in% getModSdys("ImmuneResponsePredictor")
+
+    # Differences between implied and actual
+    compDF$DE_diff <- compDF$DE_implied == compDF$DE_actual
+    compDF$GEE_diff <- compDF$GEE_implied == compDF$GEE_actual
+    compDF$GSEA_diff <- compDF$GSEA_implied == compDF$GSEA_actual
+    compDF$IRP_diff <- compDF$IRP_implied == compDF$IRP_actual
+
+    colOrder <- c("RAW",
+                  "GEF",
+                  "GEO",
+                  "GEM",
+                  "DE_implied",
+                  "DE_actual",
+                  "DE_diff",
+                  "GEE_implied",
+                  "GEE_actual",
+                  "GEE_diff",
+                  "GSEA_implied",
+                  "GSEA_actual",
+                  "GSEA_diff",
+                  "IRP_implied",
+                  "IRP_actual",
+                  "IRP_diff")
+
+    compDF <- compDF[ , order(match(colnames(compDF), colOrder)) ]
 
     # Filter out studies that don't have GE since this is basis for everything
     if( filtNonGE == TRUE ){
@@ -711,11 +736,6 @@
 
     # Subset to only show problematic studies
     if( onlyShowNonCompliant == TRUE ){
-      compDF$DE_diff <- compDF$DE_impl == compDF$DE_act
-      compDF$GEE_diff <- compDF$GEE_impl == compDF$GEE_act
-      compDF$GSEA_diff <- compDF$GSEA_impl == compDF$GSEA_act
-      compDF$IRP_diff <- compDF$IRP_impl == compDF$IRP_act
-
       redux <- compDF[ , grep("diff", colnames(compDF)) ]
       idx <- which(apply(redux, 1, all))
       compDF <- compDF[-(idx), ]
@@ -724,7 +744,7 @@
     # Defaults to showing only the actual module status and the difference with the implied
     if( showAllCols == FALSE ){
       compDF <- compDF[ , grep("diff|act|time", colnames(compDF)) ]
-      message("NOTE: \n Return object has columns marked with 'diff' that indicate a difference between the actual \n or 'act' column that was generated by a call to the module url and the believed column that \n was created by looking at the filesystem.  The 'act' column is included as a reference.")
+      message("NOTE: \n Return object has columns marked with 'diff' that indicate a difference between the actual column that was generated by a call to the module url and the believed column that \n was created by looking at the filesystem.  The 'act' column is included as a reference.")
     }
 
     return(compDF)
