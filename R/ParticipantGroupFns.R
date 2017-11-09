@@ -33,7 +33,7 @@
                       ") ",
                       "GROUP BY ",
                       "ParticipantGroup.RowId, ",
-                      "ParticipantGroup.Label ")
+                      "ParticipantGroup.Label")
     
     result <- labkey.executeSql(config$labkey.url.base,
                                 config$labkey.url.path,

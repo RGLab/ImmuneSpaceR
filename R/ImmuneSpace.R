@@ -595,7 +595,7 @@
 # This method allows admin to check which studies are compliant with the 
 # following modules/data files (GEF, RAW, GEO, GEM, DE, GEE, IRP, GSEA)
 .ISCon$methods(
-  .studiesComplianceCheck = function(filtNonGE = TRUE, showAllCols = FALSE, onlyShowNonCompliant = TRUE){
+  .studiesComplianceCheck = function(filterNonGE = TRUE, showAllCols = FALSE, onlyShowNonCompliant = TRUE){
     
     # For labkey.executeSql calls
     baseUrl <- .self$config$labkey.url.base
@@ -634,14 +634,16 @@
     # NOTE: when GEE is changed to allow NAb, can uncomment nab / respSubs lines
     hai <- .self$getDataset("hai")
     # nab <- .self$getDataset("neut_ab_titer")
-    # respSubs <- union(hai$participant_id, nab$participant_id)
+    # resp <- union(resp$participant_id, nab$participant_id)
     inputSmpls <- labkey.selectRows(baseUrl = baseUrl,
                                 folderPath = "/Studies",
                                 schemaName = "study",
                                 queryName = "HM_InputSamplesQuery",
                                 containerFilter = "CurrentAndSubfolders")
-    exprResp <- intersect(hai$participant_id, inputSmpls$`Participant Id`)
-    compDF$GEE_implied <- rownames(compDF) %in% .subidsToSdy(exprResp)
+    exprResp <- merge(inputSmpls, hai,
+                      by.x = c("Participant Id", "Study Time Collected"),
+                      by.y = c("participant_id", "study_time_collected"))
+    compDF$GEE_implied <- rownames(compDF) %in% .subidsToSdy(unique(exprResp$`Participant Id`))
     
     # GSEA - studies with subjects having GEAR results (i.e. compared multiple GEM timepoints)
     gear <- sapply(withGems, FUN = function(sdy){
@@ -730,7 +732,7 @@
     compDF <- compDF[ , order(match(colnames(compDF), colOrder)) ]
 
     # Filter out studies that don't have GE since this is basis for everything
-    if( filtNonGE == TRUE ){
+    if( filterNonGE == TRUE ){
       compDF <- compDF[ compDF$GEO == TRUE | compDF$GEF == TRUE, ]
     }
 
