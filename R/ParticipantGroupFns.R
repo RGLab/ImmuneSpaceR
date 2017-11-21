@@ -10,7 +10,7 @@
       stop("labkey.url.path must be /Studies/. Use CreateConnection with all studies.")
     }
     
-    user <- .validateUser(con = .self)
+    userId <- .validateUser(con = .self)
     
     # Get summary data
     pgrpSql <- paste0("SELECT ",
@@ -25,25 +25,21 @@
                       "ParticipantGroup.CategoryId IN (",
                       "SELECT rowId ",
                       "FROM ParticipantCategory ",
-                      "WHERE OwnerId = (",
-                      "SELECT Users.UserId ",
-                      "FROM core.Users ",
-                      "WHERE Users.Email = ",
-                      sprintf("'%s'", user), " )", # need single quotes for string
-                      ") ",
-                      "GROUP BY ",
+                      "WHERE OwnerId = ",
+                      userId,
+                      " ) GROUP BY ",
                       "ParticipantGroup.RowId, ",
                       "ParticipantGroup.Label")
     
-    result <- labkey.executeSql(config$labkey.url.base,
-                                config$labkey.url.path,
+    result <- labkey.executeSql(baseUrl = .self$config$labkey.url.base,
+                                folderPath = .self$config$labkey.url.path,
                                 schemaName = "study",
                                 sql = pgrpSql,
                                 colNameOpt = "fieldname",
                                 showHidden = TRUE)
     
     if( nrow(result) == 0 ){
-      warning(paste0("No participant groups found for user email: ", user))
+      warning(paste0("No participant groups found for current user"))
     }
     
     return(result)
@@ -56,17 +52,13 @@
     group: Use con$listParticipantGroups() to find Participant groupId or groupName.\n
     dataType: Use con$listDatasets('datasets') to see possible dataType inputs.\n"
     
-    if(config$labkey.url.path != "/Studies/"){
+    if(.self$config$labkey.url.path != "/Studies/"){
       stop("labkey.url.path must be /Studies/. Use CreateConnection with all studies.")
     }
     
     if(!(dataType %in% .self$available_datasets$Name)){
       stop("DataType must be in ", paste(.self$available_datasets$Name, collapse = ", "))
     }
-    
-    # Checking to ensure user is owner of group on correct machine
-    # Note that groupId is used for actually sql statement later regardless of user input
-    user <- .validateUser(con = .self)
     
     # Must rerun this to ensure valid groups are only for that user and are not changed
     # within cache.
@@ -85,7 +77,7 @@
     if( !( group %in% validGrps[[col]] ) ){
       stop(paste0("group ", group,
                   " is not in the set of ", col,
-                  " created by ", user,
+                  " created by current user",
                   " on ", .self$config$labkey.url.base))
     }
     

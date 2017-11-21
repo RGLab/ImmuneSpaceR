@@ -276,7 +276,7 @@
     if( inherits(user, "try-error") ){
       stop("labkey.user.email not found, please set")
     }
-    
+
     # Case 2: valid netrc file (with or without ApiKey)
     # To mimic LK.get() method - use first login for correct machine
   }else if( !is.null(validNetrc) ){
@@ -284,8 +284,22 @@
     netrc <- unlist(strsplit(readLines(validNetrc), split = " "))
     user <- netrc[ grep(machine, netrc) + 2 ][[1]]
   }
-  
-  return(user)
+
+  siteUsers <- labkey.selectRows(baseUrl = con$config$labkey.url.base,
+                                 folderPath = con$config$labkey.url.path,
+                                 schemaName = "core",
+                                 queryName = "siteUsers")
+
+  # Admin user pulls whole table
+  if( dim(siteUsers)[[1]] > 1 ){
+    userId <- siteUsers$`User Id`[ siteUsers$Email == user ]
+
+  # Non-Admin sees only self and no email
+  }else{
+    userId <- siteUsers$`User Id`[[1]]
+  }
+
+  return(userId)
 }
 
 #################################################################################
