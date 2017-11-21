@@ -663,13 +663,11 @@
     library(dplyr)
     geCohortSubs <- inputSmpls %>%
                 group_by(study, `Study Time Collected`) %>%
-                filter( (length(unique(Cohort)) > 1) == TRUE ) %>% 
+                filter( (length(unique(Cohort)) > 1 ) == TRUE ) %>% 
                 ungroup() %>%
                 group_by(study, Cohort) %>%
-                filter( (length(unique(`Study Time Collected`)) > 1) == TRUE)
-    geHaiSubs <- merge(geCohortSubs, hai,
-                       by.x = c("Participant Id", "Study Time Collected"),
-                       by.y = c("participant_id", "study_time_collected"))
+                filter( (length(unique(`Study Time Collected`)) > 1 ) == TRUE )
+    geHaiSubs <- geCohortSubs[ geCohortSubs$`Participant Id` %in% unique(hai$participant_id), ]
     compDF$IRP_implied <- rownames(compDF) %in% .subidsToSdy(geHaiSubs$`Participant Id`)
     studyTimepoints <- geHaiSubs %>%
                         group_by(study) %>%
