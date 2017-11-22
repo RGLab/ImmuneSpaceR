@@ -32,7 +32,7 @@ try_ggef <- function(con){
 # Tests --------------------------------------------------------
 context("getGEFiles")
 
-destdir <- tempdir()
+# destdir <- tempdir()
 
 
 # cleanup ------------------------------------------------------
