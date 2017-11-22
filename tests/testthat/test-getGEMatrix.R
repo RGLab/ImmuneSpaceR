@@ -6,8 +6,8 @@ source("set_curlOptions.R")
 library(Biobase)
 
 # CreateConnection ------------------------------------------
-sdy <- CreateConnection("SDY269", onTest = TRUE)
-sdy212 <- CreateConnection("SDY212", onTest = TRUE)
+sdy <- CreateConnection("SDY269")
+sdy212 <- CreateConnection("SDY212")
 # Helper Function -------------------------------------------
 
 test_EM <- function(EM, summary){

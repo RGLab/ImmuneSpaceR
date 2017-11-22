@@ -96,7 +96,7 @@ test_that("Pdata hla_typing", {
   expect_true( res$view_F == "TRUE")
 })
 
-test_that("elispot", {
+test_that("Pdata elispot", {
   res <- testPgrp(dt = "elispot", groupId = groupId )
   expect_true( res$view_T == "TRUE")
   expect_true( res$view_F == "TRUE")
