@@ -42,7 +42,7 @@ NULL
                         show_virus_strain = FALSE,
                         interactive = FALSE,
                         ...) {
-  
+
   logT <- TRUE #By default, log transform the value_reported
   extras <- list(...)
 
@@ -250,13 +250,21 @@ NULL
                              extras,
                              interactive,
                              ...) {
+  dt <- dt[, study_time_collected := as.factor(study_time_collected)]
+
+  tooltips <- c("x", "y")
+  if (is.character(extras[["color"]])) tooltips <- c(tooltips, "colour")
+  if (is.character(extras[["shape"]])) tooltips <- c(tooltips, "shape")
+  if (is.character(extras[["size"]])) tooltips <- c(tooltips, "size")
+  if (is.character(extras[["alpha"]])) tooltips <- c(tooltips, "alpha")
+
   if (type == "violin") {
     geom_type <- geom_violin() #+ stat_summary(fun.y="median", geom="point")
   } else {
     geom_type <- geom_boxplot(outlier.size = 0)
   }
 
-  p <- ggplot(data = dt, aes(as.factor(study_time_collected), response)) +
+  p <- ggplot(data = dt, aes(study_time_collected, response)) +
     geom_type +
     xlab("Time") +
     ylab(ylab) +
@@ -270,7 +278,7 @@ NULL
   p <- p + theme_IS(base_size = text_size)
 
   if (interactive) {
-    ggplotly(p)
+    ggplotly(p, tooltip = tooltips)
   } else {
     print(p)
   }
@@ -286,6 +294,12 @@ NULL
                         extras,
                         interactive,
                         ...) {
+  tooltips <- c("x", "y")
+  if (is.character(extras[["color"]])) tooltips <- c(tooltips, "colour")
+  if (is.character(extras[["shape"]])) tooltips <- c(tooltips, "shape")
+  if (is.character(extras[["size"]])) tooltips <- c(tooltips, "size")
+  if (is.character(extras[["alpha"]])) tooltips <- c(tooltips, "alpha")
+
   p <- ggplot(data = dt, aes(study_time_collected, response, group = participant_id)) +
     geom_line(size = 1, aes_string(...)) +
     xlab("Time") +
@@ -300,7 +314,7 @@ NULL
   p <- p + theme_IS(base_size = text_size)
 
   if (interactive) {
-    ggplotly(p)
+    ggplotly(p, tooltip = tooltips)
   } else {
     print(p)
   }
