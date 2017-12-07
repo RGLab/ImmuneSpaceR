@@ -650,10 +650,10 @@
     # nab <- .self$getDataset("neut_ab_titer")
     # resp <- union(resp$participant_id, nab$participant_id)
     inputSmpls <- labkey.selectRows(baseUrl = baseUrl,
-                                folderPath = "/Studies",
-                                schemaName = "study",
-                                queryName = "HM_InputSamplesQuery",
-                                containerFilter = "CurrentAndSubfolders")
+                                    folderPath = "/Studies",
+                                    schemaName = "study",
+                                    queryName = "HM_InputSamplesQuery",
+                                    containerFilter = "CurrentAndSubfolders")
     exprResp <- merge(inputSmpls, hai,
                       by.x = c("Participant Id", "Study Time Collected"),
                       by.y = c("participant_id", "study_time_collected"))
@@ -672,18 +672,24 @@
 
     # IRP - Studies with subjects from multiple cohorts with GEM data at both target
     # timepoint and baseline + response data
-    # NOTE: Just focused on HAI data currently, would need to rewrite IRP.rmd for NAb
+    nab <- .self$getDataset("neut_ab_titer")
+    resp <- rbind(nab, hai, fill = TRUE) # nab has a col that hai does not
     inputSmpls$study <- gsub("^SUB\\d{6}\\.", "SDY", inputSmpls$`Participant Id`)
     library(dplyr)
+    # NOTE: At least SDY180 has overlapping study_time_collected for both hours and days
+    # so it is important to group by study_time_collected_unit as well. This is reflected
+    # in IRP_timepoints_hai/nab.sql
     geCohortSubs <- inputSmpls %>%
-                group_by(study, `Study Time Collected`) %>%
+                group_by(study, `Study Time Collected`, `Study Time Collected Unit`) %>%
+                  # need multiple cohorts per timePoint (from IRP.js)
                 filter( (length(unique(Cohort)) > 1 ) == TRUE ) %>% 
                 ungroup() %>%
-                group_by(study, Cohort) %>%
-                filter( (length(unique(`Study Time Collected`)) > 1 ) == TRUE )
-    geHaiSubs <- geCohortSubs[ geCohortSubs$`Participant Id` %in% unique(hai$participant_id), ]
-    compDF$IRP_implied <- rownames(compDF) %in% .subidsToSdy(geHaiSubs$`Participant Id`)
-    studyTimepoints <- geHaiSubs %>%
+                group_by(study, Cohort, `Study Time Collected Unit`) %>%
+                  # need baseline + later timePoint (from IRP.Rmd)
+                filter( (length(unique(`Study Time Collected`)) > 1 ) == TRUE ) 
+    geRespSubs <- geCohortSubs[ geCohortSubs$`Participant Id` %in% unique(resp$participant_id), ]
+    compDF$IRP_implied <- rownames(compDF) %in% .subidsToSdy(geRespSubs$`Participant Id`)
+    studyTimepoints <- geRespSubs %>%
                         group_by(study) %>%
                         summarize(timepoints = paste(unique(`Study Time Collected`), collapse = ","))
     compDF$IrpTimepoints <- studyTimepoints$timepoints[ match(rownames(compDF), studyTimepoints$study) ]
