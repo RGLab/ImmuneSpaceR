@@ -686,7 +686,7 @@
                 ungroup() %>%
                 group_by(study, Cohort, `Study Time Collected Unit`) %>%
                   # need baseline + later timePoint (from IRP.Rmd)
-                filter( (length(unique(`Study Time Collected`)) > 1 ) == TRUE ) 
+                filter( (length(unique(`Study Time Collected`)) > 1 ) == TRUE )
     geRespSubs <- geCohortSubs[ geCohortSubs$`Participant Id` %in% unique(resp$participant_id), ]
     compDF$IRP_implied <- rownames(compDF) %in% .subidsToSdy(geRespSubs$`Participant Id`)
     studyTimepoints <- geRespSubs %>%
