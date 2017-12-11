@@ -382,12 +382,15 @@
       ret$gene_expression_files <- check_links("gene_expression_files",
                                                "gene_expression")
     }
+
     if ("fcs_sample_files" %in% what) {
       ret$fcs_sample_files <- check_links("fcs_sample_files", "flow_cytometry")
     }
+
     if ("fcs_control_files" %in% what) {
       ret$fcs_control_files <- check_links("fcs_control_files", "flow_cytometry")
     }
+
     if ("protocols" %in% what) {
       if (.self$.isProject()) {
         folders_list <- labkey.getFolders(baseUrl = config$labkey.url.base,
@@ -397,64 +400,63 @@
       } else {
         folders <- basename(config$labkey.url.path)
       }
-      
+
       file_link <- paste0(config$labkey.url.base,
                           "/_webdav/Studies/",
                           folders,
                           "/%40files/protocols/",
                           folders,
                           "_protocol.zip")
+
       file_exists <- unlist(mclapply(file_link,
                                      url.exists,
                                      netrc = TRUE,
                                      mc.cores = detectCores()))
-      
+
       res <- data.frame(study = folders,
                         file_link = file_link,
                         file_exists = file_exists,
                         stringsAsFactors = FALSE)
-      
+
       print(paste0(sum(res$file_exists),
                    "/",
                    nrow(res),
                    " protocols with valid links."))
-      
+
       ret$protocols <- res
     }
+
     if ("ge_matrices" %in% what) {
         mx <- .getLKtbl(con = .self,
                         schema = "assay.ExpressionMatrix.matrix",
                         query = "Runs",
                         colNameOpt = "rname")
-        
+
         mxLinks <- paste0(config$labkey.url.base,
                           "/_webdav/Studies/",
                           mx$folder_name,
                           "/@files/analysis/exprs_matrices/",
                           mx$name,
                           ".tsv")
-        
+
         file_exists <- unlist(mclapply(mxLinks,
                                        url.exists,
                                        netrc = TRUE,
                                        mc.cores = detectCores()))
-        
-        res <- data.frame(file_link = mxLinks,
+
+        ret$ge_matrices <- data.frame(file_link = mxLinks,
                           file_exists = file_exists,
                           stringsAsFactors = FALSE)
-        
+
         print(paste0(sum(res$file_exists),
                      "/",
                      nrow(res),
                      " ge_matrices with valid links."))
-        
-      } else {
-        res <- data.frame(file_link = NULL, 
+
+    } else {
+      ret$ge_matrices <- data.frame(file_link = NULL,
                           file_exists = NULL, 
                           stringsAsFactors = FALSE)
-      }
-      
-      ret$ge_matrices <- res
     }
     
     return(ret)
