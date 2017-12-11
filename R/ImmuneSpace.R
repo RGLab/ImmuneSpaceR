@@ -422,35 +422,31 @@
       ret$protocols <- res
     }
     if ("ge_matrices" %in% what) {
-      matrix_queries <- labkey.getQueries(baseUrl = config$labkey.url.base,
-                                          folderPath = config$labkey.url.path,
-                                          schemaName = "assay.ExpressionMatrix.matrix")
-      
-      if ("OutputDatas" %in% matrix_queries$queryName) {
-        ge <-.getLKtbl(con = .self, 
-                       schema = "assay.ExpressionMatrix.matrix", 
-                       query = "OutputDatas", 
-                       colNameOpt = "rname", 
-                       viewName = "links")
+        mx <- .getLKtbl(con = .self,
+                        schema = "assay.ExpressionMatrix.matrix",
+                        query = "Runs",
+                        colNameOpt = "rname")
         
-        output <- lapply(ge[4], function(x){
-          gsub("@", 
-               "%40", 
-               gsub("file:/share/files", 
-                    paste0(config$labkey.url.base, "/_webdav"), 
-                    x))} 
-        )
+        mxLinks <- paste0(config$labkey.url.base,
+                          "/_webdav/Studies/",
+                          mx$folder_name,
+                          "/@files/analysis/exprs_matrices/",
+                          mx$name,
+                          ".tsv")
         
-        file_exists <- unlist(mclapply(output$data_datafileurl, 
-                                       url.exists, 
-                                       netrc = TRUE, 
+        file_exists <- unlist(mclapply(mxLinks,
+                                       url.exists,
+                                       netrc = TRUE,
                                        mc.cores = detectCores()))
         
-        res <- data.frame(file_link = output$data_datafileurl, 
-                          file_exists = file_exists, 
+        res <- data.frame(file_link = mxLinks,
+                          file_exists = file_exists,
                           stringsAsFactors = FALSE)
         
-        print(paste0(sum(res$file_exists), "/", nrow(res), " ge_matrices with valid links."))
+        print(paste0(sum(res$file_exists),
+                     "/",
+                     nrow(res),
+                     " ge_matrices with valid links."))
         
       } else {
         res <- data.frame(file_link = NULL, 
