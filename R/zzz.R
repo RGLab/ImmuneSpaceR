@@ -6,6 +6,6 @@
   }
 
   if( .Platform$OS.type == "windows" ){
-    options(RCurlOptions = list(cainfo = system.file("ssl_certs/ca-bundle.crt", package = pkgname)))
+    options(RCurlOptions = list(cainfo = system.file("ssl_certs/cacert.pem", package = pkgname)))
   }
 }
