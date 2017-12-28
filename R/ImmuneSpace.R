@@ -339,7 +339,7 @@
         temp <- temp[ !is.na(file_info_name) ]
         temp <- unique(temp[, list(study_accession, file_info_name)])
         
-        file_link <- paste0(config$labkey.url.base,
+        file_link <- paste0(.self$config$labkey.url.base,
                             "/_webdav/Studies/",
                             temp$study_accession,
                             "/%40files/rawdata/",
@@ -348,7 +348,7 @@
                             sapply(temp$file_info_name, URLencode))
         
         studies <- unique(temp$study_accession)
-        folder_link <- paste0(config$labkey.url.base,
+        folder_link <- paste0(.self$config$labkey.url.base,
                               "/_webdav/Studies/",
                               studies,
                               "/%40files/rawdata/",
@@ -450,9 +450,9 @@
                                       file_exists = file_exists,
                           stringsAsFactors = FALSE)
 
-        print(paste0(sum(res$file_exists),
+        print(paste0(sum(file_exists),
                      "/",
-                     nrow(res),
+                     nrow(file_exists),
                      " ge_matrices with valid links."))
 
     } else {
