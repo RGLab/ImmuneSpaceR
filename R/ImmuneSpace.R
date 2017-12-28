@@ -354,18 +354,18 @@
                               "/%40files/rawdata/",
                               folder,
                               "?method=JSON")
-        
+
         file_list <- unlist(mclapply(folder_link,
                                      .listISFiles,
                                      mc.cores = detectCores()))
-        
+
         file_exists <- temp$file_info_name %in% file_list
-        
+
         res <- data.frame(study = temp$study_accession,
                           file_link = file_link,
                           file_exists = file_exists,
                           stringsAsFactors = FALSE)
-        
+
         print(paste0(sum(res$file_exists),
                      "/",
                      nrow(res),
@@ -415,17 +415,15 @@
                                      netrc = TRUE,
                                      mc.cores = detectCores()))
 
-      res <- data.frame(study = folders,
-                        file_link = file_link,
-                        file_exists = file_exists,
-                        stringsAsFactors = FALSE)
-
-      print(paste0(sum(res$file_exists),
+      print(paste0(sum(file_exists),
                    "/",
-                   nrow(res),
+                   length(file_exists),
                    " protocols with valid links."))
 
-      ret$protocols <- res
+      ret$protocols <- data.frame(study = folders,
+                                  file_link = file_link,
+                                  file_exists = file_exists,
+                                  stringsAsFactors = FALSE)
     }
 
     if ("ge_matrices" %in% what) {
@@ -446,14 +444,14 @@
                                        netrc = TRUE,
                                        mc.cores = detectCores()))
 
-        ret$ge_matrices <- data.frame(file_link = mxLinks,
-                                      file_exists = file_exists,
-                          stringsAsFactors = FALSE)
-
         print(paste0(sum(file_exists),
                      "/",
-                     nrow(file_exists),
+                     length(file_exists),
                      " ge_matrices with valid links."))
+
+        ret$ge_matrices <- data.frame(file_link = mxLinks,
+                                      file_exists = file_exists,
+                                      stringsAsFactors = FALSE)
 
     } else {
       ret$ge_matrices <- data.frame(file_link = NULL,
