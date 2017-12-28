@@ -330,14 +330,13 @@
       if( dataset %in% .self$available_datasets$Name ){
         temp <- .self$getDataset(dataset, original_view = TRUE)
 
-        temp <- temp[ !is.na(file_info_name) ]
-
         if( dataset == "fcs_control_files" ){
           temp <- temp[, file_info_name := control_file]
-          temp <- temp[, c("pid", "sid") := tstrsplit(participant_id, "\\.")]
+          temp <- temp[, c("pid", "sid") := data.table::tstrsplit(participant_id, "\\.")]
           temp <- temp[, study_accession := paste0("SDY", sid)]
         }
 
+        temp <- temp[ !is.na(file_info_name) ]
         temp <- unique(temp[, list(study_accession, file_info_name)])
         
         file_link <- paste0(config$labkey.url.base,
@@ -435,7 +434,7 @@
                         query = "Runs",
                         colNameOpt = "rname")
 
-        mxLinks <- paste0(config$labkey.url.base,
+        mxLinks <- paste0(.self$config$labkey.url.base,
                           "/_webdav/Studies/",
                           mx$folder_name,
                           "/@files/analysis/exprs_matrices/",
@@ -448,7 +447,7 @@
                                        mc.cores = detectCores()))
 
         ret$ge_matrices <- data.frame(file_link = mxLinks,
-                          file_exists = file_exists,
+                                      file_exists = file_exists,
                           stringsAsFactors = FALSE)
 
         print(paste0(sum(res$file_exists),
