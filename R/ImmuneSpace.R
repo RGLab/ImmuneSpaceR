@@ -319,6 +319,7 @@
                                   "protocols",
                                   "ge_matrices")) {
     
+    # HELPER fn ----------------------------------
     check_links <- function (dataset, folder) {
       res <- data.frame(file_info_name = NULL,
                         study_accession = NULL,
@@ -326,16 +327,17 @@
                         file_exists = NULL,
                         stringsAsFactors = FALSE)
       
-      if (dataset %in% .self$available_datasets$Name) {
+      if( dataset %in% .self$available_datasets$Name ){
         temp <- .self$getDataset(dataset, original_view = TRUE)
-        
-        if (dataset == "fcs_control_files") {
+
+        temp <- temp[ !is.na(file_info_name) ]
+
+        if( dataset == "fcs_control_files" ){
           temp <- temp[, file_info_name := control_file]
           temp <- temp[, c("pid", "sid") := tstrsplit(participant_id, "\\.")]
           temp <- temp[, study_accession := paste0("SDY", sid)]
         }
-        
-        temp <- temp[!is.na(file_info_name)]
+
         temp <- unique(temp[, list(study_accession, file_info_name)])
         
         file_link <- paste0(config$labkey.url.base,
@@ -375,6 +377,7 @@
       res
     }
     
+    # MAIN fn ------------------------------
     ret <- list()
     what <- tolower(what)
     
