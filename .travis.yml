@@ -9,7 +9,7 @@ sudo: false
 
 r_github_packages:
   - jimhester/covr
-  - LabKey/labkey-api-r/Rlabkey@fb_tls12_32300
+  - LabKey/labkey-api-r/Rlabkey@develop
 bioc_packages:
   - BiocCheck
 
