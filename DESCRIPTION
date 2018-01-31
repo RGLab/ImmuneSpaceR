@@ -31,6 +31,7 @@ Imports:
     methods,
     data.table,
     RCurl,
+    httr,
     Rlabkey (>= 2.1.136),
     Biobase,
     pheatmap,
