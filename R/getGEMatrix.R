@@ -67,7 +67,7 @@ setCacheName <- function(matrixName, outputType) {
 
       message("Downloading matrix..")
       fl <- tempfile()
-      httr::GET(url = link, config = opts, httr::write_disk(fl))
+      GET(url = link, config = opts, write_disk(fl))
 
       EM <- read.table(fl,
                        header = TRUE,
