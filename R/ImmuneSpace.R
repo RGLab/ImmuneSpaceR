@@ -209,13 +209,40 @@
 }
 
 # get names of files in a single folder from webdav link
-.listISFiles <- function(link){
+.listISFiles <- function(link, .self) {
+  opts <- .self$config$curlOptions
+  opts$options$netrc <- 1L
+  
   response <- NULL
-  if( url.exists(url = link, netrc = TRUE) ){
-    response_json <- fromJSON(getURL(url = link, netrc = TRUE))
+  
+  res <- GET(url = link, config = opts)
+  if (http_error(res)) {
+    response_json <- fromJSON(httr::content(res, type = "text"))
     response <- unlist(lapply(response_json$files, function(x) x$text))
   }
-  return(response)
+  
+  response
+}
+
+.urlExists <- function(url, .self) {
+  opts <- .self$config$curlOptions
+  opts$options$netrc <- 1L
+  
+  res <- HEAD(url, config = opts)
+  
+  if (http_error(res)) {
+    ret <- FALSE
+  } else {
+    if (http_type(res) == "application/json") {
+      res <- GET(url, config = opts)
+      cont <- httr::content(res)
+      ret <- is.null(cont$exception)
+    } else {
+      ret <- TRUE
+    }
+  }
+  
+  ret
 }
 
 # Generate named list of files in either rawdata or analysis/exprs_matrices folders
@@ -231,7 +258,7 @@
                        "/_webdav/Studies/",
                        sdy,
                        suffix)
-    files <- .listISFiles(dirLink)
+    files <- .listISFiles(dirLink, .self)
     if( rawdata == TRUE ){
       if( !is.null(files) ){
         files <- length(files) > 0
@@ -302,6 +329,7 @@
   return(userId)
 }
 
+
 #################################################################################
 ###                     MAINTAINENANCE METHODS                                ###
 #################################################################################
@@ -309,7 +337,6 @@
 # Returns a list of data frames where TRUE in file_exists column marks files that are accessible.
 # This function is used for administrative purposes to check that the flat files
 # are properly loaded and accessible to the users.
-#' @importFrom RCurl getURL url.exists
 #' @importFrom rjson fromJSON
 #' @importFrom parallel mclapply detectCores
 .ISCon$methods(
@@ -355,9 +382,14 @@
                               folder,
                               "?method=JSON")
 
-        file_list <- unlist(mclapply(folder_link,
-                                     .listISFiles,
-                                     mc.cores = detectCores()))
+        file_list <- unlist(
+          mclapply(
+            folder_link,
+            .listISFiles,
+            .self,
+            mc.cores = detectCores()
+          )
+        )
 
         file_exists <- temp$file_info_name %in% file_list
 
@@ -410,10 +442,14 @@
                           folders,
                           "_protocol.zip")
 
-      file_exists <- unlist(mclapply(file_link,
-                                     url.exists,
-                                     netrc = TRUE,
-                                     mc.cores = detectCores()))
+      file_exists <- unlist(
+        mclapply(
+          file_link,
+          .urlExists,
+          .self,
+          mc.cores = detectCores()
+        )
+      )
 
       print(paste0(sum(file_exists),
                    "/",
@@ -439,10 +475,14 @@
                           mx$name,
                           ".tsv")
 
-        file_exists <- unlist(mclapply(mxLinks,
-                                       url.exists,
-                                       netrc = TRUE,
-                                       mc.cores = detectCores()))
+        file_exists <- unlist(
+          mclapply(
+            mxLinks,
+            .urlExists,
+            .self,
+            mc.cores = detectCores()
+          )
+        )
 
         print(paste0(sum(file_exists),
                      "/",
@@ -516,7 +556,7 @@
 # Remove gene expression matrices that do not correspond to a run currently on prod or test
 # in the query assay.ExpressionMatrix.matrix.Runs. NOTE: Important to change the labkey.url.base
 # variable depending on prod / test to ensure you are not deleting any incorrectly.
-#' @importFrom RCurl httpDELETE
+#' @importFrom httr DELETE HEAD http_type http_error
 .ISCon$methods(
   .rmOrphanGems = function() {
 
@@ -541,8 +581,8 @@
     # helper curl FN
     curlDelete <- function(baseNm, sdy, .self) {
       opts <- .self$config$curlOptions
-      opts$netrc <- 1L
-      handle <- getCurlHandle(.opts = opts)
+      opts$options$netrc <- 1L
+      
       tsv <-  paste0(.self$config$labkey.url.base,
                      "/_webdav/Studies/",
                      sdy,
@@ -550,14 +590,11 @@
                      baseNm,
                      ".tsv")
       smry <- paste0(tsv, ".summary")
-      tsvRes <- tryCatch(
-        httpDELETE(url = tsv, curl = handle),
-        error = function(e) return(FALSE)
-      )
-      smryRes <- tryCatch(
-        httpDELETE(url = smry, curl = handle),
-        error = function(e) return(FALSE)
-      )
+      
+      tsvRes <- DELETE(url = tsv, config = opts)
+      smryRes <- DELETE(url = smry, config = opts)
+      
+      list(tsv = tsvRes, summary = smryRes)
     }
 
     # Double check we are working at project level and on correct server!
