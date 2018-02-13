@@ -86,12 +86,12 @@ CreateConnection <- function(study = NULL,
 
   useragent <- paste("ImmuneSpaceR", packageVersion("ImmuneSpaceR"))
   if (!inherits(nf, "try-error") && !is.null(nf)) {
-    curlOptions <- labkey.setCurlOptions(ssl.verifyhost = 2,
+    curlOptions <- labkey.setCurlOptions(ssl_verifyhost = 2,
                                          sslversion = 1,
-                                         netrc.file = nf,
+                                         netrc_file = nf,
                                          useragent = useragent)
   } else {
-    curlOptions <- labkey.setCurlOptions(ssl.verifyhost = 2,
+    curlOptions <- labkey.setCurlOptions(ssl_verifyhost = 2,
                                          sslversion = 1,
                                          useragent = useragent)
   }
@@ -121,7 +121,7 @@ CreateConnection <- function(study = NULL,
     if (is.null(study)) { stop("study cannot be NULL") }
     pathStr <- ifelse( grepl("^IS\\d{1,3}$", study),
                        "/HIPC/",
-                       "/Studies/") 
+                       "/Studies/")
     labkey.url.path <- paste0(pathStr, study)
   } else if (!is.null(study)) {
     labkey.url.path <- file.path(dirname(labkey.url.path),study)
@@ -251,12 +251,12 @@ CreateConnection <- function(study = NULL,
                            viewName = "expression_matrices"),
                  silent = TRUE)
     }
-    
+
     if( !is.null(.self$data_cache[[constants$matrices]]) ){
       .self$data_cache[[constants$matrices]]
     }else{
       ge <- if(verbose){ getData() } else { suppressWarnings(getData()) }
-      
+
       if(inherits(ge, "try-error") || nrow(ge) == 0 ){
         #No assay or no runs
         message("No gene expression data")
@@ -281,15 +281,15 @@ CreateConnection <- function(study = NULL,
     #invoke the default init routine in case it needs to be invoked
     #(e.g. when using $new(object) to construct the new object based on the existing object)
     callSuper(...)
-    
+
     .self$constants <- list(matrices = "GE_matrices", matrix_inputs = "GE_inputs")
-    
+
     if( !is.null(config) ){ .self$config <- config }
-      
+
     .self$study <- basename(config$labkey.url.path)
-    
+
     checkStudy(.self$config$verbose)
-    
+
     .self$available_datasets <- setAvailableDatasets()
 
     gematrices_success <- GeneExpressionMatrices()

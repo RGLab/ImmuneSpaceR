@@ -1,46 +1,81 @@
 # Decode filters in case the user used column labels instead of column names
-#' @importFrom RCurl curlUnescape curlEscape
-.check_filter <- function(con, schema, query, view = "", colFilter){
-  # Get the names used in the filter
-  old <- tolower(curlUnescape(gsub("~.*$", "", colFilter)))
+#' @importFrom utils URLdecode URLencode
+.check_filter <- function(con, schema, query, view = "", colFilter) {
+  # helper functions
+  extractNames <- function(colFilter) {
+    tolower(unlist(lapply(gsub("~.*$", "", colFilter), URLdecode)))
+  }
+  
+  getColnames <- function(colNameOpt) {
+    colnames(
+      .getLKtbl(
+        con = con,
+        schema = schema,
+        query = query,
+        viewName = view,
+        maxRows = 0,
+        colNameOpt = colNameOpt,
+        showHidden = FALSE
+      )
+    )
+  }
+  
+  fixColFilter <- function(colFilter, labels, names) {
+    if (any(old %in% labels)) {
+      idx <- which(old %in% labels)
+      new <- unlist(lapply(names[match(old[idx], labels)], URLencode))
+      colFilter[idx] <- paste0(paste0(new, "~"), gsub("^.*~", "", colFilter[idx]))
+    }
+    
+    colFilter
+  }
+  
+  # step 1:
+  # Extract the colnames used in the filter
+  old <- extractNames(colFilter)
   old[old == "participant_id"] <- "participant id"
   
-  colFn <- function(colNameOpt){
-    res <- colnames(.getLKtbl(con = con,
-                              schema = schema, 
-                              query = query,
-                              viewName = view,
-                              maxRows = 0,
-                              colNameOpt = colNameOpt,
-                              showHidden = FALSE))
-  }
-  
+  # get colnames by fieldname and caption
   suppressWarnings({
-    labels <- tolower(colFn(colNameOpt = "caption"))
-    names <- colFn(colNameOpt = "fieldname")
+    fieldname <- getColnames(colNameOpt = "fieldname")
+    caption <- tolower(getColnames(colNameOpt = "caption"))
   })
   
-  # Get the new names
-  idx <- which(old %in% labels)
-  new <- curlEscape(names[match(old[idx], labels)])
-  colFilter[idx] <- paste0(paste0(new, "~"), gsub("^.*~", "", colFilter[idx]))
-  return(colFilter)
+  # Fix the colFilter with caption
+  colFilter <- fixColFilter(colFilter, caption, fieldname)
+  
+  # step 2:
+  # Extract the colnames in the modified filter 
+  old <- extractNames(colFilter)
+  
+  # get lookups columns and labels to fix them by
+  lookups <- fieldname[grep("/", fieldname)]
+  labels <- gsub("\\w+/", "", lookups)
+  
+  # Fix the colFilter with lookups columns
+  # (e.g., "DataSets/demographics/age_reported")
+  colFilter <- fixColFilter(colFilter, labels, lookups)
+  
+  colFilter
 }
 
-## TODO: Need a way to translate Curl operators into math (so that we can filter the saved tables using colFilter).
-filterDT <- function(table, col, value){
-  table <- table[eval(as.name(col)) == value]
-  return(table)
+## TODO: Need a way to translate Curl operators into math
+## (so that we can filter the saved tables using colFilter).
+filterDT <- function(table, col, value) {
+  table[eval(as.name(col)) == value]
 }
 
-filter_cached_copy <- function(filters, data){
-  decoded <- curlUnescape(filters)
+filter_cached_copy <- function(filters, data) {
+  decoded <- unlist(lapply(filters, URLdecode))
+  
   cols <- gsub(".*/", "", gsub("~.*", "", decoded))
   values <- gsub(".*=", "", decoded)
-  for(i in 1:length(filters)){
+  
+  for (i in 1:length(filters)) {
     data <- filterDT(table, cols[i], values[i])
   }
-  return(data)
+  
+  data
 }
 
 # Downloads a dataset and cache the result in the connection object.

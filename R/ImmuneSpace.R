@@ -209,13 +209,40 @@
 }
 
 # get names of files in a single folder from webdav link
-.listISFiles <- function(link){
+.listISFiles <- function(link, .self) {
+  opts <- .self$config$curlOptions
+  opts$options$netrc <- 1L
+  
   response <- NULL
-  if( url.exists(url = link, netrc = TRUE) ){
-    response_json <- fromJSON(getURL(url = link, netrc = TRUE))
+  
+  res <- GET(url = link, config = opts)
+  if (http_error(res)) {
+    response_json <- fromJSON(httr::content(res, type = "text"))
     response <- unlist(lapply(response_json$files, function(x) x$text))
   }
-  return(response)
+  
+  response
+}
+
+.urlExists <- function(url, .self) {
+  opts <- .self$config$curlOptions
+  opts$options$netrc <- 1L
+  
+  res <- HEAD(url, config = opts)
+  
+  if (http_error(res)) {
+    ret <- FALSE
+  } else {
+    if (http_type(res) == "application/json") {
+      res <- GET(url, config = opts)
+      cont <- httr::content(res)
+      ret <- is.null(cont$exception)
+    } else {
+      ret <- TRUE
+    }
+  }
+  
+  ret
 }
 
 # Generate named list of files in either rawdata or analysis/exprs_matrices folders
@@ -231,7 +258,7 @@
                        "/_webdav/Studies/",
                        sdy,
                        suffix)
-    files <- .listISFiles(dirLink)
+    files <- .listISFiles(dirLink, .self)
     if( rawdata == TRUE ){
       if( !is.null(files) ){
         files <- length(files) > 0
@@ -302,6 +329,7 @@
   return(userId)
 }
 
+
 #################################################################################
 ###                     MAINTAINENANCE METHODS                                ###
 #################################################################################
@@ -309,7 +337,6 @@
 # Returns a list of data frames where TRUE in file_exists column marks files that are accessible.
 # This function is used for administrative purposes to check that the flat files
 # are properly loaded and accessible to the users.
-#' @importFrom RCurl getURL url.exists
 #' @importFrom rjson fromJSON
 #' @importFrom parallel mclapply detectCores
 .ISCon$methods(
@@ -319,6 +346,7 @@
                                   "protocols",
                                   "ge_matrices")) {
     
+    # HELPER fn ----------------------------------
     check_links <- function (dataset, folder) {
       res <- data.frame(file_info_name = NULL,
                         study_accession = NULL,
@@ -326,19 +354,19 @@
                         file_exists = NULL,
                         stringsAsFactors = FALSE)
       
-      if (dataset %in% .self$available_datasets$Name) {
+      if( dataset %in% .self$available_datasets$Name ){
         temp <- .self$getDataset(dataset, original_view = TRUE)
-        
-        if (dataset == "fcs_control_files") {
+
+        if( dataset == "fcs_control_files" ){
           temp <- temp[, file_info_name := control_file]
-          temp <- temp[, c("pid", "sid") := tstrsplit(participant_id, "\\.")]
+          temp <- temp[, c("pid", "sid") := data.table::tstrsplit(participant_id, "\\.")]
           temp <- temp[, study_accession := paste0("SDY", sid)]
         }
-        
-        temp <- temp[!is.na(file_info_name)]
+
+        temp <- temp[ !is.na(file_info_name) ]
         temp <- unique(temp[, list(study_accession, file_info_name)])
         
-        file_link <- paste0(config$labkey.url.base,
+        file_link <- paste0(.self$config$labkey.url.base,
                             "/_webdav/Studies/",
                             temp$study_accession,
                             "/%40files/rawdata/",
@@ -347,24 +375,29 @@
                             sapply(temp$file_info_name, URLencode))
         
         studies <- unique(temp$study_accession)
-        folder_link <- paste0(config$labkey.url.base,
+        folder_link <- paste0(.self$config$labkey.url.base,
                               "/_webdav/Studies/",
                               studies,
                               "/%40files/rawdata/",
                               folder,
                               "?method=JSON")
-        
-        file_list <- unlist(mclapply(folder_link,
-                                     .listISFiles,
-                                     mc.cores = detectCores()))
-        
+
+        file_list <- unlist(
+          mclapply(
+            folder_link,
+            .listISFiles,
+            .self,
+            mc.cores = detectCores()
+          )
+        )
+
         file_exists <- temp$file_info_name %in% file_list
-        
+
         res <- data.frame(study = temp$study_accession,
                           file_link = file_link,
                           file_exists = file_exists,
                           stringsAsFactors = FALSE)
-        
+
         print(paste0(sum(res$file_exists),
                      "/",
                      nrow(res),
@@ -375,6 +408,7 @@
       res
     }
     
+    # MAIN fn ------------------------------
     ret <- list()
     what <- tolower(what)
     
@@ -382,12 +416,15 @@
       ret$gene_expression_files <- check_links("gene_expression_files",
                                                "gene_expression")
     }
+
     if ("fcs_sample_files" %in% what) {
       ret$fcs_sample_files <- check_links("fcs_sample_files", "flow_cytometry")
     }
+
     if ("fcs_control_files" %in% what) {
       ret$fcs_control_files <- check_links("fcs_control_files", "flow_cytometry")
     }
+
     if ("protocols" %in% what) {
       if (.self$.isProject()) {
         folders_list <- labkey.getFolders(baseUrl = config$labkey.url.base,
@@ -397,68 +434,69 @@
       } else {
         folders <- basename(config$labkey.url.path)
       }
-      
+
       file_link <- paste0(config$labkey.url.base,
                           "/_webdav/Studies/",
                           folders,
                           "/%40files/protocols/",
                           folders,
                           "_protocol.zip")
-      file_exists <- unlist(mclapply(file_link,
-                                     url.exists,
-                                     netrc = TRUE,
-                                     mc.cores = detectCores()))
-      
-      res <- data.frame(study = folders,
-                        file_link = file_link,
-                        file_exists = file_exists,
-                        stringsAsFactors = FALSE)
-      
-      print(paste0(sum(res$file_exists),
-                   "/",
-                   nrow(res),
-                   " protocols with valid links."))
-      
-      ret$protocols <- res
-    }
-    if ("ge_matrices" %in% what) {
-      matrix_queries <- labkey.getQueries(baseUrl = config$labkey.url.base,
-                                          folderPath = config$labkey.url.path,
-                                          schemaName = "assay.ExpressionMatrix.matrix")
-      
-      if ("OutputDatas" %in% matrix_queries$queryName) {
-        ge <-.getLKtbl(con = .self, 
-                       schema = "assay.ExpressionMatrix.matrix", 
-                       query = "OutputDatas", 
-                       colNameOpt = "rname", 
-                       viewName = "links")
-        
-        output <- lapply(ge[4], function(x){
-          gsub("@", 
-               "%40", 
-               gsub("file:/share/files", 
-                    paste0(config$labkey.url.base, "/_webdav"), 
-                    x))} 
+
+      file_exists <- unlist(
+        mclapply(
+          file_link,
+          .urlExists,
+          .self,
+          mc.cores = detectCores()
         )
-        
-        file_exists <- unlist(mclapply(output$data_datafileurl, 
-                                       url.exists, 
-                                       netrc = TRUE, 
-                                       mc.cores = detectCores()))
-        
-        res <- data.frame(file_link = output$data_datafileurl, 
-                          file_exists = file_exists, 
-                          stringsAsFactors = FALSE)
-        
-        print(paste0(sum(res$file_exists), "/", nrow(res), " ge_matrices with valid links."))
-        
-      } else {
-        res <- data.frame(file_link = NULL, 
+      )
+
+      print(paste0(sum(file_exists),
+                   "/",
+                   length(file_exists),
+                   " protocols with valid links."))
+
+      ret$protocols <- data.frame(study = folders,
+                                  file_link = file_link,
+                                  file_exists = file_exists,
+                                  stringsAsFactors = FALSE)
+    }
+
+    if ("ge_matrices" %in% what) {
+        mx <- .getLKtbl(con = .self,
+                        schema = "assay.ExpressionMatrix.matrix",
+                        query = "Runs",
+                        colNameOpt = "rname")
+
+        mxLinks <- paste0(.self$config$labkey.url.base,
+                          "/_webdav/Studies/",
+                          mx$folder_name,
+                          "/@files/analysis/exprs_matrices/",
+                          mx$name,
+                          ".tsv")
+
+        file_exists <- unlist(
+          mclapply(
+            mxLinks,
+            .urlExists,
+            .self,
+            mc.cores = detectCores()
+          )
+        )
+
+        print(paste0(sum(file_exists),
+                     "/",
+                     length(file_exists),
+                     " ge_matrices with valid links."))
+
+        ret$ge_matrices <- data.frame(file_link = mxLinks,
+                                      file_exists = file_exists,
+                                      stringsAsFactors = FALSE)
+
+    } else {
+      ret$ge_matrices <- data.frame(file_link = NULL,
                           file_exists = NULL, 
                           stringsAsFactors = FALSE)
-      }
-      
-      ret$ge_matrices <- res
     }
     
     return(ret)
@@ -518,7 +556,7 @@
 # Remove gene expression matrices that do not correspond to a run currently on prod or test
 # in the query assay.ExpressionMatrix.matrix.Runs. NOTE: Important to change the labkey.url.base
 # variable depending on prod / test to ensure you are not deleting any incorrectly.
-#' @importFrom RCurl httpDELETE
+#' @importFrom httr DELETE HEAD http_type http_error
 .ISCon$methods(
   .rmOrphanGems = function() {
 
@@ -543,8 +581,8 @@
     # helper curl FN
     curlDelete <- function(baseNm, sdy, .self) {
       opts <- .self$config$curlOptions
-      opts$netrc <- 1L
-      handle <- getCurlHandle(.opts = opts)
+      opts$options$netrc <- 1L
+      
       tsv <-  paste0(.self$config$labkey.url.base,
                      "/_webdav/Studies/",
                      sdy,
@@ -552,14 +590,11 @@
                      baseNm,
                      ".tsv")
       smry <- paste0(tsv, ".summary")
-      tsvRes <- tryCatch(
-        httpDELETE(url = tsv, curl = handle),
-        error = function(e) return(FALSE)
-      )
-      smryRes <- tryCatch(
-        httpDELETE(url = smry, curl = handle),
-        error = function(e) return(FALSE)
-      )
+      
+      tsvRes <- DELETE(url = tsv, config = opts)
+      smryRes <- DELETE(url = smry, config = opts)
+      
+      list(tsv = tsvRes, summary = smryRes)
     }
 
     # Double check we are working at project level and on correct server!

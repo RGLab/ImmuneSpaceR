@@ -19,16 +19,18 @@
 #' @rdname loadConnection
 #' @export
 #' @return An ImmuneSpaceConnection object
-loadConnection <- function(file){
+loadConnection <- function(file) {
   con <- readRDS(file = file)
   conType <- class(con)
-  if(conType == 'ImmuneSpaceConnection')
-    labkey.url.base <- con$config$labkey.url.base
-  else
-    stop("invalid ImmuneSpaceConnection object!")
 
-  #init labkey.setCurlOptions
-  labkey.setCurlOptions(ssl.verifyhost = 2, sslversion=1)
+  if (conType == 'ImmuneSpaceConnection') {
+    labkey.url.base <- con$config$labkey.url.base
+  } else {
+    stop("invalid ImmuneSpaceConnection object!")
+  }
+
+  # init labkey.setCurlOptions
+  labkey.setCurlOptions(ssl_verifyhost = 2, sslversion = 1)
   con
 }
 
@@ -37,7 +39,7 @@ loadConnection <- function(file){
 #'
 #' @rdname loadConnection
 #' @export
-saveConnection <- function(con, file){
+saveConnection <- function(con, file) {
   saveRDS(con, file = file)
 }
 
@@ -54,7 +56,7 @@ saveConnection <- function(con, file){
 #' @export
 #' @examples
 #' plot(1:10, col = ISpalette(10), cex = 10, pch = 16)
-ISpalette <- function(n){
+ISpalette <- function(n) {
   colorpanel(n, low = "#268bd2", mid = "#fdf6e3", high = "#dc322f")
 }
 
@@ -103,7 +105,7 @@ theme_IS <- function(base_size = 12) {
 #' template_IS
 #'
 #' A HTML template for knitted reports that matches ImmuneSpace's graphic style.
-#' It is based on \code{\link[rmarkdown]{html_document}} from the \pkg{rmarkdown} 
+#' It is based on \code{\link[rmarkdown]{html_document}} from the \pkg{rmarkdown}
 #' package with css, theme, and template parameters disabled.
 #'
 #' @param ... See \code{\link[rmarkdown]{html_document}}
@@ -111,7 +113,7 @@ theme_IS <- function(base_size = 12) {
 #' @return R Markdown output format to pass to \code{\link[rmarkdown]{render}}
 #'
 #' @details
-#' See the documentation for \code{\link[rmarkdown]{html_document}} or the 
+#' See the documentation for \code{\link[rmarkdown]{html_document}} or the
 #' \href{http://rmarkdown.rstudio.com/html_document_format.html}{oneline documentation}
 #' for additional details on using the html_document format.
 #' Compared to html_document, it:
@@ -128,11 +130,11 @@ theme_IS <- function(base_size = 12) {
 #' }
 #' @importFrom rmarkdown html_document
 #' @export
-template_IS <- function(...){
+template_IS <- function(...) {
   html_document(
-    css = system.file("rmarkdown/templates/ImmuneSpace/resources/IStemplate.css", package = "ImmuneSpaceR"), 
-    theme = NULL, 
-    template = "default", 
+    css = system.file("rmarkdown/templates/ImmuneSpace/resources/IStemplate.css", package = "ImmuneSpaceR"),
+    theme = NULL,
+    template = "default",
     ...
   )
 }
@@ -140,7 +142,7 @@ template_IS <- function(...){
 # Add scales that use a different color scheme to the environment.
 #' @importFrom ggplot2 update_geom_defaults
 #' @importFrom scales seq_gradient_pal
-.override_scale <- function(envir = as.environment(1)){
+.override_scale <- function(envir = as.environment(1)) {
   update_geom_defaults("boxplot", list(fill = "#268bd2"))
   scale_updates <- list(
     scale_fill_continuous = function(...) continuous_scale('fill', 'scale_IS', seq_gradient_pal("#268bd2", "#dc322f"), ...),
