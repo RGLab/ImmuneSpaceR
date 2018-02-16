@@ -216,8 +216,8 @@
   response <- NULL
   
   res <- GET(url = link, config = opts)
-  if (http_error(res)) {
-    response_json <- fromJSON(httr::content(res, type = "text"))
+  if (!http_error(res)) {
+    response_json <- httr::content(res)
     response <- unlist(lapply(response_json$files, function(x) x$text))
   }
   
