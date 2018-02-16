@@ -376,7 +376,7 @@ ISCon$set(
     exprs <- matrix[, colnames(matrix) %in% posNames] # rms gene_symbol!
     pheno <- pheno[colnames(exprs), ]
 
-    self$data_cache[[esetName]] <<- ExpressionSet(
+    self$data_cache[[esetName]] <- ExpressionSet(
       assayData = as.matrix(exprs),
       phenoData = AnnotatedDataFrame(pheno),
       featureData = AnnotatedDataFrame(fdata)
@@ -450,7 +450,7 @@ ISCon$set(
       if (esetName %in% names(self$data_cache) & !reload) {
         message(paste0("returning ", esetName, " from cache"))
       } else {
-        self$data_cache[[esetName]] <<- NULL
+        self$data_cache[[esetName]] <- NULL
         self$downloadMatrix(matrixName, outputType, annotation)
         self$GeneExpressionFeatures(matrixName, outputType, annotation)
         self$ConstructExpressionSet(matrixName, outputType)
