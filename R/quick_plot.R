@@ -1,8 +1,10 @@
 #' @include ImmuneSpace.R
 NULL
 
-.ISCon$methods(
-  quick_plot = function(...) {
+ISCon$set(
+  which = "public",
+  name = "quick_plot",
+  value = function(...) {
     "Plots a selected dataset. This is the function used by the DataExplorer
     module on ImmuneSpace.\n
     dataset: A character. The name of the dataset to plot, as displayed by the
@@ -25,7 +27,8 @@ NULL
     The default is FALSE.\n
     '...': Extra argument to be passed to ggplot. e.g: shape = 'Age', color =
     'Race'.\n"
-    .quick_plot(.self, ...)
+
+    .quick_plot(self, ...)
   }
 )
 

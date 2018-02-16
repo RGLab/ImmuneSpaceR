@@ -127,19 +127,21 @@ CreateConnection <- function(study = NULL,
     labkey.url.path <- file.path(dirname(labkey.url.path),study)
   }
 
-  if (!is(use.data.frame, "logical")) {
+  if (class(use.data.frame) != "logical") {
     warning("use.data.frame should be of class `logical`. Setting it to FALSE.")
     use.data.frame <- FALSE
   }
 
-  config <- list(labkey.url.base = labkey.url.base,
-                 labkey.url.path = labkey.url.path,
-                 labkey.user.email = labkey.user.email,
-                 use.data.frame = use.data.frame,
-                 curlOptions = curlOptions,
-                 verbose = verbose)
+  config <- list(
+    labkey.url.base = labkey.url.base,
+    labkey.url.path = labkey.url.path,
+    labkey.user.email = labkey.user.email,
+    use.data.frame = use.data.frame,
+    curlOptions = curlOptions,
+    verbose = verbose
+  )
 
-  .ISCon(config = config)
+  ISCon$new(config = config)
 }
 
 #'@rdname ImmuneSpaceConnection-class
@@ -194,32 +196,38 @@ CreateConnection <- function(study = NULL,
 #'   sdy269
 #' }
 #'@return An instance of an ImmuneSpaceConnection for a study in `labkey.url.path`
-.ISCon <- setRefClass(Class = "ImmuneSpaceConnection",
-                      fields = list(study = "character",
-                                    config = "list",
-                                    available_datasets = "data.table",
-                                    data_cache = "list",
-                                    constants = "list"))
+ISCon <- R6Class(
+  classname = "ImmuneSpaceConnection",
+  public = list(
+    study = character(),
+    config = list(),
+    available_datasets = data.table(),
+    data_cache = list(),
+    constants = list()
+  )
+)
 
 # Functions used in initialize need to be declared ahead of it
 #' @importFrom gtools mixedsort
-.ISCon$methods(
-  checkStudy = function(verbose = FALSE) {
-    sdyNm <- basename(.self$config$labkey.url.path)
-    dirNm <- dirname(.self$config$labkey.url.path)
+ISCon$set(
+  which = "public",
+  name = "checkStudy",
+  value = function(verbose = FALSE) {
+    sdyNm <- basename(self$config$labkey.url.path)
+    dirNm <- dirname(self$config$labkey.url.path)
     gTerm <- ifelse(dirNm == "/HIPC", "^IS\\d{1,3}$", "^SDY\\d{2,4}$")
 
     # adjust for "" connection
-    if(sdyNm == "Studies"){
+    if (sdyNm == "Studies") {
       sdyNm <- ""
       dirNm <- "/Studies"
     }
 
-    folders <- labkey.getFolders(.self$config$labkey.url.base, dirNm)
+    folders <- labkey.getFolders(self$config$labkey.url.base, dirNm)
     subdirs <- gsub(paste0(dirNm, "/"), "", folders$folderPath)
-    validSdys <- gtools::mixedsort(subdirs[ grep(gTerm, subdirs) ])
+    validSdys <- mixedsort(subdirs[grep(gTerm, subdirs)])
 
-    if ( !(sdyNm %in% c("", validSdys)) ) {
+    if (!(sdyNm %in% c("", validSdys))) {
       if (verbose == FALSE) {
         stop(paste0(sdyNm, " is not a valid study. \n Use `verbose = TRUE` to see list of valid studies."))
       } else {
@@ -227,71 +235,90 @@ CreateConnection <- function(study = NULL,
                     paste(validSdys, collapse=", ")))
       }
     }
-
   }
 )
 
-.ISCon$methods(
-  setAvailableDatasets=function(){
-    if( length(.self$available_datasets) == 0 ){
-      res <- .getLKtbl(con = .self,
-                       schema = "study",
-                       query = "ISC_study_datasets")
+ISCon$set(
+  which = "public",
+  name = "setAvailableDatasets",
+  value = function() {
+    if (length(self$available_datasets) == 0) {
+      .getLKtbl(
+        con = self,
+        schema = "study",
+        query = "ISC_study_datasets"
+      )
     }
   }
 )
 
-.ISCon$methods(
-  GeneExpressionMatrices=function(verbose = FALSE){
-    getData <- function(){
-      res <- try(.getLKtbl(con = .self,
-                           schema = "assay.ExpressionMatrix.matrix",
-                           query = "Runs",
-                           colNameOpt = "fieldname",
-                           viewName = "expression_matrices"),
-                 silent = TRUE)
+ISCon$set(
+  which = "public",
+  name = "GeneExpressionMatrices",
+  value = function(verbose = FALSE) {
+    getData <- function() {
+      try(
+        .getLKtbl(
+          con = self,
+          schema = "assay.ExpressionMatrix.matrix",
+          query = "Runs",
+          colNameOpt = "fieldname",
+          viewName = "expression_matrices"
+        ),
+        silent = TRUE
+      )
     }
 
-    if( !is.null(.self$data_cache[[constants$matrices]]) ){
-      .self$data_cache[[constants$matrices]]
-    }else{
-      ge <- if(verbose){ getData() } else { suppressWarnings(getData()) }
+    if (!is.null(self$data_cache[[self$constants$matrices]])) {
+      self$data_cache[[self$constants$matrices]]
+    } else {
+      if (verbose) {
+        ge <- getData()
+      } else {
+        ge <- suppressWarnings(getData())
+      }
 
-      if(inherits(ge, "try-error") || nrow(ge) == 0 ){
-        #No assay or no runs
+      if (inherits(ge, "try-error") || nrow(ge) == 0) {
+        # No assay or no runs
         message("No gene expression data")
-        .self$data_cache[[constants$matrices]] <- NULL
+        self$data_cache[[self$constants$matrices]] <- NULL
       } else {
         # adding cols to allow for getGEMatrix() to update
-        ge[ , annotation := "" ]
-        ge[ , outputType := "" ]
-        setnames(ge, .self$.munge(colnames(ge)) )
-        .self$data_cache[[constants$matrices]] <- ge
+        ge[, annotation := ""]
+        ge[, outputType := ""]
+        setnames(ge, self$.munge(colnames(ge)))
+        self$data_cache[[self$constants$matrices]] <- ge
       }
     }
 
-    return(data_cache[[constants$matrices]])
-
+    return(self$data_cache[[self$constants$matrices]])
   }
 )
 
-.ISCon$methods(
-  initialize = function(..., config = NULL) {
+ISCon$set(
+  which = "public",
+  name = "initialize",
+  value = function(..., config = NULL) {
 
-    #invoke the default init routine in case it needs to be invoked
-    #(e.g. when using $new(object) to construct the new object based on the existing object)
-    callSuper(...)
+    # invoke the default init routine in case it needs to be invoked
+    # (e.g. when using $new(object) to construct the new object based on the existing object)
+    # callSuper(...) # THIS MIIGHT NOT APPLICABLE IN R6
 
-    .self$constants <- list(matrices = "GE_matrices", matrix_inputs = "GE_inputs")
+    self$constants <- list(
+      matrices = "GE_matrices",
+      matrix_inputs = "GE_inputs"
+    )
 
-    if( !is.null(config) ){ .self$config <- config }
+    if (!is.null(config)) {
+      self$config <- config
+    }
 
-    .self$study <- basename(config$labkey.url.path)
+    self$study <- basename(config$labkey.url.path)
 
-    checkStudy(.self$config$verbose)
+    self$checkStudy(self$config$verbose)
 
-    .self$available_datasets <- setAvailableDatasets()
+    self$available_datasets <- self$setAvailableDatasets()
 
-    gematrices_success <- GeneExpressionMatrices()
+    gematrices_success <- self$GeneExpressionMatrices()
   }
 )
