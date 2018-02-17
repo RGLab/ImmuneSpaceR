@@ -12,12 +12,14 @@ This package simplifies access to the HIPC ImmuneSpace database, for R programme
 It takes advantage of the standardization of the ImmuneSpace database to hide all the `Rlabkey` specific code away from the user.
 Study-specific datasets can be accessed via an object-oriented paradigm.
 
+
 ## Installation
+
 The package can be downloaded here and installed like any other R packages or installed directly from github using devtools.
 
 ```R
-    library(devtools)
-    install_github("RGLab/ImmuneSpaceR")
+library(devtools)
+install_github("RGLab/ImmuneSpaceR")
 ```
 
 The database is accessed with the user's credentials. A `.netrc` file storing login and password information is required.
@@ -48,7 +50,9 @@ lead to connection failures.
 See `man netrc` for the official documentation and the User guide vignette for an
 ImmuneSpace specific setup.
 
+
 ## Usage
+
 The general idea is that the user creates an instance of an `ImmuneSpaceConnection` class. 
 The instance configures itself to connect to a specific study, and datasets and gene expression matrices can be retrieved by name.
 
@@ -77,7 +81,8 @@ study$getDataset("name")
 
 The study object *caches* data, so once it is retrieved, the next time you access it, it will use the local cached copy. 
 
-The package uses a simple S5 reference class to represent the connection to a study and get around some of R's copy-on-change behaviour.
+The package uses a R6 class system to represent the connection to a study and get around some of R's copy-on-change behaviour.
+
 
 ## Quick plots
 
@@ -86,9 +91,11 @@ The `quick_plot` function uses ggplot2's qplot function to generate quick plots 
 ```R
 study$quick_plot("hai")
 ```
+
 ![](./inst/img/qpHai.png)
 
 
 ## Examples & Documentation
+
 For more advanced examples and detailed documentation, see the package vignettes
 and the reports available on ImmuneSpace.

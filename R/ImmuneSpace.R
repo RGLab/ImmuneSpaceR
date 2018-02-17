@@ -82,8 +82,6 @@ ISCon$set(
   which = "public",
   name = "listDatasets",
   value = function(output = c("datasets", "expression")) {
-    "List the datasets available in the study or studies of the connection."
-
     if (!all(output %in% c("datasets", "expression"))) {
       stop("output other than datasets and expressions not allowed")
     }
@@ -112,8 +110,6 @@ ISCon$set(
   which = "public",
   name = "listGEAnalysis",
   value = function() {
-    "List available gene expression analysis for the connection."
-
     GEA <- tryCatch(
       .getLKtbl(
         con = self,
@@ -137,9 +133,6 @@ ISCon$set(
   which = "public",
   name = "getGEAnalysis",
   value = function(...) {
-    "Downloads data from the gene expression analysis results table.\n
-    '...': A list of arguments to be passed to labkey.selectRows."
-
     GEAR <- tryCatch(
       .getLKtbl(
         con = self,
@@ -166,7 +159,6 @@ ISCon$set(
   which = "public",
   name = "clear_cache",
   value = function() {
-    "Clear the data_cache. Remove downloaded datasets and expression matrices."
     self$data_cache[grep("^GE", names(self$data_cache), invert = TRUE)] <- NULL
   }
 )
@@ -175,8 +167,6 @@ ISCon$set(
   which = "public",
   name = "print",
   value = function() {
-    "Display information about the object."
-
     cat(sprintf("Immunespace Connection to study %s\n", self$study))
 
     cat(sprintf("URL: %s\n",
@@ -205,9 +195,6 @@ ISCon$set(
   which = "public",
   name = "getGEFiles",
   value = function(files, destdir = ".", quiet = FALSE) {
-    "Download gene expression raw data files.\n
-    files: A character. Filenames as shown on the gene_expression_files dataset.\n
-    destdir: A character. The local path to store the downloaded files."
     links <- paste0(
       self$config$labkey.url.base,
       "/_webdav/",
