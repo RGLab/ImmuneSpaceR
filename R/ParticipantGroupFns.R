@@ -5,8 +5,6 @@ ISCon$set(
   which = "public",
   name = "listParticipantGroups",
   value = function() {
-    "returns a dataframe with all saved Participant Groups on ImmuneSpace.\n"
-
     if (self$config$labkey.url.path != "/Studies/") {
       stop("labkey.url.path must be /Studies/. Use CreateConnection with all studies.")
     }
@@ -55,10 +53,6 @@ ISCon$set(
   which = "public",
   name = "getParticipantData",
   value = function(group, dataType, original_view = FALSE, ...) {
-    "returns a dataframe with ImmuneSpace data subset by groupId.\n
-    group: Use con$listParticipantGroups() to find Participant groupId or groupName.\n
-    dataType: Use con$listDatasets('datasets') to see possible dataType inputs.\n"
-
     if (self$config$labkey.url.path != "/Studies/") {
       stop("labkey.url.path must be /Studies/. Use CreateConnection with all studies.")
     }

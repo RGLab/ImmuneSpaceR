@@ -83,14 +83,6 @@ ISCon$set(
   which = "public",
   name = "getDataset",
   value = function(x, original_view = FALSE, reload = FALSE, colFilter = NULL, ...) {
-    "Get a dataset form the connection\n
-    original_view: A logical. If set tot TRUE, download the ImmPort view.
-    Else, download the default grid view.\n
-    reload: A logical. Clear the cache. If set to TRUE, download the dataset,
-    whether a cached version exist or not.\n
-    colFilter: A character. A filter as returned by Rlabkey's makeFilter function.\n
-    '...': Extra arguments to be passed to labkey.selectRows."
-
     if (nrow(self$available_datasets[Name %in% x]) == 0) {
       wstring <- paste0(study, " has invalid data set: ", x)
       if (config$verbose) {

@@ -393,22 +393,6 @@ ISCon$set(
                    outputType = "summary",
                    annotation = "latest",
                    reload = FALSE) {
-    "Downloads a normalized gene expression matrix from ImmuneSpace.\n
-    `x': A `character'. The name of the gene expression matrix to download.\n
-    `cohort': A `character'. The name of a cohort that has an associated gene
-    expression matrix. Note that if `cohort' isn't NULL, then `x' is ignored.\n
-    `outputType': one of 'raw', 'normalized' or 'summary'. If 'raw' then returns
-    an expression matrix of non-normalized values by probe. 'normalized' returns
-    normalized values by probe.  'summary' returns normalized values averaged
-    by gene symbol.\n
-    `annotation': one of 'default', 'latest', or 'ImmSig'.  Determines which feature
-    annotation set is used.  'default' uses the fas from when the matrix was generated.
-    'latest' uses a recently updated fas based on the original.  'ImmSig' is specific to
-    studies involved in the ImmuneSignatures project and uses the annotation from when
-    the meta-study's manuscript was created.\n
-    `reload': A `logical'. If set to TRUE, the matrix will be downloaded again,
-    even if a cached cop exist in the ImmuneSpaceConnection object."
-
     if (outputType == "summary" & annotation == "ImmSig") {
       stop("Not able to provide summary eSets for ImmSig annotated studies. Please use
            'raw' as outputType with ImmSig studies.")
@@ -478,11 +462,6 @@ ISCon$set(
   which = "public",
   name = "addTreatment",
   value = function(matrixName = NULL) {
-    "Add treatment information to the phenoData of an expression matrix
-    available in the connection object.\n
-    x: A character. The name of a expression matrix that has been downloaded
-    from the connection."
-
     if (is.null(matrixName) || !matrixName %in% names(self$data_cache)) {
       stop(paste(matrixName, "is not a valid expression matrix."))
     }
@@ -561,12 +540,6 @@ ISCon$set(
   which = "public",
   name = "EMNames",
   value = function(EM = NULL, colType = "participant_id") {
-    "Change the sampleNames of an ExpressionSet fetched by getGEMatrix using the
-    information in the phenodData slot.\n
-    x: An ExpressionSet, as returned by getGEMatrix.\n
-    colType: A character. The type of column names. Valid options are 'expsample_accession'
-    and 'participant_id'."
-
     if (is.null(EM) || !is(EM, "ExpressionSet")) {
       stop("EM should be a valid ExpressionSet, as returned by getGEMatrix")
     }
@@ -580,7 +553,8 @@ ISCon$set(
 
     if (colType == "expsample") {
       bsFilter <- makeFilter(
-        c("biosample_accession",
+        c(
+          "biosample_accession",
           "IN",
           paste(pd$biosample_accession, collapse = ";")
         )

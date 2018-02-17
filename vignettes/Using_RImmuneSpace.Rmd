@@ -88,7 +88,7 @@ sdy269$getDataset("hai")
 ```
 
 
-The *sdy269* object is an **R5** class, so it behaves like a true object. 
+The *sdy269* object is an **R6** class, so it behaves like a true object. 
 Functions (like `getDataset`) are members of the object, thus the `$` semantics 
 to access member functions.
 
