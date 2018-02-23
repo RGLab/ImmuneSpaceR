@@ -145,12 +145,12 @@ ISCon$set(
     colnames(assayData)[grep("ParticipantId", colnames(assayData))] <- "participant_id"
 
     if (!original_view) {
-      changeCol <- if (dt == "demographics") {
-        "Cohort"
+      if (dt == "demographics") {
+        changeCol <- "Cohort"
       } else if (dt == "cohort_membership") {
-        "name"
+        changeCol <- "name"
       } else {
-        "arm_name"
+        changeCol <- "arm_name"
       }
 
       colnames(assayData)[grep(changeCol, colnames(assayData))] <- "cohort"

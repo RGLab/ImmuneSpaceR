@@ -3,11 +3,14 @@ NULL
 
 # helper
 setCacheName <- function(matrixName, outputType) {
-  outputSuffix <- switch(outputType,
-                         "summary" = "_sum",
-                         "normalized" = "_norm",
-                         "raw" = "_raw")
-  return(paste0(matrixName, outputSuffix))
+  outputSuffix <- switch(
+    outputType,
+    "summary" = "_sum",
+    "normalized" = "_norm",
+    "raw" = "_raw"
+  )
+
+  paste0(matrixName, outputSuffix)
 }
 
 #' @importFrom httr GET write_disk
@@ -35,24 +38,24 @@ ISCon$set(
       return()
     }
 
-    fileSuffix <- if (outputType == "summary") {
-      switch(
+    if (outputType == "summary") {
+      fileSuffix <- switch(
         annotation,
         "latest" = ".summary",
         "default" = ".summary.orig"
       )
     } else {
-      switch(
+      fileSuffix <- switch(
         outputType,
         "normalized" = "",
         "raw" = ".raw"
       )
     }
 
-    path <- if (self$config$labkey.url.path == "/Studies/") {
-      paste0("/Studies/", self$data_cache$GE_matrices[name == matrixName, folder], "/")
+    if (self$config$labkey.url.path == "/Studies/") {
+      path <- paste0("/Studies/", self$data_cache$GE_matrices[name == matrixName, folder], "/")
     } else {
-      gsub("^/", "", self$config$labkey.url.path)
+      path <- gsub("^/", "", self$config$labkey.url.path)
     }
 
     link <- URLdecode(
@@ -116,11 +119,11 @@ ISCon$set(
     cache_name <- setCacheName(matrixName, outputType)
 
     if (!(matrixName %in% self$data_cache[[self$constants$matrices]]$name)) {
-      stop("Invalid gene expression matrix name");
+      stop("Invalid gene expression matrix name")
     }
 
     status <- self$data_cache$GE_matrices$annotation[self$data_cache$GE_matrices$name == matrixName]
-    if(status == annotation & reload != TRUE) {
+    if (status == annotation & reload != TRUE) {
       message(paste0("returning ", annotation, " annotation from cache"))
       return()
     }
@@ -136,8 +139,8 @@ ISCon$set(
     getOrigFasId <- function(config, matrixName) {
       # Get annoSet based on name of FeatureAnnotationSet + "_orig" tag
       faSets <- labkey.selectRows(
-        baseUrl = self$config$labkey.url.base,
-        folderPath = self$config$labkey.url.path,
+        baseUrl = config$labkey.url.base,
+        folderPath = config$labkey.url.path,
         schemaName = "Microarray",
         queryName = "FeatureAnnotationSet",
         showHidden = TRUE
@@ -174,7 +177,7 @@ ISCon$set(
       sdy <- tolower(gsub("/Studies/", "", self$config$labkey.url.path))
       annoSetId <- faSets$`Row Id`[faSets$Name == paste0("ImmSig_", sdy)]
     } else if (annotation == "default") {
-      annoSetId <- getOrigFasId(config, matrixName)
+      annoSetId <- getOrigFasId(self$config, matrixName)
     } else if (annotation == "latest") {
       annoSetId <- runs$`Feature Annotation Set`[ runs$Name == matrixName]
     }
@@ -448,13 +451,20 @@ ISCon$set(
 # Combine EMs and output only genes available in all EMs.
 .combineEMs <- function(EMlist) {
   message("Combining ExpressionSets")
-  fds <- lapply(EMlist, function(x){ droplevels(data.table(fData(x))) })
+
+  fds <- lapply(EMlist, function(x) {
+    droplevels(data.table(fData(x)))
+  })
+
   fd <- Reduce(f = function(x, y){ merge(x, y, by = c("FeatureId", "gene_symbol"))}, fds)
+
   EMlist <- lapply(EMlist, "[", as.character(fd$FeatureId))
+
   for (i in 1:length(EMlist)) {
       fData(EMlist[[i]]) <- fd
   }
-  res <- Reduce(f = combine, EMlist)
+
+  Reduce(f = combine, EMlist)
 }
 
 # Add treatment information to the phenoData of an expression matrix available in the connection object.
@@ -469,7 +479,7 @@ ISCon$set(
     bsFilter <- makeFilter(
       c("biosample_accession",
         "IN",
-        paste(pData(data_cache[[x]])$biosample_accession, collapse = ";")
+        paste(pData(self$data_cache[[x]])$biosample_accession, collapse = ";")
       )
     )
     bs2es <- .getLKtbl(
