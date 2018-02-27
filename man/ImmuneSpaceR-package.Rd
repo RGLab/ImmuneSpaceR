@@ -3,9 +3,6 @@
 \name{ImmuneSpaceR-package}
 \alias{ImmuneSpaceR-package}
 \alias{ImmuneSpaceR}
-\alias{#'}
-\alias{@seealso}
-\alias{\code{\link{CreateConnection}}}
 \title{A Thin Wrapper Around ImmuneSpace}
 \description{
 ImmuneSpaceR provides a convenient API for accessing data sets
@@ -14,4 +11,7 @@ within the ImmuneSpace database.
 \details{
 Uses the Rlabkey package to connect to ImmuneSpace. Implements
 caching, and convenient methods for accessing data sets.
+}
+\seealso{
+\code{\link{CreateConnection}}
 }

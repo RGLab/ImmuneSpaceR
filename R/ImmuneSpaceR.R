@@ -8,7 +8,7 @@
 #'
 #' @name ImmuneSpaceR-package
 #' @aliases ImmuneSpaceR
-#' #' @seealso \code{\link{CreateConnection}}
+#' @seealso \code{\link{CreateConnection}}
 #' @import data.table Rlabkey Biobase
 #' @importFrom R6 R6Class
 NULL
