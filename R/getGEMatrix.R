@@ -155,6 +155,9 @@ ISCon$set(
       # fasNm is needed.
       if (annotation == "default" & !grepl("_orig|ImmSig", fasNm)) {
         fasNm <- paste0(fasNm, "_orig")
+      
+      # This situation occurred with SDY400 where annotation was added after original 
+      # was generated.
       } else if (annotation == "latest" & grepl("_orig", fasNm, fixed = TRUE)) {
         # This situation occurred with SDY400 where annotation was added after
         # original was generated.
