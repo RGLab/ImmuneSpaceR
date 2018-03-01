@@ -146,7 +146,7 @@ TIV_seasons <- all$getGEMatrix(c("TIV_2008", "SDY144_TIV2011"),
 
 As explained in the user guide, the `ImmuneSpaceConnection` class is a R6 class. It means its objects have fields accessed by reference. As a consequence, they can be modified without making a copy of the entire object. ImmuneSpaceR uses this feature to store downloaded datasets and expression  matrices. Subsequent calls to `getGEMatrix` with the same input will be faster.
 
-See `?R6::R6Class` for more information about R6 classe system.
+See `?R6::R6Class` for more information about R6 class system.
 
 We can see a list of already downloaded runs and feature sets the `data_cache` 
 field. This is not intended to be used for data manipulation and only displayed 
