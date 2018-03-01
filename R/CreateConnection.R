@@ -455,7 +455,7 @@ ISCon$set(
         # adding cols to allow for getGEMatrix() to update
         ge[, annotation := ""]
         ge[, outputType := ""]
-        setnames(ge, self$.munge(colnames(ge)))
+        setnames(ge, private$.munge(colnames(ge)))
         self$data_cache[[self$constants$matrices]] <- ge
       }
     }

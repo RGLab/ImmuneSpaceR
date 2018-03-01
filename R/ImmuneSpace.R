@@ -3,14 +3,14 @@
 ########################################################################
 
 ISCon$set(
-  which = "public",
+  which = "private",
   name = ".munge",
   value = function(x) {
     new <- tolower(gsub(" ", "_", basename(x)))
     idx <- which(duplicated(new) | duplicated(new, fromLast = TRUE))
 
     if (length(idx) > 0) {
-      new[idx] <- self$.munge(gsub("(.*)/.*$", "\\1", x[idx]))
+      new[idx] <- private$.munge(gsub("(.*)/.*$", "\\1", x[idx]))
     }
 
     new
@@ -19,7 +19,7 @@ ISCon$set(
 
 # Returns TRUE if the connection is at project level ("/Studies")
 ISCon$set(
-  which = "public",
+  which = "private",
   name = ".isProject",
   value = function() {
     self$config$labkey.url.path == "/Studies/"
@@ -48,14 +48,14 @@ ISCon$set(
         stop("Gene Expression Inputs not found for study.")
       }
 
-      setnames(ge, self$.munge(colnames(ge)))
+      setnames(ge, private$.munge(colnames(ge)))
       self$data_cache[[self$constants$matrix_inputs]] <- ge
     }
   }
 )
 
 ISCon$set(
-  which = "public",
+  which = "private",
   name = ".isRunningLocally",
   value = function(path) {
     file.exists(path)
@@ -63,7 +63,7 @@ ISCon$set(
 )
 
 ISCon$set(
-  which = "public",
+  which = "private",
   name = ".localStudyPath",
   value = function(urlpath) {
     LOCALPATH <- "/share/files/"
@@ -149,7 +149,7 @@ ISCon$set(
       stop("Gene Expression Analysis not found for study.")
     }
 
-    setnames(GEAR, self$.munge(colnames(GEAR)))
+    setnames(GEAR, private$.munge(colnames(GEAR)))
 
     GEAR
   }
@@ -389,7 +389,7 @@ ISCon$set(
 #' @importFrom rjson fromJSON
 #' @importFrom parallel mclapply detectCores
 ISCon$set(
-  which = "public",
+  which = "private",
   name = ".test_files",
   value = function(what = c("gene_expression_files",
                             "fcs_sample_files",
@@ -497,7 +497,7 @@ ISCon$set(
     }
 
     if ("protocols" %in% what) {
-      if (self$.isProject()) {
+      if (private$.isProject()) {
         folders_list <- labkey.getFolders(
           baseUrl = self$config$labkey.url.base,
           folderPath = "/Studies/"
@@ -611,7 +611,7 @@ ISCon$set(
 # 6. $rawNoGef = This would be unexpected. Rawdata present on server, but no gene expression
 #                files found by con$getDataset().
 ISCon$set(
-  which = "public",
+  which = "private",
   name = ".sdysWithoutGems",
   value = function() {
     res <- list()
@@ -652,7 +652,7 @@ ISCon$set(
 # variable depending on prod / test to ensure you are not deleting any incorrectly.
 #' @importFrom httr DELETE HEAD http_type http_error
 ISCon$set(
-  which = "public",
+  which = "private",
   name = ".rmOrphanGems",
   value = function() {
     # helper functions
@@ -699,7 +699,7 @@ ISCon$set(
 
     # main
     # Double check we are working at project level and on correct server!
-    if (!self$.isProject()) {
+    if (!private$.isProject()) {
       stop("Can only be run at project level")
     }
     chkBase <- readline(
@@ -760,7 +760,7 @@ ISCon$set(
 # This method allows admin to check which studies are compliant with the
 # following modules/data files (GEF, RAW, GEO, GEM, DE, GEE, IRP, GSEA)
 ISCon$set(
-  which = "public",
+  which = "private",
   name = ".studiesComplianceCheck",
   value = function(filterNonGE = TRUE,
                    showAllCols = FALSE,

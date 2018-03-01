@@ -71,8 +71,8 @@ ISCon$set(
       )
     )
 
-    localpath <- self$.localStudyPath(link)
-    if (self$.isRunningLocally(localpath)) {
+    localpath <- private$.localStudyPath(link)
+    if (private$.isRunningLocally(localpath)) {
       message("Reading local matrix")
       self$data_cache[[cache_name]] <- read.table(
         localpath,
@@ -155,8 +155,8 @@ ISCon$set(
       # fasNm is needed.
       if (annotation == "default" & !grepl("_orig|ImmSig", fasNm)) {
         fasNm <- paste0(fasNm, "_orig")
-      
-      # This situation occurred with SDY400 where annotation was added after original 
+
+      # This situation occurred with SDY400 where annotation was added after original
       # was generated.
       } else if (annotation == "latest" & grepl("_orig", fasNm, fixed = TRUE)) {
         # This situation occurred with SDY400 where annotation was added after
@@ -231,7 +231,7 @@ ISCon$set(
     matrix <- self$data_cache[[cache_name]]
 
     #features
-    features <- self$data_cache[[self$.mungeFeatureId(self$.getFeatureId(matrixName))]][, c("FeatureId", "gene_symbol")]
+    features <- self$data_cache[[private$.mungeFeatureId(private$.getFeatureId(matrixName))]][, c("FeatureId", "gene_symbol")]
 
     runID <- self$data_cache$GE_matrices[name == matrixName, rowid]
     pheno_filter <- makeFilter(c("Run", "EQUAL", runID),
@@ -251,7 +251,7 @@ ISCon$set(
       )
     )
 
-    setnames(pheno, self$.munge(colnames(pheno)))
+    setnames(pheno, private$.munge(colnames(pheno)))
 
     pheno <- data.frame(pheno, stringsAsFactors = FALSE)
 
@@ -352,7 +352,7 @@ ISCon$set(
       )
     )
 
-    colnames(pheno) <- sapply(colnames(pheno), self$.munge)
+    colnames(pheno) <- sapply(colnames(pheno), private$.munge)
     keep <- c(
       "biosample_accession",
       "participant_id",
@@ -534,7 +534,7 @@ ISCon$set(
 )
 
 ISCon$set(
-  which = "public",
+  which = "private",
   name = ".getFeatureId",
   value = function(matrixName) {
     subset(self$data_cache[[self$constants$matrices]], name %in% matrixName)[, featureset]
@@ -542,7 +542,7 @@ ISCon$set(
 )
 
 ISCon$set(
-  which = "public",
+  which = "private",
   name = ".mungeFeatureId",
   value = function(annotation_set_id) {
     sprintf("featureset_%s", annotation_set_id)

@@ -137,7 +137,7 @@ ISCon$set(
           showHidden = FALSE,
           ...
         )
-        setnames(data, self$.munge(colnames(data)))
+        setnames(data, private$.munge(colnames(data)))
 
         if (cache) {
           self$data_cache[[cache_name]] <- data

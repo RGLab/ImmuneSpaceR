@@ -17,4 +17,4 @@ test_that("returns error if run at project level", {
 })
 
 # Run on server to be local
-allsdy$.test_files()
+allsdy$.__enclos_env__$private$.test_files()
