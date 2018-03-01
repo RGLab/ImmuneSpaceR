@@ -14,11 +14,11 @@ R Markdown output format to pass to \code{\link[rmarkdown]{render}}
 }
 \description{
 A HTML template for knitted reports that matches ImmuneSpace's graphic style.
-It is based on \code{\link[rmarkdown]{html_document}} from the \pkg{rmarkdown} 
+It is based on \code{\link[rmarkdown]{html_document}} from the \pkg{rmarkdown}
 package with css, theme, and template parameters disabled.
 }
 \details{
-See the documentation for \code{\link[rmarkdown]{html_document}} or the 
+See the documentation for \code{\link[rmarkdown]{html_document}} or the
 \href{http://rmarkdown.rstudio.com/html_document_format.html}{oneline documentation}
 for additional details on using the html_document format.
 Compared to html_document, it:

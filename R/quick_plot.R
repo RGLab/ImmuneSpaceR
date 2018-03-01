@@ -1,31 +1,11 @@
 #' @include ImmuneSpace.R
 NULL
 
-.ISCon$methods(
-  quick_plot = function(...) {
-    "Plots a selected dataset. This is the function used by the DataExplorer
-    module on ImmuneSpace.\n
-    dataset: A character. The name of the dataset to plot, as displayed by the
-    listDataset method.\n
-    normalize_to_baseline: A logical. If set to TRUE, the values are plotted as
-    log2 fold-change from baseline.\n
-    type: A character. The type of plot. Valid choices are 'auto', 'heatmap',
-    'boxplot', 'lineplot', 'violinplot'. If set to 'auto', the function will
-    select an appropriate plot type for the selected data.\n
-    filter: A filter as created by the makeFilter function from Rlabkey.\n
-    facet: The facetting for ggplot2 based plots. Valid choices are 'grid' and
-    'wrap'.\n
-    text_size: The size of all text elements in the plot.\n
-    legend: A character. Columns of the dataset or demographics to be added as
-    legend on the heatmap. This argument is ignored if the plot type isn't
-    heatmap.\n
-    show_virus_strain: A logical. Should all the virus strains be shown or should
-    the values be averaged. Only used when dataset = 'hai'.\n
-    interactive: A logical. If set to TRUE, an interactive plot will be created.
-    The default is FALSE.\n
-    '...': Extra argument to be passed to ggplot. e.g: shape = 'Age', color =
-    'Race'.\n"
-    .quick_plot(.self, ...)
+ISCon$set(
+  which = "public",
+  name = "quick_plot",
+  value = function(...) {
+    .quick_plot(self, ...)
   }
 )
 
