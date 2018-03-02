@@ -379,8 +379,8 @@ ISCon <- R6Class(
 # Functions used in initialize need to be declared ahead of it
 #' @importFrom gtools mixedsort
 ISCon$set(
-  which = "public",
-  name = "checkStudy",
+  which = "private",
+  name = ".checkStudy",
   value = function(verbose = FALSE) {
     sdyNm <- basename(self$config$labkey.url.path)
     dirNm <- dirname(self$config$labkey.url.path)
@@ -408,8 +408,8 @@ ISCon$set(
 )
 
 ISCon$set(
-  which = "public",
-  name = "setAvailableDatasets",
+  which = "private",
+  name = ".setAvailableDatasets",
   value = function() {
     if (length(self$available_datasets) == 0) {
       .getLKtbl(
@@ -483,9 +483,9 @@ ISCon$set(
 
     self$study <- basename(config$labkey.url.path)
 
-    self$checkStudy(self$config$verbose)
+    private$.checkStudy(self$config$verbose)
 
-    self$available_datasets <- self$setAvailableDatasets()
+    self$available_datasets <- private$.setAvailableDatasets()
 
     gematrices_success <- self$GeneExpressionMatrices()
   }
