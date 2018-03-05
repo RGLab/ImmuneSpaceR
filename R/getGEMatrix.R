@@ -220,8 +220,8 @@ ISCon$set(
 )
 
 ISCon$set(
-  which = "public",
-  name = "ConstructExpressionSet",
+  which = "private",
+  name = ".constructExpressionSet",
   value = function(matrixName, outputType) {
     cache_name <- setCacheName(matrixName, outputType)
     esetName <- paste0(cache_name, "_eset")
@@ -422,7 +422,7 @@ ISCon$set(
     if (length(matrixName) > 1) {
       lapply(matrixName, private$.downloadMatrix, outputType, annotation, reload)
       lapply(matrixName, private$.getGEFeatures, outputType, annotation, reload)
-      lapply(matrixName, self$ConstructExpressionSet, outputType)
+      lapply(matrixName, private$.constructExpressionSet, outputType)
       ret <- .combineEMs(self$data_cache[esetName])
       if (dim(ret)[[1]] == 0) {
         # No features shared
@@ -443,7 +443,7 @@ ISCon$set(
         self$data_cache[[esetName]] <- NULL
         private$.downloadMatrix(matrixName, outputType, annotation)
         private$.getGEFeatures(matrixName, outputType, annotation)
-        self$ConstructExpressionSet(matrixName, outputType)
+        private$.constructExpressionSet(matrixName, outputType)
       }
 
       return(self$data_cache[[esetName]])
