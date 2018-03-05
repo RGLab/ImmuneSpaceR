@@ -16,14 +16,14 @@ em_list[["SDY404"]] <- c("SDY404_young_PBMC_year2",
 chk_mats <- function(sdy, exp_mat_names){
   con <- CreateConnection(sdy, verbose = TRUE)
   expect_true(!is.null(con$config$labkey.url.base))
-  
-  mats <- con$GeneExpressionMatrices()
+
+  mats <- con$listGEMatrices()
   expect_true(all(exp_mat_names %in% mats$name))
 }
 
 
 # Tests --------------------------------------------------------
-context("GeneExpressionMatrices")
+context("listGEMatrices")
 
 test_that("gets correct matrices for SDY269", {
   sdy <- "SDY269"

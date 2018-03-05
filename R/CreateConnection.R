@@ -287,6 +287,9 @@ CreateConnection <- function(study = NULL,
 #'   \item{\code{listGEAnalysis()}}{
 #'     Lists available gene expression analysis for the connection.
 #'   }
+#'   \item{\code{listGEMatrices()}}{
+#'     Lists available gene expression matrices for the connection.
+#'   }
 #'   \item{\code{getGEAnalysis(...)}}{
 #'     Downloads data from the gene expression analysis results table.
 #'
@@ -423,7 +426,7 @@ ISCon$set(
 
 ISCon$set(
   which = "public",
-  name = "GeneExpressionMatrices",
+  name = "listGEMatrices",
   value = function(verbose = FALSE) {
     getData <- function() {
       try(
@@ -487,6 +490,6 @@ ISCon$set(
 
     self$available_datasets <- private$.setAvailableDatasets()
 
-    gematrices_success <- self$GeneExpressionMatrices()
+    gematrices_success <- self$listGEMatrices()
   }
 )

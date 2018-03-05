@@ -138,6 +138,9 @@ the host name like "www.immunespace.org".
   \item{\code{listGEAnalysis()}}{
     Lists available gene expression analysis for the connection.
   }
+  \item{\code{listGEMatrices()}}{
+    Lists available gene expression matrices for the connection.
+  }
   \item{\code{getGEAnalysis(...)}}{
     Downloads data from the gene expression analysis results table.
 
