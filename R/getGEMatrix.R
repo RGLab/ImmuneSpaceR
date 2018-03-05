@@ -110,8 +110,8 @@ ISCon$set(
 )
 
 ISCon$set(
-  which = "public",
-  name = "GeneExpressionFeatures",
+  which = "private",
+  name = ".getGEFeatures",
   value = function(matrixName,
                    outputType = "summary",
                    annotation = "latest",
@@ -421,7 +421,7 @@ ISCon$set(
     # length(x) > 1 means multiple cohorts
     if (length(matrixName) > 1) {
       lapply(matrixName, private$.downloadMatrix, outputType, annotation, reload)
-      lapply(matrixName, self$GeneExpressionFeatures, outputType, annotation, reload)
+      lapply(matrixName, private$.getGEFeatures, outputType, annotation, reload)
       lapply(matrixName, self$ConstructExpressionSet, outputType)
       ret <- .combineEMs(self$data_cache[esetName])
       if (dim(ret)[[1]] == 0) {
@@ -442,7 +442,7 @@ ISCon$set(
       } else {
         self$data_cache[[esetName]] <- NULL
         private$.downloadMatrix(matrixName, outputType, annotation)
-        self$GeneExpressionFeatures(matrixName, outputType, annotation)
+        private$.getGEFeatures(matrixName, outputType, annotation)
         self$ConstructExpressionSet(matrixName, outputType)
       }
 
