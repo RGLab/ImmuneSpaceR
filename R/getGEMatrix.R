@@ -16,8 +16,8 @@ setCacheName <- function(matrixName, outputType) {
 #' @importFrom httr GET write_disk
 #' @importFrom preprocessCore normalize.quantiles
 ISCon$set(
-  which = "public",
-  name = "downloadMatrix",
+  which = "private",
+  name = ".downloadMatrix",
   value = function(matrixName,
                    outputType = "summary",
                    annotation = "latest",
@@ -420,7 +420,7 @@ ISCon$set(
 
     # length(x) > 1 means multiple cohorts
     if (length(matrixName) > 1) {
-      lapply(matrixName, self$downloadMatrix, outputType, annotation, reload)
+      lapply(matrixName, private$.downloadMatrix, outputType, annotation, reload)
       lapply(matrixName, self$GeneExpressionFeatures, outputType, annotation, reload)
       lapply(matrixName, self$ConstructExpressionSet, outputType)
       ret <- .combineEMs(self$data_cache[esetName])
@@ -441,7 +441,7 @@ ISCon$set(
         message(paste0("returning ", esetName, " from cache"))
       } else {
         self$data_cache[[esetName]] <- NULL
-        self$downloadMatrix(matrixName, outputType, annotation)
+        private$.downloadMatrix(matrixName, outputType, annotation)
         self$GeneExpressionFeatures(matrixName, outputType, annotation)
         self$ConstructExpressionSet(matrixName, outputType)
       }
