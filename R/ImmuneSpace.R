@@ -28,7 +28,7 @@ ISCon$set(
 
 ISCon$set(
   which = "public",
-  name = "GeneExpressionInputs",
+  name = "getGEInputs",
   value = function() {
     if (!is.null(self$data_cache[[self$constants$matrix_inputs]])) {
       self$data_cache[[self$constants$matrix_inputs]]

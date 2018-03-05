@@ -308,6 +308,9 @@ CreateConnection <- function(study = NULL,
 #'     \code{destdir}: A character. The local path to store the downloaded
 #'     files.
 #'   }
+#'   \item{\code{getGEInputs()}}{
+#'     Downloads data from the gene expression input samples table.
+#'   }
 #'   \item{\code{listParticipantGroups()}}{
 #'     Returns a dataframe with all saved Participant Groups on ImmuneSpace.
 #'   }

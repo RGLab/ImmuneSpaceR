@@ -12,14 +12,14 @@ sdy34 <- suppressMessages(CreateConnection("SDY34", verbose = TRUE))
 # Helper Functions ---------------------------------------------
 try_gei <- function(con){
   tryCatch(
-    con$GeneExpressionInputs(),
+    con$getGEInputs(),
     warning = function(w) return(w),
     error = function(e) return(e)
   )
 }
 
 # Tests --------------------------------------------------------
-context("GeneExpressionInputs")
+context("getGEInputs")
 
 test_that("returns GE inputs df if study has inputs", {
   res <- try_gei(sdy269)

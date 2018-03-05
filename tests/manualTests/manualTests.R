@@ -5,7 +5,7 @@ allsdy <- CreateConnection("")
 
 try_gei <- function(con){
   tryCatch(
-    con$GeneExpressionInputs(),
+    con$getGEInputs(),
     warning = function(w) return(w),
     error = function(e) return(e)
   )
