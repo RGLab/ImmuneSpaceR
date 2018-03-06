@@ -30,8 +30,8 @@ ISCon$set(
   which = "public",
   name = "getGEInputs",
   value = function() {
-    if (!is.null(self$data_cache[[self$constants$matrix_inputs]])) {
-      self$data_cache[[self$constants$matrix_inputs]]
+    if (!is.null(self$data_cache[[private$.constants$matrix_inputs]])) {
+      self$data_cache[[private$.constants$matrix_inputs]]
     } else {
       ge <- tryCatch(
         .getLKtbl(
@@ -49,7 +49,7 @@ ISCon$set(
       }
 
       setnames(ge, private$.munge(colnames(ge)))
-      self$data_cache[[self$constants$matrix_inputs]] <- ge
+      self$data_cache[[private$.constants$matrix_inputs]] <- ge
     }
   }
 )
@@ -94,10 +94,10 @@ ISCon$set(
     }
 
     if ("expression" %in% output) {
-      if (!is.null(self$data_cache[[self$constants$matrices]])) {
+      if (!is.null(self$data_cache[[private$.constants$matrices]])) {
         cat("Expression Matrices\n")
-        for (i in 1:nrow(self$data_cache[[self$constants$matrices]])) {
-          cat(sprintf("\t%s\n", self$data_cache[[self$constants$matrices]][i, name]))
+        for (i in 1:nrow(self$data_cache[[private$.constants$matrices]])) {
+          cat(sprintf("\t%s\n", self$data_cache[[private$.constants$matrices]][i, name]))
         }
       } else {
         cat("No Expression Matrices Available")
@@ -182,10 +182,10 @@ ISCon$set(
       cat(sprintf("\t%s\n", self$available_datasets[i, Name]))
     }
 
-    if (!is.null(self$data_cache[[self$constants$matrices]])) {
+    if (!is.null(self$data_cache[[private$.constants$matrices]])) {
       cat("Expression Matrices\n")
-      for (i in 1:nrow(self$data_cache[[self$constants$matrices]])) {
-        cat(sprintf("\t%s\n", self$data_cache[[self$constants$matrices]][i, name]))
+      for (i in 1:nrow(self$data_cache[[private$.constants$matrices]])) {
+        cat(sprintf("\t%s\n", self$data_cache[[private$.constants$matrices]][i, name]))
       }
     }
   }

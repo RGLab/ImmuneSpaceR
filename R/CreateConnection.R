@@ -211,9 +211,6 @@ CreateConnection <- function(study = NULL,
 #'     A \code{list}. Stores the data to avoid downloading the same tables
 #'     multiple times.
 #'   }
-#'   \item{\code{constants}}{
-#'     A \code{list}. Used to store information regarding gene-expression data.
-#'   }
 #' }
 #'
 #' @section Methods:
@@ -377,8 +374,10 @@ ISCon <- R6Class(
     study = character(),
     config = list(),
     available_datasets = data.table(),
-    data_cache = list(),
-    constants = list()
+    data_cache = list()
+  ),
+  private = list(
+    .constants = list()
   )
 )
 
@@ -444,8 +443,8 @@ ISCon$set(
       )
     }
 
-    if (!is.null(self$data_cache[[self$constants$matrices]])) {
-      self$data_cache[[self$constants$matrices]]
+    if (!is.null(self$data_cache[[private$.constants$matrices]])) {
+      self$data_cache[[private$.constants$matrices]]
     } else {
       if (verbose) {
         ge <- getData()
@@ -456,17 +455,17 @@ ISCon$set(
       if (inherits(ge, "try-error") || nrow(ge) == 0) {
         # No assay or no runs
         message("No gene expression data")
-        self$data_cache[[self$constants$matrices]] <- NULL
+        self$data_cache[[private$.constants$matrices]] <- NULL
       } else {
         # adding cols to allow for getGEMatrix() to update
         ge[, annotation := ""]
         ge[, outputType := ""]
         setnames(ge, private$.munge(colnames(ge)))
-        self$data_cache[[self$constants$matrices]] <- ge
+        self$data_cache[[private$.constants$matrices]] <- ge
       }
     }
 
-    return(self$data_cache[[self$constants$matrices]])
+    return(self$data_cache[[private$.constants$matrices]])
   }
 )
 
@@ -478,7 +477,7 @@ ISCon$set(
     # (e.g. when using $new(object) to construct the new object based on the existing object)
     # callSuper(...) # THIS MIIGHT NOT APPLICABLE IN R6
 
-    self$constants <- list(
+    private$.constants <- list(
       matrices = "GE_matrices",
       matrix_inputs = "GE_inputs"
     )

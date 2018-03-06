@@ -60,9 +60,6 @@ the host name like "www.immunespace.org".
     A \code{list}. Stores the data to avoid downloading the same tables
     multiple times.
   }
-  \item{\code{constants}}{
-    A \code{list}. Used to store information regarding gene-expression data.
-  }
 }
 }
 

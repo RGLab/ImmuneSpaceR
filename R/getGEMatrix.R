@@ -25,7 +25,7 @@ ISCon$set(
     cache_name <- setCacheName(matrixName, outputType)
 
     # check if study has matrices
-    if (nrow(subset(self$data_cache[[self$constants$matrices]],
+    if (nrow(subset(self$data_cache[[private$.constants$matrices]],
                     name %in% matrixName)) == 0) {
       stop(sprintf("No matrix %s in study\n", matrixName))
     }
@@ -118,7 +118,7 @@ ISCon$set(
                    reload = FALSE) {
     cache_name <- setCacheName(matrixName, outputType)
 
-    if (!(matrixName %in% self$data_cache[[self$constants$matrices]]$name)) {
+    if (!(matrixName %in% self$data_cache[[private$.constants$matrices]]$name)) {
       stop("Invalid gene expression matrix name")
     }
 
@@ -189,7 +189,7 @@ ISCon$set(
       message("Downloading Features..")
       featureAnnotationSetQuery = sprintf("SELECT * from FeatureAnnotation
                                           where FeatureAnnotationSetId='%s';",
-                                          annoSetId);
+                                          annoSetId)
       features <- labkey.executeSql(
         baseUrl = self$config$labkey.url.base,
         folderPath = self$config$labkey.url.path,
@@ -537,7 +537,7 @@ ISCon$set(
   which = "private",
   name = ".getFeatureId",
   value = function(matrixName) {
-    subset(self$data_cache[[self$constants$matrices]], name %in% matrixName)[, featureset]
+    subset(self$data_cache[[private$.constants$matrices]], name %in% matrixName)[, featureset]
   }
 )
 
