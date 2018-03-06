@@ -88,8 +88,8 @@ ISCon$set(
 
     if ("datasets" %in% output) {
       cat("datasets\n")
-      for (i in 1:nrow(self$available_datasets)) {
-        cat(sprintf("\t%s\n", self$available_datasets[i, Name]))
+      for (i in 1:nrow(self$availableDatasets)) {
+        cat(sprintf("\t%s\n", self$availableDatasets[i, Name]))
       }
     }
 
@@ -178,8 +178,8 @@ ISCon$set(
 
     cat("Available datasets\n")
 
-    for (i in 1:nrow(self$available_datasets)) {
-      cat(sprintf("\t%s\n", self$available_datasets[i, Name]))
+    for (i in 1:nrow(self$availableDatasets)) {
+      cat(sprintf("\t%s\n", self$availableDatasets[i, Name]))
     }
 
     if (!is.null(self$cache[[private$.constants$matrices]])) {
@@ -406,7 +406,7 @@ ISCon$set(
         stringsAsFactors = FALSE
       )
 
-      if (dataset %in% self$available_datasets$Name) {
+      if (dataset %in% self$availableDatasets$Name) {
         temp <- self$getDataset(dataset, original_view = TRUE)
 
         if (dataset == "fcs_control_files") {

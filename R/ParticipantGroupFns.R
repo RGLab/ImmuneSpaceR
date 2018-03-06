@@ -57,8 +57,8 @@ ISCon$set(
       stop("labkey.url.path must be /Studies/. Use CreateConnection with all studies.")
     }
 
-    if (!(dataType %in% self$available_datasets$Name)) {
-      stop("DataType must be in ", paste(self$available_datasets$Name, collapse = ", "))
+    if (!(dataType %in% self$availableDatasets$Name)) {
+      stop("DataType must be in ", paste(self$availableDatasets$Name, collapse = ", "))
     }
 
     # Must rerun this to ensure valid groups are only for that user and are not changed

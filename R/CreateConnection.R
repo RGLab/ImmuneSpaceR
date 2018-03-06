@@ -203,7 +203,7 @@ CreateConnection <- function(study = NULL,
 #'     A \code{list}. Stores configuration of the connection object such as
 #'     URL, path and username.
 #'   }
-#'   \item{\code{available_datasets}}{
+#'   \item{\code{availableDatasets}}{
 #'     A \code{data.table}. The table of datasets available in the connection
 #'     object.
 #'   }
@@ -373,7 +373,7 @@ ISCon <- R6Class(
   public = list(
     study = character(),
     config = list(),
-    available_datasets = data.table(),
+    availableDatasets = data.table(),
     cache = list()
   ),
   private = list(
@@ -416,7 +416,7 @@ ISCon$set(
   which = "private",
   name = ".setAvailableDatasets",
   value = function() {
-    if (length(self$available_datasets) == 0) {
+    if (length(self$availableDatasets) == 0) {
       .getLKtbl(
         con = self,
         schema = "study",
@@ -490,7 +490,7 @@ ISCon$set(
 
     private$.checkStudy(self$config$verbose)
 
-    self$available_datasets <- private$.setAvailableDatasets()
+    self$availableDatasets <- private$.setAvailableDatasets()
 
     gematrices_success <- self$listGEMatrices()
   }

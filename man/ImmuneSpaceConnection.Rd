@@ -52,7 +52,7 @@ the host name like "www.immunespace.org".
     A \code{list}. Stores configuration of the connection object such as
     URL, path and username.
   }
-  \item{\code{available_datasets}}{
+  \item{\code{availableDatasets}}{
     A \code{data.table}. The table of datasets available in the connection
     object.
   }
