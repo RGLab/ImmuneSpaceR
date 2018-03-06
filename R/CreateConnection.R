@@ -169,7 +169,7 @@ CreateConnection <- function(study = NULL,
 #' getGEAnalysis
 #' listGEAnalysis
 #' addTreatmentt
-#' EMNames
+#' mapSampleNames
 #' plot
 #'
 #' @description
@@ -269,11 +269,11 @@ CreateConnection <- function(study = NULL,
 #'     \code{reload}: A logical. If set to TRUE, the matrix will be downloaded
 #'     again, even if a cached cop exist in the ImmuneSpaceConnection object.
 #'   }
-#'   \item{\code{EMNames(EM = NULL, colType = "participant_id")}}{
+#'   \item{\code{mapSampleNames(EM = NULL, colType = "participant_id")}}{
 #'     Change the sampleNames of an ExpressionSet fetched by \code{getGEMatrix}
 #'     using the information in the phenodData slot.
 #'
-#'     \code{x}: An ExpressionSet, as returned by \code{getGEMatrix}.
+#'     \code{EM}: An ExpressionSet, as returned by \code{getGEMatrix}.
 #'
 #'     \code{colType}: A character. The type of column names. Valid options are
 #'     'expsample_accession' and 'participant_id'.

@@ -551,7 +551,7 @@ ISCon$set(
 
 ISCon$set(
   which = "public",
-  name = "EMNames",
+  name = "mapSampleNames",
   value = function(EM = NULL, colType = "participant_id") {
     if (is.null(EM) || !is(EM, "ExpressionSet")) {
       stop("EM should be a valid ExpressionSet, as returned by getGEMatrix")
