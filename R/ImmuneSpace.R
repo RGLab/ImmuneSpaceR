@@ -157,7 +157,7 @@ ISCon$set(
 
 ISCon$set(
   which = "public",
-  name = "clear_cache",
+  name = "clearCache",
   value = function() {
     self$cache[grep("^GE", names(self$cache), invert = TRUE)] <- NULL
   }

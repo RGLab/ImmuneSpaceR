@@ -176,7 +176,7 @@ hai_269 <- sdy269$getDataset("hai", reload = TRUE)
 
 Finally, it is possible to clear every cached dataset (and expression matrix).
 ```{r caching-clear}
-sdy269$clear_cache()
+sdy269$clearCache()
 names(sdy269$cache)
 ```
 

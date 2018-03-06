@@ -143,7 +143,7 @@ the host name like "www.immunespace.org".
 
     \code{...}: A list of arguments to be passed to \code{labkey.selectRows}.
   }
-  \item{\code{clear_cache()}}{
+  \item{\code{clearCache()}}{
     Clears the cache. Removes downloaded datasets and expression
     matrices.
   }

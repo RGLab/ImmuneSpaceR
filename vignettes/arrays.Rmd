@@ -164,7 +164,7 @@ TIV_2008 <- sdy269$getGEMatrix("TIV_2008", reload = TRUE)
 
 Finally, it is possible to clear every cached expression matrix (and dataset).
 ```{r caching-clear}
-sdy269$clear_cache()
+sdy269$clearCache()
 ```
 
 Again, the `data.cache` field should never be modified manually. When in doubt,
