@@ -11,7 +11,7 @@
 \alias{listGEAnalysis}
 \alias{addTreatmentt}
 \alias{EMNames}
-\alias{quick_plot}
+\alias{plot}
 \title{The ImmuneSpaceConnection class}
 \format{An object of class \code{R6ClassGenerator} of length 24.}
 \usage{
@@ -172,7 +172,7 @@ the host name like "www.immunespace.org".
     \code{dataType}: Use \code{con$listDatasets('datasets')} to see possible
     dataType inputs.
   }
-  \item{\code{quick_plot(...)}}{
+  \item{\code{plot(...)}}{
     "Plots a selected dataset. This is the function used by the DataExplorer
     module on ImmuneSpace.
 

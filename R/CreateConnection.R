@@ -170,7 +170,7 @@ CreateConnection <- function(study = NULL,
 #' listGEAnalysis
 #' addTreatmentt
 #' EMNames
-#' quick_plot
+#' plot
 #'
 #' @description
 #' A connection respresents a study or a set of studies available on ImmuneSpace.
@@ -321,7 +321,7 @@ CreateConnection <- function(study = NULL,
 #'     \code{dataType}: Use \code{con$listDatasets('datasets')} to see possible
 #'     dataType inputs.
 #'   }
-#'   \item{\code{quick_plot(...)}}{
+#'   \item{\code{plot(...)}}{
 #'     "Plots a selected dataset. This is the function used by the DataExplorer
 #'     module on ImmuneSpace.
 #'

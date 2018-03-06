@@ -54,7 +54,7 @@ Collate:
     'getDataset.R'
     'getGEMatrix.R'
     'netrc.R'
-    'quick_plot.R'
+    'plot.R'
     'utils.R'
     'zzz.R'
 RoxygenNote: 6.0.1
