@@ -28,7 +28,7 @@ it can be useful to save the connection for later work or even offline use.
 saved <- system.file("extdata/saved_con.rds", package = "ImmuneSpaceR")
 new_con <- loadConnection(saved)
 new_con
-names(new_con$data_cache)
+names(new_con$cache)
 \dontrun{
   saveConnection(new_con, tempfile())
 }

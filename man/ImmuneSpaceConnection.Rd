@@ -56,7 +56,7 @@ the host name like "www.immunespace.org".
     A \code{data.table}. The table of datasets available in the connection
     object.
   }
-  \item{\code{data_cache}}{
+  \item{\code{cache}}{
     A \code{list}. Stores the data to avoid downloading the same tables
     multiple times.
   }
@@ -144,7 +144,7 @@ the host name like "www.immunespace.org".
     \code{...}: A list of arguments to be passed to \code{labkey.selectRows}.
   }
   \item{\code{clear_cache()}}{
-    Clears the data_cache. Removes downloaded datasets and expression
+    Clears the cache. Removes downloaded datasets and expression
     matrices.
   }
   \item{\code{getGEFiles(files, destdir = ".", quiet = FALSE)}}{

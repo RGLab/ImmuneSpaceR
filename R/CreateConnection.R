@@ -207,7 +207,7 @@ CreateConnection <- function(study = NULL,
 #'     A \code{data.table}. The table of datasets available in the connection
 #'     object.
 #'   }
-#'   \item{\code{data_cache}}{
+#'   \item{\code{cache}}{
 #'     A \code{list}. Stores the data to avoid downloading the same tables
 #'     multiple times.
 #'   }
@@ -293,7 +293,7 @@ CreateConnection <- function(study = NULL,
 #'     \code{...}: A list of arguments to be passed to \code{labkey.selectRows}.
 #'   }
 #'   \item{\code{clear_cache()}}{
-#'     Clears the data_cache. Removes downloaded datasets and expression
+#'     Clears the cache. Removes downloaded datasets and expression
 #'     matrices.
 #'   }
 #'   \item{\code{getGEFiles(files, destdir = ".", quiet = FALSE)}}{
@@ -374,7 +374,7 @@ ISCon <- R6Class(
     study = character(),
     config = list(),
     available_datasets = data.table(),
-    data_cache = list()
+    cache = list()
   ),
   private = list(
     .constants = list()
@@ -443,8 +443,8 @@ ISCon$set(
       )
     }
 
-    if (!is.null(self$data_cache[[private$.constants$matrices]])) {
-      self$data_cache[[private$.constants$matrices]]
+    if (!is.null(self$cache[[private$.constants$matrices]])) {
+      self$cache[[private$.constants$matrices]]
     } else {
       if (verbose) {
         ge <- getData()
@@ -455,17 +455,17 @@ ISCon$set(
       if (inherits(ge, "try-error") || nrow(ge) == 0) {
         # No assay or no runs
         message("No gene expression data")
-        self$data_cache[[private$.constants$matrices]] <- NULL
+        self$cache[[private$.constants$matrices]] <- NULL
       } else {
         # adding cols to allow for getGEMatrix() to update
         ge[, annotation := ""]
         ge[, outputType := ""]
         setnames(ge, private$.munge(colnames(ge)))
-        self$data_cache[[private$.constants$matrices]] <- ge
+        self$cache[[private$.constants$matrices]] <- ge
       }
     }
 
-    return(self$data_cache[[private$.constants$matrices]])
+    return(self$cache[[private$.constants$matrices]])
   }
 )
 

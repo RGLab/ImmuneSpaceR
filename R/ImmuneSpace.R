@@ -30,8 +30,8 @@ ISCon$set(
   which = "public",
   name = "getGEInputs",
   value = function() {
-    if (!is.null(self$data_cache[[private$.constants$matrix_inputs]])) {
-      self$data_cache[[private$.constants$matrix_inputs]]
+    if (!is.null(self$cache[[private$.constants$matrix_inputs]])) {
+      self$cache[[private$.constants$matrix_inputs]]
     } else {
       ge <- tryCatch(
         .getLKtbl(
@@ -49,7 +49,7 @@ ISCon$set(
       }
 
       setnames(ge, private$.munge(colnames(ge)))
-      self$data_cache[[private$.constants$matrix_inputs]] <- ge
+      self$cache[[private$.constants$matrix_inputs]] <- ge
     }
   }
 )
@@ -94,10 +94,10 @@ ISCon$set(
     }
 
     if ("expression" %in% output) {
-      if (!is.null(self$data_cache[[private$.constants$matrices]])) {
+      if (!is.null(self$cache[[private$.constants$matrices]])) {
         cat("Expression Matrices\n")
-        for (i in 1:nrow(self$data_cache[[private$.constants$matrices]])) {
-          cat(sprintf("\t%s\n", self$data_cache[[private$.constants$matrices]][i, name]))
+        for (i in 1:nrow(self$cache[[private$.constants$matrices]])) {
+          cat(sprintf("\t%s\n", self$cache[[private$.constants$matrices]][i, name]))
         }
       } else {
         cat("No Expression Matrices Available")
@@ -159,7 +159,7 @@ ISCon$set(
   which = "public",
   name = "clear_cache",
   value = function() {
-    self$data_cache[grep("^GE", names(self$data_cache), invert = TRUE)] <- NULL
+    self$cache[grep("^GE", names(self$cache), invert = TRUE)] <- NULL
   }
 )
 
@@ -182,10 +182,10 @@ ISCon$set(
       cat(sprintf("\t%s\n", self$available_datasets[i, Name]))
     }
 
-    if (!is.null(self$data_cache[[private$.constants$matrices]])) {
+    if (!is.null(self$cache[[private$.constants$matrices]])) {
       cat("Expression Matrices\n")
-      for (i in 1:nrow(self$data_cache[[private$.constants$matrices]])) {
-        cat(sprintf("\t%s\n", self$data_cache[[private$.constants$matrices]][i, name]))
+      for (i in 1:nrow(self$cache[[private$.constants$matrices]])) {
+        cat(sprintf("\t%s\n", self$cache[[private$.constants$matrices]][i, name]))
       }
     }
   }
@@ -617,7 +617,7 @@ ISCon$set(
     res <- list()
 
     # get list of matrices and determine which sdys they represent
-    gems <- self$data_cache$GE_matrices
+    gems <- self$cache$GE_matrices
     withGems <- unique(gems$folder)
 
     file_list <- .getGEFileNms(.self = self, rawdata = TRUE)
@@ -788,7 +788,7 @@ ISCon$set(
     colnames(compDF) <- mods
 
     # GEM
-    withGems <- unique(self$data_cache$GE_matrices$folder)
+    withGems <- unique(self$cache$GE_matrices$folder)
     compDF$GEM <- rownames(compDF) %in% withGems
 
     # RAW

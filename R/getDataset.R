@@ -95,11 +95,11 @@ ISCon$set(
       cache_name <- paste0(x, ifelse(original_view, "_full", ""))
       nOpts <- length(list(...))
 
-      if (!is.null(self$data_cache[[cache_name]]) &&
+      if (!is.null(self$cache[[cache_name]]) &&
           !reload &&
           is.null(colFilter) &&
           nOpts == 0) { # Serve cache
-        data <- self$data_cache[[cache_name]]
+        data <- self$cache[[cache_name]]
         #if(!is.null(colFilter)){
         #  data <- filter_cached_copy(colFilter, data)
         #  return(data)
@@ -140,7 +140,7 @@ ISCon$set(
         setnames(data, private$.munge(colnames(data)))
 
         if (cache) {
-          self$data_cache[[cache_name]] <- data
+          self$cache[[cache_name]] <- data
         }
       }
 
