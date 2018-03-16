@@ -169,8 +169,8 @@ CreateConnection <- function(study = NULL,
 #' getGEAnalysis
 #' listGEAnalysis
 #' addTreatmentt
-#' EMNames
-#' quick_plot
+#' mapSampleNames
+#' plot
 #'
 #' @description
 #' A connection respresents a study or a set of studies available on ImmuneSpace.
@@ -203,16 +203,13 @@ CreateConnection <- function(study = NULL,
 #'     A \code{list}. Stores configuration of the connection object such as
 #'     URL, path and username.
 #'   }
-#'   \item{\code{available_datasets}}{
+#'   \item{\code{availableDatasets}}{
 #'     A \code{data.table}. The table of datasets available in the connection
 #'     object.
 #'   }
-#'   \item{\code{data_cache}}{
+#'   \item{\code{cache}}{
 #'     A \code{list}. Stores the data to avoid downloading the same tables
 #'     multiple times.
-#'   }
-#'   \item{\code{constants}}{
-#'     A \code{list}. Used to store information regarding gene-expression data.
 #'   }
 #' }
 #'
@@ -272,11 +269,11 @@ CreateConnection <- function(study = NULL,
 #'     \code{reload}: A logical. If set to TRUE, the matrix will be downloaded
 #'     again, even if a cached cop exist in the ImmuneSpaceConnection object.
 #'   }
-#'   \item{\code{EMNames(EM = NULL, colType = "participant_id")}}{
+#'   \item{\code{mapSampleNames(EM = NULL, colType = "participant_id")}}{
 #'     Change the sampleNames of an ExpressionSet fetched by \code{getGEMatrix}
 #'     using the information in the phenodData slot.
 #'
-#'     \code{x}: An ExpressionSet, as returned by \code{getGEMatrix}.
+#'     \code{EM}: An ExpressionSet, as returned by \code{getGEMatrix}.
 #'
 #'     \code{colType}: A character. The type of column names. Valid options are
 #'     'expsample_accession' and 'participant_id'.
@@ -287,13 +284,16 @@ CreateConnection <- function(study = NULL,
 #'   \item{\code{listGEAnalysis()}}{
 #'     Lists available gene expression analysis for the connection.
 #'   }
+#'   \item{\code{listGEMatrices()}}{
+#'     Lists available gene expression matrices for the connection.
+#'   }
 #'   \item{\code{getGEAnalysis(...)}}{
 #'     Downloads data from the gene expression analysis results table.
 #'
 #'     \code{...}: A list of arguments to be passed to \code{labkey.selectRows}.
 #'   }
-#'   \item{\code{clear_cache()}}{
-#'     Clears the data_cache. Removes downloaded datasets and expression
+#'   \item{\code{clearCache()}}{
+#'     Clears the cache. Removes downloaded datasets and expression
 #'     matrices.
 #'   }
 #'   \item{\code{getGEFiles(files, destdir = ".", quiet = FALSE)}}{
@@ -304,6 +304,9 @@ CreateConnection <- function(study = NULL,
 #'
 #'     \code{destdir}: A character. The local path to store the downloaded
 #'     files.
+#'   }
+#'   \item{\code{getGEInputs()}}{
+#'     Downloads data from the gene expression input samples table.
 #'   }
 #'   \item{\code{listParticipantGroups()}}{
 #'     Returns a dataframe with all saved Participant Groups on ImmuneSpace.
@@ -318,7 +321,7 @@ CreateConnection <- function(study = NULL,
 #'     \code{dataType}: Use \code{con$listDatasets('datasets')} to see possible
 #'     dataType inputs.
 #'   }
-#'   \item{\code{quick_plot(...)}}{
+#'   \item{\code{plot(...)}}{
 #'     "Plots a selected dataset. This is the function used by the DataExplorer
 #'     module on ImmuneSpace.
 #'
@@ -370,17 +373,19 @@ ISCon <- R6Class(
   public = list(
     study = character(),
     config = list(),
-    available_datasets = data.table(),
-    data_cache = list(),
-    constants = list()
+    availableDatasets = data.table(),
+    cache = list()
+  ),
+  private = list(
+    .constants = list()
   )
 )
 
 # Functions used in initialize need to be declared ahead of it
 #' @importFrom gtools mixedsort
 ISCon$set(
-  which = "public",
-  name = "checkStudy",
+  which = "private",
+  name = ".checkStudy",
   value = function(verbose = FALSE) {
     sdyNm <- basename(self$config$labkey.url.path)
     dirNm <- dirname(self$config$labkey.url.path)
@@ -408,10 +413,10 @@ ISCon$set(
 )
 
 ISCon$set(
-  which = "public",
-  name = "setAvailableDatasets",
+  which = "private",
+  name = ".setAvailableDatasets",
   value = function() {
-    if (length(self$available_datasets) == 0) {
+    if (length(self$availableDatasets) == 0) {
       .getLKtbl(
         con = self,
         schema = "study",
@@ -423,7 +428,7 @@ ISCon$set(
 
 ISCon$set(
   which = "public",
-  name = "GeneExpressionMatrices",
+  name = "listGEMatrices",
   value = function(verbose = FALSE) {
     getData <- function() {
       try(
@@ -438,8 +443,8 @@ ISCon$set(
       )
     }
 
-    if (!is.null(self$data_cache[[self$constants$matrices]])) {
-      self$data_cache[[self$constants$matrices]]
+    if (!is.null(self$cache[[private$.constants$matrices]])) {
+      self$cache[[private$.constants$matrices]]
     } else {
       if (verbose) {
         ge <- getData()
@@ -450,17 +455,17 @@ ISCon$set(
       if (inherits(ge, "try-error") || nrow(ge) == 0) {
         # No assay or no runs
         message("No gene expression data")
-        self$data_cache[[self$constants$matrices]] <- NULL
+        self$cache[[private$.constants$matrices]] <- NULL
       } else {
         # adding cols to allow for getGEMatrix() to update
         ge[, annotation := ""]
         ge[, outputType := ""]
-        setnames(ge, self$.munge(colnames(ge)))
-        self$data_cache[[self$constants$matrices]] <- ge
+        setnames(ge, private$.munge(colnames(ge)))
+        self$cache[[private$.constants$matrices]] <- ge
       }
     }
 
-    return(self$data_cache[[self$constants$matrices]])
+    return(self$cache[[private$.constants$matrices]])
   }
 )
 
@@ -472,7 +477,7 @@ ISCon$set(
     # (e.g. when using $new(object) to construct the new object based on the existing object)
     # callSuper(...) # THIS MIIGHT NOT APPLICABLE IN R6
 
-    self$constants <- list(
+    private$.constants <- list(
       matrices = "GE_matrices",
       matrix_inputs = "GE_inputs"
     )
@@ -483,10 +488,10 @@ ISCon$set(
 
     self$study <- basename(config$labkey.url.path)
 
-    self$checkStudy(self$config$verbose)
+    private$.checkStudy(self$config$verbose)
 
-    self$available_datasets <- self$setAvailableDatasets()
+    self$availableDatasets <- private$.setAvailableDatasets()
 
-    gematrices_success <- self$GeneExpressionMatrices()
+    gematrices_success <- self$listGEMatrices()
   }
 )

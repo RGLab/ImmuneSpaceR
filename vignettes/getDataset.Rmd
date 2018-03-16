@@ -150,18 +150,18 @@ As explained in the user guide, the `ImmuneSpaceConnection` class is a R6 class.
 
 See `?R6::R6Class` for more information about R6 class system.
 
-We can see the data currently cached using the `data_cache` field. This is not
+We can see the data currently cached using the `cache` field. This is not
 intended to be used for data manipulation and only displayed here to explain
 what gets cached.
 ```{r caching-dataset}
 pcr <- sdy269$getDataset("pcr")
-names(sdy269$data_cache)
+names(sdy269$cache)
 ```
 
 Different [views](#views) are saved separately.
 ```{r caching-views}
 pcr_ori <- sdy269$getDataset("pcr", original_view = TRUE)
-names(sdy269$data_cache)
+names(sdy269$cache)
 ```
 
 Because of the infinite number of filters and combinations of filters, we do not
@@ -176,8 +176,8 @@ hai_269 <- sdy269$getDataset("hai", reload = TRUE)
 
 Finally, it is possible to clear every cached dataset (and expression matrix).
 ```{r caching-clear}
-sdy269$clear_cache()
-names(sdy269$data_cache)
+sdy269$clearCache()
+names(sdy269$cache)
 ```
 
 Again, the `data.cache` field should never be modified manually. When in doubt,

@@ -3,14 +3,14 @@
 ########################################################################
 
 ISCon$set(
-  which = "public",
+  which = "private",
   name = ".munge",
   value = function(x) {
     new <- tolower(gsub(" ", "_", basename(x)))
     idx <- which(duplicated(new) | duplicated(new, fromLast = TRUE))
 
     if (length(idx) > 0) {
-      new[idx] <- self$.munge(gsub("(.*)/.*$", "\\1", x[idx]))
+      new[idx] <- private$.munge(gsub("(.*)/.*$", "\\1", x[idx]))
     }
 
     new
@@ -19,7 +19,7 @@ ISCon$set(
 
 # Returns TRUE if the connection is at project level ("/Studies")
 ISCon$set(
-  which = "public",
+  which = "private",
   name = ".isProject",
   value = function() {
     self$config$labkey.url.path == "/Studies/"
@@ -28,10 +28,10 @@ ISCon$set(
 
 ISCon$set(
   which = "public",
-  name = "GeneExpressionInputs",
+  name = "getGEInputs",
   value = function() {
-    if (!is.null(self$data_cache[[self$constants$matrix_inputs]])) {
-      self$data_cache[[self$constants$matrix_inputs]]
+    if (!is.null(self$cache[[private$.constants$matrix_inputs]])) {
+      self$cache[[private$.constants$matrix_inputs]]
     } else {
       ge <- tryCatch(
         .getLKtbl(
@@ -48,14 +48,14 @@ ISCon$set(
         stop("Gene Expression Inputs not found for study.")
       }
 
-      setnames(ge, self$.munge(colnames(ge)))
-      self$data_cache[[self$constants$matrix_inputs]] <- ge
+      setnames(ge, private$.munge(colnames(ge)))
+      self$cache[[private$.constants$matrix_inputs]] <- ge
     }
   }
 )
 
 ISCon$set(
-  which = "public",
+  which = "private",
   name = ".isRunningLocally",
   value = function(path) {
     file.exists(path)
@@ -63,7 +63,7 @@ ISCon$set(
 )
 
 ISCon$set(
-  which = "public",
+  which = "private",
   name = ".localStudyPath",
   value = function(urlpath) {
     LOCALPATH <- "/share/files/"
@@ -88,16 +88,16 @@ ISCon$set(
 
     if ("datasets" %in% output) {
       cat("datasets\n")
-      for (i in 1:nrow(self$available_datasets)) {
-        cat(sprintf("\t%s\n", self$available_datasets[i, Name]))
+      for (i in 1:nrow(self$availableDatasets)) {
+        cat(sprintf("\t%s\n", self$availableDatasets[i, Name]))
       }
     }
 
     if ("expression" %in% output) {
-      if (!is.null(self$data_cache[[self$constants$matrices]])) {
+      if (!is.null(self$cache[[private$.constants$matrices]])) {
         cat("Expression Matrices\n")
-        for (i in 1:nrow(self$data_cache[[self$constants$matrices]])) {
-          cat(sprintf("\t%s\n", self$data_cache[[self$constants$matrices]][i, name]))
+        for (i in 1:nrow(self$cache[[private$.constants$matrices]])) {
+          cat(sprintf("\t%s\n", self$cache[[private$.constants$matrices]][i, name]))
         }
       } else {
         cat("No Expression Matrices Available")
@@ -149,7 +149,7 @@ ISCon$set(
       stop("Gene Expression Analysis not found for study.")
     }
 
-    setnames(GEAR, self$.munge(colnames(GEAR)))
+    setnames(GEAR, private$.munge(colnames(GEAR)))
 
     GEAR
   }
@@ -157,9 +157,9 @@ ISCon$set(
 
 ISCon$set(
   which = "public",
-  name = "clear_cache",
+  name = "clearCache",
   value = function() {
-    self$data_cache[grep("^GE", names(self$data_cache), invert = TRUE)] <- NULL
+    self$cache[grep("^GE", names(self$cache), invert = TRUE)] <- NULL
   }
 )
 
@@ -178,14 +178,14 @@ ISCon$set(
 
     cat("Available datasets\n")
 
-    for (i in 1:nrow(self$available_datasets)) {
-      cat(sprintf("\t%s\n", self$available_datasets[i, Name]))
+    for (i in 1:nrow(self$availableDatasets)) {
+      cat(sprintf("\t%s\n", self$availableDatasets[i, Name]))
     }
 
-    if (!is.null(self$data_cache[[self$constants$matrices]])) {
+    if (!is.null(self$cache[[private$.constants$matrices]])) {
       cat("Expression Matrices\n")
-      for (i in 1:nrow(self$data_cache[[self$constants$matrices]])) {
-        cat(sprintf("\t%s\n", self$data_cache[[self$constants$matrices]][i, name]))
+      for (i in 1:nrow(self$cache[[private$.constants$matrices]])) {
+        cat(sprintf("\t%s\n", self$cache[[private$.constants$matrices]][i, name]))
       }
     }
   }
@@ -389,7 +389,7 @@ ISCon$set(
 #' @importFrom rjson fromJSON
 #' @importFrom parallel mclapply detectCores
 ISCon$set(
-  which = "public",
+  which = "private",
   name = ".test_files",
   value = function(what = c("gene_expression_files",
                             "fcs_sample_files",
@@ -406,7 +406,7 @@ ISCon$set(
         stringsAsFactors = FALSE
       )
 
-      if (dataset %in% self$available_datasets$Name) {
+      if (dataset %in% self$availableDatasets$Name) {
         temp <- self$getDataset(dataset, original_view = TRUE)
 
         if (dataset == "fcs_control_files") {
@@ -497,7 +497,7 @@ ISCon$set(
     }
 
     if ("protocols" %in% what) {
-      if (self$.isProject()) {
+      if (private$.isProject()) {
         folders_list <- labkey.getFolders(
           baseUrl = self$config$labkey.url.base,
           folderPath = "/Studies/"
@@ -611,13 +611,13 @@ ISCon$set(
 # 6. $rawNoGef = This would be unexpected. Rawdata present on server, but no gene expression
 #                files found by con$getDataset().
 ISCon$set(
-  which = "public",
+  which = "private",
   name = ".sdysWithoutGems",
   value = function() {
     res <- list()
 
     # get list of matrices and determine which sdys they represent
-    gems <- self$data_cache$GE_matrices
+    gems <- self$cache$GE_matrices
     withGems <- unique(gems$folder)
 
     file_list <- .getGEFileNms(.self = self, rawdata = TRUE)
@@ -652,7 +652,7 @@ ISCon$set(
 # variable depending on prod / test to ensure you are not deleting any incorrectly.
 #' @importFrom httr DELETE HEAD http_type http_error
 ISCon$set(
-  which = "public",
+  which = "private",
   name = ".rmOrphanGems",
   value = function() {
     # helper functions
@@ -699,7 +699,7 @@ ISCon$set(
 
     # main
     # Double check we are working at project level and on correct server!
-    if (!self$.isProject()) {
+    if (!private$.isProject()) {
       stop("Can only be run at project level")
     }
     chkBase <- readline(
@@ -760,7 +760,7 @@ ISCon$set(
 # This method allows admin to check which studies are compliant with the
 # following modules/data files (GEF, RAW, GEO, GEM, DE, GEE, IRP, GSEA)
 ISCon$set(
-  which = "public",
+  which = "private",
   name = ".studiesComplianceCheck",
   value = function(filterNonGE = TRUE,
                    showAllCols = FALSE,
@@ -788,7 +788,7 @@ ISCon$set(
     colnames(compDF) <- mods
 
     # GEM
-    withGems <- unique(self$data_cache$GE_matrices$folder)
+    withGems <- unique(self$cache$GE_matrices$folder)
     compDF$GEM <- rownames(compDF) %in% withGems
 
     # RAW

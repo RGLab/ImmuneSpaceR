@@ -16,8 +16,8 @@ setCacheName <- function(matrixName, outputType) {
 #' @importFrom httr GET write_disk
 #' @importFrom preprocessCore normalize.quantiles
 ISCon$set(
-  which = "public",
-  name = "downloadMatrix",
+  which = "private",
+  name = ".downloadMatrix",
   value = function(matrixName,
                    outputType = "summary",
                    annotation = "latest",
@@ -25,14 +25,14 @@ ISCon$set(
     cache_name <- setCacheName(matrixName, outputType)
 
     # check if study has matrices
-    if (nrow(subset(self$data_cache[[self$constants$matrices]],
+    if (nrow(subset(self$cache[[private$.constants$matrices]],
                     name %in% matrixName)) == 0) {
       stop(sprintf("No matrix %s in study\n", matrixName))
     }
 
-    # check if data in data_cache corresponds to current request
+    # check if data in cache corresponds to current request
     # if it does, then no download needed.
-    status <- self$data_cache$GE_matrices$outputtype[self$data_cache$GE_matrices$name == matrixName]
+    status <- self$cache$GE_matrices$outputtype[self$cache$GE_matrices$name == matrixName]
     if (status == outputType & reload != TRUE) {
       message(paste0("returning ", outputType, " matrix from cache"))
       return()
@@ -53,7 +53,7 @@ ISCon$set(
     }
 
     if (self$config$labkey.url.path == "/Studies/") {
-      path <- paste0("/Studies/", self$data_cache$GE_matrices[name == matrixName, folder], "/")
+      path <- paste0("/Studies/", self$cache$GE_matrices[name == matrixName, folder], "/")
     } else {
       path <- gsub("^/", "", self$config$labkey.url.path)
     }
@@ -71,10 +71,10 @@ ISCon$set(
       )
     )
 
-    localpath <- self$.localStudyPath(link)
-    if (self$.isRunningLocally(localpath)) {
+    localpath <- private$.localStudyPath(link)
+    if (private$.isRunningLocally(localpath)) {
       message("Reading local matrix")
-      self$data_cache[[cache_name]] <- read.table(
+      self$cache[[cache_name]] <- read.table(
         localpath,
         header = TRUE,
         sep = "\t",
@@ -100,29 +100,29 @@ ISCon$set(
         stop("The downloaded matrix has 0 rows. Something went wrong.")
       }
 
-      self$data_cache[[cache_name]] <- EM
+      self$cache[[cache_name]] <- EM
       file.remove(fl)
     }
 
     # Be sure to note which output is already in cache. Colnames are "munged"
-    self$data_cache$GE_matrices$outputtype[self$data_cache$GE_matrices$name == matrixName] <- outputType
+    self$cache$GE_matrices$outputtype[self$cache$GE_matrices$name == matrixName] <- outputType
   }
 )
 
 ISCon$set(
-  which = "public",
-  name = "GeneExpressionFeatures",
+  which = "private",
+  name = ".getGEFeatures",
   value = function(matrixName,
                    outputType = "summary",
                    annotation = "latest",
                    reload = FALSE) {
     cache_name <- setCacheName(matrixName, outputType)
 
-    if (!(matrixName %in% self$data_cache[[self$constants$matrices]]$name)) {
+    if (!(matrixName %in% self$cache[[private$.constants$matrices]]$name)) {
       stop("Invalid gene expression matrix name")
     }
 
-    status <- self$data_cache$GE_matrices$annotation[self$data_cache$GE_matrices$name == matrixName]
+    status <- self$cache$GE_matrices$annotation[self$cache$GE_matrices$name == matrixName]
     if (status == annotation & reload != TRUE) {
       message(paste0("returning ", annotation, " annotation from cache"))
       return()
@@ -155,8 +155,8 @@ ISCon$set(
       # fasNm is needed.
       if (annotation == "default" & !grepl("_orig|ImmSig", fasNm)) {
         fasNm <- paste0(fasNm, "_orig")
-      
-      # This situation occurred with SDY400 where annotation was added after original 
+
+      # This situation occurred with SDY400 where annotation was added after original
       # was generated.
       } else if (annotation == "latest" & grepl("_orig", fasNm, fixed = TRUE)) {
         # This situation occurred with SDY400 where annotation was added after
@@ -189,7 +189,7 @@ ISCon$set(
       message("Downloading Features..")
       featureAnnotationSetQuery = sprintf("SELECT * from FeatureAnnotation
                                           where FeatureAnnotationSetId='%s';",
-                                          annoSetId);
+                                          annoSetId)
       features <- labkey.executeSql(
         baseUrl = self$config$labkey.url.base,
         folderPath = self$config$labkey.url.path,
@@ -203,37 +203,37 @@ ISCon$set(
       # NOTE: For ImmSig studies, this means that summaries use the latest
       # annotation even though that was not used in the manuscript for summarizing.
       features <- data.frame(
-        FeatureId = self$data_cache[[cache_name]]$gene_symbol,
-        gene_symbol = self$data_cache[[cache_name]]$gene_symbol
+        FeatureId = self$cache[[cache_name]]$gene_symbol,
+        gene_symbol = self$cache[[cache_name]]$gene_symbol
       )
     }
 
-    # update the data_cache$gematrices with correct fasId
-    self$data_cache$GE_matrices$featureset[self$data_cache$GE_matrices$name == matrixName ] <- annoSetId
+    # update cache$gematrices with correct fasId
+    self$cache$GE_matrices$featureset[self$cache$GE_matrices$name == matrixName] <- annoSetId
 
     # Change ge_matrices$annotation
-    self$data_cache$GE_matrices$annotation[self$data_cache$GE_matrices$name == matrixName] <- annotation
+    self$cache$GE_matrices$annotation[self$cache$GE_matrices$name == matrixName] <- annotation
 
     # push features to cache
-    self$data_cache[[paste0("featureset_", annoSetId)]] <- features
+    self$cache[[paste0("featureset_", annoSetId)]] <- features
   }
 )
 
 ISCon$set(
-  which = "public",
-  name = "ConstructExpressionSet",
+  which = "private",
+  name = ".constructExpressionSet",
   value = function(matrixName, outputType) {
     cache_name <- setCacheName(matrixName, outputType)
     esetName <- paste0(cache_name, "_eset")
 
     # expression matrix
     message("Constructing ExpressionSet")
-    matrix <- self$data_cache[[cache_name]]
+    matrix <- self$cache[[cache_name]]
 
     #features
-    features <- self$data_cache[[self$.mungeFeatureId(self$.getFeatureId(matrixName))]][, c("FeatureId", "gene_symbol")]
+    features <- self$cache[[private$.mungeFeatureId(private$.getFeatureId(matrixName))]][, c("FeatureId", "gene_symbol")]
 
-    runID <- self$data_cache$GE_matrices[name == matrixName, rowid]
+    runID <- self$cache$GE_matrices[name == matrixName, rowid]
     pheno_filter <- makeFilter(c("Run", "EQUAL", runID),
                                c("Biosample/biosample_accession",
                                  "IN",
@@ -251,7 +251,7 @@ ISCon$set(
       )
     )
 
-    setnames(pheno, self$.munge(colnames(pheno)))
+    setnames(pheno, private$.munge(colnames(pheno)))
 
     pheno <- data.frame(pheno, stringsAsFactors = FALSE)
 
@@ -307,9 +307,9 @@ ISCon$set(
       # exprs and fData must match
       rownames(fdata) <- rownames(matrix) <- matrix$gene_symbol
     } else {
-      annoSetId <- self$data_cache$GE_matrices$featureset[self$data_cache$GE_matrices$name == matrixName]
+      annoSetId <- self$cache$GE_matrices$featureset[self$cache$GE_matrices$name == matrixName]
 
-      features <- self$data_cache[[paste0("featureset_", annoSetId)]][, c("FeatureId","gene_symbol")]
+      features <- self$cache[[paste0("featureset_", annoSetId)]][, c("FeatureId","gene_symbol")]
 
       colnames(matrix)[[which(colnames(matrix) %in% c(" ", "V1", "X", "feature_id")) ]] <- "FeatureId"
       fdata <- data.frame(
@@ -326,7 +326,7 @@ ISCon$set(
     }
 
     # pheno
-    runID <- self$data_cache$GE_matrices[name == matrixName, rowid]
+    runID <- self$cache$GE_matrices[name == matrixName, rowid]
     pheno_filter <- makeFilter(
       c(
         "Run",
@@ -352,7 +352,7 @@ ISCon$set(
       )
     )
 
-    colnames(pheno) <- sapply(colnames(pheno), self$.munge)
+    colnames(pheno) <- sapply(colnames(pheno), private$.munge)
     keep <- c(
       "biosample_accession",
       "participant_id",
@@ -382,7 +382,7 @@ ISCon$set(
     exprs <- matrix[, colnames(matrix) %in% posNames] # rms gene_symbol!
     pheno <- pheno[colnames(exprs), ]
 
-    self$data_cache[[esetName]] <- ExpressionSet(
+    self$cache[[esetName]] <- ExpressionSet(
       assayData = as.matrix(exprs),
       phenoData = AnnotatedDataFrame(pheno),
       featureData = AnnotatedDataFrame(fdata)
@@ -406,10 +406,10 @@ ISCon$set(
 
     cohort_name <- cohort # can't use cohort = cohort in d.t
     if (!is.null(cohort_name)) {
-      if (all(cohort_name %in% self$data_cache$GE_matrices$cohort)) {
-        matrixName <- self$data_cache$GE_matrices[cohort %in% cohort_name, name]
+      if (all(cohort_name %in% self$cache$GE_matrices$cohort)) {
+        matrixName <- self$cache$GE_matrices[cohort %in% cohort_name, name]
       } else {
-        validCohorts <- self$data_cache$GE_matrices[, cohort]
+        validCohorts <- self$cache$GE_matrices[, cohort]
         stop(paste("No expression matrix for the given cohort.",
                    "Valid cohorts:", paste(validCohorts, collapse = ", ")))
       }
@@ -420,10 +420,10 @@ ISCon$set(
 
     # length(x) > 1 means multiple cohorts
     if (length(matrixName) > 1) {
-      lapply(matrixName, self$downloadMatrix, outputType, annotation, reload)
-      lapply(matrixName, self$GeneExpressionFeatures, outputType, annotation, reload)
-      lapply(matrixName, self$ConstructExpressionSet, outputType)
-      ret <- .combineEMs(self$data_cache[esetName])
+      lapply(matrixName, private$.downloadMatrix, outputType, annotation, reload)
+      lapply(matrixName, private$.getGEFeatures, outputType, annotation, reload)
+      lapply(matrixName, private$.constructExpressionSet, outputType)
+      ret <- .combineEMs(self$cache[esetName])
       if (dim(ret)[[1]] == 0) {
         # No features shared
         warn <- "Returned ExpressionSet has 0 rows. No feature is shared across the selected runs or cohorts."
@@ -437,16 +437,16 @@ ISCon$set(
       return(ret)
 
     } else {
-      if (esetName %in% names(self$data_cache) & !reload) {
+      if (esetName %in% names(self$cache) & !reload) {
         message(paste0("returning ", esetName, " from cache"))
       } else {
-        self$data_cache[[esetName]] <- NULL
-        self$downloadMatrix(matrixName, outputType, annotation)
-        self$GeneExpressionFeatures(matrixName, outputType, annotation)
-        self$ConstructExpressionSet(matrixName, outputType)
+        self$cache[[esetName]] <- NULL
+        private$.downloadMatrix(matrixName, outputType, annotation)
+        private$.getGEFeatures(matrixName, outputType, annotation)
+        private$.constructExpressionSet(matrixName, outputType)
       }
 
-      return(self$data_cache[[esetName]])
+      return(self$cache[[esetName]])
     }
   }
 )
@@ -475,14 +475,14 @@ ISCon$set(
   which = "public",
   name = "addTreatment",
   value = function(matrixName = NULL) {
-    if (is.null(matrixName) || !matrixName %in% names(self$data_cache)) {
+    if (is.null(matrixName) || !matrixName %in% names(self$cache)) {
       stop(paste(matrixName, "is not a valid expression matrix."))
     }
 
     bsFilter <- makeFilter(
       c("biosample_accession",
         "IN",
-        paste(pData(self$data_cache[[x]])$biosample_accession, collapse = ";")
+        paste(pData(self$cache[[x]])$biosample_accession, collapse = ";")
       )
     )
     bs2es <- .getLKtbl(
@@ -526,23 +526,23 @@ ISCon$set(
     bs2trt <- merge(bs2es, es2trt, by = "expsample_accession")
     bs2trt <- merge(bs2trt, trt, by = "treatment_accession")
 
-    pData(self$data_cache[[x]])$treatment <- bs2trt[match(pData(self$data_cache[[x]])$biosample_accession,
+    pData(self$cache[[x]])$treatment <- bs2trt[match(pData(self$cache[[x]])$biosample_accession,
                                                     biosample_accession), name]
 
-    self$data_cache[[x]]
+    self$cache[[x]]
   }
 )
 
 ISCon$set(
-  which = "public",
+  which = "private",
   name = ".getFeatureId",
   value = function(matrixName) {
-    subset(self$data_cache[[self$constants$matrices]], name %in% matrixName)[, featureset]
+    subset(self$cache[[private$.constants$matrices]], name %in% matrixName)[, featureset]
   }
 )
 
 ISCon$set(
-  which = "public",
+  which = "private",
   name = ".mungeFeatureId",
   value = function(annotation_set_id) {
     sprintf("featureset_%s", annotation_set_id)
@@ -551,7 +551,7 @@ ISCon$set(
 
 ISCon$set(
   which = "public",
-  name = "EMNames",
+  name = "mapSampleNames",
   value = function(EM = NULL, colType = "participant_id") {
     if (is.null(EM) || !is(EM, "ExpressionSet")) {
       stop("EM should be a valid ExpressionSet, as returned by getGEMatrix")

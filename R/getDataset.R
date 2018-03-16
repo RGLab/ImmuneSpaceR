@@ -83,23 +83,23 @@ ISCon$set(
   which = "public",
   name = "getDataset",
   value = function(x, original_view = FALSE, reload = FALSE, colFilter = NULL, ...) {
-    if (nrow(self$available_datasets[Name %in% x]) == 0) {
+    if (nrow(self$availableDatasets[Name %in% x]) == 0) {
       wstring <- paste0(study, " has invalid data set: ", x)
       if (config$verbose) {
         wstring <- paste0(wstring, "\n",
                           "Valid datasets for ", study, ": ",
-                          paste(self$available_datasets$Name, collapse = ", "), ".")
+                          paste(self$availableDatasets$Name, collapse = ", "), ".")
       }
       stop(wstring)
     } else {
       cache_name <- paste0(x, ifelse(original_view, "_full", ""))
       nOpts <- length(list(...))
 
-      if (!is.null(self$data_cache[[cache_name]]) &&
+      if (!is.null(self$cache[[cache_name]]) &&
           !reload &&
           is.null(colFilter) &&
           nOpts == 0) { # Serve cache
-        data <- self$data_cache[[cache_name]]
+        data <- self$cache[[cache_name]]
         #if(!is.null(colFilter)){
         #  data <- filter_cached_copy(colFilter, data)
         #  return(data)
@@ -137,10 +137,10 @@ ISCon$set(
           showHidden = FALSE,
           ...
         )
-        setnames(data, self$.munge(colnames(data)))
+        setnames(data, private$.munge(colnames(data)))
 
         if (cache) {
-          self$data_cache[[cache_name]] <- data
+          self$cache[[cache_name]] <- data
         }
       }
 

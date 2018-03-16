@@ -3,26 +3,25 @@ NULL
 
 ISCon$set(
   which = "public",
-  name = "quick_plot",
+  name = "plot",
   value = function(...) {
-    .quick_plot(self, ...)
+    .plot(self, ...)
   }
 )
 
 #' @importFrom ggplot2 facet_grid facet_wrap geom_text element_blank
 #' @importFrom Biobase pData
-.quick_plot <- function(con,
-                        dataset,
-                        normalize_to_baseline = TRUE,
-                        type = "auto",
-                        filter = NULL,
-                        facet = "grid",
-                        text_size = 15,
-                        legend = NULL,
-                        show_virus_strain = FALSE,
-                        interactive = FALSE,
-                        ...) {
-
+.plot <- function(con,
+                  dataset,
+                  normalize_to_baseline = TRUE,
+                  type = "auto",
+                  filter = NULL,
+                  facet = "grid",
+                  text_size = 15,
+                  legend = NULL,
+                  show_virus_strain = FALSE,
+                  interactive = FALSE,
+                  ...) {
   logT <- TRUE #By default, log transform the value_reported
   extras <- list(...)
 
@@ -34,10 +33,13 @@ ISCon$set(
 
   # Datasets
   e <- try({
-    if (tolower(dataset) == "hla_typing") stop("hla_typing visualization is not available.")
+    if (tolower(dataset) == "hla_typing") {
+      stop("hla_typing visualization is not available.")
+    }
     if (tolower(dataset) %in% c("ge", "dgea_filteredgear", "gene_expression", "gene_expression_analysis_results")) {
       dataset <- "gene_expression"
     }
+
     dt <- .getDataToPlot(con, dataset, filter = filter, show_virus_strain)
     dt <- .standardize_time(dt)
     ylab <- .format_lab(dataset, normalize_to_baseline)
@@ -89,8 +91,8 @@ ISCon$set(
   } else { # } if (type == "error") {
     data <- data.frame(x = 0, y = 0, err = error_string)
     p <- ggplot(data = data) +
-        geom_text(aes(x, y, label = err), size = 10) +
-        theme(line = element_blank(), text = element_blank())
+      geom_text(aes(x, y, label = err), size = 10) +
+      theme(line = element_blank(), text = element_blank())
     print(p)
   }
 }
@@ -146,7 +148,11 @@ ISCon$set(
   palette <- ISpalette(20)
 
   dt <- dt[, ID := paste(cohort, time_str, participant_id, sep = "_")]
-  mat <- acast(data = dt, formula = formula("analyte ~ ID"), value.var = "response")
+  mat <- acast(
+    data = dt,
+    formula = formula("analyte ~ ID"),
+    value.var = "response"
+  )
 
   if (ncol(mat) > 2 & nrow(mat) > 1) {
     mat <- mat[rowSums(apply(mat, 2, is.na)) < ncol(mat),, drop = FALSE]
@@ -172,46 +178,54 @@ ISCon$set(
 
   if (interactive) {
     e <- try({
-    p <- heatmaply(x = mat,
-                   colors = rev(palette),
-                   col_side_colors = anno,
-                   dendrogram = "row",
-                   scale = scale)
+    p <- heatmaply(
+      x = mat,
+      colors = rev(palette),
+      col_side_colors = anno,
+      dendrogram = "row",
+      scale = scale
+    )
     }, silent = TRUE)
     if (inherits(e, "try-error")) {
-      p <- heatmaply(x = mat,
-                     colors = rev(palette),
-                     col_side_colors = anno,
-                     dendrogram = "none",
-                     scale = scale)
+      p <- heatmaply(
+        x = mat,
+        colors = rev(palette),
+        col_side_colors = anno,
+        dendrogram = "none",
+        scale = scale
+      )
     }
     p
   } else {
     e <- try({
-      p <- pheatmap(mat = mat,
-                    annotation = anno,
-                    show_colnames = FALSE,
-                    show_rownames = show_rnames,
-                    cluster_cols = FALSE,
-                    cluster_rows = cluster_rows,
-                    color = palette,
-                    scale = scale,
-                    breaks = breaks,
-                    fontsize = text_size,
-                    annotation_colors = anno_color)
+      p <- pheatmap(
+        mat = mat,
+        annotation = anno,
+        show_colnames = FALSE,
+        show_rownames = show_rnames,
+        cluster_cols = FALSE,
+        cluster_rows = cluster_rows,
+        color = palette,
+        scale = scale,
+        breaks = breaks,
+        fontsize = text_size,
+        annotation_colors = anno_color
+      )
     }, silent = TRUE)
     if (inherits(e, "try-error")) {
-      p <- pheatmap(mat = mat,
-                    annotation = anno,
-                    show_colnames = FALSE,
-                    show_rownames = show_rnames,
-                    cluster_cols = FALSE,
-                    cluster_rows = FALSE,
-                    color = palette,
-                    scale = scale,
-                    breaks = breaks,
-                    fontsize = text_size,
-                    annotation_colors = anno_color)
+      p <- pheatmap(
+        mat = mat,
+        annotation = anno,
+        show_colnames = FALSE,
+        show_rownames = show_rnames,
+        cluster_cols = FALSE,
+        cluster_rows = FALSE,
+        color = palette,
+        scale = scale,
+        breaks = breaks,
+        fontsize = text_size,
+        annotation_colors = anno_color
+      )
     }
     p
   }
@@ -346,17 +360,18 @@ ISCon$set(
   } else if (dataset == "gene_expression") {
     logT <- FALSE # Matrices are already log2 transformed
     dt <- copy(con$getGEAnalysis(colFilter = filter))
-    if (!is.null(filter) & any(sapply(filter, function(x){gsub("~.*$", "", x)}) == "cohort")) {
+    if (!is.null(filter) & any(sapply(filter, function(x) {gsub("~.*$", "", x)}) == "cohort")) {
       uarm <- unique(dt$cohort)
     } else {
-    uarm <- labkey.selectRows(
-      baseUrl = con$config$labkey.url.base,
-      folderPath = con$config$labkey.url.path,
-      schemaName = "assay.ExpressionMatrix.matrix",
-      queryName = "SelectedRuns",
-      viewName = "expression_matrices",
-      colFilter = NULL,
-      containerFilter = "CurrentAndSubfolders")$Cohort
+      uarm <- labkey.selectRows(
+        baseUrl = con$config$labkey.url.base,
+        folderPath = con$config$labkey.url.path,
+        schemaName = "assay.ExpressionMatrix.matrix",
+        queryName = "SelectedRuns",
+        viewName = "expression_matrices",
+        colFilter = NULL,
+        containerFilter = "CurrentAndSubfolders"
+      )$Cohort
     }
 
     ugenes <- unique(dt$gene_symbol)
@@ -395,8 +410,14 @@ ISCon$set(
 
   # Set colors
   setnames(anno, c("cohort", "time_str"), c("Cohort", "Time"))
-  anno_color <- list(Time = colorpanel(n = length(levels(anno$Time)),
-                                       low = "white", high = "black"))
+  anno_color <- list(
+    Time = colorpanel(
+      n = length(levels(anno$Time)),
+      low = "white",
+      high = "black"
+    )
+  )
+
   names(anno_color$Time) <- levels(anno$Time)
   if ("Age" %in% legend) {
     anno_color$Age <- c("yellow", "red")

@@ -31,7 +31,7 @@ test_that("gets TIV_2008 eSet non-summary", {
 
 test_that("gets TIV_2008 eSet summary", {
   EM <- sdy$getGEMatrix("TIV_2008", outputType = "summary", annotation = "latest")
-  test_EM(EM, summary = T) 
+  test_EM(EM, summary = T)
 })
 
 test_that("get_multiple matrices non-summary", {
@@ -58,7 +58,7 @@ test_that("get_multiple matrices summary with reload", {
 })
 
 test_that("get ImmSig Study - SDY212 with correct anno and summary", {
-  EM <- sdy212$getGEMatrix(sdy212$data_cache$GE_matrices$name,
+  EM <- sdy212$getGEMatrix(sdy212$cache$GE_matrices$name,
                            outputType = "raw",
                            annotation = "ImmSig")
   test_EM(EM, summary = F)

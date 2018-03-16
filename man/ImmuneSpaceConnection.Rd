@@ -10,8 +10,8 @@
 \alias{getGEAnalysis}
 \alias{listGEAnalysis}
 \alias{addTreatmentt}
-\alias{EMNames}
-\alias{quick_plot}
+\alias{mapSampleNames}
+\alias{plot}
 \title{The ImmuneSpaceConnection class}
 \format{An object of class \code{R6ClassGenerator} of length 24.}
 \usage{
@@ -52,16 +52,13 @@ the host name like "www.immunespace.org".
     A \code{list}. Stores configuration of the connection object such as
     URL, path and username.
   }
-  \item{\code{available_datasets}}{
+  \item{\code{availableDatasets}}{
     A \code{data.table}. The table of datasets available in the connection
     object.
   }
-  \item{\code{data_cache}}{
+  \item{\code{cache}}{
     A \code{list}. Stores the data to avoid downloading the same tables
     multiple times.
-  }
-  \item{\code{constants}}{
-    A \code{list}. Used to store information regarding gene-expression data.
   }
 }
 }
@@ -123,11 +120,11 @@ the host name like "www.immunespace.org".
     \code{reload}: A logical. If set to TRUE, the matrix will be downloaded
     again, even if a cached cop exist in the ImmuneSpaceConnection object.
   }
-  \item{\code{EMNames(EM = NULL, colType = "participant_id")}}{
+  \item{\code{mapSampleNames(EM = NULL, colType = "participant_id")}}{
     Change the sampleNames of an ExpressionSet fetched by \code{getGEMatrix}
     using the information in the phenodData slot.
 
-    \code{x}: An ExpressionSet, as returned by \code{getGEMatrix}.
+    \code{EM}: An ExpressionSet, as returned by \code{getGEMatrix}.
 
     \code{colType}: A character. The type of column names. Valid options are
     'expsample_accession' and 'participant_id'.
@@ -138,13 +135,16 @@ the host name like "www.immunespace.org".
   \item{\code{listGEAnalysis()}}{
     Lists available gene expression analysis for the connection.
   }
+  \item{\code{listGEMatrices()}}{
+    Lists available gene expression matrices for the connection.
+  }
   \item{\code{getGEAnalysis(...)}}{
     Downloads data from the gene expression analysis results table.
 
     \code{...}: A list of arguments to be passed to \code{labkey.selectRows}.
   }
-  \item{\code{clear_cache()}}{
-    Clears the data_cache. Removes downloaded datasets and expression
+  \item{\code{clearCache()}}{
+    Clears the cache. Removes downloaded datasets and expression
     matrices.
   }
   \item{\code{getGEFiles(files, destdir = ".", quiet = FALSE)}}{
@@ -155,6 +155,9 @@ the host name like "www.immunespace.org".
 
     \code{destdir}: A character. The local path to store the downloaded
     files.
+  }
+  \item{\code{getGEInputs()}}{
+    Downloads data from the gene expression input samples table.
   }
   \item{\code{listParticipantGroups()}}{
     Returns a dataframe with all saved Participant Groups on ImmuneSpace.
@@ -169,7 +172,7 @@ the host name like "www.immunespace.org".
     \code{dataType}: Use \code{con$listDatasets('datasets')} to see possible
     dataType inputs.
   }
-  \item{\code{quick_plot(...)}}{
+  \item{\code{plot(...)}}{
     "Plots a selected dataset. This is the function used by the DataExplorer
     module on ImmuneSpace.
 

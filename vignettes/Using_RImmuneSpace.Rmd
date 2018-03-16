@@ -27,7 +27,7 @@ This package provides a *thin* wrapper around `Rlabkey` and connects to the **Im
 2. [Connections](#connections)
 3. [Datasets](#datasets)
 4. [Gene expression](#ge)
-5. [Plots](#quickplot)
+5. [Plotting](#plot)
 6. [Cross study connections](#crossstudy)
 7. [sessionInfo](#sessioninfo)
 
@@ -140,16 +140,16 @@ additional informations such as the valid dataset names.
 
 [Back to top](#contents)
 
-## <a id="quickplot"></a>Quick plots
-A quick plot of a data set can be generated using the `quick_plot` function.
+## <a id="plot"></a>Plotting
+A plot of a dataset can be generated using the `plot` method.
 
-`quick_plot` automatically chooses the type of plot depending on the selected 
+`plot` automatically chooses the type of plot depending on the selected 
 dataset.
 
 ```{r, dev='png', fig.width=15}
-sdy269$quick_plot("hai")
+sdy269$plot("hai")
 
-sdy269$quick_plot("elisa")
+sdy269$plot("elisa")
 ```
 
 However, the `type` argument can be used to manually select from "boxplot",
@@ -177,13 +177,13 @@ In cross-study connections, `getDataset` and `getGEMatrix` will combine the
 requested datasets or expression matrices. See the dedicated vignettes for more
 information.
 
-Likewise, `quick_plot` will plot accross studies. Note that in most cases the
+Likewise, `plot` will visualize accross studies. Note that in most cases the
 datasets will have too many cohorts/subjects, making the filtering of the data
 a necessity. The `colFilter` argument can be used here, as described in the 
 `getDataset` section.
 ```{r cross-connection-qplot, dev='png', fig.align="center"}
 plotFilter <- makeFilter(c("cohort", "IN", "TIV 2010;TIV Group 2008"))
-con$quick_plot("elispot", filter = plotFilter)
+con$plot("elispot", filter = plotFilter)
 ```
 
 The figure above shows the ELISPOT results for two different years of TIV 

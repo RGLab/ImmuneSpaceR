@@ -148,11 +148,11 @@ As explained in the user guide, the `ImmuneSpaceConnection` class is a R6 class.
 
 See `?R6::R6Class` for more information about R6 class system.
 
-We can see a list of already downloaded runs and feature sets the `data_cache` 
+We can see a list of already downloaded runs and feature sets the `cache` 
 field. This is not intended to be used for data manipulation and only displayed 
 here to explain what gets cached.
 ```{r caching-dataset}
-names(sdy269$data_cache)
+names(sdy269$cache)
 ```
 
 If, for any reason, a specific marix needs to be redownloaded, the `reload` 
@@ -164,7 +164,7 @@ TIV_2008 <- sdy269$getGEMatrix("TIV_2008", reload = TRUE)
 
 Finally, it is possible to clear every cached expression matrix (and dataset).
 ```{r caching-clear}
-sdy269$clear_cache()
+sdy269$clearCache()
 ```
 
 Again, the `data.cache` field should never be modified manually. When in doubt,
