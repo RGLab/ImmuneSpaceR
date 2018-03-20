@@ -1,6 +1,11 @@
-#' @include ImmuneSpace.R
+#' @include ISCon.R
 NULL
 
+
+
+# PUBLIC -----------------------------------------------------------------------
+
+# Visualize a dataset
 ISCon$set(
   which = "public",
   name = "plot",
@@ -9,6 +14,15 @@ ISCon$set(
   }
 )
 
+
+
+# PRIVATE ----------------------------------------------------------------------
+
+
+
+# HELPER -----------------------------------------------------------------------
+
+# Visualize a dataset
 #' @importFrom ggplot2 facet_grid facet_wrap geom_text element_blank
 #' @importFrom Biobase pData
 .plot <- function(con,
@@ -97,6 +111,7 @@ ISCon$set(
   }
 }
 
+
 # Select appropriate unit and merge equivalent timepoints
 # Order timepoints by time (not numeric or alphabetic)
 # @param data A \code{data.table} containing a study_time_collected and a
@@ -136,6 +151,8 @@ ISCon$set(
   return(data)
 }
 
+
+# Visualize a dataset in heatmap
 #' @importFrom pheatmap pheatmap
 #' @importFrom reshape2 acast
 #' @importFrom stats formula
@@ -178,13 +195,13 @@ ISCon$set(
 
   if (interactive) {
     e <- try({
-    p <- heatmaply(
-      x = mat,
-      colors = rev(palette),
-      col_side_colors = anno,
-      dendrogram = "row",
-      scale = scale
-    )
+      p <- heatmaply(
+        x = mat,
+        colors = rev(palette),
+        col_side_colors = anno,
+        dendrogram = "row",
+        scale = scale
+      )
     }, silent = TRUE)
     if (inherits(e, "try-error")) {
       p <- heatmaply(
@@ -232,6 +249,7 @@ ISCon$set(
 }
 
 
+# Visualize a dataset in box or violin plot
 #' @importFrom ggplot2 ggplot geom_violin geom_boxplot geom_jitter
 #' @importFrom ggplot2 theme element_text aes_string aes xlab ylab
 #' @importFrom plotly ggplotly
@@ -278,6 +296,8 @@ ISCon$set(
   }
 }
 
+
+# Visualize a dataset in line plot
 #' @importFrom ggplot2 ggplot geom_line geom_point
 #' @importFrom ggplot2 theme element_text aes_string aes xlab ylab
 #' @importFrom plotly ggplotly
@@ -314,8 +334,8 @@ ISCon$set(
   }
 }
 
-# Get the data
-# Add standard columns for analyte and response
+
+# Get the data and add standard columns for analyte and response
 .getDataToPlot <- function(con,
                            dataset,
                            filter = NULL,
@@ -396,6 +416,7 @@ ISCon$set(
   return(dt)
 }
 
+
 # dt has ID and all relevant columns
 .heatmapAnnotations <- function(dt, legend) {
   annoCols <- c("cohort", "time_str", legend)
@@ -429,6 +450,7 @@ ISCon$set(
 
   return(list(anno, anno_color))
 }
+
 
 # Display name for the Y-axis
 # TODO: Add units. But they are in dt.

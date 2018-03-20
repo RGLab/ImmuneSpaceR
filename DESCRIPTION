@@ -46,15 +46,19 @@ Imports:
     rmarkdown,
     preprocessCore,
     parallel
+RoxygenNote: 6.0.1
 Collate: 
     'CreateConnection.R'
-    'ImmuneSpace.R'
+    'ISCon.R'
+    'ISCon-dataset.R'
+    'ISCon-geneExpression.R'
+    'ISCon-maintenance.R'
+    'ISCon-participantGroup.R'
+    'ISCon-plot.R'
+    'ISCon-utils.R'
     'ImmuneSpaceR.R'
-    'ParticipantGroupFns.R'
-    'getDataset.R'
-    'getGEMatrix.R'
     'netrc.R'
-    'plot.R'
+    'template.R'
+    'theme.R'
     'utils.R'
     'zzz.R'
-RoxygenNote: 6.0.1

@@ -1,6 +1,11 @@
-###############################################################################
-###              PARTICIPANT FILTERING METHODS                              ###
-###############################################################################
+#' @include ISCon.R
+NULL
+
+
+
+# PUBLIC -----------------------------------------------------------------------
+
+# List participant groups
 ISCon$set(
   which = "public",
   name = "listParticipantGroups",
@@ -49,6 +54,8 @@ ISCon$set(
   }
 )
 
+
+# Retrieve a dataset by participant group
 ISCon$set(
   which = "public",
   name = "getParticipantData",
@@ -61,8 +68,8 @@ ISCon$set(
       stop("DataType must be in ", paste(self$availableDatasets$Name, collapse = ", "))
     }
 
-    # Must rerun this to ensure valid groups are only for that user and are not changed
-    # within cache.
+    # Must rerun this to ensure valid groups are only for that user and are not
+    # changed within cache.
     validGrps <- self$listParticipantGroups()
 
     if (typeof(group) == "double") {
@@ -166,3 +173,11 @@ ISCon$set(
     filtData
   }
 )
+
+
+
+# PRIVATE ----------------------------------------------------------------------
+
+
+
+# HELPER -----------------------------------------------------------------------
