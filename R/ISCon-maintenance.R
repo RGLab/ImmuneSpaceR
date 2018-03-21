@@ -1,403 +1,29 @@
-########################################################################
-###                        IS CON HELPER FN                          ###
-########################################################################
-
-ISCon$set(
-  which = "private",
-  name = ".munge",
-  value = function(x) {
-    new <- tolower(gsub(" ", "_", basename(x)))
-    idx <- which(duplicated(new) | duplicated(new, fromLast = TRUE))
-
-    if (length(idx) > 0) {
-      new[idx] <- private$.munge(gsub("(.*)/.*$", "\\1", x[idx]))
-    }
-
-    new
-  }
-)
-
-# Returns TRUE if the connection is at project level ("/Studies")
-ISCon$set(
-  which = "private",
-  name = ".isProject",
-  value = function() {
-    self$config$labkey.url.path == "/Studies/"
-  }
-)
-
-ISCon$set(
-  which = "public",
-  name = "getGEInputs",
-  value = function() {
-    if (!is.null(self$cache[[private$.constants$matrix_inputs]])) {
-      self$cache[[private$.constants$matrix_inputs]]
-    } else {
-      ge <- tryCatch(
-        .getLKtbl(
-          con = self,
-          schema = "assay.Expressionmatrix.matrix",
-          query = "InputSamples",
-          viewName = "gene_expression_matrices",
-          colNameOpt = "fieldname"
-        ),
-        error = function(e) return(e)
-      )
-
-      if (length(ge$message) > 0) {
-        stop("Gene Expression Inputs not found for study.")
-      }
-
-      setnames(ge, private$.munge(colnames(ge)))
-      self$cache[[private$.constants$matrix_inputs]] <- ge
-    }
-  }
-)
-
-ISCon$set(
-  which = "private",
-  name = ".isRunningLocally",
-  value = function(path) {
-    file.exists(path)
-  }
-)
-
-ISCon$set(
-  which = "private",
-  name = ".localStudyPath",
-  value = function(urlpath) {
-    LOCALPATH <- "/share/files/"
-    PRODUCTION_HOST <- "www.immunespace.org"
-    TEST_HOST <- "test.immunespace.org"
-
-    gsub(
-      file.path(gsub("/$", "", self$config$labkey.url.base), "_webdav"),
-      file.path(LOCALPATH),
-      urlpath
-    )
-  }
-)
-
-ISCon$set(
-  which = "public",
-  name = "listDatasets",
-  value = function(output = c("datasets", "expression")) {
-    if (!all(output %in% c("datasets", "expression"))) {
-      stop("output other than datasets and expressions not allowed")
-    }
-
-    if ("datasets" %in% output) {
-      cat("datasets\n")
-      for (i in 1:nrow(self$availableDatasets)) {
-        cat(sprintf("\t%s\n", self$availableDatasets[i, Name]))
-      }
-    }
-
-    if ("expression" %in% output) {
-      if (!is.null(self$cache[[private$.constants$matrices]])) {
-        cat("Expression Matrices\n")
-        for (i in 1:nrow(self$cache[[private$.constants$matrices]])) {
-          cat(sprintf("\t%s\n", self$cache[[private$.constants$matrices]][i, name]))
-        }
-      } else {
-        cat("No Expression Matrices Available")
-      }
-    }
-  }
-)
-
-ISCon$set(
-  which = "public",
-  name = "listGEAnalysis",
-  value = function() {
-    GEA <- tryCatch(
-      .getLKtbl(
-        con = self,
-        schema = "gene_expression",
-        query = "gene_expression_analysis",
-        showHidden = FALSE,
-        colNameOpt = "rname"
-      ),
-      error = function(e) return(e)
-    )
-
-    if (length(GEA$message) > 0) {
-      stop("Study does not have Gene Expression Analyses.")
-    }
-
-    GEA
-  }
-)
-
-ISCon$set(
-  which = "public",
-  name = "getGEAnalysis",
-  value = function(...) {
-    GEAR <- tryCatch(
-      .getLKtbl(
-        con = self,
-        schema = "gene_expression",
-        query = "DGEA_filteredGEAR",
-        viewName = "DGEAR",
-        colNameOpt = "caption",
-        ...
-      ),
-      error = function(e) return(e)
-    )
-
-    if (length(GEAR$message) > 0) {
-      stop("Gene Expression Analysis not found for study.")
-    }
-
-    setnames(GEAR, private$.munge(colnames(GEAR)))
-
-    GEAR
-  }
-)
-
-ISCon$set(
-  which = "public",
-  name = "clearCache",
-  value = function() {
-    self$cache[grep("^GE", names(self$cache), invert = TRUE)] <- NULL
-  }
-)
-
-ISCon$set(
-  which = "public",
-  name = "print",
-  value = function() {
-    cat(sprintf("Immunespace Connection to study %s\n", self$study))
-
-    cat(sprintf("URL: %s\n",
-                file.path(gsub("/$","", self$config$labkey.url.base),
-                          gsub("^/","", self$config$labkey.url.path)))
-    )
-
-    cat(sprintf("User: %s\n", self$config$labkey.user.email))
-
-    cat("Available datasets\n")
-
-    for (i in 1:nrow(self$availableDatasets)) {
-      cat(sprintf("\t%s\n", self$availableDatasets[i, Name]))
-    }
-
-    if (!is.null(self$cache[[private$.constants$matrices]])) {
-      cat("Expression Matrices\n")
-      for (i in 1:nrow(self$cache[[private$.constants$matrices]])) {
-        cat(sprintf("\t%s\n", self$cache[[private$.constants$matrices]][i, name]))
-      }
-    }
-  }
-)
-
-ISCon$set(
-  which = "public",
-  name = "getGEFiles",
-  value = function(files, destdir = ".", quiet = FALSE) {
-    links <- paste0(
-      self$config$labkey.url.base,
-      "/_webdav/",
-      self$config$labkey.url.path,
-      "/%40files/rawdata/gene_expression/",
-      files
-    )
-
-    sapply(
-      links,
-      function(x) {
-        download.file(
-          url = links[1],
-          destfile = file.path(destdir, basename(x)),
-          method = "curl",
-          extra = "-n",
-          quiet = quiet)
-      }
-    )
-  }
-)
-
-#########################################################################
-###                 NON-CON HELPER FN                                 ###
-#########################################################################
-
-# sort studies by number
-.spSort <- function(vec) {
-  if (length(vec) > 0) {
-    vec <- sort(as.numeric(gsub("SDY", "", vec)))
-    vec <- paste0("SDY", as.character(vec))
-  } else {
-    vec <- NULL
-  }
-
-  vec
-}
-
-# get vector of study folders
-.getSdyVec <- function(.self) {
-  studies <- labkey.getFolders(
-    baseUrl = .self$config$labkey.url.base,
-    folderPath = "/Studies/"
-  )[, 1]
-  studies <- studies[!studies %in% c("SDY_template","Studies")]
-
-  studies
-}
-
-# helper to get sdy ids from subids
-.subidsToSdy <- function(subids) {
-  sdys <- unique(gsub("^SUB.+", NA, unlist(strsplit(subids, split = "\\."))))
-  sdys <- sdys[!is.na(sdys)]
-  sdys <- paste0("SDY", sdys)
-
-  sdys
-}
-
-# get names of files in a single folder from webdav link
-.listISFiles <- function(link, .self) {
-  opts <- .self$config$curlOptions
-  opts$options$netrc <- 1L
-
-  response <- NULL
-
-  res <- GET(url = link, config = opts)
-  if (!http_error(res)) {
-    response_json <- httr::content(res)
-    response <- unlist(lapply(response_json$files, function(x) x$text))
-  }
-
-  response
-}
-
-.urlExists <- function(url, .self) {
-  opts <- .self$config$curlOptions
-  opts$options$netrc <- 1L
-
-  res <- HEAD(url, config = opts)
-
-  if (http_error(res)) {
-    ret <- FALSE
-  } else {
-    if (http_type(res) == "application/json") {
-      res <- GET(url, config = opts)
-      cont <- httr::content(res)
-      ret <- is.null(cont$exception)
-    } else {
-      ret <- TRUE
-    }
-  }
-
-  ret
-}
-
-# Generate named list of files in either rawdata or analysis/exprs_matrices folders
-.getGEFileNms <- function(.self, rawdata) {
-  studies <- .getSdyVec(.self)
-
-  # check webdav folder for presence of rawdata
-  file_list <- lapply(studies, FUN = function(sdy) {
-    suffix <- ifelse(rawdata == TRUE,
-                     "/%40files/rawdata/gene_expression?method=JSON",
-                     "/%40files/analysis/exprs_matrices?method=JSON")
-    dirLink <-  paste0(.self$config$labkey.url.base,
-                       "/_webdav/Studies/",
-                       sdy,
-                       suffix)
-    files <- .listISFiles(dirLink, .self)
-    if( rawdata == TRUE ){
-      if( !is.null(files) ){
-        files <- length(files) > 0
-      }
-    }
-    return(files)
-  })
-
-  names(file_list) <- studies
-
-  return(file_list)
-}
-
-# less verbose wrapper for LK.selectRows calls
-.getLKtbl <- function(con, schema, query, showHidden = TRUE, ...) {
-  data.table(
-    labkey.selectRows(
-      baseUrl = con$config$labkey.url.base,
-      folderPath = con$config$labkey.url.path,
-      schemaName = schema,
-      queryName = query,
-      showHidden = showHidden,
-      ...
-    ),
-    stringsAsFactors = FALSE
-  )
-}
-
-# Ensure only one valid user email is returned or possible errors handled
-.validateUser <- function(con){
-  # First Check for apiKey and netrc file
-  api <- Rlabkey:::ifApiKey()
-  sink(tempfile())
-  validNetrc <- tryCatch({
-    check_netrc()
-  }, error = function(e){
-    return(NULL)
-  })
-  sink()
-
-  # Case 1: if apiKey, but no Netrc (possible in Integrated RStudio session UI)
-  # get user email from global environment, which is set by labkey.init and
-  # handle unexpected case of labkey.user.email not being found.
-  if( !is.null(api) & is.null(validNetrc) ){
-    user <- try( get("labkey.user.email"), silent = TRUE )
-    if( inherits(user, "try-error") ){
-      stop("labkey.user.email not found, please set")
-    }
-
-    # Case 2: valid netrc file (with or without ApiKey)
-    # To mimic LK.get() method - use first login for correct machine
-  }else if( !is.null(validNetrc) ){
-    machine <- gsub("https://", "", con$config$labkey.url.base)
-    netrc <- unlist(strsplit(readLines(validNetrc), split = " "))
-    user <- netrc[ grep(machine, netrc) + 2 ][[1]]
-  }
-
-  siteUsers <- labkey.selectRows(baseUrl = con$config$labkey.url.base,
-                                 folderPath = con$config$labkey.url.path,
-                                 schemaName = "core",
-                                 queryName = "siteUsers")
-
-  # Admin user pulls whole table
-  if( dim(siteUsers)[[1]] > 1 ){
-    userId <- siteUsers$`User Id`[ siteUsers$Email == user ]
-
-  # Non-Admin sees only self and no email
-  }else{
-    userId <- siteUsers$`User Id`[[1]]
-  }
-
-  return(userId)
-}
+#' @include ISCon.R
+NULL
 
 
-#################################################################################
-###                     MAINTAINENANCE METHODS                                ###
-#################################################################################
 
-# Returns a list of data frames where TRUE in file_exists column marks files that are accessible.
-# This function is used for administrative purposes to check that the flat files
-# are properly loaded and accessible to the users.
+# PUBLIC -----------------------------------------------------------------------
+
+
+
+# PRIVATE ----------------------------------------------------------------------
+
+# Returns a list of data frames where TRUE in file_exists column marks files
+# that are accessible. This function is used for administrative purposes to
+# check that the raw files are properly loaded and accessible to the users.
 #' @importFrom rjson fromJSON
 #' @importFrom parallel mclapply detectCores
 ISCon$set(
   which = "private",
-  name = ".test_files",
+  name = ".checkRawFiles",
   value = function(what = c("gene_expression_files",
                             "fcs_sample_files",
                             "fcs_control_files",
                             "protocols",
                             "ge_matrices")) {
-    # HELPER fn ----------------------------------
-    check_links <- function (dataset, folder) {
+    ## HELPERS
+    ..checkLinks <- function (dataset, folder) {
       res <- data.frame(
         file_info_name = NULL,
         study_accession = NULL,
@@ -441,8 +67,7 @@ ISCon$set(
         file_list <- unlist(
           mclapply(
             folder_link,
-            .listISFiles,
-            self,
+            private$.listISFiles,
             mc.cores = detectCores()
           )
         )
@@ -471,26 +96,27 @@ ISCon$set(
       res
     }
 
-    # MAIN fn ------------------------------
+
+    ## MAIN
     ret <- list()
     what <- tolower(what)
 
     if ("gene_expression_files" %in% what) {
-      ret$gene_expression_files <- check_links(
+      ret$gene_expression_files <- ..checkLinks(
         "gene_expression_files",
         "gene_expression"
       )
     }
 
     if ("fcs_sample_files" %in% what) {
-      ret$fcs_sample_files <- check_links(
+      ret$fcs_sample_files <- ..checkLinks(
         "fcs_sample_files",
         "flow_cytometry"
       )
     }
 
     if ("fcs_control_files" %in% what) {
-      ret$fcs_control_files <- check_links(
+      ret$fcs_control_files <- ..checkLinks(
         "fcs_control_files",
         "flow_cytometry"
       )
@@ -520,8 +146,7 @@ ISCon$set(
       file_exists <- unlist(
         mclapply(
           file_link,
-          .urlExists,
-          .self,
+          private$.checkUrl,
           mc.cores = detectCores()
         )
       )
@@ -563,8 +188,7 @@ ISCon$set(
       file_exists <- unlist(
         mclapply(
           mxLinks,
-          .urlExists,
-          self,
+          private$.checkUrl,
           mc.cores = detectCores()
         )
       )
@@ -596,8 +220,8 @@ ISCon$set(
   }
 )
 
-#-------------------GEM CLEANUP-----------------------------------
-# This function outputs a list of lists.  There are six possible sub-lists >
+
+# This function outputs a list of lists. There are six possible sub-lists >
 # 1. $gemAndRaw = study has gene expression matrix flat file and raw data
 # 2. $gemNoRaw = study has gene expression matrix flat file but no raw data (unlikely)
 # 3. $rawNoGem = study has raw data but no gene expression flat file, which is likely
@@ -605,14 +229,14 @@ ISCon$set(
 #                it is RNAseq and had trouble being processed.
 # 4. $gefNoGem = con$getDataset("gene_expression_files") reports raw data available, but
 #                no gene expression matrix flat file has been generated. Similar to rawNoGem.
-# 5. $gefNoRaw = con$getDataset() reports files being available, but no rawdata found.  This
+# 5. $gefNoRaw = con$getDataset() reports files being available, but no rawdata found. This
 #                may be due to files being in GEO, but not having been downloaded to ImmPort
 #                and ImmuneSpace.
 # 6. $rawNoGef = This would be unexpected. Rawdata present on server, but no gene expression
 #                files found by con$getDataset().
 ISCon$set(
   which = "private",
-  name = ".sdysWithoutGems",
+  name = ".getSdysWithoutGEMs",
   value = function() {
     res <- list()
 
@@ -620,7 +244,7 @@ ISCon$set(
     gems <- self$cache$GE_matrices
     withGems <- unique(gems$folder)
 
-    file_list <- .getGEFileNms(.self = self, rawdata = TRUE)
+    file_list <- private$.getGEFileNames(TRUE)
     file_list <- file_list[file_list != "NULL"]
     emptyFolders <- names(file_list)[file_list == FALSE]
     withRawData <- names(file_list)[file_list == TRUE]
@@ -647,57 +271,16 @@ ISCon$set(
   }
 )
 
-# Remove gene expression matrices that do not correspond to a run currently on prod or test
-# in the query assay.ExpressionMatrix.matrix.Runs. NOTE: Important to change the labkey.url.base
-# variable depending on prod / test to ensure you are not deleting any incorrectly.
+
+# Remove gene expression matrices that do not correspond to a run currently on
+# PROD/TEST in the query assay.ExpressionMatrix.matrix.Runs.
+# NOTE: Important to change the labkey.url.base variable depending on PROD/TEST
+# to ensure you are not deleting any incorrectly.
 #' @importFrom httr DELETE HEAD http_type http_error
 ISCon$set(
   which = "private",
-  name = ".rmOrphanGems",
+  name = ".removeOrphanGEMs",
   value = function() {
-    # helper functions
-    .getNoRunPres <- function(.self, runs) {
-      # get flat files list with appropriate names (sdy)
-      emFls <- .getGEFileNms(.self = .self, rawdata = FALSE)
-      emFls <- emFls[emFls != "NULL"]
-      tmpNms <- rep(x = names(emFls), times = lengths(emFls))
-      emFls <- unlist(emFls)
-      names(emFls) <- tmpNms
-
-      # get names from emFls for comparison
-      emNms <- sapply(emFls, FUN = function(x) {
-        return(strsplit(x, "\\.tsv")[[1]][1])
-      })
-
-      # check runs for file names - assume if not in runs$Name then ok to delete!
-      noRunPres <- emNms[!(emNms %in% runs$Name)]
-      noRunPres <- noRunPres[!duplicated(noRunPres)]
-
-      noRunPres
-    }
-
-    # helper curl FN
-    curlDelete <- function(baseNm, sdy, .self) {
-      opts <- .self$config$curlOptions
-      opts$options$netrc <- 1L
-
-      tsv <-  paste0(
-        .self$config$labkey.url.base,
-        "/_webdav/Studies/",
-        sdy,
-        "/%40files/analysis/exprs_matrices/",
-        baseNm,
-        ".tsv"
-        )
-      smry <- paste0(tsv, ".summary")
-
-      tsvRes <- DELETE(url = tsv, config = opts)
-      smryRes <- DELETE(url = smry, config = opts)
-
-      list(tsv = tsvRes, summary = smryRes)
-    }
-
-    # main
     # Double check we are working at project level and on correct server!
     if (!private$.isProject()) {
       stop("Can only be run at project level")
@@ -724,7 +307,7 @@ ISCon$set(
       )
     )
 
-    noRunPres <- .getNoRunPres(.self = self, runs = runs)
+    noRunPres <- private$.getNoRunPres(runs)
 
     # if files to-be-rm, confirm rm ok, attempt delete, check results and report
     if (length(noRunPres) == 0) {
@@ -735,14 +318,13 @@ ISCon$set(
     ok2rm <- readline(prompt = "Ok to remove all files listed above? [Y / n] ")
     if (toupper(ok2rm) == "Y" | ok2rm == "") {
       for (i in 1:length(noRunPres)) {
-        curlDelete(
-          baseNm = noRunPres[i],
-          sdy = names(noRunPres)[i],
-          .self = self
+        private$.curlDelete(
+          noRunPres[i],
+          names(noRunPres)[i]
         )
       }
 
-      noRunPresPost <- .getNoRunPres(.self = self, runs = runs)
+      noRunPresPost <- private$.getNoRunPres(runs)
       if (length(noRunpresPost) == 0) {
         return("No orphans found after removal. Success!")
       } else {
@@ -756,16 +338,25 @@ ISCon$set(
   }
 )
 
-#----------------STUDY-CHECK-------------------------------------------------
+
 # This method allows admin to check which studies are compliant with the
 # following modules/data files (GEF, RAW, GEO, GEM, DE, GEE, IRP, GSEA)
 ISCon$set(
   which = "private",
-  name = ".studiesComplianceCheck",
+  name = ".checkStudyCompliance",
   value = function(filterNonGE = TRUE,
                    showAllCols = FALSE,
                    onlyShowNonCompliant = TRUE) {
+    ## HELPERS
+    # Validation based on modules being turned on
+    ..getModSdys <- function(name) {
+      url <- paste0("https://www.immunespace.org/immport/studies/containersformodule.api?name=", name)
+      res <- unlist(lapply(fromJSON(Rlabkey:::labkey.get(url))[[1]], function(x) {x[["name"]]}))
+      res <- .spSort(res[res != "Studies" & res != "SDY_template"])
+    }
 
+
+    ## MAIN
     # For labkey.executeSql calls
     baseUrl <- self$config$labkey.url.base
 
@@ -773,7 +364,7 @@ ISCon$set(
     if (self$study != "Studies") {
       Sdys <- c(self$study) # single study
     } else {
-      Sdys <- .spSort(.getSdyVec(self)) # all studies
+      Sdys <- .spSort(private$.getSdyVec()) # all studies
     }
 
     mods <- c("GEF", "RAW", "GEO", "GEM", "DE_implied", "GEE_implied",
@@ -792,7 +383,7 @@ ISCon$set(
     compDF$GEM <- rownames(compDF) %in% withGems
 
     # RAW
-    file_list <- .getGEFileNms(.self = self, rawdata = TRUE)
+    file_list <- private$.getGEFileNames(TRUE)
     file_list <- file_list[file_list != "NULL"]
     compDF$RAW <- rownames(compDF) %in% names(file_list)[file_list == TRUE]
 
@@ -807,7 +398,7 @@ ISCon$set(
     # GEE - Studies with subjects having both GEM and response data for any timepoints
     # NOTE: when GEE is changed to allow NAb, can uncomment nab / respSubs lines
     hai <- self$getDataset("hai")
-    # nab <- .self$getDataset("neut_ab_titer")
+    # nab <- self$getDataset("neut_ab_titer")
     # resp <- union(resp$participant_id, nab$participant_id)
     inputSmpls <- labkey.selectRows(
       baseUrl = baseUrl,
@@ -815,7 +406,7 @@ ISCon$set(
       schemaName = "study",
       queryName = "HM_InputSamplesQuery",
       containerFilter = "CurrentAndSubfolders"
-      )
+    )
     exprResp <- merge(
       inputSmpls,
       hai,
@@ -888,17 +479,10 @@ ISCon$set(
       ret <- any(res[[1]] %in% deSets)
     })
 
-    # Validation based on modules being turned on
-    getModSdys <- function(name) {
-      url <- paste0("https://www.immunespace.org/immport/studies/containersformodule.api?name=", name)
-      res <- unlist(lapply(fromJSON(Rlabkey:::labkey.get(url))[[1]], function(x) {x[["name"]]}))
-      res <- .spSort(res[res != "Studies" & res != "SDY_template"])
-    }
-
-    compDF$DE_actual <- rownames(compDF) %in% getModSdys("DataExplorer")
-    compDF$GEE_actual <- rownames(compDF) %in% getModSdys("GeneExpressionExplorer")
-    compDF$GSEA_actual <- rownames(compDF) %in% getModSdys("GeneSetEnrichmentAnalysis")
-    compDF$IRP_actual <- rownames(compDF) %in% getModSdys("ImmuneResponsePredictor")
+    compDF$DE_actual <- rownames(compDF) %in% ..getModSdys("DataExplorer")
+    compDF$GEE_actual <- rownames(compDF) %in% ..getModSdys("GeneExpressionExplorer")
+    compDF$GSEA_actual <- rownames(compDF) %in% ..getModSdys("GeneSetEnrichmentAnalysis")
+    compDF$IRP_actual <- rownames(compDF) %in% ..getModSdys("ImmuneResponsePredictor")
 
     # Differences between implied and actual
     compDF$DE_diff <- compDF$DE_implied == compDF$DE_actual
@@ -923,7 +507,7 @@ ISCon$set(
       "IRP_implied",
       "IRP_actual",
       "IRP_diff"
-      )
+    )
 
     compDF <- compDF[ , order(match(colnames(compDF), colOrder))]
 
@@ -948,3 +532,179 @@ ISCon$set(
     compDF
   }
 )
+
+
+# Get vector of study folders
+ISCon$set(
+  which = "private",
+  name = ".getSdyVec",
+  value = function() {
+    studies <- labkey.getFolders(
+      baseUrl = self$config$labkey.url.base,
+      folderPath = "/Studies/"
+    )[, 1]
+    studies <- studies[!studies %in% c("SDY_template","Studies")]
+
+    studies
+  }
+)
+
+
+# Get names of files in a single folder from webdav link
+ISCon$set(
+  which = "private",
+  name = ".listISFiles",
+  value = function(link) {
+    opts <- self$config$curlOptions
+    opts$options$netrc <- 1L
+
+    response <- NULL
+
+    res <- GET(url = link, config = opts)
+    if (!http_error(res)) {
+      response_json <- httr::content(res)
+      response <- unlist(lapply(response_json$files, function(x) x$text))
+    }
+
+    response
+  }
+)
+
+
+# Check if the url exists (is accessible)
+ISCon$set(
+  which = "private",
+  name = ".checkUrl",
+  value = function(url) {
+    opts <- self$config$curlOptions
+    opts$options$netrc <- 1L
+
+    res <- HEAD(url, config = opts)
+
+    if (http_error(res)) {
+      ret <- FALSE
+    } else {
+      if (http_type(res) == "application/json") {
+        res <- GET(url, config = opts)
+        cont <- httr::content(res)
+        ret <- is.null(cont$exception)
+      } else {
+        ret <- TRUE
+      }
+    }
+
+    ret
+  }
+)
+
+
+# Generate named list of files in either rawdata or analysis/exprs_matrices folders
+ISCon$set(
+  which = "private",
+  name = ".getGEFileNames",
+  value = function(rawdata) {
+    studies <- private$.getSdyVec()
+
+    # check webdav folder for presence of rawdata
+    file_list <- lapply(studies, FUN = function(sdy) {
+      suffix <- ifelse(rawdata,
+                       "/%40files/rawdata/gene_expression?method=JSON",
+                       "/%40files/analysis/exprs_matrices?method=JSON")
+
+      dirLink <-  paste0(self$config$labkey.url.base,
+                         "/_webdav/Studies/",
+                         sdy,
+                         suffix)
+      files <- private$.listISFiles(dirLink)
+
+      if (rawdata) {
+        if (!is.null(files)) {
+          files <- length(files) > 0
+        }
+      }
+
+      return(files)
+    })
+
+    names(file_list) <- studies
+
+    return(file_list)
+  }
+)
+
+
+# Get no run pres (?)
+ISCon$set(
+  which = "private",
+  name = ".getNoRunPres",
+  value = function(runs) {
+    emFls <- private$.getGEFileNames(FALSE)
+    emFls <- emFls[emFls != "NULL"]
+    tmpNms <- rep(x = names(emFls), times = lengths(emFls))
+    emFls <- unlist(emFls)
+    names(emFls) <- tmpNms
+
+    # get names from emFls for comparison
+    emNms <- sapply(emFls, FUN = function(x) {
+      return(strsplit(x, "\\.tsv")[[1]][1])
+    })
+
+    # check runs for file names - assume if not in runs$Name then ok to delete!
+    noRunPres <- emNms[!(emNms %in% runs$Name)]
+    noRunPres <- noRunPres[!duplicated(noRunPres)]
+
+    noRunPres
+  }
+)
+
+
+# Delete the files
+ISCon$set(
+  which = "private",
+  name = ".curlDelete",
+  value = function(baseNm, sdy) {
+    opts <- self$config$curlOptions
+    opts$options$netrc <- 1L
+
+    tsv <-  paste0(
+      self$config$labkey.url.base,
+      "/_webdav/Studies/",
+      sdy,
+      "/%40files/analysis/exprs_matrices/",
+      baseNm,
+      ".tsv"
+    )
+    smry <- paste0(tsv, ".summary")
+
+    tsvRes <- DELETE(url = tsv, config = opts)
+    smryRes <- DELETE(url = smry, config = opts)
+
+    list(tsv = tsvRes, summary = smryRes)
+  }
+)
+
+
+
+# HELPER -----------------------------------------------------------------------
+
+# Sort studies by number
+.spSort <- function(vec) {
+  if (length(vec) > 0) {
+    vec <- sort(as.numeric(gsub("SDY", "", vec)))
+    vec <- paste0("SDY", as.character(vec))
+  } else {
+    vec <- NULL
+  }
+
+  vec
+}
+
+
+# Get SDY IDs from subids
+.subidsToSdy <- function(subids) {
+  sdys <- unique(gsub("^SUB.+", NA, unlist(strsplit(subids, split = "\\."))))
+  sdys <- sdys[!is.na(sdys)]
+  sdys <- paste0("SDY", sdys)
+
+  sdys
+}

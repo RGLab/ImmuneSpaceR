@@ -13,6 +13,7 @@
 #' @importFrom R6 R6Class
 NULL
 
+
 # globalVariables to remove RCC NOTES due to data.table scoping
 globalVariables(
   c(
