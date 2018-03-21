@@ -10,7 +10,8 @@ ISCon$set(
   which = "public",
   name = "listGEMatrices",
   value = function(verbose = FALSE) {
-    getData <- function() {
+    ## HELPERS
+    ..getData <- function() {
       try(
         .getLKtbl(
           con = self,
@@ -23,13 +24,15 @@ ISCon$set(
       )
     }
 
+
+    ## MAIN
     if (!is.null(self$cache[[private$.constants$matrices]])) {
       self$cache[[private$.constants$matrices]]
     } else {
       if (verbose) {
-        ge <- getData()
+        ge <- ..getData()
       } else {
-        ge <- suppressWarnings(getData())
+        ge <- suppressWarnings(..getData())
       }
 
       if (inherits(ge, "try-error") || nrow(ge) == 0) {
@@ -100,7 +103,7 @@ ISCon$set(
       }
     }
 
-    cache_name <- setCacheName(matrixName, outputType)
+    cache_name <- .setCacheName(matrixName, outputType)
     esetName <- paste0(cache_name, "_eset")
 
     # length(x) > 1 means multiple cohorts
@@ -240,7 +243,7 @@ ISCon$set(
       )
     )
     bs2es <- .getLKtbl(
-      con = .self,
+      con = self,
       schema = "immport",
       query = "expsample_2_biosample",
       colFilter = bsFilter,
@@ -255,7 +258,7 @@ ISCon$set(
       )
     )
     es2trt <- .getLKtbl(
-      con = .self,
+      con = self,
       schema = "immport",
       query = "expsample_2_treatment",
       colFilter = esFilter,
@@ -362,7 +365,7 @@ ISCon$set(
                    outputType = "summary",
                    annotation = "latest",
                    reload = FALSE) {
-    cache_name <- setCacheName(matrixName, outputType)
+    cache_name <- .setCacheName(matrixName, outputType)
 
     # check if study has matrices
     if (nrow(subset(self$cache[[private$.constants$matrices]],
@@ -458,7 +461,7 @@ ISCon$set(
                    outputType = "summary",
                    annotation = "latest",
                    reload = FALSE) {
-    cache_name <- setCacheName(matrixName, outputType)
+    cache_name <- .setCacheName(matrixName, outputType)
 
     if (!(matrixName %in% self$cache[[private$.constants$matrices]]$name)) {
       stop("Invalid gene expression matrix name")
@@ -567,7 +570,7 @@ ISCon$set(
   which = "private",
   name = ".constructExpressionSet",
   value = function(matrixName, outputType) {
-    cache_name <- setCacheName(matrixName, outputType)
+    cache_name <- .setCacheName(matrixName, outputType)
     esetName <- paste0(cache_name, "_eset")
 
     # expression matrix
@@ -759,7 +762,7 @@ ISCon$set(
 # HELPER -----------------------------------------------------------------------
 
 # Set the cache name of expression matrix by output type
-setCacheName <- function(matrixName, outputType) {
+.setCacheName <- function(matrixName, outputType) {
   outputSuffix <- switch(
     outputType,
     "summary" = "_sum",

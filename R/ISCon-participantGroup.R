@@ -86,7 +86,7 @@ ISCon$set(
       stop(paste0("group ", group,
                   " is not in the set of ", col,
                   " created by current user",
-                  " on ", .self$config$labkey.url.base))
+                  " on ", self$config$labkey.url.base))
     }
 
     dt <- dataType # for brevity
