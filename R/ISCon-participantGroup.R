@@ -14,7 +14,7 @@ ISCon$set(
       stop("labkey.url.path must be /Studies/. Use CreateConnection with all studies.")
     }
 
-    userId <- .validateUser(con = self)
+    userId <- private$.validateUser()
 
     # Get summary data
     pgrpSql <- paste0(
@@ -177,6 +177,58 @@ ISCon$set(
 
 
 # PRIVATE ----------------------------------------------------------------------
+
+# Ensure only one valid user email is returned or possible errors handled
+ISCon$set(
+  which = "private",
+  name = ".validateUser",
+  value = function() {
+    # First Check for apiKey and netrc file
+    api <- Rlabkey:::ifApiKey()
+    sink(tempfile())
+    validNetrc <- tryCatch({
+      check_netrc()
+    }, error = function(e) {
+      return(NULL)
+    })
+    sink()
+
+    # Case 1: if apiKey, but no Netrc (possible in Integrated RStudio session UI)
+    # get user email from global environment, which is set by labkey.init and
+    # handle unexpected case of labkey.user.email not being found.
+    if (!is.null(api) & is.null(validNetrc)) {
+      user <- try(get("labkey.user.email"), silent = TRUE)
+      if (inherits(user, "try-error")) {
+        stop("labkey.user.email not found, please set")
+      }
+
+      # Case 2: valid netrc file (with or without ApiKey)
+      # To mimic LK.get() method - use first login for correct machine
+    } else if (!is.null(validNetrc)) {
+      machine <- gsub("https://", "", self$config$labkey.url.base)
+      netrc <- unlist(strsplit(readLines(validNetrc), split = " "))
+      user <- netrc[grep(machine, netrc) + 2][[1]]
+    }
+
+    siteUsers <- labkey.selectRows(
+      baseUrl = self$config$labkey.url.base,
+      folderPath = self$config$labkey.url.path,
+      schemaName = "core",
+      queryName = "siteUsers"
+    )
+
+    # Admin user pulls whole table
+    if (dim(siteUsers)[[1]] > 1) {
+      userId <- siteUsers$`User Id`[ siteUsers$Email == user ]
+
+      # Non-Admin sees only self and no email
+    } else {
+      userId <- siteUsers$`User Id`[[1]]
+    }
+
+    return(userId)
+  }
+)
 
 
 
