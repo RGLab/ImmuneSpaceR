@@ -88,7 +88,13 @@ CreateConnection <- function(study = NULL,
     nf <- try(get("labkey.netrc.file", .GlobalEnv), silent = TRUE)
   }
 
-  useragent <- paste("ImmuneSpaceR", packageVersion("ImmuneSpaceR"))
+  useragent <- paste0(
+    "R/", R.version$major, ".", R.version$minor,
+    " (", Sys.info()["sysname"], " ", Sys.info()["machine"], ")",
+    " Rlabkey/", packageVersion("Rlabkey"),
+    " ImmuneSpaceR/", packageVersion("ImmuneSpaceR")
+  )
+
   if (!inherits(nf, "try-error") && !is.null(nf)) {
     curlOptions <- labkey.setCurlOptions(ssl_verifyhost = 2,
                                          sslversion = 1,
