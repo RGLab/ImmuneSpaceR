@@ -110,7 +110,7 @@ ISCon$set(
     if (length(matrixName) > 1) {
       lapply(matrixName, private$.downloadMatrix, outputType, annotation, reload)
       lapply(matrixName, private$.getGEFeatures, outputType, annotation, reload)
-      lapply(matrixName, private$.constructExpressionSet, outputType)
+      lapply(matrixName, private$.constructExpressionSet, outputType, annotation)
       ret <- .combineEMs(self$cache[esetName])
       if (dim(ret)[[1]] == 0) {
         # No features shared
@@ -131,7 +131,7 @@ ISCon$set(
         self$cache[[esetName]] <- NULL
         private$.downloadMatrix(matrixName, outputType, annotation)
         private$.getGEFeatures(matrixName, outputType, annotation)
-        private$.constructExpressionSet(matrixName, outputType)
+        private$.constructExpressionSet(matrixName, outputType, annotation)
       }
 
       return(self$cache[[esetName]])
@@ -569,7 +569,7 @@ ISCon$set(
 ISCon$set(
   which = "private",
   name = ".constructExpressionSet",
-  value = function(matrixName, outputType) {
+  value = function(matrixName, outputType, annotation) {
     cache_name <- .setCacheName(matrixName, outputType)
     esetName <- paste0(cache_name, "_eset")
 
@@ -577,9 +577,7 @@ ISCon$set(
     message("Constructing ExpressionSet")
     matrix <- self$cache[[cache_name]]
 
-    # features
-    features <- self$cache[[private$.mungeFeatureId(private$.getFeatureId(matrixName))]][, c("FeatureId", "gene_symbol")]
-
+    # pheno
     runID <- self$cache$GE_matrices[name == matrixName, rowid]
     pheno_filter <- makeFilter(c("Run", "EQUAL", runID),
                                c("Biosample/biosample_accession",
@@ -599,35 +597,16 @@ ISCon$set(
     )
 
     setnames(pheno, private$.munge(colnames(pheno)))
-
     pheno <- data.frame(pheno, stringsAsFactors = FALSE)
-
     pheno <- pheno[, colnames(pheno) %in% c("biosample_accession",
                                             "participant_id",
                                             "cohort",
                                             "study_time_collected",
                                             "study_time_collected_unit")]
+    rownames(pheno) <- pheno$biosample_accession
 
-    if (outputType == "summary") {
-      fdata <- data.frame(
-        FeatureId = matrix$gene_symbol,
-        gene_symbol = matrix$gene_symbol,
-        row.names = matrix$gene_symbol
-      )
-      rownames(fdata) <- fdata$FeatureId
-      fdata <- AnnotatedDataFrame(fdata)
-    } else {
-      try(setnames(matrix, " ", "FeatureId"), silent = TRUE)
-      try(setnames(matrix, "V1", "FeatureId"), silent = TRUE)
-      fdata <- data.table(FeatureId = as.character(matrix$FeatureId))
-      fdata <- merge(fdata, features, by = "FeatureId", all.x = TRUE)
-      fdata <- as.data.frame(fdata)
-      rownames(fdata) <- fdata$FeatureId
-      fdata <- AnnotatedDataFrame(fdata)
-    }
-
+    # handling multiple timepoints per subject
     dups <- colnames(matrix)[duplicated(colnames(matrix))]
-
     if (length(dups) > 0) {
       matrix <- data.table(matrix)
       for (dup in dups) {
@@ -672,44 +651,6 @@ ISCon$set(
       rownames(matrix) <- matrix$FeatureId
     }
 
-    # pheno
-    runID <- self$cache$GE_matrices[name == matrixName, rowid]
-    pheno_filter <- makeFilter(
-      c(
-        "Run",
-        "EQUAL",
-        runID
-      ),
-      c(
-        "Biosample/biosample_accession",
-        "IN",
-        paste(colnames(matrix), collapse = ";")
-      )
-    )
-
-    pheno <- unique(
-      labkey.selectRows(
-        baseUrl = self$config$labkey.url.base,
-        folderPath = self$config$labkey.url.path,
-        schemaName = "study",
-        queryName = "HM_InputSamplesQuery",
-        containerFilter = "CurrentAndSubfolders",
-        colNameOpt = "caption",
-        colFilter = pheno_filter
-      )
-    )
-
-    colnames(pheno) <- sapply(colnames(pheno), private$.munge)
-    keep <- c(
-      "biosample_accession",
-      "participant_id",
-      "cohort",
-      "study_time_collected",
-      "study_time_collected_unit"
-    )
-    pheno <- pheno[ , colnames(pheno) %in% keep]
-    rownames(pheno) <- pheno$biosample_accession
-
     # SDY212 has dbl biosample that is removed for ImmSig, but needs to be
     # present for normalization, so needs to be included in eSet!
     if (runID == 469) {
@@ -719,20 +660,33 @@ ISCon$set(
 
     # Prep Eset and push
     # NOTES: At project level, InputSamples may be filtered
-    matrix <- data.frame(matrix) # for when on rsT / rsP
-    posNames <- pheno$biosample_accession
-
-    if (runID == 469) {
-      posNames <- c(posNames, "BS694717.1")
-    } # for SDY212
-
-    exprs <- matrix[, colnames(matrix) %in% posNames] # rms gene_symbol!
+    matrix <- data.frame(matrix, stringsAsFactors = FALSE) # for when on rsT / rsP
+    exprs <- matrix[, colnames(matrix) %in% pheno$biosample_accession] # rms gene_symbol!
     pheno <- pheno[colnames(exprs), ]
+
+    # add processing information for user
+    isRNA <- self$study %in% c("SDY888","SDY224","SDY67")
+    fasInfo <- .getLKtbl(con = self,
+                         schema = "Microarray",
+                         query = "FeatureAnnotationSet")
+    gemx <- self$cache$GE_matrices
+    fasId <- gemx$featureset[ gemx$name == matrixName & gemx$outputtype == outputType ]
+    fasInfo <- fasInfo[ match(fasId, fasInfo$`Row Id`)]
+    if(fasInfo$Comment == "Do not update" | is.na(fasInfo$Comment)){
+      annoVer <- annotation
+    }else{
+      annoVer <- gsub(" ", "", strsplit(fasInfo$Comment, ":")[[1]][2])
+    }
+    processInfo <- list(normalization = ifelse(isRNA, "DESeq", "normalize.quantiles"),
+                     summarizeBy = ifelse(outputType == "summary", "mean", "none"),
+                     org.Hs.eg.db_version = annoVer,
+                     featureAnnotationSet = fasInfo$Name)
 
     self$cache[[esetName]] <- ExpressionSet(
       assayData = as.matrix(exprs),
       phenoData = AnnotatedDataFrame(pheno),
-      featureData = AnnotatedDataFrame(fdata)
+      featureData = AnnotatedDataFrame(fdata),
+      experimentData = new("MIAME", other = processInfo)
     )
   }
 )
