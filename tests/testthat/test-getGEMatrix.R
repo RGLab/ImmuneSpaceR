@@ -27,6 +27,12 @@ test_that("gets TIV_2008 eSet non-summary", {
   test_EM(EM, summary = F)
 })
 
+# uncomment when ready on prod!
+test_that("gets TIV_2008 eSet raw", {
+  EM <- sdy$getGEMatrix("TIV_2008", outputType = "raw")
+  test_EM(EM, summary = F)
+})
+
 test_that("gets TIV_2008 eSet summary", {
   EM <- sdy$getGEMatrix("TIV_2008", outputType = "summary", annotation = "latest")
   test_EM(EM, summary = T)
@@ -61,6 +67,8 @@ test_that("get ImmSig Study - SDY212 with correct anno and summary", {
                            annotation = "ImmSig")
   test_EM(EM, summary = F)
 })
+
+
 
 # cleanup ------------------------------------------------------
 if(exists("netrc_file")){
