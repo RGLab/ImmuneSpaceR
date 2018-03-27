@@ -1,3 +1,4 @@
+context("plot")
 
 # Source depdencies -------------------------------------------
 source("global_variable.R")
@@ -17,8 +18,6 @@ testPlot <- function(con, dataset, ...) {
 
 
 # Tests --------------------------------------------------------
-context("plot")
-
 # ---- Default Args for Reference ----------
 # normalize_to_baseline = TRUE,
 # type = "auto",

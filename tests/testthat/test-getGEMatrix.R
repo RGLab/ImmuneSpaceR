@@ -1,3 +1,4 @@
+context("getGEMatrix")
 
 # Source depdencies -------------------------------------------
 source("global_variable.R")
@@ -21,9 +22,6 @@ test_EM <- function(EM, summary){
 }
 
 # Main Tests ------------------------------------------------
-
-context("getGEMatrix")
-
 test_that("gets TIV_2008 eSet non-summary", {
   EM <- sdy$getGEMatrix("TIV_2008", outputType = "normalized")
   test_EM(EM, summary = F)

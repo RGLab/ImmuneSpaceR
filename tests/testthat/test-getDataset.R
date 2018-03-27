@@ -1,3 +1,4 @@
+context("getDatasets")
 
 # Source depdencies --------------------------------------------
 source("global_variable.R")
@@ -14,26 +15,24 @@ suppressMessages(is1 <- CreateConnection("IS1", verbose = TRUE))
 
 test_dataset <- function(con, name, common_cols , specif_cols){
   x <- con$getDataset(name, reload = TRUE)
-  
+
   # Dataset is of the right class and not empty
   expect_is(x, "data.table")
   expect_gt(nrow(x), 0)
-  
+
   # All required columns are here
   expect_true(all(common_cols %in% colnames(x)))
   expect_true(all(specif_cols$name %in% colnames(x)))
-  
+
   # Important columns have no NAs
   expect_false(all(is.na(x[, specif_cols$name, with = FALSE])))
-  
+
   # Important columns have the right class
   expect_true(all(sapply(x[, specif_cols$name,
                            with = FALSE], class) == specif_cols$type))
 }
 
 # Dataset Tests ------------------------------------------------
-context("getDatasets")
-
 test_that("get_hai", {
   test_dataset(sdy269, "hai", common_cols, specif_cols = haiCols)
 })
