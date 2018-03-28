@@ -41,13 +41,13 @@ ISCon$set(
   name = "getDataset",
   value = function(x, original_view = FALSE, reload = FALSE, colFilter = NULL, ...) {
     if (nrow(self$availableDatasets[Name %in% x]) == 0) {
-      wstring <- paste0(study, " has invalid data set: ", x)
+      wstring <- paste0(study, " ", x, " dataset is empty \ndata frame with 0 cols and 0 rows")
       if (config$verbose) {
         wstring <- paste0(wstring, "\n",
                           "Valid datasets for ", study, ": ",
                           paste(self$availableDatasets$Name, collapse = ", "), ".")
       }
-      stop(wstring)
+      warning(wstring)
     } else {
       cache_name <- paste0(x, ifelse(original_view, "_full", ""))
       nOpts <- length(list(...))
