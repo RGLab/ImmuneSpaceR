@@ -415,20 +415,57 @@ ISCon$set(
     )
     compDF$GEE_implied <- rownames(compDF) %in% .subidsToSdy(unique(exprResp$`Participant Id`))
 
-    # GSEA - studies with subjects having GEAR results (i.e. compared multiple GEM timepoints)
-    gear <- sapply(withGems, FUN = function(sdy) {
-      res <- tryCatch(
-        labkey.executeSql(
-          baseUrl = baseUrl,
+    # # GSEA - studies with subjects having GEAR results (i.e. compared multiple GEM timepoints)
+    # gear <- sapply(withGems, FUN = function(sdy) {
+    #   res <- tryCatch(
+    #     labkey.executeSql(
+    #       baseUrl = baseUrl,
+    #       folderPath = paste0("/Studies/", sdy),
+    #       schemaName = "gene_expression",
+    #       sql = "SELECT COUNT (*) FROM gene_expression_analysis_results"),
+    #     error = function(e) {return(NA)}
+    #   )
+    #   output <- res[[1]] > 0 & !is.na(res)
+    # })
+    # compDF$GSEA_implied <- rownames(compDF) %in% names(gear)[gear == TRUE]
+############### BEGIN MY NEW METHOD #########################
+
+    GEAR_complete <- sapply(withGems, FUN = function(sdy) {
+      impliedGEA <- data.table(
+        labkey.selectRows(
+          baseUrl = labkey.url.base,
+          folderPath = paste0("/Studies/", sdy),
+          schemaName = "assay.ExpressionMatrix.matrix",
+          queryName = "InputSamples",
+          colNameOpt = "rname"))
+      # Does each time point have at least three participants -- only check those that do for existing GEA
+      impliedGEA <- impliedGEA %>%
+        select(biosample_participantid, biosample_arm_name, biosample_study_time_collected, biosample_study_time_collected_unit) %>%
+        filter(biosample_study_time_collected > 0) %>%
+        mutate(key = paste(biosample_arm_name, biosample_study_time_collected, biosample_study_time_collected_unit, sep = " ")) %>%
+        group_by(key) %>%
+        tally() %>%
+        filter(n > 3)
+
+      # Find existing GEAR comparisons
+      existGEA <- data.table(
+        labkey.selectRows(
+          baseUrl = labkey.url.base,
           folderPath = paste0("/Studies/", sdy),
           schemaName = "gene_expression",
-          sql = "SELECT COUNT (*) FROM gene_expression_analysis_results"),
-        error = function(e) {return(NA)}
-      )
-      output <- res[[1]] > 0 & !is.na(res)
-    })
-    compDF$GSEA_implied <- rownames(compDF) %in% names(gear)[gear == TRUE]
+          queryName = "gene_expression_analysis",
+          colNameOpt = "rname"))
 
+      if (nrow(existGEA) > 0) {
+        q1 <- quote(arm_name)
+        q2 <- quote(coefficient)
+        existGEA[, key := paste(eval(q1), eval(q2), sep = " ")]
+      }
+      output <- length(setdiff(impliedGEA$key, existGEA$key)) == 0
+    })
+
+
+##############################################################
     # IRP - Studies with subjects from multiple cohorts with GEM data at both target
     # timepoint and baseline + response data
     nab <- self$getDataset("neut_ab_titer")
