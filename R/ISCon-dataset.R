@@ -48,9 +48,9 @@ ISCon$set(
                           paste(self$availableDatasets$Name, collapse = ", "), ".")
       }
       warning(wstring)
-    } else {
-      cache_name <- paste0(x, ifelse(original_view, "_full", ""))
-      nOpts <- length(list(...))
+    }
+    cache_name <- paste0(x, ifelse(original_view, "_full", ""))
+    nOpts <- length(list(...))
 
       if (!is.null(self$cache[[cache_name]]) &&
           !reload &&
@@ -106,7 +106,6 @@ ISCon$set(
 
       data
     }
-  }
 )
 
 
