@@ -1,3 +1,4 @@
+context("listDatasets")
 
 # Source depdencies -------------------------------------------
 source("global_variable.R")
@@ -21,8 +22,6 @@ try_ld <- function(con, ...){
 
 
 # Tests --------------------------------------------------------
-context("listDatasets")
-
 test_that("both datasets and EM returned without argument", {
   res <- try_ld(sdy269)
   expect_true( all(c("datasets", "Expression Matrices") %in% res) )

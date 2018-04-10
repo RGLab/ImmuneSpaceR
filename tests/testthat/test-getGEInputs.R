@@ -1,3 +1,4 @@
+context("getGEInputs")
 
 # Source depdencies -------------------------------------------
 source("global_variable.R")
@@ -19,8 +20,6 @@ try_gei <- function(con){
 }
 
 # Tests --------------------------------------------------------
-context("getGEInputs")
-
 test_that("returns GE inputs df if study has inputs", {
   res <- try_gei(sdy269)
   expect_true( (dim(res)[1] > 0) & (dim(res)[2] > 0) )

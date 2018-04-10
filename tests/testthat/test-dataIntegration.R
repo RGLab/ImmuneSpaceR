@@ -1,3 +1,4 @@
+context("Data Integration")
 
 # Source depdencies -------------------------------------------
 source("global_variable.R")
@@ -14,8 +15,6 @@ pheno <- pData(eset)
 hai <- sdy269$getDataset("hai")
 
 # Tests --------------------------------------------------------
-context("Data Integration")
-
 test_that("participant_id in both eset and hai", {
   expect_true( "participant_id" %in% colnames(hai) & "participant_id" %in% colnames(pheno) )
 })
