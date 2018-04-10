@@ -30,6 +30,8 @@
 <meta property="og:description" content="Connection can hold a lot of data in cache. If a lot of work has
 been done (e.g: lots of downloaded datasets and gene-expression matrices),
 it can be useful to save the connection for later work or even offline use." />
+
+<meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -165,7 +167,7 @@ To be loaded later using <code>loadConnection</code>.</p></td>
 <span class='no'>new_con</span></div><div class='output co'>#&gt; An object of class "ImmuneSpaceConnection"
 #&gt; &lt;S4 Type Object&gt;
 #&gt; attr(,".xData")
-#&gt; &lt;environment: 0x109da25f8&gt;</div><div class='input'><span class='fu'>names</span>(<span class='no'>new_con</span>$<span class='no'>cache</span>)</div><div class='output co'>#&gt; NULL</div><span class='co'># NOT RUN {</span>
+#&gt; &lt;environment: 0x11a035040&gt;</div><div class='input'><span class='fu'>names</span>(<span class='no'>new_con</span>$<span class='no'>cache</span>)</div><div class='output co'>#&gt; NULL</div><span class='co'># NOT RUN {</span>
   <span class='fu'>saveConnection</span>(<span class='no'>new_con</span>, <span class='fu'>tempfile</span>())
 <span class='co'># }</span><div class='input'>
 </div></pre>

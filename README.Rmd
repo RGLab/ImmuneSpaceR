@@ -15,7 +15,7 @@ knitr::opts_chunk$set(
 
 
 
-# ImmuneSpaceR
+# ImmuneSpaceR <img src="man/figures/logo.png" align="right" />
 
 [![Build Status](https://travis-ci.org/RGLab/ImmuneSpaceR.svg?branch=master)](https://travis-ci.org/RGLab/ImmuneSpaceR)
 [![codecov](https://codecov.io/gh/RGLab/ImmuneSpaceR/branch/master/graph/badge.svg)](https://codecov.io/gh/RGLab/ImmuneSpaceR/branch/master)

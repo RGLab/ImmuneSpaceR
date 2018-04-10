@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-ImmuneSpaceR
-============
+ImmuneSpaceR <img src="man/figures/logo.png" align="right" />
+=============================================================
 
 [![Build Status](https://travis-ci.org/RGLab/ImmuneSpaceR.svg?branch=master)](https://travis-ci.org/RGLab/ImmuneSpaceR) [![codecov](https://codecov.io/gh/RGLab/ImmuneSpaceR/branch/master/graph/badge.svg)](https://codecov.io/gh/RGLab/ImmuneSpaceR/branch/master) [![bioc](http://www.bioconductor.org/shields/downloads/ImmuneSpaceR.svg)](https://bioconductor.org/packages/stats/bioc/ImmuneSpaceR/) [![bioc](http://www.bioconductor.org/shields/years-in-bioc/ImmuneSpaceR.svg)](http://bioconductor.org/packages/release/bioc/html/ImmuneSpaceR.html)
 
