@@ -105,6 +105,11 @@ study$plot("hai")
 
 <img src="man/figures/README-plot-1.png" width="100%" />
 
+Examples & Documentation
+------------------------
+
+For more advanced examples and detailed documentation, see the package vignettes and the reports available on [ImmuneSpace](https://www.immunespace.org/).
+
 Contributing
 ------------
 
