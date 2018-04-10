@@ -7,7 +7,7 @@ source("set_curlOptions.R")
 library(Biobase)
 
 # CreateConnection ------------------------------------------
-sdy <- CreateConnection("SDY269")
+sdy <- CreateConnection("")
 sdy212 <- CreateConnection("SDY212")
 # Helper Function -------------------------------------------
 
@@ -27,9 +27,15 @@ test_that("gets TIV_2008 eSet non-summary", {
   test_EM(EM, summary = F)
 })
 
-# uncomment when ready on prod!
+# tests general raw output
 test_that("gets TIV_2008 eSet raw", {
   EM <- sdy$getGEMatrix("TIV_2008", outputType = "raw")
+  test_EM(EM, summary = F)
+})
+
+# ensures that constructExpressionSet is working ok
+test_that("gets TIV_young eSet raw", {
+  EM <- sdy$getGEMatrix("TIV_young", outputType = "raw")
   test_EM(EM, summary = F)
 })
 

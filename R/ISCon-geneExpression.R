@@ -136,7 +136,7 @@ ISCon$set(
 
       return(self$cache[[esetName]])
     }
-    }
+  }
 )
 
 
@@ -242,6 +242,7 @@ ISCon$set(
         paste(pData(self$cache[[x]])$biosample_accession, collapse = ";")
       )
     )
+
     bs2es <- .getLKtbl(
       con = self,
       schema = "immport",
@@ -257,6 +258,7 @@ ISCon$set(
         paste(bs2es$expsample_accession, collapse = ";")
       )
     )
+
     es2trt <- .getLKtbl(
       con = self,
       schema = "immport",
@@ -272,6 +274,7 @@ ISCon$set(
         paste(es2trt$treatment_accession, collapse = ";")
       )
     )
+
     trt <- .getLKtbl(
       con = self,
       schema = "immport",
@@ -579,7 +582,9 @@ ISCon$set(
 
     # pheno
     runID <- self$cache$GE_matrices[name == matrixName, rowid]
-    pheno_filter <- makeFilter(c("Run", "EQUAL", runID),
+    pheno_filter <- makeFilter(c("Run",
+                                 "EQUAL",
+                                 runID),
                                c("Biosample/biosample_accession",
                                  "IN",
                                  paste(colnames(matrix), collapse = ";")))
@@ -672,15 +677,17 @@ ISCon$set(
     gemx <- self$cache$GE_matrices
     fasId <- gemx$featureset[ gemx$name == matrixName & gemx$outputtype == outputType ]
     fasInfo <- fasInfo[ match(fasId, fasInfo$`Row Id`)]
-    if(fasInfo$Comment == "Do not update" | is.na(fasInfo$Comment)){
+    if (fasInfo$Comment == "Do not update" | is.na(fasInfo$Comment)) {
       annoVer <- annotation
-    }else{
+    } else {
       annoVer <- gsub(" ", "", strsplit(fasInfo$Comment, ":")[[1]][2])
     }
-    processInfo <- list(normalization = ifelse(isRNA, "DESeq", "normalize.quantiles"),
-                     summarizeBy = ifelse(outputType == "summary", "mean", "none"),
-                     org.Hs.eg.db_version = annoVer,
-                     featureAnnotationSet = fasInfo$Name)
+
+    processInfo <- list(
+      normalization = ifelse(isRNA, "DESeq", "normalize.quantiles"),
+      summarizeBy = ifelse(outputType == "summary", "mean", "none"),
+      org.Hs.eg.db_version = annoVer,
+      featureAnnotationSet = fasInfo$Name)
 
     self$cache[[esetName]] <- ExpressionSet(
       assayData = as.matrix(exprs),
