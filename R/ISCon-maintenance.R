@@ -21,7 +21,8 @@ ISCon$set(
                             "fcs_sample_files",
                             "fcs_control_files",
                             "protocols",
-                            "ge_matrices")) {
+                            "ge_matrices"),
+                   mc.cores = 1) {
     ## HELPERS
     ..checkLinks <- function (dataset, folder) {
       res <- data.frame(
@@ -68,7 +69,7 @@ ISCon$set(
           mclapply(
             folder_link,
             private$.listISFiles,
-            mc.cores = detectCores()
+            mc.cores = mc.cores
           )
         )
 
@@ -147,7 +148,7 @@ ISCon$set(
         mclapply(
           file_link,
           private$.checkUrl,
-          mc.cores = detectCores()
+          mc.cores = mc.cores
         )
       )
 
@@ -189,7 +190,7 @@ ISCon$set(
         mclapply(
           mxLinks,
           private$.checkUrl,
-          mc.cores = detectCores()
+          mc.cores = mc.cores
         )
       )
 
