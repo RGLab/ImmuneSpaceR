@@ -221,57 +221,6 @@ ISCon$set(
 )
 
 
-# This function outputs a list of lists. There are six possible sub-lists >
-# 1. $gemAndRaw = study has gene expression matrix flat file and raw data
-# 2. $gemNoRaw = study has gene expression matrix flat file but no raw data (unlikely)
-# 3. $rawNoGem = study has raw data but no gene expression flat file, which is likely
-#                in the case that no annotation pkg is availble in bioconductor or
-#                it is RNAseq and had trouble being processed.
-# 4. $gefNoGem = con$getDataset("gene_expression_files") reports raw data available, but
-#                no gene expression matrix flat file has been generated. Similar to rawNoGem.
-# 5. $gefNoRaw = con$getDataset() reports files being available, but no rawdata found. This
-#                may be due to files being in GEO, but not having been downloaded to ImmPort
-#                and ImmuneSpace.
-# 6. $rawNoGef = This would be unexpected. Rawdata present on server, but no gene expression
-#                files found by con$getDataset().
-ISCon$set(
-  which = "private",
-  name = ".getSdysWithoutGEMs",
-  value = function() {
-    res <- list()
-
-    # get list of matrices and determine which sdys they represent
-    gems <- self$cache$GE_matrices
-    withGems <- unique(gems$folder)
-
-    file_list <- private$.getGEFileNames(TRUE)
-    file_list <- file_list[file_list != "NULL"]
-    emptyFolders <- names(file_list)[file_list == FALSE]
-    withRawData <- names(file_list)[file_list == TRUE]
-
-    # Compare lists
-    res$gemAndRaw <- .spSort(intersect(withRawData, withGems))
-    res$gemNoRaw <- .spSort(setdiff(withGems, withRawData))
-    res$rawNoGem <- .spSort(setdiff(withRawData, withGems))
-
-    # Check which studies without gems have gef in IS
-    ge <- self$getDataset("gene_expression_files")
-    geNms <- unique(ge$participant_id)
-    gefSdys <- unique(sapply(geNms, FUN = function(x) {
-      res <- strsplit(x, ".", fixed = TRUE)
-      return(res[[1]][2])
-    }))
-    gefSdys <- paste0("SDY", gefSdys)
-
-    res$gefNoGem <- .spSort(gefSdys[!(gefSdys %in% withGems)])
-    res$gefNoRaw <- .spSort(setdiff(res$gefNoGem, res$rawNoGem))
-    res$rawNoGef <- .spSort(setdiff(res$rawNoGem, res$gefNoGem))
-
-    res
-  }
-)
-
-
 # Remove gene expression matrices that do not correspond to a run currently on
 # PROD/TEST in the query assay.ExpressionMatrix.matrix.Runs.
 # NOTE: Important to change the labkey.url.base variable depending on PROD/TEST
@@ -367,7 +316,7 @@ ISCon$set(
       Sdys <- .spSort(private$.getSdyVec()) # all studies
     }
 
-    mods <- c("GEF", "RAW", "GEO", "GEM", "DE_implied", "GEE_implied",
+    mods <- c("GEF", "RAW", "GEO", "GEM", "GEM_diff", "DE_implied", "GEE_implied",
               "GSEA_implied", "IRP_implied")
     compDF <- data.frame(
       matrix(
@@ -394,6 +343,9 @@ ISCon$set(
     # GEO
     geoGef <- gef[!is.na(gef$geo_accession), ]
     compDF$GEO <- rownames(compDF) %in% .subidsToSdy(geoGef$participant_id)
+
+    # GEM_diff
+    compDF$GEM_diff <- (compDF$RAW | compDF$GEO) == compDF$GEM
 
     # GEE - Studies with subjects having both GEM and response data for any timepoints
     # NOTE: when GEE is changed to allow NAb, can uncomment nab / respSubs lines
@@ -495,6 +447,7 @@ ISCon$set(
       "GEF",
       "GEO",
       "GEM",
+      "GEM_diff",
       "DE_implied",
       "DE_actual",
       "DE_diff",
