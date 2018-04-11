@@ -364,11 +364,10 @@ ISCon$set(
     if (self$study != "Studies") {
       Sdys <- c(self$study) # single study
     } else {
-      Sdys <- .spSort(private$.getSdyVec()) # all studies
+      Sdys <- .spSort(private$.getSdyVec(self))
     }
 
-    mods <- c("GEF", "RAW", "GEO", "GEM", "DE_implied", "GEE_implied",
-              "GSEA_implied", "IRP_implied")
+    mods <- c("GEF", "RAW", "GEO", "GEM", "DE_implied", "GEE_implied", "IRP_implied")
     compDF <- data.frame(
       matrix(
         nrow = length(Sdys),
@@ -415,55 +414,75 @@ ISCon$set(
     )
     compDF$GEE_implied <- rownames(compDF) %in% .subidsToSdy(unique(exprResp$`Participant Id`))
 
-    # # GSEA - studies with subjects having GEAR results (i.e. compared multiple GEM timepoints)
-    # gear <- sapply(withGems, FUN = function(sdy) {
-    #   res <- tryCatch(
-    #     labkey.executeSql(
-    #       baseUrl = baseUrl,
-    #       folderPath = paste0("/Studies/", sdy),
-    #       schemaName = "gene_expression",
-    #       sql = "SELECT COUNT (*) FROM gene_expression_analysis_results"),
-    #     error = function(e) {return(NA)}
-    #   )
-    #   output <- res[[1]] > 0 & !is.na(res)
-    # })
-    # compDF$GSEA_implied <- rownames(compDF) %in% names(gear)[gear == TRUE]
-############### BEGIN MY NEW METHOD #########################
+    # GSEA - studies with subjects having GEAR results (i.e. compared multiple GEM timepoints)
+    # Do gea results exist? are they complete?
 
-    GEAR_complete <- sapply(withGems, FUN = function(sdy) {
+    gear <- sapply(withGems, FUN = function(sdy) {
       impliedGEA <- data.table(
         labkey.selectRows(
-          baseUrl = labkey.url.base,
+          baseUrl = baseUrl,
           folderPath = paste0("/Studies/", sdy),
           schemaName = "assay.ExpressionMatrix.matrix",
           queryName = "InputSamples",
           colNameOpt = "rname"))
+
       # Does each time point have at least three participants -- only check those that do for existing GEA
-      impliedGEA <- impliedGEA %>%
-        select(biosample_participantid, biosample_arm_name, biosample_study_time_collected, biosample_study_time_collected_unit) %>%
-        filter(biosample_study_time_collected > 0) %>%
-        mutate(key = paste(biosample_arm_name, biosample_study_time_collected, biosample_study_time_collected_unit, sep = " ")) %>%
-        group_by(key) %>%
-        tally() %>%
-        filter(n > 3)
+      if (nrow(impliedGEA) > 0) {
+        q1 <- quote(biosample_arm_name)
+        q2 <- quote(biosample_study_time_collected)
+        q3 <- quote(biosample_study_time_collected_unit)
+        impliedGEA[, key := paste(eval(q1), eval(q2), eval(q3), sep = " ")]
+      }
+      # count keys
+      impliedGEA <- impliedGEA[, list(nr.appearances=length(key)),
+                                  by = list(unique.values = key)]
+      # remove zero day coefficient
+      impliedGEA <- impliedGEA[!grepl("0 Days", impliedGEA$unique.values),]
+      # only keep keys that have > 3 apperances (need at least three for GEA)
+      impliedGEA <- impliedGEA[impliedGEA$nr.appearances > 3, ]
 
       # Find existing GEAR comparisons
-      existGEA <- data.table(
-        labkey.selectRows(
-          baseUrl = labkey.url.base,
-          folderPath = paste0("/Studies/", sdy),
-          schemaName = "gene_expression",
-          queryName = "gene_expression_analysis",
-          colNameOpt = "rname"))
+      existGEA <- tryCatch(
+        data.table(
+          labkey.selectRows(
+            baseUrl = baseUrl,
+            folderPath = paste0("/Studies/", sdy),
+            schemaName = "gene_expression",
+            queryName = "gene_expression_analysis",
+            colNameOpt = "rname")),
+        error = function(e) {data.frame(analysis_acession = character(),
+                                        expression_matrix = character())
+        })
 
       if (nrow(existGEA) > 0) {
         q1 <- quote(arm_name)
         q2 <- quote(coefficient)
         existGEA[, key := paste(eval(q1), eval(q2), sep = " ")]
       }
-      output <- length(setdiff(impliedGEA$key, existGEA$key)) == 0
-    })
 
+      # Is there gene expression analysis?
+      output_GEAR <- nrow(impliedGEA) != 0 & nrow(existGEA) != 0
+      # if there is GEA is it complete?
+      if (output_GEAR) {
+        output_GEARcomp <- length(setdiff(impliedGEA$unique.values, existGEA$key)) == 0
+      } else{
+        output_GEARcomp <- NA
+      }
+
+      # if not complete what time points are missing
+      if (!is.na(output_GEARcomp) & !output_GEARcomp) {
+        missingdat <- paste(setdiff(impliedGEA$unique.values, existGEA$key), collapse = ", ")
+      } else {
+        missingdat <- NA
+      }
+      output <- c(output_GEAR, output_GEARcomp, missingdat)
+    })
+    gear <- data.frame(t(gear))
+    colnames(gear) <- c("GSEA_implied", "GSEA_complete", "missing_GSEA_data")
+    compDF <- merge(compDF, gear, by = 0, all = T)
+    compDF[is.na(compDF$GSEA_implied),"GSEA_implied"] <- FALSE
+    row.names(compDF) <- compDF$Row.names
+    compDF <- compDF[,-1]
 
 ##############################################################
     # IRP - Studies with subjects from multiple cohorts with GEM data at both target
@@ -541,6 +560,8 @@ ISCon$set(
       "GSEA_implied",
       "GSEA_actual",
       "GSEA_diff",
+      "GSEA_complete",
+      "missing_GSEA_data",
       "IRP_implied",
       "IRP_actual",
       "IRP_diff"
