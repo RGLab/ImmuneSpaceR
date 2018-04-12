@@ -21,8 +21,22 @@ ISCon$set(
                             "fcs_sample_files",
                             "fcs_control_files",
                             "protocols",
-                            "ge_matrices")) {
+                            "gene_expression_matrices"),
+                   mc.cores = 1) {
     ## HELPERS
+    ..messageResults <- function(dataset, file_exists) {
+      message(
+        paste0(
+          sum(file_exists),
+          "/",
+          length(file_exists),
+          " ",
+          dataset,
+          " with valid links."
+        )
+      )
+    }
+
     ..checkLinks <- function (dataset, folder) {
       res <- data.frame(
         file_info_name = NULL,
@@ -68,29 +82,21 @@ ISCon$set(
           mclapply(
             folder_link,
             private$.listISFiles,
-            mc.cores = detectCores()
+            mc.cores = mc.cores
           )
         )
 
         file_exists <- temp$file_info_name %in% file_list
 
         res <- data.frame(
-          study = temp$study_accession,
+          file_info_name = temp$file_info_name,
+          study_accession = temp$study_accession,
           file_link = file_link,
           file_exists = file_exists,
           stringsAsFactors = FALSE
         )
 
-        print(
-          paste0(
-            sum(res$file_exists),
-            "/",
-            nrow(res),
-            " ",
-            dataset,
-            " with valid links."
-          )
-        )
+        ..messageResults(dataset, res$file_exists)
       }
 
       res
@@ -147,73 +153,67 @@ ISCon$set(
         mclapply(
           file_link,
           private$.checkUrl,
-          mc.cores = detectCores()
+          mc.cores = mc.cores
         )
       )
 
-      print(
-        paste0(
-          sum(file_exists),
-          "/",
-          length(file_exists),
-          " protocols with valid links."
-        )
-      )
+      ..messageResults("protocols", file_exists)
 
       ret$protocols <- data.frame(
-        study = folders,
+        file_info_name = paste0(folders, "_protocol.zip"),
+        study_accession = folders,
         file_link = file_link,
         file_exists = file_exists,
         stringsAsFactors = FALSE
       )
     }
 
-    if ("ge_matrices" %in% what) {
-      mx <- .getLKtbl(
-        con = self,
-        schema = "assay.ExpressionMatrix.matrix",
-        query = "Runs",
-        colNameOpt = "rname"
-      )
-
-      mxLinks <- paste0(
-        self$config$labkey.url.base,
-        "/_webdav/Studies/",
-        mx$folder_name,
-        "/@files/analysis/exprs_matrices/",
-        mx$name,
-        ".tsv"
-      )
-
-      file_exists <- unlist(
-        mclapply(
-          mxLinks,
-          private$.checkUrl,
-          mc.cores = detectCores()
+    if ("gene_expression_matrices" %in% what) {
+      suppressWarnings(
+        mx <- .getLKtbl(
+          con = self,
+          schema = "assay.ExpressionMatrix.matrix",
+          query = "Runs",
+          colNameOpt = "rname"
         )
       )
 
-      print(
-        paste0(
-          sum(file_exists),
-          "/",
-          length(file_exists),
-          " ge_matrices with valid links."
+      if (nrow(mx) > 0) {
+        mxLinks <- paste0(
+          self$config$labkey.url.base,
+          "/_webdav/Studies/",
+          mx$folder_name,
+          "/@files/analysis/exprs_matrices/",
+          mx$name,
+          ".tsv"
         )
-      )
 
-      ret$ge_matrices <- data.frame(
-        file_link = mxLinks,
-        file_exists = file_exists,
-        stringsAsFactors = FALSE
-      )
+        file_exists <- unlist(
+          mclapply(
+            mxLinks,
+            private$.checkUrl,
+            mc.cores = mc.cores
+          )
+        )
 
-    } else {
-      ret$ge_matrices <- data.frame(
-        file_link = NULL,
-        file_exists = NULL,
-        stringsAsFactors = FALSE
-      )
+        ..messageResults("gene_expression_matrices", file_exists)
+
+        ret$gene_expression_matrices <- data.frame(
+          file_info_name = paste0(mx$name, ".tsv"),
+          study_accession = mx$folder_name,
+          file_link = mxLinks,
+          file_exists = file_exists,
+          stringsAsFactors = FALSE
+        )
+      } else {
+        ret$gene_expression_matrices <- data.frame(
+          file_info_name = NULL,
+          study_accession = NULL,
+          file_link = NULL,
+          file_exists = NULL,
+          stringsAsFactors = FALSE
+        )
+      }
     }
 
     ret
