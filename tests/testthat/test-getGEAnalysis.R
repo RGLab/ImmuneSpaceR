@@ -1,3 +1,4 @@
+context("getGEAnalysis")
 
 # Source depdencies -------------------------------------------
 source("global_variable.R")
@@ -23,8 +24,6 @@ try_ggea <- function(con, ...){
 
 
 # Tests --------------------------------------------------------
-context("getGEAnalysis")
-
 test_that("returns df of GE analysis for single study if present", {
   res <- try_ggea(sdy269)
   expect_true( dim(res)[1] > 0 )

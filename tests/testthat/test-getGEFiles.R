@@ -1,3 +1,4 @@
+context("getGEFiles")
 
 # Source depdencies -------------------------------------------
 source("global_variable.R")
@@ -30,11 +31,7 @@ try_ggef <- function(con){
 
 
 # Tests --------------------------------------------------------
-context("getGEFiles")
-
 # destdir <- tempdir()
-
-
 # cleanup ------------------------------------------------------
 if(exists("netrc_file")){
   file.remove(netrc_file)

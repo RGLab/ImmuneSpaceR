@@ -3,6 +3,7 @@
 #' @title The ImmuneSpaceConnection class
 #' @name ImmuneSpaceConnection
 #' @aliases
+#' ImmuneSpaceConnection
 #' getGEMatrix
 #' getDataset
 #' listDatasets

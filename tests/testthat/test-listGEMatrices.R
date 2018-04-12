@@ -1,3 +1,4 @@
+context("listGEMatrices")
 
 # Source depdencies -------------------------------------------
 source("global_variable.R")
@@ -23,8 +24,6 @@ chk_mats <- function(sdy, exp_mat_names){
 
 
 # Tests --------------------------------------------------------
-context("listGEMatrices")
-
 test_that("gets correct matrices for SDY269", {
   sdy <- "SDY269"
   chk_mats(sdy, em_list[[sdy]])

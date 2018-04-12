@@ -41,16 +41,14 @@ ISCon$set(
   name = "getDataset",
   value = function(x, original_view = FALSE, reload = FALSE, colFilter = NULL, ...) {
     if (nrow(self$availableDatasets[Name %in% x]) == 0) {
-      wstring <- paste0(study, " has invalid data set: ", x)
-      if (config$verbose) {
-        wstring <- paste0(wstring, "\n",
-                          "Valid datasets for ", study, ": ",
+      if (self$config$verbose) {
+        wstring <- paste0("Valid datasets for ", self$study, ": ",
                           paste(self$availableDatasets$Name, collapse = ", "), ".")
       }
-      stop(wstring)
-    } else {
-      cache_name <- paste0(x, ifelse(original_view, "_full", ""))
-      nOpts <- length(list(...))
+      warning(wstring)
+    }
+    cache_name <- paste0(x, ifelse(original_view, "_full", ""))
+    nOpts <- length(list(...))
 
       if (!is.null(self$cache[[cache_name]]) &&
           !reload &&
@@ -106,7 +104,6 @@ ISCon$set(
 
       data
     }
-  }
 )
 
 

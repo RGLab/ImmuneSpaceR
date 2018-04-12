@@ -10,25 +10,28 @@ ISCon$set(
   which = "public",
   name = "print",
   value = function() {
-    cat(sprintf("Immunespace Connection to study %s\n", self$study))
+    cat("<ImmuneSpaceConnection>\n")
 
-    cat(sprintf("URL: %s\n",
-                file.path(gsub("/$","", self$config$labkey.url.base),
-                          gsub("^/","", self$config$labkey.url.path)))
+    cat(sprintf("  Study: %s\n", self$study))
+
+    cat(
+      sprintf("  URL: %s\n",
+              file.path(gsub("/$","", self$config$labkey.url.base),
+                        gsub("^/","", self$config$labkey.url.path)))
     )
 
-    cat(sprintf("User: %s\n", self$config$labkey.user.email))
+    cat(sprintf("  User: %s\n", self$config$labkey.user.email))
 
-    cat("Available datasets\n")
+    cat("  Available Datasets:\n")
 
     for (i in 1:nrow(self$availableDatasets)) {
-      cat(sprintf("\t%s\n", self$availableDatasets[i, Name]))
+      cat(sprintf("    - %s\n", self$availableDatasets[i, Name]))
     }
 
     if (!is.null(self$cache[[private$.constants$matrices]])) {
-      cat("Expression Matrices\n")
+      cat("  Available Expression Matrices:\n")
       for (i in 1:nrow(self$cache[[private$.constants$matrices]])) {
-        cat(sprintf("\t%s\n", self$cache[[private$.constants$matrices]][i, name]))
+        cat(sprintf("    - %s\n", self$cache[[private$.constants$matrices]][i, name]))
       }
     }
   }
