@@ -86,7 +86,7 @@
 #'      downloaded from the connection.
 #'   }
 #'   \item{\code{getGEMatrix(matrixName = NULL, cohort = NULL,
-#'   outputType = "summary", annotation = "latest", reload = FALSE)}}{
+#'   outputType = "summary", annotation = "latest", reload = FALSE, verbose = FALSE)}}{
 #'     Downloads a normalized gene expression matrix from ImmuneSpace.
 #'
 #'     \code{x}: A character. The name of the gene expression matrix to download.
@@ -109,6 +109,10 @@
 #'
 #'     \code{reload}: A logical. If set to TRUE, the matrix will be downloaded
 #'     again, even if a cached cop exist in the ImmuneSpaceConnection object.
+#'
+#'     \code{verbose}: A logical. If set to TRUE, notes on how the expressionSet
+#'     object was created will printed, including normalization, summarization,
+#'     feature_annotation_set, and alias2symbol mapping version of org.Hs.eg.db.
 #'   }
 #'   \item{\code{mapSampleNames(EM = NULL, colType = "participant_id")}}{
 #'     Change the sampleNames of an ExpressionSet fetched by \code{getGEMatrix}

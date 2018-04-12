@@ -86,7 +86,8 @@ ISCon$set(
                    cohort = NULL,
                    outputType = "summary",
                    annotation = "latest",
-                   reload = FALSE) {
+                   reload = FALSE,
+                   verbose = FALSE) {
     if (outputType == "summary" & annotation == "ImmSig") {
       stop("Not able to provide summary eSets for ImmSig annotated studies. Please use
            'raw' as outputType with ImmSig studies.")
@@ -122,6 +123,10 @@ ISCon$set(
         warning(warn)
       }
 
+      if (verbose == TRUE) {
+        print(Biobase::experimentData(ret))
+      }
+
       return(ret)
 
     } else {
@@ -132,6 +137,10 @@ ISCon$set(
         private$.downloadMatrix(matrixName, outputType, annotation)
         private$.getGEFeatures(matrixName, outputType, annotation)
         private$.constructExpressionSet(matrixName, outputType, annotation)
+      }
+
+      if (verbose == TRUE) {
+        print(Biobase::experimentData(self$cache[[esetName]]))
       }
 
       return(self$cache[[esetName]])
