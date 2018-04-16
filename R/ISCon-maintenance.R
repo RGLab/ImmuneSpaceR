@@ -315,7 +315,7 @@ ISCon$set(
       Sdys <- .spSort(private$.getSdyVec())
     }
 
-    mods <- c("GEF", "RAW", "GEO", "GEM", "GEM_diff", "DE_implied", "GEE_implied", "IRP_implied")
+    mods <- c("GEF", "RAW", "GEO", "GEM", "GEM_diff", "DE_implied", "GSEA_implied", "GEE_implied", "IRP_implied")
 
     compDF <- data.frame(
       matrix(
@@ -372,6 +372,16 @@ ISCon$set(
     compDF$GEE_implied <- rownames(compDF) %in% .subidsToSdy(unique(exprResp$participantid))
 
     # GSEA - studies with subjects having GEAR results (i.e. compared multiple GEM timepoints)
+    gear <- sapply(withGems, FUN = function(sdy){
+      res <- tryCatch(labkey.executeSql(baseUrl = baseUrl,
+                                        folderPath = paste0("/Studies/", sdy),
+                                        schemaName = "gene_expression",
+                                        sql = "SELECT COUNT (*) FROM gene_expression_analysis_results"),
+                      error = function(e){ return( NA ) })
+      output <- res[[1]] > 0 & !is.na(res)
+    })
+    compDF$GSEA_implied <- rownames(compDF) %in% names(gear)[gear == TRUE]
+
     # Do gea results exist? are they complete?
 
     existGEA <- labkey.selectRows(
@@ -418,20 +428,22 @@ ISCon$set(
         currGEA <- existGEA[ existGEA$sdy == sdy, ]
         currGEA$key = paste(currGEA$arm_name, currGEA$coefficient)
         diff <- setdiff(impliedGEA$key, currGEA$key) # what is in implied and NOT in current
-        diff <- if(length(diff) == 0 ){ "no diff" }else{ paste(diff, collapse = "; ") }
-        res <- c( nrow(impliedGEA) > 0, nrow(currGEA) > 0, diff)
-      }else{
-        res <- c( FALSE, FALSE, NA)
+        diff_bool <- length(diff) == 0
+        diff_char <- if(length(diff) == 0 ){ "no diff" }else{ paste(diff, collapse = "; ") }
+        res <- c( nrow(impliedGEA) > 0, nrow(currGEA) > 0, diff_bool, diff_char)
       }
 
       return(res)
     })
 
     gea <- data.frame(do.call(rbind, gea), stringsAsFactors = F)
-    colnames(gea) <- c("GSEA_implied", "GSEA_actual", "GSEA_diff")
+    colnames(gea) <- c("DGEA_implied", "DGEA_actual", "DGEA_diff", "DGEA_missing")
     rownames(gea) <- withGems
-    compDF <- merge(compDF, gea, by = 0, all = T)
-    compDF$GSEA_implied[ is.na(compDF$GSEA_implied) ] <- FALSE
+    compDF <- merge(compDF, gea[,-4], by = 0, all = T)
+    compDF$DGEA_implied[ is.na(compDF$DGEA_implied) ] <- FALSE
+    compDF$DGEA_actual[ is.na(compDF$DGEA_actual) ] <- FALSE
+    compDF$DGEA_actual <- as.logical(compDF$DGEA_actual)
+    compDF$DGEA_implied <- as.logical(compDF$DGEA_implied)
     row.names(compDF) <- compDF$Row.names
     compDF <- compDF[,-1]
 
@@ -439,7 +451,7 @@ ISCon$set(
     # timepoint and baseline + response data
     nab <- self$getDataset("neut_ab_titer")
     resp <- rbind(nab, hai, fill = TRUE) # nab has a col that hai does not
-    library(dplyr)
+    suppressPackageStartupMessages(library(dplyr, quietly = T))
     # NOTE: At least SDY180 has overlapping study_time_collected for both hours and days
     # so it is important to group by study_time_collected_unit as well. This is reflected
     # in IRP_timepoints_hai/nab.sql
@@ -493,6 +505,9 @@ ISCon$set(
     compDF$DE_diff <- compDF$DE_implied == compDF$DE_actual
     compDF$GEE_diff <- compDF$GEE_implied == compDF$GEE_actual
     compDF$IRP_diff <- compDF$IRP_implied == compDF$IRP_actual
+    compDF$GSEA_diff <- compDF$GSEA_implied == compDF$GSEA_actual
+    compDF$DGEA_diff[is.na(compDF$DGEA_diff)] <- compDF$DGEA_implied[is.na(compDF$DGEA_diff)] == compDF$DGEA_actual[is.na(compDF$DGEA_diff)]
+    compDF$DGEA_diff <- as.logical(compDF$DGEA_diff)
 
     colOrder <- c(
       "RAW",
@@ -512,7 +527,10 @@ ISCon$set(
       "IrpTimepoints",
       "GSEA_implied",
       "GSEA_actual",
-      "GSEA_diff"
+      "GSEA_diff",
+      "DGEA_actual",
+      "DGEA_implied",
+      "DGEA_diff"
     )
 
     compDF <- compDF[ , order(match(colnames(compDF), colOrder))]
@@ -525,7 +543,7 @@ ISCon$set(
     # Subset to only show problematic studies
     if (onlyShowNonCompliant == TRUE) {
       redux <- compDF[ , grep("diff", colnames(compDF))]
-      idx <- which(apply(redux, 1, all))
+      idx <- suppressWarnings(which(apply(redux, 1, all)))
       compDF <- compDF[-(idx), ]
     }
 
