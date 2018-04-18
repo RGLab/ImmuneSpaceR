@@ -40,10 +40,12 @@ ISCon$set(
   which = "public",
   name = "getDataset",
   value = function(x, original_view = FALSE, reload = FALSE, colFilter = NULL, ...) {
-    if (nrow(self$availableDatasets[Name %in% x]) == 0) {
-      if (self$config$verbose) {
-        wstring <- paste0("Valid datasets for ", self$study, ": ",
-                          paste(self$availableDatasets$Name, collapse = ", "), ".")
+    if( nrow(available_datasets[Name%in%x]) == 0 ){
+      wstring <- paste0(study, " has invalid data set: ",x)
+      if(config$verbose){
+        wstring <- paste0(wstring, "\n",
+                          "Valid datasets for ", study, ": ",
+                          paste(available_datasets$Name, collapse = ", "), ".")
       }
       warning(wstring)
     }
