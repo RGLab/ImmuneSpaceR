@@ -111,7 +111,7 @@
 #'     again, even if a cached cop exist in the ImmuneSpaceConnection object.
 #'
 #'     \code{verbose}: A logical. If set to TRUE, notes on how the expressionSet
-#'     object was created will printed, including normalization, summarization,
+#'     object was created will be printed, including normalization, summarization,
 #'     feature_annotation_set, and alias2symbol mapping version of org.Hs.eg.db.
 #'   }
 #'   \item{\code{mapSampleNames(EM = NULL, colType = "participant_id")}}{
