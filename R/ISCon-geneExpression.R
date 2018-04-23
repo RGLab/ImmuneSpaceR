@@ -141,7 +141,7 @@ ISCon$set(
 
       if (verbose == TRUE) {
         info <- Biobase::experimentData(self$cache[[esetName]])
-        message("\nVERBOSE NOTES:")
+        message("\nNotes:")
         dmp <- lapply(names(info@other), function(nm){
                  message(paste0(nm, ": ", info@other[[nm]]))
                })
