@@ -2,3 +2,6 @@
 ^\.Rproj\.user$
 ^\.travis\.yml$
 ^\.pkg-build\.sh$
+^README\.Rmd$
+^docs$
+^CONTRIBUTING.md$
