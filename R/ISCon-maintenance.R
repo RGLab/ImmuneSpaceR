@@ -412,23 +412,29 @@ ISCon$set(
         showHidden = TRUE))
 
       # Does each time point have at least three participants -- only check those that do for existing GEA
+      impliedGEA[, key := paste(biosample_arm_name,
+                                biosample_study_time_collected,
+                                biosample_study_time_collected_unit,
+                                sep = " ")]
+      # remove 0 day and negative time points
+      impliedGEA <- impliedGEA[impliedGEA$biosample_study_time_collected > 0,]
+
+      # count subjects per key
+      impliedGEA <- impliedGEA[ , .(pids = length(unique(biosample_participantid))), by = key ]
+
+      # find coefs with more than 3 pids
+      impliedGEA <- impliedGEA[pids > 3,]
+
       if (nrow(impliedGEA) > 0) {
-        impliedGEA[, key := paste(biosample_arm_name,
-                                  biosample_study_time_collected,
-                                  biosample_study_time_collected_unit,
-                                  sep = " ")]
-
-        # count subjects per key
-        impliedGEA <- impliedGEA[ , .(pids = length(unique(biosample_participantid))), by = key ]
-
-        # find non-zero day coefs with more than 3 pids
-        impliedGEA <- impliedGEA[!grepl("0 Days", key) & pids > 3,]
-
         currGEA <- existGEA[ existGEA$sdy == sdy, ]
         currGEA$key = paste(currGEA$arm_name, currGEA$coefficient)
         diff <- setdiff(impliedGEA$key, currGEA$key) # what is in implied and NOT in current
         missing_data <- if(length(diff) == 0 ){ "no diff" }else{ paste(diff, collapse = "; ") }
         res <- c( nrow(impliedGEA) > 0, length(diff) == 0, missing_data)
+
+
+      } else {
+        res <- c(FALSE, FALSE, NA)
       }
 
       return(res)
