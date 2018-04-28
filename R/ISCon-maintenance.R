@@ -440,10 +440,10 @@ ISCon$set(
       return(res)
     })
 
-    gea <- data.frame(do.call(rbind, gea), stringsAsFactors = F)
+    gea <- data.frame(do.call(rbind, gea), stringsAsFactors = FALSE)
     colnames(gea) <- c("DGEA_implied", "DGEA_actual","DGEA_missing")
     rownames(gea) <- withGems
-    compDF <- merge(compDF, gea, by = 0, all = T)
+    compDF <- merge(compDF, gea, by = 0, all = TRUE)
     compDF$DGEA_implied[ is.na(compDF$DGEA_implied) ] <- FALSE
     compDF$DGEA_actual[ is.na(compDF$DGEA_actual) ] <- FALSE
     compDF$DGEA_actual <- as.logical(compDF$DGEA_actual)
@@ -455,7 +455,7 @@ ISCon$set(
     # timepoint and baseline + response data
     nab <- self$getDataset("neut_ab_titer")
     resp <- rbind(nab, hai, fill = TRUE) # nab has a col that hai does not
-    suppressPackageStartupMessages(library(dplyr, quietly = T))
+    suppressPackageStartupMessages(library(dplyr, quietly = TRUE))
     # NOTE: At least SDY180 has overlapping study_time_collected for both hours and days
     # so it is important to group by study_time_collected_unit as well. This is reflected
     # in IRP_timepoints_hai/nab.sql
