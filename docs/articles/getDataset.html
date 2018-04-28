@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Downloading Datasets with getDataset • ImmuneSpaceR</title>
-<!-- jquery --><script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<!-- jquery --><script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/yeti/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script><!-- Font Awesome icons --><link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js" integrity="sha384-cV+rhyOuRHc9Ub/91rihWcGmMmCXDeksTtCihMupQHSsi8GIIRDG0ThDc3HGQFJ3" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
 <script src="../jquery.sticky-kit.min.js"></script><script src="../pkgdown.js"></script><meta property="og:title" content="Downloading Datasets with getDataset">
@@ -16,10 +16,16 @@
 <!-- mathjax --><script src="https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-<![endif]-->
+<![endif]--><!-- Global site tag (gtag.js) - Google Analytics --><script async src="https://www.googletagmanager.com/gtag/js?id=UA-118281859-1"></script><script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-118281859-1');
+</script>
 </head>
 <body>
-    <div class="container template-vignette">
+    <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
     <div class="navbar-header">
@@ -78,8 +84,20 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
+  <a href="https://www.immunespace.org/">
+    <span class="fa fa-globe"></span>
+     
+  </a>
+</li>
+<li>
+  <a href="https://twitter.com/ImmuneSpace">
+    <span class="fa fa-twitter"></span>
+     
+  </a>
+</li>
+<li>
   <a href="https://github.com/RGLab/ImmuneSpaceR">
-    <span class="fa fa-github fa-lg"></span>
+    <span class="fa fa-github"></span>
      
   </a>
 </li>
@@ -93,19 +111,19 @@
 
       
       </header><div class="row">
-  <div class="col-md-9">
+  <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1>Downloading Datasets with getDataset</h1>
             
-            <h4 class="date">2018-04-10</h4>
+            <h4 class="date">2018-04-28</h4>
       
-      <small>Source: <a href="https://github.com/RGLab/ImmuneSpaceR/blob/master/vignettes/getDataset.Rmd"><code>vignettes/getDataset.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/RGLab/ImmuneSpaceR/blob/master/vignettes/getDataset.Rmd"><code>vignettes/getDataset.Rmd</code></a></small>
+      <div class="hidden name"><code>getDataset.Rmd</code></div>
 
     </div>
 
     
     
-<div class="contents">
 <p>This vignette shows detailed examples for all functionalities of the <code>getDataset</code> method.</p>
 <div id="create-connections" class="section level1">
 <h1 class="hasAnchor">
@@ -281,8 +299,8 @@ mbaa_pid2 &lt;-<span class="st"> </span>all<span class="op">$</span><span class=
 <h1 class="hasAnchor">
 <a href="#session-info" class="anchor"></a>Session info</h1>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">sessionInfo</span>()</code></pre></div>
-<pre><code>## R version 3.4.4 (2018-03-15)
-## Platform: x86_64-apple-darwin17.3.0 (64-bit)
+<pre><code>## R version 3.5.0 (2018-04-23)
+## Platform: x86_64-apple-darwin17.5.0 (64-bit)
 ## Running under: macOS High Sierra 10.13.4
 ## 
 ## Matrix products: default
@@ -300,38 +318,37 @@ mbaa_pid2 &lt;-<span class="st"> </span>all<span class="op">$</span><span class=
 ## [4] ImmuneSpaceR_1.7.3 knitr_1.20        
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] Biobase_2.38.0        viridis_0.5.1         tidyr_0.8.0          
+##  [1] Biobase_2.39.2        viridis_0.5.1         tidyr_0.8.0          
 ##  [4] foreach_1.4.4         jsonlite_1.5          viridisLite_0.3.0    
-##  [7] gtools_3.5.0          assertthat_0.2.0      stats4_3.4.4         
-## [10] yaml_2.1.18           robustbase_0.92-8     pillar_1.2.1         
+##  [7] gtools_3.5.0          assertthat_0.2.0      stats4_3.5.0         
+## [10] yaml_2.1.18           robustbase_0.93-0     pillar_1.2.1         
 ## [13] backports_1.1.2       lattice_0.20-35       glue_1.2.0           
 ## [16] digest_0.6.15         RColorBrewer_1.1-2    colorspace_1.3-2     
-## [19] preprocessCore_1.40.0 htmltools_0.3.6       plyr_1.8.4           
+## [19] preprocessCore_1.41.0 htmltools_0.3.6       plyr_1.8.4           
 ## [22] pkgconfig_2.0.1       pheatmap_1.0.8        purrr_0.2.4          
 ## [25] mvtnorm_1.0-7         scales_0.5.0          webshot_0.5.0        
 ## [28] gdata_2.18.0          whisker_0.3-2         tibble_1.4.2         
-## [31] ggplot2_2.2.1         nnet_7.3-12           BiocGenerics_0.24.0  
+## [31] ggplot2_2.2.1         nnet_7.3-12           BiocGenerics_0.25.3  
 ## [34] lazyeval_0.2.1        magrittr_1.5          crayon_1.3.4         
 ## [37] mclust_5.4            memoise_1.1.0         heatmaply_0.14.1     
 ## [40] evaluate_0.10.1       fs_1.2.2              MASS_7.3-49          
 ## [43] gplots_3.0.1          xml2_1.2.0            class_7.3-14         
-## [46] registry_0.5          tools_3.4.4           data.table_1.10.4-3  
+## [46] registry_0.5          tools_3.5.0           data.table_1.10.4-3  
 ## [49] trimcluster_0.1-2     stringr_1.3.0         plotly_4.7.1         
 ## [52] kernlab_0.9-25        munsell_0.4.3         cluster_2.0.7-1      
-## [55] fpc_2.1-11            bindrcpp_0.2.2        compiler_3.4.4       
-## [58] pkgdown_0.1.0.9000    caTools_1.17.1        rlang_0.2.0          
-## [61] grid_3.4.4            iterators_1.0.9       rstudioapi_0.7       
-## [64] htmlwidgets_1.0       bitops_1.0-6          rmarkdown_1.9        
+## [55] fpc_2.1-11            bindrcpp_0.2.2        compiler_3.5.0       
+## [58] pkgdown_1.0.0         caTools_1.17.1        rlang_0.2.0          
+## [61] grid_3.5.0            iterators_1.0.9       rstudioapi_0.7       
+## [64] htmlwidgets_1.2       bitops_1.0-6          rmarkdown_1.9        
 ## [67] codetools_0.2-15      gtable_0.2.0          curl_3.2             
 ## [70] flexmix_2.3-14        roxygen2_6.0.1        reshape2_1.4.3       
 ## [73] TSP_1.1-5             R6_2.2.2              seriation_1.2-3      
 ## [76] gridExtra_2.3         prabclus_2.2-6        dplyr_0.7.4          
 ## [79] bindr_0.1.1           commonmark_1.4        rprojroot_1.3-2      
 ## [82] KernSmooth_2.23-15    dendextend_1.7.0      desc_1.1.1           
-## [85] modeltools_0.2-21     stringi_1.1.7         parallel_3.4.4       
+## [85] modeltools_0.2-21     stringi_1.1.7         parallel_3.5.0       
 ## [88] Rcpp_0.12.16          gclus_1.3.1           DEoptimR_1.0-8       
 ## [91] diptest_0.75-7</code></pre>
-</div>
 </div>
   </div>
 
@@ -355,7 +372,7 @@ mbaa_pid2 &lt;-<span class="st"> </span>all<span class="op">$</span><span class=
 
 
       <footer><div class="copyright">
-  <p>Developed by Greg Finak, Renan Sauteraud, Mike Jiang, Gil Guday, Leo Dashevskiy, Evan Henrich, Ju Yeong Kim, Raphael Gottardo, ImmuneSpace Package Maintainer.</p>
+  <p>Developed by Greg Finak, Renan Sauteraud, Mike Jiang, Gil Guday, Leo Dashevskiy, Evan Henrich, Ju Yeong Kim, Lauren Wolfe, Raphael Gottardo, ImmuneSpace Package Maintainer.</p>
 </div>
 
 <div class="pkgdown">

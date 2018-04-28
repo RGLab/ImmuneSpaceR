@@ -11,8 +11,8 @@
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
+<link href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/yeti/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
 
-<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 
 <!-- Font Awesome icons -->
@@ -25,6 +25,9 @@
 <link href="../pkgdown.css" rel="stylesheet">
 <script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
+
+
+
 <meta property="og:title" content="The ImmuneSpaceConnection class — ImmuneSpaceConnection" />
 
 <meta property="og:description" content="A connection respresents a study or a set of studies available on ImmuneSpace.
@@ -43,7 +46,15 @@ It provides function to download and display the data within these studies." />
 <![endif]-->
 
 
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-118281859-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
 
+  gtag('config', 'UA-118281859-1');
+</script>
 
   </head>
 
@@ -109,8 +120,20 @@ It provides function to download and display the data within these studies." />
       
       <ul class="nav navbar-nav navbar-right">
         <li>
+  <a href="https://www.immunespace.org/">
+    <span class="fa fa-globe"></span>
+     
+  </a>
+</li>
+<li>
+  <a href="https://twitter.com/ImmuneSpace">
+    <span class="fa fa-twitter"></span>
+     
+  </a>
+</li>
+<li>
   <a href="https://github.com/RGLab/ImmuneSpaceR">
-    <span class="fa fa-github fa-lg"></span>
+    <span class="fa fa-github"></span>
      
   </a>
 </li>
@@ -123,17 +146,20 @@ It provides function to download and display the data within these studies." />
       
       </header>
 
-      <div class="row">
+<div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>The ImmuneSpaceConnection class</h1>
-    <small>Source: <a href='https://github.com/RGLab/ImmuneSpaceR/blob/master/R/ISCon.R'><code>R/ISCon.R</code></a></small>
+    <small class="dont-index">Source: <a href='https://github.com/RGLab/ImmuneSpaceR/blob/master/R/ISCon.R'><code>R/ISCon.R</code></a></small>
+    <div class="hidden name"><code>ImmuneSpaceConnection.Rd</code></div>
     </div>
 
+    <div class="ref-description">
     
     <p>A connection respresents a study or a set of studies available on ImmuneSpace.
 It provides function to download and display the data within these studies.</p>
     
+    </div>
 
     <pre class="usage"><span class='no'>ISCon</span></pre>
         
@@ -148,15 +174,16 @@ It provides function to download and display the data within these studies.</p>
     
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>Uses global variables <code>labkey.url.base</code>, and <code>labkey.url.path</code>, to
-access a study. <code>labkey.url.base</code> should be
-<code>https://www.immunespace.org/</code>. <code>labkey.url.path</code> should be
-<code>/Studies/studyname</code>, where 'studyname' is the accession number of the
-study. The ImmuneSpaceConnection will initialize itself, and look for a
+    <p>The ImmuneSpaceConnection will initialize itself, and look for a
 <code>.netrc</code> file in <code>"~/"</code> the user's home directory. The
 <code>.netrc</code> file should contain a <code>machine</code>, <code>login</code>, and
 <code>password</code> entry to allow access to ImmuneSpace, where <code>machine</code> is
 the host name like "www.immunespace.org".</p>
+<p>It can also use global variables <code>labkey.url.base</code>, and
+<code>labkey.url.path</code>, to access a study. <code>labkey.url.base</code> should be
+<code>https://www.immunespace.org/</code>. <code>labkey.url.path</code> should be
+<code>/Studies/studyname</code>, where 'studyname' is the accession number of the
+study.</p>
     
     <h2 class="hasAnchor" id="constructor"><a class="anchor" href="#constructor"></a>Constructor</h2>
 
@@ -169,12 +196,12 @@ the host name like "www.immunespace.org".</p>
     <dl class='dl-horizontal'>
   <dt><code>study</code></dt><dd><p>A <code>character</code>. The study accession number. Use an empty string ("")
     to create a connection at the project level.</p></dd>
-  <dt><code>config</code></dt><dd><p>A <code>list</code>. Stores configuration of the connection object such as
-    URL, path and username.</p></dd>
   <dt><code>availableDatasets</code></dt><dd><p>A <code>data.table</code>. The table of datasets available in the connection
     object.</p></dd>
   <dt><code>cache</code></dt><dd><p>A <code>list</code>. Stores the data to avoid downloading the same tables
     multiple times.</p></dd>
+  <dt><code>config</code></dt><dd><p>A <code>list</code>. Stores configuration of the connection object such as
+    URL, path and username.</p></dd>
 </dl>
     
     <h2 class="hasAnchor" id="methods"><a class="anchor" href="#methods"></a>Methods</h2>
@@ -184,28 +211,30 @@ the host name like "www.immunespace.org".</p>
   <dt><code>initialize(..., config = NULL)</code></dt><dd><p>Initialize <code>ImmuneSpaceConnection</code> class.
     See <code><a href='CreateConnection.html'>CreateConnection</a></code>.</p></dd>
   <dt><code>print()</code></dt><dd><p>Print <code>ImmuneSpaceConnection</code> class.</p></dd>
+  <dt><code>listDatasets(output = c("datasets", "expression"))</code></dt><dd><p>Lists the datasets available in the study or studies of the connection.</p></dd>
+  <dt><code>listGEMatrices()</code></dt><dd><p>Lists available gene expression matrices for the connection.</p></dd>
+  <dt><code>listGEAnalysis()</code></dt><dd><p>Lists available gene expression analysis for the connection.</p></dd>
+  <dt><code>listParticipantGroups()</code></dt><dd><p>Lists available participant groups on the ImmuneSpace portal.</p></dd>
   <dt><code>getDataset(x, original_view = FALSE, reload = FALSE,
-  colFilter = NULL, ...)</code></dt><dd><p>Get a dataset form the connection
-    <code>original_view</code>: A logical. If set tot TRUE, download the ImmPort
-    view. Else, download the default grid view.
-    <code>reload</code>: A logical. Clear the cache. If set to TRUE, download the
-    dataset, whether a cached version exist or not.
+  colFilter = NULL, ...)</code></dt><dd><p>Get a dataset form the connection.
+    <code>x</code>: A character. The name of the dataset to download.
+    <code>original_view</code>: A logical. If TRUE, download the original ImmPort
+    view; else, download the default grid view.
+    <code>reload</code>: A logical. If TRUE, download the dataset whether a cached
+    version exist or not.
     <code>colFilter</code>: A character. A filter as returned by Rlabkey's
     <code>makeFilter</code> function.
     <code>...</code>: Extra arguments to be passed to <code>labkey.selectRows</code>.</p></dd>
-  <dt><code>addTreatment(matrixName = NULL)</code></dt><dd><p>Adds treatment information to the phenoData of an expression matrix
-    available in the connection object.
-    <code>x</code>: A character. The name of a expression matrix that has been
-     downloaded from the connection.</p></dd>
   <dt><code>getGEMatrix(matrixName = NULL, cohort = NULL,
-  outputType = "summary", annotation = "latest", reload = FALSE)</code></dt><dd><p>Downloads a normalized gene expression matrix from ImmuneSpace.
-    <code>x</code>: A character. The name of the gene expression matrix to download.
+  outputType = "summary", annotation = "latest", reload = FALSE, verbose = FALSE)</code></dt><dd><p>Downloads a normalized gene expression matrix from ImmuneSpace.
+    <code>matrixName</code>: A character. The name of the gene expression matrix
+    to download.
     <code>cohort</code>: A character. The name of a cohort that has an associated
-    gene expression matrix. Note that if `cohort` isn't NULL, then `x` is
-    ignored.
+    gene expression matrix. Note that if this argument is not NULL, then
+    <code>matrixName</code> is ignored.
     <code>outputType</code>: one of 'raw', 'normalized' or 'summary'. If 'raw'
     then returns an expression matrix of non-normalized values by probe.
-    'normalized' returns normalized values by probe.  'summary' returns
+    'normalized' returns normalized values by probe. 'summary' returns
     normalized values averaged by gene symbol.
     <code>annotation</code>: one of 'default', 'latest', or 'ImmSig'. Determines
     which feature annotation set is used.  'default' uses the fas from when
@@ -214,38 +243,39 @@ the host name like "www.immunespace.org".</p>
     ImmuneSignatures project and uses the annotation from when the
     meta-study's manuscript was created.
     <code>reload</code>: A logical. If set to TRUE, the matrix will be downloaded
-    again, even if a cached cop exist in the ImmuneSpaceConnection object.</p></dd>
-  <dt><code>mapSampleNames(EM = NULL, colType = "participant_id")</code></dt><dd><p>Change the sampleNames of an ExpressionSet fetched by <code>getGEMatrix</code>
-    using the information in the phenodData slot.
-    <code>EM</code>: An ExpressionSet, as returned by <code>getGEMatrix</code>.
-    <code>colType</code>: A character. The type of column names. Valid options are
-    'expsample_accession' and 'participant_id'.</p></dd>
-  <dt><code>listDatasets(output = c("datasets", "expression"))</code></dt><dd><p>Lists the datasets available in the study or studies of the connection.</p></dd>
-  <dt><code>listGEAnalysis()</code></dt><dd><p>Lists available gene expression analysis for the connection.</p></dd>
-  <dt><code>listGEMatrices()</code></dt><dd><p>Lists available gene expression matrices for the connection.</p></dd>
+    again, even if a cached cop exist in the ImmuneSpaceConnection object.
+    <code>verbose</code>: A logical. If set to TRUE, notes on how the expressionSet
+    object was created will be printed, including normalization, summarization,
+    feature_annotation_set, and alias2symbol mapping version of org.Hs.eg.db.</p></dd>
   <dt><code>getGEAnalysis(...)</code></dt><dd><p>Downloads data from the gene expression analysis results table.
     <code>...</code>: A list of arguments to be passed to <code>labkey.selectRows</code>.</p></dd>
-  <dt><code>clearCache()</code></dt><dd><p>Clears the cache. Removes downloaded datasets and expression
-    matrices.</p></dd>
-  <dt><code>getGEFiles(files, destdir = ".", quiet = FALSE)</code></dt><dd><p>Download gene expression raw data files.
+  <dt><code>getGEFiles(files, destdir = ".", quiet = FALSE)</code></dt><dd><p>Downloads gene expression raw data files.
     <code>files</code>: A character. Filenames as shown on the
     gene_expression_files dataset.
     <code>destdir</code>: A character. The local path to store the downloaded
     files.</p></dd>
   <dt><code>getGEInputs()</code></dt><dd><p>Downloads data from the gene expression input samples table.</p></dd>
-  <dt><code>listParticipantGroups()</code></dt><dd><p>Returns a dataframe with all saved Participant Groups on ImmuneSpace.</p></dd>
   <dt><code>getParticipantData(group, dataType, original_view = FALSE,
   ...)</code></dt><dd><p>Returns a dataframe with ImmuneSpace data subset by groupId.
     <code>group</code>: Use con$listParticipantGroups() to find Participant groupId
     or groupName.
     <code>dataType</code>: Use <code>con$listDatasets('datasets')</code> to see possible
     dataType inputs.</p></dd>
-  <dt><code>plot(...)</code></dt><dd><p>"Plots a selected dataset. This is the function used by the DataExplorer
-    module on ImmuneSpace.
+  <dt><code>addTreatment(matrixName = NULL)</code></dt><dd><p>Adds treatment information to the phenoData of an expression matrix
+    available in the connection object.
+    <code>matrixName</code>: A character. The name of a expression matrix that has
+    been downloaded from the connection.</p></dd>
+  <dt><code>mapSampleNames(EM = NULL, colType = "participant_id")</code></dt><dd><p>Changes the sampleNames of an ExpressionSet fetched by <code>getGEMatrix</code>
+    using the information in the phenodData slot.
+    <code>EM</code>: An ExpressionSet, as returned by <code>getGEMatrix</code>.
+    <code>colType</code>: A character. The type of column names. Valid options are
+    'expsample_accession' and 'participant_id'.</p></dd>
+  <dt><code>plot(...)</code></dt><dd><p>Visualizes a selected dataset. This method is used by the DataExplorer
+    module on the ImmuneSpace portal.
     <code>dataset</code>: A character. The name of the dataset to plot, as
     displayed by the listDataset method.
-    <code>normalize_to_baseline</code>: A logical. If set to TRUE, the values are
-    plotted as log2 fold-change from baseline.
+    <code>normalize_to_baseline</code>: A logical. If TRUE, the values are plotted
+    as log2 fold-change from baseline.
     <code>type</code>: A character. The type of plot. Valid choices are 'auto',
     'heatmap', 'boxplot', 'lineplot', 'violinplot'. If set to 'auto', the
     function will select an appropriate plot type for the selected data.
@@ -259,22 +289,35 @@ the host name like "www.immunespace.org".</p>
     isn't heatmap.
     <code>show_virus_strain</code>: A logical. Should all the virus strains be
     shown or should the values be averaged. Only used when dataset = 'hai'.
-    <code>interactive</code>: A logical. If set to TRUE, an interactive plot will
-    be created. The default is FALSE.
+    <code>interactive</code>: A logical. If TRUE, an interactive plot will be
+    created. The default is FALSE.
     <code>...</code>: Extra argument to be passed to ggplot. e.g: shape = 'Age',
     color = 'Race'.</p></dd>
+  <dt><code>clearCache()</code></dt><dd><p>Clears the cache. Removes downloaded datasets and expression
+    matrices.</p></dd>
 </dl>
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <p><code><a href='CreateConnection.html'>CreateConnection</a></code> <code><a href='ImmuneSpaceR-package.html'>ImmuneSpaceR-package</a></code></p>
+    <div class='dont-index'><p><code><a href='CreateConnection.html'>CreateConnection</a></code> <code><a href='ImmuneSpaceR-package.html'>ImmuneSpaceR-package</a></code></p></div>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><span class='co'># NOT RUN {</span>
 <span class='co'># Create a connection (Initiate a ImmuneSpaceConnection object)</span>
 <span class='no'>sdy269</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='CreateConnection.html'>CreateConnection</a></span>(<span class='st'>"SDY269"</span>)
+
+<span class='co'># Print the connection object</span>
 <span class='no'>sdy269</span>
+
+<span class='co'># Retrieve the HAI dataset</span>
+<span class='no'>HAI</span> <span class='kw'>&lt;-</span> <span class='no'>sdy269</span>$<span class='fu'>getDataset</span>(<span class='st'>"hai"</span>)
+
+<span class='co'># Fetch a summarized gene expresssion matrix with latest annotation</span>
+<span class='no'>LAIV</span> <span class='kw'>&lt;-</span> <span class='no'>sdy269</span>$<span class='fu'>getGEMatrix</span>(<span class='st'>"LAIV_2008"</span>)
+
+<span class='co'># Visualize the ELISA dataset</span>
+<span class='no'>sdy269</span>$<span class='fu'>plot</span>(<span class='st'>"elisa"</span>)
 <span class='co'># }</span><div class='input'>
 </div></pre>
   </div>
@@ -304,7 +347,7 @@ the host name like "www.immunespace.org".</p>
 
       <footer>
       <div class="copyright">
-  <p>Developed by Greg Finak, Renan Sauteraud, Mike Jiang, Gil Guday, Leo Dashevskiy, Evan Henrich, Ju Yeong Kim, Raphael Gottardo, ImmuneSpace Package Maintainer.</p>
+  <p>Developed by Greg Finak, Renan Sauteraud, Mike Jiang, Gil Guday, Leo Dashevskiy, Evan Henrich, Ju Yeong Kim, Lauren Wolfe, Raphael Gottardo, ImmuneSpace Package Maintainer.</p>
 </div>
 
 <div class="pkgdown">
