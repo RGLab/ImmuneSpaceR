@@ -77,6 +77,14 @@ test_that("get_hai for IS1", {
   test_dataset(is1, "hai", common_cols, specif_cols = haiCols)
 })
 
+test_that("invalid dataset name", {
+  x <- sdy269$getDataset("fakeData", reload = TRUE)
+
+  # check if it returned an empty data frame
+  expect_is(x, "data.frame")
+  expect_equal(nrow(x), 0)
+})
+
 # cleanup ------------------------------------------------------
 if(exists("netrc_file")){
   file.remove(netrc_file)

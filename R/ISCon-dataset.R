@@ -40,72 +40,79 @@ ISCon$set(
   which = "public",
   name = "getDataset",
   value = function(x, original_view = FALSE, reload = FALSE, colFilter = NULL, ...) {
-    if( nrow(self$availableDatasets[Name%in%x]) == 0 ){
-      wstring <- paste0(study, " has invalid data set: ",x)
-      if(self$config$verbose){
-        wstring <- paste0(wstring, "\n",
-                          "Valid datasets for ", study, ": ",
-                          paste(self$availableDatasets$Name, collapse = ", "), ".")
+    if (nrow(self$availableDatasets[Name%in%x]) == 0) {
+      wstring <- paste0(
+        "Empty data frame was returned.",
+        " `", x, "` is not a valid dataset for ", self$study
+      )
+      if (self$config$verbose) {
+        wstring <- paste0(
+          wstring, "\n",
+          "Valid datasets for ", self$study, ":\n  - ",
+          paste(self$availableDatasets$Name, collapse = "\n  - ")
+        )
       }
-      warning(wstring)
+      warning(wstring, immediate. = TRUE)
+      return(data.frame())
     }
+
     cache_name <- paste0(x, ifelse(original_view, "_full", ""))
     nOpts <- length(list(...))
 
-      if (!is.null(self$cache[[cache_name]]) &&
-          !reload &&
-          is.null(colFilter) &&
-          nOpts == 0) { # Serve cache
-        data <- self$cache[[cache_name]]
-        # if(!is.null(colFilter)) {
-        #   data <- .filterCachedCopy(colFilter, data)
-        #   return(data)
-        # } else {
-        # }
+    if (!is.null(self$cache[[cache_name]]) &&
+        !reload &&
+        is.null(colFilter) &&
+        nOpts == 0) { # Serve cache
+      data <- self$cache[[cache_name]]
+      # if(!is.null(colFilter)) {
+      #   data <- .filterCachedCopy(colFilter, data)
+      #   return(data)
+      # } else {
+      # }
 
-      } else { # Download the data
-        viewName <- NULL
-        if (original_view) {
-          viewName <- "full"
-        }
+    } else { # Download the data
+      viewName <- NULL
+      if (original_view) {
+        viewName <- "full"
+      }
 
-        if (!is.null(colFilter)) {
-          colFilter <- private$.checkFilter(
-            schema = "study",
-            query = x,
-            colFilter = colFilter,
-            view = viewName
-          )
-          cache <- FALSE
-        } else if (length(nOpts) > 0) {
-          cache <- FALSE
-        } else{
-          cache <- TRUE
-        }
-
-        data <- .getLKtbl(
-          con = self,
+      if (!is.null(colFilter)) {
+        colFilter <- private$.checkFilter(
           schema = "study",
           query = x,
-          viewName = viewName,
-          colNameOpt = "caption",
           colFilter = colFilter,
-          showHidden = FALSE,
-          ...
+          view = viewName
         )
-        setnames(data, private$.munge(colnames(data)))
-
-        if (cache) {
-          self$cache[[cache_name]] <- data
-        }
+        cache <- FALSE
+      } else if (length(nOpts) > 0) {
+        cache <- FALSE
+      } else{
+        cache <- TRUE
       }
 
-      if (!is.null(self$config$use.data.frame) && self$config$use.data.frame) {
-        data <- data.frame(data)
-      }
+      data <- .getLKtbl(
+        con = self,
+        schema = "study",
+        query = x,
+        viewName = viewName,
+        colNameOpt = "caption",
+        colFilter = colFilter,
+        showHidden = FALSE,
+        ...
+      )
+      setnames(data, private$.munge(colnames(data)))
 
-      data
+      if (cache) {
+        self$cache[[cache_name]] <- data
+      }
     }
+
+    if (!is.null(self$config$use.data.frame) && self$config$use.data.frame) {
+      data <- data.frame(data)
+    }
+
+    data
+  }
 )
 
 
