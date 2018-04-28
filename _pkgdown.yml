@@ -1,0 +1,13 @@
+template:
+  params:
+    bootswatch: yeti
+    ganalytics: UA-118281859-1
+
+navbar:
+  right:
+    - icon: fa-globe
+      href: https://www.immunespace.org/
+    - icon: fa-twitter
+      href: https://twitter.com/ImmuneSpace
+    - icon: fa-github
+      href: https://github.com/RGLab/ImmuneSpaceR
