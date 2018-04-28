@@ -1,7 +1,7 @@
 Package: ImmuneSpaceR
 Type: Package
 Title: A Thin Wrapper around the ImmuneSpace Database
-Version: 1.7.1
+Version: 1.7.3
 Date: 2014-06-12
 Authors@R: c(person("Greg", "Finak", role = "aut"),
              person("Renan", "Sauteraud", role = "aut"),
@@ -10,6 +10,7 @@ Authors@R: c(person("Greg", "Finak", role = "aut"),
              person("Leo", "Dashevskiy", role = "aut"),
              person("Evan", "Henrich", role = "aut"),
              person("Ju Yeong", "Kim", role = "aut"),
+             person("Lauren", "Wolfe", role = "aut"),
              person("Raphael", "Gottardo", role = "aut"),
              person("ImmuneSpace Package Maintainer",
                     email = "immunespace@gmail.com",
@@ -28,7 +29,7 @@ Suggests:
     testthat
 Imports:
     utils,
-    methods,
+    R6,
     data.table,
     httr,
     Rlabkey (>= 2.1.136),
@@ -46,15 +47,19 @@ Imports:
     rmarkdown,
     preprocessCore,
     parallel
+RoxygenNote: 6.0.1
 Collate: 
     'CreateConnection.R'
-    'ImmuneSpace.R'
+    'ISCon.R'
+    'ISCon-dataset.R'
+    'ISCon-geneExpression.R'
+    'ISCon-maintenance.R'
+    'ISCon-participantGroup.R'
+    'ISCon-plot.R'
+    'ISCon-utils.R'
     'ImmuneSpaceR.R'
-    'ParticipantGroupFns.R'
-    'getDataset.R'
-    'getGEMatrix.R'
     'netrc.R'
-    'quick_plot.R'
+    'template.R'
+    'theme.R'
     'utils.R'
     'zzz.R'
-RoxygenNote: 6.0.1

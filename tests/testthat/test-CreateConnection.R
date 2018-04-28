@@ -1,3 +1,4 @@
+context("CreateConnection")
 
 # Source depdencies -------------------------------------------
 source("global_variable.R")
@@ -16,8 +17,6 @@ try_con <- function(study){
 
 
 # Tests --------------------------------------------------------
-context("CreateConnection")
-
 test_that("Study argument is not NULL", {
   res <- try_con(NULL)
   expect_true("study cannot be NULL" == res$message)

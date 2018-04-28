@@ -1,9 +1,7 @@
-################################################################################
-# Main class and instantiation
-################################################################################
-
 #' @title CreateConnection
+#'
 #' @name CreateConnection
+#'
 #' @param study A \code{"character"} vector naming the study.
 #' @param login A \code{"character"}. Optional argument. If there is no netrc
 #'  file a temporary one can be written by passing login and password of an
@@ -17,28 +15,34 @@
 #' @param onTest A \code{"logical"} whether to connect to the test server
 #' (https://test.immunespace.org/) instead of the production server
 #' (https://www.immunespace.org/).
-#' @description Constructor for \code{ImmuneSpaceConnection} class
+#'
+#' @description Constructor for \code{ImmuneSpaceConnection} class.
+#'
 #' @details Instantiates an \code{ImmuneSpaceConnection} for \code{study}
 #' The constructor will try to take the values of the various `labkey.*`
 #' parameters from the global environment. If they don't exist, it will use
 #' default values. These are assigned to `options`, which are then used by the
 #' \code{ImmuneSpaceConnection} class.
-#' @export CreateConnection
+#'
 #' @return an instance of an \code{ImmuneSpaceConnection}
-#' @seealso ImmuneSpaceConnection
+#'
+#' @seealso \code{\link{ImmuneSpaceConnection}}
+#'
 #' @examples
 #' \dontrun{
-#'   # Single study
-#'   con <- CreateConnection("SDY269")
-#'   # Cross study
-#'   con <- CreateConnection("")
+#' # Single study
+#' con <- CreateConnection("SDY269")
+#' # Cross study
+#' con <- CreateConnection("")
 #' }
 #'
 #' sdy <- try(CreateConnection("SDY269"))
-#' if(inherits(sdy, "try-error")){
+#' if (inherits(sdy, "try-error")) {
 #'   print("Read the Introduction vignette for more information on how to set up
 #'   a .netrc file.")
 #' }
+#'
+#' @export
 #' @importFrom utils packageVersion
 CreateConnection <- function(study = NULL,
                              login = NULL,
@@ -84,7 +88,13 @@ CreateConnection <- function(study = NULL,
     nf <- try(get("labkey.netrc.file", .GlobalEnv), silent = TRUE)
   }
 
-  useragent <- paste("ImmuneSpaceR", packageVersion("ImmuneSpaceR"))
+  useragent <- paste0(
+    "R/", R.version$major, ".", R.version$minor,
+    " (", Sys.info()["sysname"], " ", Sys.info()["machine"], ")",
+    " Rlabkey/", packageVersion("Rlabkey"),
+    " ImmuneSpaceR/", packageVersion("ImmuneSpaceR")
+  )
+
   if (!inherits(nf, "try-error") && !is.null(nf)) {
     curlOptions <- labkey.setCurlOptions(ssl_verifyhost = 2,
                                          sslversion = 1,
@@ -116,182 +126,38 @@ CreateConnection <- function(study = NULL,
                               curlOptions,
                               verbose,
                               ...) {
-  labkey.url.path <- try(get("labkey.url.path", .GlobalEnv), silent = TRUE)
+  labkey.url.path <- try(
+    get("labkey.url.path", .GlobalEnv),
+    silent = TRUE
+  )
+
   if (inherits(labkey.url.path,"try-error")) {
-    if (is.null(study)) { stop("study cannot be NULL") }
-    pathStr <- ifelse( grepl("^IS\\d{1,3}$", study),
-                       "/HIPC/",
-                       "/Studies/")
+    if (is.null(study)) {
+      stop("study cannot be NULL")
+    }
+    pathStr <- ifelse(
+      grepl("^IS\\d{1,3}$", study),
+      "/HIPC/",
+      "/Studies/"
+    )
     labkey.url.path <- paste0(pathStr, study)
   } else if (!is.null(study)) {
-    labkey.url.path <- file.path(dirname(labkey.url.path),study)
+    labkey.url.path <- file.path(dirname(labkey.url.path), study)
   }
 
-  if (!is(use.data.frame, "logical")) {
+  if (class(use.data.frame) != "logical") {
     warning("use.data.frame should be of class `logical`. Setting it to FALSE.")
     use.data.frame <- FALSE
   }
 
-  config <- list(labkey.url.base = labkey.url.base,
-                 labkey.url.path = labkey.url.path,
-                 labkey.user.email = labkey.user.email,
-                 use.data.frame = use.data.frame,
-                 curlOptions = curlOptions,
-                 verbose = verbose)
+  config <- list(
+    labkey.url.base = labkey.url.base,
+    labkey.url.path = labkey.url.path,
+    labkey.user.email = labkey.user.email,
+    use.data.frame = use.data.frame,
+    curlOptions = curlOptions,
+    verbose = verbose
+  )
 
-  .ISCon(config = config)
+  ISCon$new(config = config)
 }
-
-#'@rdname ImmuneSpaceConnection-class
-#'@aliases
-#'ImmuneSpace
-#'ImmuneSpaceConnection
-#'ImmuneSpaceConnection-class
-#'getGEMatrix
-#'getDataset
-#'listDatasets
-#'getGEAnalysis
-#'listGEAnalysis
-#'addTrt
-#'EMNames
-#'quick_plot
-#'@title The ImmuneSpaceConnection class
-#'
-#'@description
-#'A connection respresents a study or a set of studies available on ImmuneSpace.
-#'It provides function to download and display the data within these studies.
-#'
-#'@field study A \code{character}. The study accession number. Use an empty
-#'string ("") to create a connection at the project level.
-#'@field config A \code{list}. Stores configuration of the connection object
-#'such as URL, path and username.
-#'@field available_datasets A \code{data.table}. The table of datasets available
-#'in the connection object.
-#'@field data_cache A \code{list}. Stores the data to avoid downloading the same
-#'tables multiple times.
-#'@field constants A \code{list}. Used to store information regarding
-#'gene-expression data.
-#'
-#'@details
-#' Uses global variables \code{labkey.url.base}, and \code{labkey.url.path}, to
-#' access a study. \code{labkey.url.base} should be
-#' \code{https://www.immunespace.org/}. \code{labkey.url.path} should be
-#' \code{/Studies/studyname}, where 'studyname' is the accession number of the
-#' study.
-#' The ImmunespaceConnection will initialize itself, and look for a
-#' \code{.netrc} file in \code{"~/"} the user's home directory. The
-#' \code{.netrc} file should contain a \code{machine}, \code{login}, and
-#' \code{password} entry to allow access to ImmuneSpace, where \code{machine} is
-#' the host name like "www.immunespace.org".
-#'
-#' @seealso
-#'  \code{\link{CreateConnection}}
-#'  \code{\link{ImmuneSpaceR-package}}
-#' @exportClass ImmuneSpaceConnection
-#' @examples
-#' \dontrun{
-#'   sdy269 <- CreateConnection("SDY269")
-#'   sdy269
-#' }
-#'@return An instance of an ImmuneSpaceConnection for a study in `labkey.url.path`
-.ISCon <- setRefClass(Class = "ImmuneSpaceConnection",
-                      fields = list(study = "character",
-                                    config = "list",
-                                    available_datasets = "data.table",
-                                    data_cache = "list",
-                                    constants = "list"))
-
-# Functions used in initialize need to be declared ahead of it
-#' @importFrom gtools mixedsort
-.ISCon$methods(
-  checkStudy = function(verbose = FALSE) {
-    sdyNm <- basename(.self$config$labkey.url.path)
-    dirNm <- dirname(.self$config$labkey.url.path)
-    gTerm <- ifelse(dirNm == "/HIPC", "^IS\\d{1,3}$", "^SDY\\d{2,4}$")
-
-    # adjust for "" connection
-    if(sdyNm == "Studies"){
-      sdyNm <- ""
-      dirNm <- "/Studies"
-    }
-
-    folders <- labkey.getFolders(.self$config$labkey.url.base, dirNm)
-    subdirs <- gsub(paste0(dirNm, "/"), "", folders$folderPath)
-    validSdys <- gtools::mixedsort(subdirs[ grep(gTerm, subdirs) ])
-
-    if ( !(sdyNm %in% c("", validSdys)) ) {
-      if (verbose == FALSE) {
-        stop(paste0(sdyNm, " is not a valid study. \n Use `verbose = TRUE` to see list of valid studies."))
-      } else {
-        stop(paste0(sdyNm, " is not a valid study\nValid studies: ",
-                    paste(validSdys, collapse=", ")))
-      }
-    }
-
-  }
-)
-
-.ISCon$methods(
-  setAvailableDatasets=function(){
-    if( length(.self$available_datasets) == 0 ){
-      res <- .getLKtbl(con = .self,
-                       schema = "study",
-                       query = "ISC_study_datasets")
-    }
-  }
-)
-
-.ISCon$methods(
-  GeneExpressionMatrices=function(verbose = FALSE){
-    getData <- function(){
-      res <- try(.getLKtbl(con = .self,
-                           schema = "assay.ExpressionMatrix.matrix",
-                           query = "Runs",
-                           colNameOpt = "fieldname",
-                           viewName = "expression_matrices"),
-                 silent = TRUE)
-    }
-
-    if( !is.null(.self$data_cache[[constants$matrices]]) ){
-      .self$data_cache[[constants$matrices]]
-    }else{
-      ge <- if(verbose){ getData() } else { suppressWarnings(getData()) }
-
-      if(inherits(ge, "try-error") || nrow(ge) == 0 ){
-        #No assay or no runs
-        message("No gene expression data")
-        .self$data_cache[[constants$matrices]] <- NULL
-      } else {
-        # adding cols to allow for getGEMatrix() to update
-        ge[ , annotation := "" ]
-        ge[ , outputType := "" ]
-        setnames(ge, .self$.munge(colnames(ge)) )
-        .self$data_cache[[constants$matrices]] <- ge
-      }
-    }
-
-    return(data_cache[[constants$matrices]])
-
-  }
-)
-
-.ISCon$methods(
-  initialize = function(..., config = NULL) {
-
-    #invoke the default init routine in case it needs to be invoked
-    #(e.g. when using $new(object) to construct the new object based on the existing object)
-    callSuper(...)
-
-    .self$constants <- list(matrices = "GE_matrices", matrix_inputs = "GE_inputs")
-
-    if( !is.null(config) ){ .self$config <- config }
-
-    .self$study <- basename(config$labkey.url.path)
-
-    checkStudy(.self$config$verbose)
-
-    .self$available_datasets <- setAvailableDatasets()
-
-    gematrices_success <- GeneExpressionMatrices()
-  }
-)

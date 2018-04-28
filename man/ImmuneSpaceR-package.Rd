@@ -12,6 +12,6 @@ within the ImmuneSpace database.
 Uses the Rlabkey package to connect to ImmuneSpace. Implements
 caching, and convenient methods for accessing data sets.
 }
-\author{
-Greg Finak
+\seealso{
+\code{\link{CreateConnection}}
 }

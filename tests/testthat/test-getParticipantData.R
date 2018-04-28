@@ -1,3 +1,4 @@
+context("getParticipantData")
 
 # Source depdencies -------------------------------------------
 source("global_variable.R")
@@ -19,17 +20,15 @@ testPgrp <- function(dt, groupId){
   pgrp_F <- allSdy$getParticipantData(group = groupId, dataType = dt, original_view = F, maxRows = 1)
   orig_T <- allSdy$getDataset(dt, original_view = T, maxRows = 1)
   orig_F <- allSdy$getDataset(dt, original_view = F, maxRows = 1)
-  
+
   res <- list()
   res$view_T <- all.equal(colnames(pgrp_T), colnames(orig_T))
   res$view_F <- all.equal(colnames(pgrp_F), colnames(orig_F))
-  
+
   return(res)
 }
 
 # Tests --------------------------------------------------------
-context("getParticipantData")
-
 test_that("Pdata neut_ab_titer", {
   res <- testPgrp(dt = "neut_ab_titer", groupId = groupId )
   expect_true( res$view_T == "TRUE")

@@ -31,7 +31,7 @@ troubleshooting.}
 an instance of an \code{ImmuneSpaceConnection}
 }
 \description{
-Constructor for \code{ImmuneSpaceConnection} class
+Constructor for \code{ImmuneSpaceConnection} class.
 }
 \details{
 Instantiates an \code{ImmuneSpaceConnection} for \code{study}
@@ -42,18 +42,19 @@ default values. These are assigned to `options`, which are then used by the
 }
 \examples{
 \dontrun{
-  # Single study
-  con <- CreateConnection("SDY269")
-  # Cross study
-  con <- CreateConnection("")
+# Single study
+con <- CreateConnection("SDY269")
+# Cross study
+con <- CreateConnection("")
 }
 
 sdy <- try(CreateConnection("SDY269"))
-if(inherits(sdy, "try-error")){
+if (inherits(sdy, "try-error")) {
   print("Read the Introduction vignette for more information on how to set up
   a .netrc file.")
 }
+
 }
 \seealso{
-ImmuneSpaceConnection
+\code{\link{ImmuneSpaceConnection}}
 }

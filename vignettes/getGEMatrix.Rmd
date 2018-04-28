@@ -1,0 +1,165 @@
+---
+title: "Handling Expression Matrices with ImmuneSpaceR"
+author: "Renan Sauteraud"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+vignette: >
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteIndexEntry{Handling Expression Matrices with ImmuneSpaceR}
+---
+
+```{r knitr, echo = FALSE}
+library(knitr)
+opts_chunk$set(echo = TRUE, cache = FALSE)
+```
+
+```{r netrc_req, echo = FALSE}
+# This chunk is only useful for BioConductor checks and shouldn't affect any other setup
+if (!any(file.exists("~/.netrc", "~/_netrc"))) {
+    labkey.netrc.file <- ImmuneSpaceR:::get_env_netrc()
+    labkey.url.base <- ImmuneSpaceR:::get_env_url()
+}
+```
+
+
+
+This vignette shows detailed examples for the `getGEMatrix()` method
+
+
+
+# Create connections
+
+As explained into the introductory vignette, datasets must be downloaded from `ImmuneSpaceConnection` objects. We must first instantiate a connection to the study or studies of interest. Throughout this vignette, we will use two connections, one to a single study, and one to to all available data.
+
+```{r CreateConection, cache=FALSE, message = FALSE}
+library(ImmuneSpaceR)
+sdy269 <- CreateConnection("SDY269")
+all <- CreateConnection("")
+```
+
+
+
+# List the expression matrices
+
+Now that the connections have been instantiated, we can start downloading from them. But we need to figure out which processed matrices are available within our chosen studies.
+
+On the ImmuneSpace portal, in the study of interest or at the project level, the **Gene expression matrices** table will show the available runs.
+
+Printing the connections will, among other information, list the datasets availables. The `listDatasets` method will only display the downloadable data. looking for. With `output = "expression"`, the datasets wont be printed.
+
+```{r listDatasets}
+sdy269$listDatasets()
+```
+
+Using `output = "expression"`, we can remove the datasets from the output.
+
+```{r listDatasets-which}
+all$listDatasets(output = "expression")
+```
+
+Naturally, `all` contains every processed matrices available on ImmuneSpace as it combines all available studies.
+
+
+
+# Download
+
+## By run name
+
+The `getGEMatrix` method will accept any of the run names listed in the connection.
+
+```{r getGEMatrix}
+TIV_2008 <- sdy269$getGEMatrix("TIV_2008")
+TIV_2011 <- all$getGEMatrix(matrixName = "SDY144_TIV2011")
+```
+
+The matrices are returned as `ExpressionSet` where the phenoData slot contains basic demographic information and the featureData slot shows a mapping of probe to official gene symbols.
+
+```{r ExpressionSet}
+TIV_2008
+```
+
+
+## By cohort
+
+The `cohort` argument can be used in place of the run name (`x`). Likewise, the list of valid cohorts can be found in the Gene expression matrices table.
+
+```{r getGEMatrix-cohorts}
+LAIV_2008 <- sdy269$getGEMatrix(cohort = "LAIV group 2008")
+```
+
+Note that when cohort is used, `x` is ignored.
+
+
+
+# Summarized matrices
+
+By default, the returned `ExpressionSet`s have probe names as features (or rows). However, multiple probes often match the same gene and merging experiments from different arrays is impossible at feature level. When they are available, the `summary` argument allows to return the matrices with gene symbols instead of probes. You should use `currAnno` set to `TRUE` to use the latest official gene symbols mapped for each probe, but you can also set this to `FALSE` to retrieve the original mappings from when the matrix was created.
+
+```{r summary}
+TIV_2008_sum <- sdy269$getGEMatrix("TIV_2008", outputType = "summary", annotation = "latest")
+```
+
+Probes that do not map to a unique gene are removed and expression is averaged 
+by gene.
+
+```{r summary-print}
+TIV_2008_sum
+```
+
+
+
+# Combining matrices
+
+In order to faciliate analysis across experiments and studies, when multiple runs or cohorts are specified, `getGEMatrix` will attempt to combine the selected expression matrices into a single `ExpressionSet`.
+
+To avoid returning an empty object, it is usually recommended to use the summarized version of the matrices, thus combining by genes. This is almost always necessary when combining data from multiple studies.
+
+```{r multi}
+# Within a study
+em269 <- sdy269$getGEMatrix(c("TIV_2008", "LAIV_2008"))
+
+# Combining across studies
+TIV_seasons <- all$getGEMatrix(c("TIV_2008", "SDY144_TIV2011"),
+                               outputType = "summary",
+                               annotation = "latest")
+```
+
+
+
+# Caching
+
+As explained in the introductory, the `ImmuneSpaceConnection` class is a [`R6`](https://cran.r-project.org/web/packages/R6/index.html) class. It means its objects have fields accessed by reference. As a consequence, they can be modified without making a copy of the entire object. ImmuneSpaceR uses this feature to store downloaded datasets and expression  matrices. Subsequent calls to `getGEMatrix` with the same input will be faster.
+
+See `?R6::R6Class` for more information about R6 class system.
+
+We can see a list of already downloaded runs and feature sets the `cache` field. This is not intended to be used for data manipulation and only displayed here to explain what gets cached.
+
+```{r caching-dataset}
+names(sdy269$cache)
+```
+
+If, for any reason, a specific marix needs to be redownloaded, the `reload` argument will clear the cache for that specific `getGEMatrix` call and download the file and metadata again.
+
+```{r caching-reload}
+TIV_2008 <- sdy269$getGEMatrix("TIV_2008", reload = TRUE)
+```
+
+Finally, it is possible to clear every cached expression matrix (and dataset).
+
+```{r caching-clear}
+sdy269$clearCache()
+```
+
+Again, the `cache` field should never be modified manually. When in doubt, simply reload the expression matrix.
+
+
+
+# Session info
+
+```{r sessionInfo}
+sessionInfo()
+```

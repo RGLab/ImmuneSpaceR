@@ -1,0 +1,11 @@
+pandoc: 1.19.2.1
+pkgdown: 1.0.0
+pkgdown_sha: d43ca38c74827d1d6babc3a80d48cd3a8e8fad8c
+articles:
+  Intro_to_ImmuneSpaceR: Intro_to_ImmuneSpaceR.html
+  getDataset: getDataset.html
+  getGEMatrix: getGEMatrix.html
+  report_SDY144: report_SDY144.html
+  report_SDY180: report_SDY180.html
+  report_SDY269: report_SDY269.html
+

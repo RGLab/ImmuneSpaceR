@@ -29,6 +29,7 @@ write_netrc <- function(login,
   file
 }
 
+
 #' Check netrc file
 #'
 #' Check that there is a netrc file with a valid entry for ImmuneSpace.
@@ -71,6 +72,7 @@ check_netrc <- function(){
   return(netrc_file)
 }
 
+
 # Get (and create) temporary netrc file from environment variables
 get_env_netrc <- function() {
   ISR_login <- Sys.getenv("ISR_login")
@@ -82,6 +84,7 @@ get_env_netrc <- function() {
     write_netrc(login = ISR_login, password = ISR_pwd, machine = ISR_machine)
   }
 }
+
 
 # Get labkey.url.base from environment variable
 get_env_url <- function() {
