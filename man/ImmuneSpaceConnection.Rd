@@ -26,15 +26,17 @@ A connection respresents a study or a set of studies available on ImmuneSpace.
 It provides function to download and display the data within these studies.
 }
 \details{
-Uses global variables \code{labkey.url.base}, and \code{labkey.url.path}, to
-access a study. \code{labkey.url.base} should be
-\code{https://www.immunespace.org/}. \code{labkey.url.path} should be
-\code{/Studies/studyname}, where 'studyname' is the accession number of the
-study. The ImmuneSpaceConnection will initialize itself, and look for a
+The ImmuneSpaceConnection will initialize itself, and look for a
 \code{.netrc} file in \code{"~/"} the user's home directory. The
 \code{.netrc} file should contain a \code{machine}, \code{login}, and
 \code{password} entry to allow access to ImmuneSpace, where \code{machine} is
 the host name like "www.immunespace.org".
+
+It can also use global variables \code{labkey.url.base}, and
+\code{labkey.url.path}, to access a study. \code{labkey.url.base} should be
+\code{https://www.immunespace.org/}. \code{labkey.url.path} should be
+\code{/Studies/studyname}, where 'studyname' is the accession number of the
+study.
 }
 \section{Constructor}{
 
@@ -48,10 +50,6 @@ the host name like "www.immunespace.org".
     A \code{character}. The study accession number. Use an empty string ("")
     to create a connection at the project level.
   }
-  \item{\code{config}}{
-    A \code{list}. Stores configuration of the connection object such as
-    URL, path and username.
-  }
   \item{\code{availableDatasets}}{
     A \code{data.table}. The table of datasets available in the connection
     object.
@@ -59,6 +57,10 @@ the host name like "www.immunespace.org".
   \item{\code{cache}}{
     A \code{list}. Stores the data to avoid downloading the same tables
     multiple times.
+  }
+  \item{\code{config}}{
+    A \code{list}. Stores configuration of the connection object such as
+    URL, path and username.
   }
 }
 }
@@ -73,41 +75,49 @@ the host name like "www.immunespace.org".
   \item{\code{print()}}{
     Print \code{ImmuneSpaceConnection} class.
   }
+  \item{\code{listDatasets(output = c("datasets", "expression"))}}{
+    Lists the datasets available in the study or studies of the connection.
+  }
+  \item{\code{listGEMatrices()}}{
+    Lists available gene expression matrices for the connection.
+  }
+  \item{\code{listGEAnalysis()}}{
+    Lists available gene expression analysis for the connection.
+  }
+  \item{\code{listParticipantGroups()}}{
+    Lists available participant groups on the ImmuneSpace portal.
+  }
   \item{\code{getDataset(x, original_view = FALSE, reload = FALSE,
   colFilter = NULL, ...)}}{
-    Get a dataset form the connection
+    Get a dataset form the connection.
 
-    \code{original_view}: A logical. If set tot TRUE, download the ImmPort
-    view. Else, download the default grid view.
+    \code{x}: A character. The name of the dataset to download.
 
-    \code{reload}: A logical. Clear the cache. If set to TRUE, download the
-    dataset, whether a cached version exist or not.
+    \code{original_view}: A logical. If TRUE, download the original ImmPort
+    view; else, download the default grid view.
+
+    \code{reload}: A logical. If TRUE, download the dataset whether a cached
+    version exist or not.
 
     \code{colFilter}: A character. A filter as returned by Rlabkey's
     \code{makeFilter} function.
 
     \code{...}: Extra arguments to be passed to \code{labkey.selectRows}.
   }
-  \item{\code{addTreatment(matrixName = NULL)}}{
-    Adds treatment information to the phenoData of an expression matrix
-    available in the connection object.
-
-    \code{x}: A character. The name of a expression matrix that has been
-     downloaded from the connection.
-  }
   \item{\code{getGEMatrix(matrixName = NULL, cohort = NULL,
   outputType = "summary", annotation = "latest", reload = FALSE, verbose = FALSE)}}{
     Downloads a normalized gene expression matrix from ImmuneSpace.
 
-    \code{x}: A character. The name of the gene expression matrix to download.
+    \code{matrixName}: A character. The name of the gene expression matrix
+    to download.
 
     \code{cohort}: A character. The name of a cohort that has an associated
-    gene expression matrix. Note that if `cohort` isn't NULL, then `x` is
-    ignored.
+    gene expression matrix. Note that if this argument is not NULL, then
+    \code{matrixName} is ignored.
 
     \code{outputType}: one of 'raw', 'normalized' or 'summary'. If 'raw'
     then returns an expression matrix of non-normalized values by probe.
-    'normalized' returns normalized values by probe.  'summary' returns
+    'normalized' returns normalized values by probe. 'summary' returns
     normalized values averaged by gene symbol.
 
     \code{annotation}: one of 'default', 'latest', or 'ImmSig'. Determines
@@ -121,38 +131,16 @@ the host name like "www.immunespace.org".
     again, even if a cached cop exist in the ImmuneSpaceConnection object.
 
     \code{verbose}: A logical. If set to TRUE, notes on how the expressionSet
-    object was created will printed, including normalization, summarization,
+    object was created will be printed, including normalization, summarization,
     feature_annotation_set, and alias2symbol mapping version of org.Hs.eg.db.
-  }
-  \item{\code{mapSampleNames(EM = NULL, colType = "participant_id")}}{
-    Change the sampleNames of an ExpressionSet fetched by \code{getGEMatrix}
-    using the information in the phenodData slot.
-
-    \code{EM}: An ExpressionSet, as returned by \code{getGEMatrix}.
-
-    \code{colType}: A character. The type of column names. Valid options are
-    'expsample_accession' and 'participant_id'.
-  }
-  \item{\code{listDatasets(output = c("datasets", "expression"))}}{
-    Lists the datasets available in the study or studies of the connection.
-  }
-  \item{\code{listGEAnalysis()}}{
-    Lists available gene expression analysis for the connection.
-  }
-  \item{\code{listGEMatrices()}}{
-    Lists available gene expression matrices for the connection.
   }
   \item{\code{getGEAnalysis(...)}}{
     Downloads data from the gene expression analysis results table.
 
     \code{...}: A list of arguments to be passed to \code{labkey.selectRows}.
   }
-  \item{\code{clearCache()}}{
-    Clears the cache. Removes downloaded datasets and expression
-    matrices.
-  }
   \item{\code{getGEFiles(files, destdir = ".", quiet = FALSE)}}{
-    Download gene expression raw data files.
+    Downloads gene expression raw data files.
 
     \code{files}: A character. Filenames as shown on the
     gene_expression_files dataset.
@@ -162,9 +150,6 @@ the host name like "www.immunespace.org".
   }
   \item{\code{getGEInputs()}}{
     Downloads data from the gene expression input samples table.
-  }
-  \item{\code{listParticipantGroups()}}{
-    Returns a dataframe with all saved Participant Groups on ImmuneSpace.
   }
   \item{\code{getParticipantData(group, dataType, original_view = FALSE,
   ...)}}{
@@ -176,15 +161,31 @@ the host name like "www.immunespace.org".
     \code{dataType}: Use \code{con$listDatasets('datasets')} to see possible
     dataType inputs.
   }
+  \item{\code{addTreatment(matrixName = NULL)}}{
+    Adds treatment information to the phenoData of an expression matrix
+    available in the connection object.
+
+    \code{matrixName}: A character. The name of a expression matrix that has
+    been downloaded from the connection.
+  }
+  \item{\code{mapSampleNames(EM = NULL, colType = "participant_id")}}{
+    Changes the sampleNames of an ExpressionSet fetched by \code{getGEMatrix}
+    using the information in the phenodData slot.
+
+    \code{EM}: An ExpressionSet, as returned by \code{getGEMatrix}.
+
+    \code{colType}: A character. The type of column names. Valid options are
+    'expsample_accession' and 'participant_id'.
+  }
   \item{\code{plot(...)}}{
-    "Plots a selected dataset. This is the function used by the DataExplorer
-    module on ImmuneSpace.
+    Visualizes a selected dataset. This method is used by the DataExplorer
+    module on the ImmuneSpace portal.
 
     \code{dataset}: A character. The name of the dataset to plot, as
     displayed by the listDataset method.
 
-    \code{normalize_to_baseline}: A logical. If set to TRUE, the values are
-    plotted as log2 fold-change from baseline.
+    \code{normalize_to_baseline}: A logical. If TRUE, the values are plotted
+    as log2 fold-change from baseline.
 
     \code{type}: A character. The type of plot. Valid choices are 'auto',
     'heatmap', 'boxplot', 'lineplot', 'violinplot'. If set to 'auto', the
@@ -205,11 +206,15 @@ the host name like "www.immunespace.org".
     \code{show_virus_strain}: A logical. Should all the virus strains be
     shown or should the values be averaged. Only used when dataset = 'hai'.
 
-    \code{interactive}: A logical. If set to TRUE, an interactive plot will
-    be created. The default is FALSE.
+    \code{interactive}: A logical. If TRUE, an interactive plot will be
+    created. The default is FALSE.
 
     \code{...}: Extra argument to be passed to ggplot. e.g: shape = 'Age',
     color = 'Race'.
+  }
+  \item{\code{clearCache()}}{
+    Clears the cache. Removes downloaded datasets and expression
+    matrices.
   }
 }
 }
@@ -218,7 +223,18 @@ the host name like "www.immunespace.org".
 \dontrun{
 # Create a connection (Initiate a ImmuneSpaceConnection object)
 sdy269 <- CreateConnection("SDY269")
+
+# Print the connection object
 sdy269
+
+# Retrieve the HAI dataset
+HAI <- sdy269$getDataset("hai")
+
+# Fetch a summarized gene expresssion matrix with latest annotation
+LAIV <- sdy269$getGEMatrix("LAIV_2008")
+
+# Visualize the ELISA dataset
+sdy269$plot("elisa")
 }
 
 }
