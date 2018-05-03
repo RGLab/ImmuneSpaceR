@@ -397,18 +397,22 @@ ISCon$set(
       return()
     }
 
-    if (outputType == "summary") {
-      fileSuffix <- switch(
-        annotation,
-        "latest" = ".summary",
-        "default" = ".summary.orig"
-      )
+    if (annotation == "ImmSig") {
+      fileSuffix <- ".immsig"
     } else {
-      fileSuffix <- switch(
-        outputType,
-        "normalized" = "",
-        "raw" = ".raw"
-      )
+      if (outputType == "summary") {
+        fileSuffix <- switch(
+          annotation,
+          "latest" = ".summary",
+          "default" = ".summary.orig"
+        )
+      } else {
+        fileSuffix <- switch(
+          outputType,
+          "normalized" = "",
+          "raw" = ".raw"
+        )
+      }
     }
 
     if (self$config$labkey.url.path == "/Studies/") {
