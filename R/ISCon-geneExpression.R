@@ -397,9 +397,9 @@ ISCon$set(
       return()
     }
 
-    if (annotation == "ImmSig"){
+    if (annotation == "ImmSig") {
       fileSuffix <- ".immsig"
-    }else{
+    } else {
       if (outputType == "summary") {
         fileSuffix <- switch(
           annotation,
