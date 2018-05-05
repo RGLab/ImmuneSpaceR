@@ -124,7 +124,11 @@ ISCon$set(
       }
 
       if (verbose == TRUE) {
-        print(Biobase::experimentData(ret))
+        info <- Biobase::experimentData(ret)
+        message("\nNotes:")
+        dmp <- lapply(names(info@other), function(nm){
+          message(paste0(nm, ": ", info@other[[nm]]))
+        })
       }
 
       return(ret)
@@ -402,7 +406,7 @@ ISCon$set(
     # Important for users is to know there are no real probe ids.
     isRNAseq <- c("SDY67", "SDY224")
     sdy <- tolower(gsub("/Studies/", "", self$config$labkey.url.path))
-    If (sdy %in% isRNAseq) {
+    if (sdy %in% isRNAseq) {
       message("Study's gene expression is from RNAseq, therefore probeIDs may be either gene symbols or non-descriptive numbers.")
     }
 
