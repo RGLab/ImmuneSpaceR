@@ -359,6 +359,7 @@ ISCon$set(
       colNameOpt = "rname"
     )
 
+
     inputSmpls$study <- gsub("^SUB\\d{6}\\.", "SDY", inputSmpls$participantid)
 
     exprResp <- merge(
@@ -391,6 +392,19 @@ ISCon$set(
       colNameOpt = "rname",
       showHidden = TRUE)
 
+    existGEA_SQL <- labkey.executeSql(
+      baseUrl = baseUrl,
+      folderPath = "/Studies/",
+      schemaName = "gene_expression",
+      sql = "SELECT gene_expression_analysis.analysis_accession,
+gene_expression_analysis.expression_matrix,
+      gene_expression_analysis.arm_name,
+      gene_expression_analysis.coefficient,
+      gene_expression_analysis.description,
+      gene_expression_analysis.arm_accession
+      FROM gene_expression_analysis",
+      showHidden = TRUE)
+
     containers <- labkey.selectRows(
       baseUrl = baseUrl,
       folderPath = "/Studies/",
@@ -403,24 +417,25 @@ ISCon$set(
     existGEA$sdy <- containers$`Display Name`[ match(existGEA$container, containers$`Entity Id`)]
 
     gea <- lapply(withGems, FUN = function(sdy) {
-      impliedGEA <- data.table(labkey.selectRows(
+      impliedGEA <- data.table(labkey.executeSql(
         baseUrl = baseUrl,
         folderPath = paste0("/Studies/", sdy),
         schemaName = "assay.expressionMatrix.matrix",
-        queryName = "inputSamples",
+        sql = "SELECT Run, Biosample.biosample_accession, Biosample.participantid, Biosample.arm_name, Biosample.study_time_collected, Biosample.study_time_collected_unit
+        FROM InputSamples",
         colNameOpt = "rname",
         showHidden = TRUE))
 
       # Does each time point have at least three participants -- only check those that do for existing GEA
-      impliedGEA[, key := paste(biosample_arm_name,
-                                biosample_study_time_collected,
-                                biosample_study_time_collected_unit,
+      impliedGEA[, key := paste(arm_name,
+                                study_time_collected,
+                                study_time_collected_unit,
                                 sep = " ")]
       # remove 0 day and negative time points
-      impliedGEA <- impliedGEA[impliedGEA$biosample_study_time_collected > 0,]
+      impliedGEA <- impliedGEA[impliedGEA$study_time_collected > 0,]
 
       # count subjects per key
-      impliedGEA <- impliedGEA[ , .(pids = length(unique(biosample_participantid))), by = key ]
+      impliedGEA <- impliedGEA[ , .(pids = length(unique(participantid))), by = key ]
 
       # find coefs with more than 3 pids
       impliedGEA <- impliedGEA[pids > 3,]
