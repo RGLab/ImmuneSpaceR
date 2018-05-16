@@ -375,12 +375,13 @@ ISCon$set(
 
     # GSEA - studies with subjects having GEAR results (i.e. compared multiple GEM timepoints)
     gear <- sapply(withGems, FUN = function(sdy){
-      res <- tryCatch(labkey.executeSql(baseUrl = baseUrl,
+      res <- tryCatch(labkey.selectRows(baseUrl = baseUrl,
                                         folderPath = paste0("/Studies/", sdy),
                                         schemaName = "gene_expression",
-                                        sql = "SELECT COUNT (*) FROM gene_expression_analysis_results"),
+                                        queryName = "gene_expression_analysis_results",
+                                        maxRows = 1),
                       error = function(e){ return( NA ) })
-      output <- res[[1]] > 0 & !is.na(res)
+      output <- !is.na(res) && nrow(res) > 0
     })
     compDF$GSEA_implied <- rownames(compDF) %in% names(gear)[gear == TRUE]
 
@@ -428,17 +429,17 @@ ISCon$set(
       # find coefs with more than 3 pids
       impliedGEA <- impliedGEA[pids > 3,]
 
+      currGEA <- existGEA[ existGEA$sdy == sdy, ]
+      currGEA$key = paste(currGEA$arm_name, currGEA$coefficient)
+
       if (nrow(impliedGEA) > 0) {
-        currGEA <- existGEA[ existGEA$sdy == sdy, ]
-        currGEA$key = paste(currGEA$arm_name, currGEA$coefficient)
         diff <- setdiff(impliedGEA$key, currGEA$key) # what is in implied and NOT in current
         missing_data <- if(length(diff) == 0 ){ "no diff" }else{ paste(diff, collapse = "; ") }
-        res <- c( nrow(impliedGEA) > 0, length(diff) == 0, missing_data)
-
-
       } else {
-        res <- c(FALSE, FALSE, NA)
+        missing_data <- NA
       }
+
+      res <- c( nrow(impliedGEA) > 0, nrow(currGEA) > 0 , missing_data)
 
       return(res)
     })
