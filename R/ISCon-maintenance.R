@@ -362,7 +362,7 @@ ISCon$set(
       colNameOpt = "rname"
     )
 
-    inputSmpls$study <- gsub("^SUB\\d{6}\\.", "SDY", inputSmpls$participantid)
+    inputSmpls$study <- gsub("SUB[^>]+\\.", "SDY",inputSmpls$participantid)
 
     exprResp <- merge(
       inputSmpls,
