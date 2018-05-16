@@ -124,7 +124,11 @@ ISCon$set(
       }
 
       if (verbose == TRUE) {
-        print(Biobase::experimentData(ret))
+        info <- Biobase::experimentData(ret)
+        message("\nNotes:")
+        dmp <- lapply(names(info@other), function(nm){
+          message(paste0(nm, ": ", info@other[[nm]]))
+        })
       }
 
       return(ret)
@@ -396,6 +400,16 @@ ISCon$set(
       message(paste0("returning ", outputType, " matrix from cache"))
       return()
     }
+
+    # No current way to get which studies are RNAseq from gef tbl
+    # therefore curate here and in HIPCMatrix/pipeline/tasks/create-matrix.R.
+    # Important for users is to know there are no real probe ids.
+    isRNAseq <- c("SDY67", "SDY224")
+    sdy <- tolower(gsub("/Studies/", "", self$config$labkey.url.path))
+    if (sdy %in% isRNAseq) {
+      message("Study's gene expression is from RNAseq, therefore probeIDs may be either gene symbols or non-descriptive numbers.")
+    }
+
 
     if (annotation == "ImmSig") {
       fileSuffix <- ".immsig"
