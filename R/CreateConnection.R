@@ -50,22 +50,34 @@ CreateConnection <- function(study = NULL,
                              use.data.frame = FALSE,
                              verbose = FALSE,
                              onTest = FALSE) {
+  # check internet connection
+  if (!curl::has_internet()) {
+    stop("No internet connection. Please connect to internet and try again.")
+  }
+
+  # check if the portal is up
+  url <- ifelse(onTest, "test.immunespace.org", "www.immunespace.org")
+  if (is.null(curl::nslookup(url, error = FALSE))) {
+    stop("The portal is currently down. Try again later.")
+  }
+
+
   # Try to parse labkey options from global environment
   # which really should have been done through option()/getOption() mechanism
   # Here we do this to be compatible to labkey online report system
   # that automatically assigns these variables in global environment
   labkey.url.base <- try(get("labkey.url.base", .GlobalEnv), silent = TRUE)
-  if (inherits(labkey.url.base, "try-error")){
-    labkey.url.base <- ifelse(onTest,
-                              "https://test.immunespace.org",
-                              "https://www.immunespace.org")
+  if (inherits(labkey.url.base, "try-error")) {
+    labkey.url.base <- paste0("https://", url)
   }
+
   labkey.url.base <- gsub("http:", "https:", labkey.url.base)
-  if (length(grep("^https://", labkey.url.base)) == 0){
+  if (length(grep("^https://", labkey.url.base)) == 0) {
     labkey.url.base <- paste0("https://", labkey.url.base)
   }
+
   labkey.user.email <- try(get("labkey.user.email", .GlobalEnv), silent = TRUE)
-  if (inherits(labkey.user.email, "try-error")){
+  if (inherits(labkey.user.email, "try-error")) {
     labkey.user.email <- "unknown_user at not_a_domain.com"
   }
 
@@ -79,9 +91,11 @@ CreateConnection <- function(study = NULL,
   #
   # for now we assume they all share the same setting and init it only once here
   if (!is.null(login) & is.null(password)) {
-    stop(paste0("login = ",
-                login,
-                " given without password. Please try again with password"))
+    stop(
+      "login = ",
+      login,
+      " given without password. Please try again with password"
+    )
   } else if (!is.null(login) & !is.null(password)) {
     nf <- write_netrc(login, password)
   } else {
@@ -96,23 +110,29 @@ CreateConnection <- function(study = NULL,
   )
 
   if (!inherits(nf, "try-error") && !is.null(nf)) {
-    curlOptions <- labkey.setCurlOptions(ssl_verifyhost = 2,
-                                         sslversion = 1,
-                                         netrc_file = nf,
-                                         useragent = useragent)
+    curlOptions <- labkey.setCurlOptions(
+      ssl_verifyhost = 2,
+      sslversion = 1,
+      netrc_file = nf,
+      useragent = useragent
+    )
   } else {
-    curlOptions <- labkey.setCurlOptions(ssl_verifyhost = 2,
-                                         sslversion = 1,
-                                         useragent = useragent)
+    curlOptions <- labkey.setCurlOptions(
+      ssl_verifyhost = 2,
+      sslversion = 1,
+      useragent = useragent
+    )
   }
 
   if (length(study) <= 1) {
-    .CreateConnection(study = study,
-                      labkey.url.base = labkey.url.base,
-                      labkey.user.email = labkey.user.email,
-                      use.data.frame = use.data.frame,
-                      verbose = verbose,
-                      curlOptions = curlOptions)
+    .CreateConnection(
+      study = study,
+      labkey.url.base = labkey.url.base,
+      labkey.user.email = labkey.user.email,
+      use.data.frame = use.data.frame,
+      verbose = verbose,
+      curlOptions = curlOptions
+    )
   } else {
     stop("For multiple studies, use an empty string and filter the connection.")
   }
@@ -148,6 +168,30 @@ CreateConnection <- function(study = NULL,
   if (class(use.data.frame) != "logical") {
     warning("use.data.frame should be of class `logical`. Setting it to FALSE.")
     use.data.frame <- FALSE
+  }
+
+  # check credential
+  if (verbose) message("Checking credential...")
+  res <- GET(
+    url = paste0(labkey.url.base, "/login-whoami.view"),
+    config = Rlabkey:::labkey.getRequestOptions()
+  )
+  if (res$status_code == 200) {
+    if (grepl("json", res$headers$`content-type`)) {
+      parsed <- httr::content(res)
+
+      if (parsed$displayName == "guest") {
+        stop("Invalid credential or deactivated account. Check your account in the portal.")
+      }
+    } else {
+      stop("Something went wrong. Check the portal and try again.")
+    }
+  } else if (res$status_code == 401) {
+    stop("Invalid credential or deactivated account. Check your account in the portal.")
+  } else if (res$status_code == 403) {
+    stop("The portal is in admin-only mode. Please try again later.")
+  } else {
+    stop("Something went wrong. Check the portal and try again.")
   }
 
   config <- list(
