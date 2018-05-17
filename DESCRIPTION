@@ -31,6 +31,7 @@ Imports:
     utils,
     R6,
     data.table,
+    curl,
     httr,
     Rlabkey (>= 2.1.136),
     Biobase,
