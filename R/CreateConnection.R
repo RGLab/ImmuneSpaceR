@@ -44,6 +44,7 @@
 #'
 #' @export
 #' @importFrom utils packageVersion
+#' @importFrom curl has_internet nslookup
 CreateConnection <- function(study = NULL,
                              login = NULL,
                              password = NULL,
@@ -51,13 +52,13 @@ CreateConnection <- function(study = NULL,
                              verbose = FALSE,
                              onTest = FALSE) {
   # check internet connection
-  if (!curl::has_internet()) {
+  if (!has_internet()) {
     stop("No internet connection. Please connect to internet and try again.")
   }
 
   # check if the portal is up
   url <- ifelse(onTest, "test.immunespace.org", "www.immunespace.org")
-  if (is.null(curl::nslookup(url, error = FALSE))) {
+  if (is.null(nslookup(url, error = FALSE))) {
     stop("The portal is currently down. Try again later.")
   }
 
