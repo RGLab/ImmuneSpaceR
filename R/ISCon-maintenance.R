@@ -301,7 +301,7 @@ ISCon$set(
     # Validation based on modules being turned on
     ..getModSdys <- function(name) {
       url <- paste0("https://www.immunespace.org/immport/studies/containersformodule.api?name=", name)
-      res <- unlist(lapply(fromJSON(Rlabkey:::labkey.get(url))[[1]], function(x) {x[["name"]]}))
+      res <- unlist(lapply(rjson::fromJSON(Rlabkey:::labkey.get(url))[[1]], function(x) {x[["name"]]}))
       res <- .spSort(res[res != "Studies" & res != "SDY_template"])
     }
 
@@ -350,14 +350,30 @@ ISCon$set(
     hai <- self$getDataset("hai")
     # nab <- self$getDataset("neut_ab_titer")
     # resp <- union(resp$participant_id, nab$participant_id)
-    inputSmpls <- labkey.selectRows(
+
+    inputSmpls <- labkey.executeSql(
       baseUrl = baseUrl,
       folderPath = "/Studies",
-      schemaName = "study",
-      queryName = "HM_InputSamplesQuery",
+      schemaName = "assay.ExpressionMatrix.matrix",
       containerFilter = "CurrentAndSubfolders",
-      colNameOpt = "rname"
-    )
+      colNameOpt = "rname",
+      sql = "SELECT DISTINCT gef.SequenceNum,
+gef.study_time_collected,
+gef.study_time_collected_unit,
+gef.ParticipantId AS ParticipantId,
+gef.arm_name AS cohort,
+gef.biosample_accession as biosample_accession @title='biosample_accession',
+mat.container.entityid as container,
+mat.Run,
+runs.Name AS expression_matrix_accession,
+mat.Run.featureset as featureset
+FROM
+assay.ExpressionMatrix.matrix.InputSamples AS mat,
+study.gene_expression_files AS gef,
+assay.ExpressionMatrix.matrix.Runs AS runs
+WHERE
+mat.biosample = gef.biosample_accession AND
+mat.run = runs.rowId")
 
 
     inputSmpls$study <- gsub("^SUB\\d{6}\\.", "SDY", inputSmpls$participantid)
@@ -384,37 +400,27 @@ ISCon$set(
 
     # Do gea results exist? are they complete?
 
-    existGEA <- labkey.selectRows(
+    existGEA <- labkey.executeSql(
       baseUrl = baseUrl,
       folderPath = "/Studies/",
       schemaName = "gene_expression",
-      queryName = "gene_expression_analysis",
       colNameOpt = "rname",
-      showHidden = TRUE)
-
-    existGEA_SQL <- labkey.executeSql(
-      baseUrl = baseUrl,
-      folderPath = "/Studies/",
-      schemaName = "gene_expression",
-      sql = "SELECT gene_expression_analysis.analysis_accession,
-gene_expression_analysis.expression_matrix,
-      gene_expression_analysis.arm_name,
-      gene_expression_analysis.coefficient,
-      gene_expression_analysis.description,
-      gene_expression_analysis.arm_accession
+      sql = "SELECT *
       FROM gene_expression_analysis",
+      containerFilter = "CurrentAndSubfolders",
       showHidden = TRUE)
 
-    containers <- labkey.selectRows(
+    containers <- labkey.executeSql(
       baseUrl = baseUrl,
       folderPath = "/Studies/",
       schemaName = "core",
-      queryName = "Containers",
+      colNameOpt = "rname",
+      sql = "SELECT *
+      FROM Containers",
       containerFilter = "CurrentAndSubfolders",
-      showHidden = TRUE
-    )
+      showHidden = TRUE)
 
-    existGEA$sdy <- containers$`Display Name`[ match(existGEA$container, containers$`Entity Id`)]
+    existGEA$sdy <- containers$displayname[ match(existGEA$container, containers$entityid)]
 
     gea <- lapply(withGems, FUN = function(sdy) {
       impliedGEA <- data.table(labkey.executeSql(
