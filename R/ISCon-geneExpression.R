@@ -16,7 +16,7 @@ ISCon$set(
         .getLKtbl(
           con = self,
           schema = "assay.ExpressionMatrix.matrix",
-          query = "Runs",
+          query = "SelectedRuns",
           colNameOpt = "fieldname",
           viewName = "expression_matrices"
         ),
