@@ -9,7 +9,7 @@ NULL
 ISCon$set(
   which = "public",
   name = "listGEMatrices",
-  value = function(verbose = FALSE) {
+  value = function(verbose = FALSE, reload = FALSE) {
     ## HELPERS
     ..getData <- function() {
       try(
@@ -26,7 +26,7 @@ ISCon$set(
 
 
     ## MAIN
-    if (is.null(self$cache[[private$.constants$matrices]])) {
+    if (is.null(self$cache[[private$.constants$matrices]]) | reload) {
       if (verbose) {
         ge <- ..getData()
       } else {
@@ -45,7 +45,7 @@ ISCon$set(
       }
     }
 
-    return(self$cache[[private$.constants$matrices]])
+    self$cache[[private$.constants$matrices]]
   }
 )
 
