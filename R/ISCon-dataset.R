@@ -39,7 +39,7 @@ ISCon$set(
 ISCon$set(
   which = "public",
   name = "getDataset",
-  value = function(x, original_view = FALSE, reload = FALSE, colFilter = NULL, ...) {
+  value = function(x, original_view = FALSE, reload = FALSE, colFilter = NULL, transform.method = "none", ...) {
     if (nrow(self$availableDatasets[Name%in%x]) == 0) {
       wstring <- paste0(
         "Empty data frame was returned.",
@@ -101,6 +101,42 @@ ISCon$set(
         ...
       )
       setnames(data, private$.munge(colnames(data)))
+
+      noTrx <- c("pcr", "mbaa", "hla_typing", "kir_typing", "gene_expression_files")
+
+      if (transform.method != "none" && !(x %in% noTrx)) {
+        # colNames current as of 6/2018
+        if (!(x %in% c("elispot", "fcs_analyzed_result"))) {
+          cNm <- "value_reported"
+        } else if (x == "elispot") {
+          cNm <- "spot_number_reported"
+        } else if (x == "fcs_analyzed_result"){
+          cNm <- ""
+        }
+
+        if (transform.method == "auto") {
+          # Transformation options selected by RG
+          if (x %in% c("hai", "neut_ab_titer")) {
+            tFun <- log
+          } else if (x %in% c("elispot")) {
+            tFun <- log1p
+          } else if (x %in% c("fcs_analyzed_results")) {
+            tFun <- sqrt
+          }
+
+        }else{
+          if (transform.method %in% c("log", "log1p", "sqrt")) {
+            tFun <- get(transform.method)
+          } else {
+            message(paste0("'transform.method' ", transform.method, " not recognized. Please use 'log', 'log1p', or 'sqrt'."))
+          }
+        }
+
+        data[, (cNm) := lapply(.SD, function(x) tFun(x)), .SDcols=grep(cNm, colnames(data))]
+
+      } else if (transform.method != "none" && x %in% noTrx) {
+        message(paste0(x, " is not a dataset that can be transformed. \n 'transform.method' ignored."))
+      }
 
       if (cache) {
         self$cache[[cache_name]] <- data
