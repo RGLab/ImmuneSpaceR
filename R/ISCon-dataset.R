@@ -102,22 +102,23 @@ ISCon$set(
       )
       setnames(data, private$.munge(colnames(data)))
 
-      # Researchers most interested in cell_pop as percentage of base_pop
-      # +1 to avoid 0 division
-      if(x == "fcs_analyzed_result"){
-        data[, percent_population := (as.numeric(population_cell_number) + 1) / as.numeric(base_parent_population)]
-      }
+
 
       noTrx <- c("pcr", "mbaa", "hla_typing", "kir_typing", "gene_expression_files")
 
       if (transform.method != "none" && !(x %in% noTrx)) {
+
+        if (x == "fcs_analyzed_result"){
+          data[, population_cell_number := as.numeric(population_cell_number)]
+        }
+
         # colNames current as of 6/2018
         if (!(x %in% c("elispot", "fcs_analyzed_result"))) {
           cNm <- "value_reported"
         } else if (x == "elispot") {
           cNm <- "spot_number_reported"
         } else if (x == "fcs_analyzed_result"){
-          cNm <- "percent_population"
+          cNm <- "population_cell_number"
         }
 
         if (transform.method == "auto") {
@@ -127,7 +128,7 @@ ISCon$set(
           } else if (x %in% c("elispot")) {
             tFun <- log1p
           } else if (x %in% c("fcs_analyzed_result")){
-            tFun <- log10
+            tFun <- sqrt
           }
 
         }else{
