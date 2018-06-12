@@ -9,14 +9,14 @@ NULL
 ISCon$set(
   which = "public",
   name = "listGEMatrices",
-  value = function(verbose = FALSE) {
+  value = function(verbose = FALSE, reload = FALSE) {
     ## HELPERS
     ..getData <- function() {
       try(
         .getLKtbl(
           con = self,
           schema = "assay.ExpressionMatrix.matrix",
-          query = "Runs",
+          query = "SelectedRuns",
           colNameOpt = "fieldname",
           viewName = "expression_matrices"
         ),
@@ -26,9 +26,7 @@ ISCon$set(
 
 
     ## MAIN
-    if (!is.null(self$cache[[private$.constants$matrices]])) {
-      self$cache[[private$.constants$matrices]]
-    } else {
+    if (is.null(self$cache[[private$.constants$matrices]]) | reload) {
       if (verbose) {
         ge <- ..getData()
       } else {
@@ -37,18 +35,17 @@ ISCon$set(
 
       if (inherits(ge, "try-error") || nrow(ge) == 0) {
         # No assay or no runs
-        message("No gene expression data")
+        message("No gene expression data...")
         self$cache[[private$.constants$matrices]] <- NULL
       } else {
         # adding cols to allow for getGEMatrix() to update
-        ge[, annotation := ""]
-        ge[, outputType := ""]
+        ge[, annotation := ""][, outputType := ""][] # see data.table #869
         setnames(ge, private$.munge(colnames(ge)))
         self$cache[[private$.constants$matrices]] <- ge
       }
     }
 
-    return(self$cache[[private$.constants$matrices]])
+    self$cache[[private$.constants$matrices]]
   }
 )
 

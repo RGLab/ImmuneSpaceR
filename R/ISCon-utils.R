@@ -22,17 +22,15 @@ ISCon$set(
 
     cat(sprintf("  User: %s\n", self$config$labkey.user.email))
 
-    cat("  Available Datasets:\n")
+    cat(" ", nrow(self$availableDatasets), "Available Datasets\n")
 
-    for (i in 1:nrow(self$availableDatasets)) {
+    for (i in seq_len(nrow(self$availableDatasets))) {
       cat(sprintf("    - %s\n", self$availableDatasets[i, Name]))
     }
 
-    if (!is.null(self$cache[[private$.constants$matrices]])) {
-      cat("  Available Expression Matrices:\n")
-      for (i in 1:nrow(self$cache[[private$.constants$matrices]])) {
-        cat(sprintf("    - %s\n", self$cache[[private$.constants$matrices]][i, name]))
-      }
+    GEMs <- self$cache[[private$.constants$matrices]]
+    if (!is.null(GEMs)) {
+      cat(" ", nrow(GEMs), "Available Expression Matrices\n")
     }
   }
 )

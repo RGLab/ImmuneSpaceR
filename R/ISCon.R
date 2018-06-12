@@ -68,8 +68,14 @@
 #'   \item{\code{listDatasets(output = c("datasets", "expression"))}}{
 #'     Lists the datasets available in the study or studies of the connection.
 #'   }
-#'   \item{\code{listGEMatrices()}}{
+#'   \item{\code{listGEMatrices(verbose = FALSE, reload = FALSE)}}{
 #'     Lists available gene expression matrices for the connection.
+#'
+#'     \code{verbose}: A logical. If TRUE, whether to print the extra details
+#'     for troubleshooting.
+#'
+#'     \code{reload}: A logical. If TRUE, retrieve the table of available gene
+#'     expression matrices whether a cached version exist or not.
 #'   }
 #'   \item{\code{listGEAnalysis()}}{
 #'     Lists available gene expression analysis for the connection.
