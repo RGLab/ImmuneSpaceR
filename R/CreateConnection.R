@@ -72,14 +72,23 @@ CreateConnection <- function(study = NULL,
     labkey.url.base <- paste0("https://", url)
   }
 
+  if (!is.null(getOption("labkey.baseUrl"))) {
+    labkey.url.base <- getOption("labkey.baseUrl")
+  }
+
   labkey.url.base <- gsub("http:", "https:", labkey.url.base)
   if (length(grep("^https://", labkey.url.base)) == 0) {
     labkey.url.base <- paste0("https://", labkey.url.base)
   }
 
+  # set email
   labkey.user.email <- try(get("labkey.user.email", .GlobalEnv), silent = TRUE)
   if (inherits(labkey.user.email, "try-error")) {
     labkey.user.email <- "unknown_user at not_a_domain.com"
+  }
+
+  if (!is.null(getOption("labkey.user.email"))) {
+    labkey.user.email <- getOption("labkey.user.email")
   }
 
   # set curoption for Rlabkey package
