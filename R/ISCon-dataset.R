@@ -39,7 +39,7 @@ ISCon$set(
 ISCon$set(
   which = "public",
   name = "getDataset",
-  value = function(x, original_view = FALSE, reload = FALSE, colFilter = NULL, transform.method = "none", ...) {
+  value = function(x, original_view = FALSE, reload = FALSE, colFilter = NULL, transformMethod = "none", ...) {
     if (nrow(self$availableDatasets[Name%in%x]) == 0) {
       wstring <- paste0(
         "Empty data frame was returned.",
@@ -102,11 +102,9 @@ ISCon$set(
       )
       setnames(data, private$.munge(colnames(data)))
 
-
-
       noTrx <- c("pcr", "mbaa", "hla_typing", "kir_typing", "gene_expression_files")
 
-      if (transform.method != "none" && !(x %in% noTrx)) {
+      if (transformMethod != "none" && !(x %in% noTrx)) {
 
         if (x == "fcs_analyzed_result"){
           data[, population_cell_number := as.numeric(population_cell_number)]
@@ -121,7 +119,7 @@ ISCon$set(
           cNm <- "population_cell_number"
         }
 
-        if (transform.method == "auto") {
+        if (transformMethod == "auto") {
           # Transformation options selected by RG
           if (x %in% c("hai", "neut_ab_titer", "elisa")) {
             tFun <- log
@@ -132,17 +130,16 @@ ISCon$set(
           }
 
         }else{
-          if (transform.method %in% c("log", "log1p", "sqrt")) {
-            tFun <- get(transform.method)
+          if (transformMethod %in% c("log", "log1p", "sqrt")) {
+            tFun <- get(transformMethod)
+            data[, (cNm) := lapply(.SD, function(x) tFun(x)), .SDcols=grep(cNm, colnames(data))]
           } else {
-            message(paste0("'transform.method' ", transform.method, " not recognized. Please use 'log', 'log1p', or 'sqrt'."))
+            warning(paste0("'transformMethod' ", transformMethod, " not recognized. Please use 'log', 'log1p', or 'sqrt'. 'transformMethod' ignored." ))
           }
         }
 
-        data[, (cNm) := lapply(.SD, function(x) tFun(x)), .SDcols=grep(cNm, colnames(data))]
-
-      } else if (transform.method != "none" && x %in% noTrx) {
-        message(paste0(x, " is not a dataset that can be transformed. \n 'transform.method' ignored."))
+      } else if (transformMethod != "none" && x %in% noTrx) {
+        message(paste0(x, " is not a dataset that can be transformed. \n 'transformMethod' ignored."))
       }
 
       if (cache) {
