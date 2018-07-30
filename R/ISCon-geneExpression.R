@@ -452,6 +452,7 @@ ISCon$set(
         localpath,
         header = TRUE,
         sep = "\t",
+        quote = "\"",
         stringsAsFactors = FALSE
       )
     } else {
@@ -463,10 +464,13 @@ ISCon$set(
       GET(url = link, config = opts, write_disk(fl))
 
       # fread does not read correctly
+      # SDY1289 has gene symbols in original version with single quote, therefore need
+      # to change 'quote' so that only looks for double-quote
       EM <- read.table(
         fl,
         header = TRUE,
         sep = "\t",
+        quote = "\"",
         stringsAsFactors = FALSE
       )
 
