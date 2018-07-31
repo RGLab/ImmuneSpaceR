@@ -426,6 +426,21 @@ ISCon$set(
       }
     }
 
+    # For HIPC studies, the matrix Import script generates subdirectories
+    # based on the original runs table in /Studies/ with the format "Run123"
+    # with the suffix being the RowId from the runs table.
+    mxName <- paste0(matrixName, ".tsv", fileSuffix)
+    if (grepl("HIPC", self$config$labkey.url.path)) {
+      runs <- labkey.selectRows(baseUrl = self$config$labkey.url.base,
+                                folderPath = "/Studies/",
+                                schemaName = "assay.ExpressionMatrix.matrix",
+                                queryName = "runs",
+                                colNameOpt = "fieldname",
+                                showHidden = TRUE)
+      runId <- runs$RowId[ runs$Name == matrixName]
+      mxName <- paste0("Run", runId, "/", mxName)
+    }
+
     if (self$config$labkey.url.path == "/Studies/") {
       path <- paste0("/Studies/", self$cache$GE_matrices[name == matrixName, folder], "/")
     } else {
@@ -441,7 +456,7 @@ ISCon$set(
         "_webdav",
         path,
         "@files/analysis/exprs_matrices",
-        paste0(matrixName, ".tsv", fileSuffix)
+        mxName
       )
     )
 
