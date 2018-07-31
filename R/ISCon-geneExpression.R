@@ -523,24 +523,27 @@ ISCon$set(
       return()
     }
 
+    # ---- tables ------
+    # Redirect to /Studies for HIPC until can fix FAS import
+    fPath <- ifelse( grepl("HIPC", self$config$labkey.url.path), "/Studies/", self$config$labkey.url.path)
     runs <- labkey.selectRows(
       baseUrl = self$config$labkey.url.base,
-      folderPath = self$config$labkey.url.path,
+      folderPath = fPath,
       schemaName = "Assay.ExpressionMatrix.Matrix",
       queryName = "Runs",
       showHidden = TRUE
     )
 
-    getOrigFasId <- function(config, matrixName) {
-      # Get annoSet based on name of FeatureAnnotationSet + "_orig" tag
-      faSets <- labkey.selectRows(
-        baseUrl = config$labkey.url.base,
-        folderPath = config$labkey.url.path,
-        schemaName = "Microarray",
-        queryName = "FeatureAnnotationSet",
-        showHidden = TRUE
-      )
+    faSets <- labkey.selectRows(
+      baseUrl = self$config$labkey.url.base,
+      folderPath = fPath,
+      schemaName = "Microarray",
+      queryName = "FeatureAnnotationSet",
+      showHidden = TRUE
+    )
 
+    # ----- Helper -----
+    getOrigFasId <- function(matrixName) {
       fasId <- runs$`Feature Annotation Set`[runs$Name == matrixName]
       fasNm <- faSets$Name[faSets$`Row Id` == fasId]
 
@@ -560,11 +563,22 @@ ISCon$set(
       }
       annoSetId <- faSets$`Row Id`[faSets$Name == fasNm]
     }
+    # -------------------
 
     # ImmuneSignatures data needs mapping from when microarray was read, not
     # 'original' when IS matrices were created.
     if (annotation == "ImmSig") {
-      faSets <- labkey.selectRows(
+      sdy <- tolower(gsub("/Studies/", "", self$config$labkey.url.path))
+      annoSetId <- faSets$`Row Id`[faSets$Name == paste0("ImmSig_", sdy)]
+    } else if (annotation == "default") {
+      annoSetId <- getOrigFasId(matrixName)
+    } else if (annotation == "latest") {
+      annoSetId <- runs$`Feature Annotation Set`[ runs$Name == matrixName]
+    }
+
+    # For HIPC studies, map annoSetID to anno available in container
+    if (grepl("HIPC", self$config$labkey.url.path)) {
+      Hfas <- labkey.selectRows(
         baseUrl = self$config$labkey.url.base,
         folderPath = self$config$labkey.url.path,
         schemaName = "Microarray",
@@ -572,12 +586,9 @@ ISCon$set(
         showHidden = TRUE
       )
 
-      sdy <- tolower(gsub("/Studies/", "", self$config$labkey.url.path))
-      annoSetId <- faSets$`Row Id`[faSets$Name == paste0("ImmSig_", sdy)]
-    } else if (annotation == "default") {
-      annoSetId <- getOrigFasId(self$config, matrixName)
-    } else if (annotation == "latest") {
-      annoSetId <- runs$`Feature Annotation Set`[ runs$Name == matrixName]
+      # create map for sdys to hipc fas rowIds with sdy name
+      annoNm <- faSets$Name[ faSets$`Row Id` == annoSetId ]
+      annoSetId <- Hfas$`Row Id`[ Hfas$Name == annoNm]
     }
 
     if (outputType != "summary") {
