@@ -523,12 +523,10 @@ ISCon$set(
       return()
     }
 
-    # ---- tables ------
-    # Redirect to /Studies for HIPC until can fix FAS import
-    fPath <- ifelse( grepl("HIPC", self$config$labkey.url.path), "/Studies/", self$config$labkey.url.path)
+    # ---- queries ------
     runs <- labkey.selectRows(
       baseUrl = self$config$labkey.url.base,
-      folderPath = fPath,
+      folderPath = self$config$labkey.url.path,
       schemaName = "Assay.ExpressionMatrix.Matrix",
       queryName = "Runs",
       showHidden = TRUE
@@ -536,7 +534,7 @@ ISCon$set(
 
     faSets <- labkey.selectRows(
       baseUrl = self$config$labkey.url.base,
-      folderPath = fPath,
+      folderPath = self$config$labkey.url.path,
       schemaName = "Microarray",
       queryName = "FeatureAnnotationSet",
       showHidden = TRUE
@@ -574,21 +572,6 @@ ISCon$set(
       annoSetId <- getOrigFasId(matrixName)
     } else if (annotation == "latest") {
       annoSetId <- runs$`Feature Annotation Set`[ runs$Name == matrixName]
-    }
-
-    # For HIPC studies, map annoSetID to anno available in container
-    if (grepl("HIPC", self$config$labkey.url.path)) {
-      Hfas <- labkey.selectRows(
-        baseUrl = self$config$labkey.url.base,
-        folderPath = self$config$labkey.url.path,
-        schemaName = "Microarray",
-        queryName = "FeatureAnnotationSet",
-        showHidden = TRUE
-      )
-
-      # create map for sdys to hipc fas rowIds with sdy name
-      annoNm <- faSets$Name[ faSets$`Row Id` == annoSetId ]
-      annoSetId <- Hfas$`Row Id`[ Hfas$Name == annoNm]
     }
 
     if (outputType != "summary") {
