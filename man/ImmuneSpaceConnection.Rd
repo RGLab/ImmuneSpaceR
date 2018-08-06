@@ -112,7 +112,7 @@ study.
   }
   \item{\code{getGEMatrix(matrixName = NULL, cohort = NULL,
   outputType = "summary", annotation = "latest", reload = FALSE, verbose = FALSE)}}{
-    Downloads a normalized gene expression matrix from ImmuneSpace.
+    Downloads a probe-level or gene-symbol summarized expression matrix from ImmuneSpace. Use experimentData() on the resulting expressionSet object to see version info for annotation.
 
     \code{matrixName}: A character. The name of the gene expression matrix
     to download.

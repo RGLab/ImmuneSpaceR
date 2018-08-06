@@ -426,6 +426,21 @@ ISCon$set(
       }
     }
 
+    # For HIPC studies, the matrix Import script generates subdirectories
+    # based on the original runs table in /Studies/ with the format "Run123"
+    # with the suffix being the RowId from the runs table.
+    mxName <- paste0(matrixName, ".tsv", fileSuffix)
+    if (grepl("HIPC", self$config$labkey.url.path)) {
+      runs <- labkey.selectRows(baseUrl = self$config$labkey.url.base,
+                                folderPath = "/Studies/",
+                                schemaName = "assay.ExpressionMatrix.matrix",
+                                queryName = "runs",
+                                colNameOpt = "fieldname",
+                                showHidden = TRUE)
+      runId <- runs$RowId[ runs$Name == matrixName]
+      mxName <- paste0("Run", runId, "/", mxName)
+    }
+
     if (self$config$labkey.url.path == "/Studies/") {
       path <- paste0("/Studies/", self$cache$GE_matrices[name == matrixName, folder], "/")
     } else {
@@ -441,7 +456,7 @@ ISCon$set(
         "_webdav",
         path,
         "@files/analysis/exprs_matrices",
-        paste0(matrixName, ".tsv", fileSuffix)
+        mxName
       )
     )
 
@@ -452,6 +467,7 @@ ISCon$set(
         localpath,
         header = TRUE,
         sep = "\t",
+        quote = "\"",
         stringsAsFactors = FALSE
       )
     } else {
@@ -463,10 +479,13 @@ ISCon$set(
       GET(url = link, config = opts, write_disk(fl))
 
       # fread does not read correctly
+      # SDY1289 has gene symbols in original version with single quote, therefore need
+      # to change 'quote' so that only looks for double-quote
       EM <- read.table(
         fl,
         header = TRUE,
         sep = "\t",
+        quote = "\"",
         stringsAsFactors = FALSE
       )
 
@@ -504,6 +523,7 @@ ISCon$set(
       return()
     }
 
+    # ---- queries ------
     runs <- labkey.selectRows(
       baseUrl = self$config$labkey.url.base,
       folderPath = self$config$labkey.url.path,
@@ -512,16 +532,16 @@ ISCon$set(
       showHidden = TRUE
     )
 
-    getOrigFasId <- function(config, matrixName) {
-      # Get annoSet based on name of FeatureAnnotationSet + "_orig" tag
-      faSets <- labkey.selectRows(
-        baseUrl = config$labkey.url.base,
-        folderPath = config$labkey.url.path,
-        schemaName = "Microarray",
-        queryName = "FeatureAnnotationSet",
-        showHidden = TRUE
-      )
+    faSets <- labkey.selectRows(
+      baseUrl = self$config$labkey.url.base,
+      folderPath = self$config$labkey.url.path,
+      schemaName = "Microarray",
+      queryName = "FeatureAnnotationSet",
+      showHidden = TRUE
+    )
 
+    # ----- Helper -----
+    getOrigFasId <- function(matrixName) {
       fasId <- runs$`Feature Annotation Set`[runs$Name == matrixName]
       fasNm <- faSets$Name[faSets$`Row Id` == fasId]
 
@@ -541,22 +561,15 @@ ISCon$set(
       }
       annoSetId <- faSets$`Row Id`[faSets$Name == fasNm]
     }
+    # -------------------
 
     # ImmuneSignatures data needs mapping from when microarray was read, not
     # 'original' when IS matrices were created.
     if (annotation == "ImmSig") {
-      faSets <- labkey.selectRows(
-        baseUrl = self$config$labkey.url.base,
-        folderPath = self$config$labkey.url.path,
-        schemaName = "Microarray",
-        queryName = "FeatureAnnotationSet",
-        showHidden = TRUE
-      )
-
       sdy <- tolower(gsub("/Studies/", "", self$config$labkey.url.path))
       annoSetId <- faSets$`Row Id`[faSets$Name == paste0("ImmSig_", sdy)]
     } else if (annotation == "default") {
-      annoSetId <- getOrigFasId(self$config, matrixName)
+      annoSetId <- getOrigFasId(matrixName)
     } else if (annotation == "latest") {
       annoSetId <- runs$`Feature Annotation Set`[ runs$Name == matrixName]
     }
