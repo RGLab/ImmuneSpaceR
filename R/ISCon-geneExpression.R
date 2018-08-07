@@ -699,7 +699,7 @@ ISCon$set(
 
     # SDY212 has dbl biosample that is removed for ImmSig, but needs to be
     # present for normalization, so needs to be included in eSet!
-    if (runID == 469) {
+    if ("BS694717" %in% pheno$biosample_accession) {
       pheno["BS694717.1", ] <- pheno[pheno$biosample_accession == "BS694717", ]
       pheno$biosample_accession[rownames(pheno) == "BS694717.1"] <- "BS694717.1"
     }
