@@ -300,7 +300,7 @@ ISCon$set(
     ## HELPERS
     # Validation based on modules being turned on
     ..getModSdys <- function(name) {
-      url <- paste0("https://www.immunespace.org/immport/studies/containersformodule.api?name=", name)
+      url <- paste0(self$config$labkey.url.base, "/immport/studies/containersformodule.api?name=", name)
       res <- unlist(lapply(fromJSON(Rlabkey:::labkey.get(url))[[1]], function(x) {x[["name"]]}))
       res <- .spSort(res[res != "Studies" & res != "SDY_template"])
     }
