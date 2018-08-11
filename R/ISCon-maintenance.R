@@ -300,9 +300,9 @@ ISCon$set(
     ## HELPERS
     # Validation based on modules being turned on
     ..getModSdys <- function(name) {
-      url <- paste0("https://www.immunespace.org/immport/studies/containersformodule.api?name=", name)
-      res <- unlist(lapply(fromJSON(Rlabkey:::labkey.get(url))[[1]], function(x) {x[["name"]]}))
-      res <- .spSort(res[res != "Studies" & res != "SDY_template"])
+      url <-  url <- paste0(baseUrl, "/immport/studies/containersformodule.api?name=", name)
+      res <- unlist(lapply(rjson::fromJSON(Rlabkey:::labkey.get(url))[[1]], function(x) {x[["name"]]}))
+      res <- .spSort(res[grepl("SDY[0-9]+", res)])
     }
 
     ## MAIN
@@ -314,7 +314,7 @@ ISCon$set(
       Sdys <- c(self$study) # single study
     } else {
       Sdys <- private$.getSdyVec()
-      Sdys <- .spSort(Sdys[Sdys != "angelica_test"])
+      Sdys <- .spSort(Sdys)
     }
 
     mods <- c("GEF", "RAW", "GEO", "GEM", "DE_implied", "GSEA_implied", "GEE_implied", "IRP_implied")
@@ -406,7 +406,7 @@ ISCon$set(
 
     existGEA$sdy <- containers$`Display Name`[ match(existGEA$container, containers$`Entity Id`)]
 
-    gea <- lapply(withGems, FUN = function(sdy) {
+    gea <- suppressWarnings(lapply(withGems, FUN = function(sdy) {
       impliedGEA <- data.table(labkey.selectRows(
         baseUrl = baseUrl,
         folderPath = paste0("/Studies/", sdy),
@@ -420,29 +420,34 @@ ISCon$set(
                                 biosample_study_time_collected,
                                 biosample_study_time_collected_unit,
                                 sep = " ")]
-      # remove 0 day and negative time points
-      impliedGEA <- impliedGEA[impliedGEA$biosample_study_time_collected > 0,]
+      # check for baseline samples -- if none skip
+      if(any(impliedGEA$biosample_study_time_collected == 0)){
+        # remove 0 day and negative time points
+        impliedGEA <- impliedGEA[impliedGEA$biosample_study_time_collected > 0,]
+        # count subjects per key
+        impliedGEA <- impliedGEA[ , .(pids = length(unique(biosample_participantid))), by = key ]
 
-      # count subjects per key
-      impliedGEA <- impliedGEA[ , .(pids = length(unique(biosample_participantid))), by = key ]
+        # find coefs with more than 3 pids
+        impliedGEA <- impliedGEA[pids > 3,]
 
-      # find coefs with more than 3 pids
-      impliedGEA <- impliedGEA[pids > 3,]
+        currGEA <- existGEA[ existGEA$sdy == sdy, ]
+        currGEA$key = paste(currGEA$arm_name, currGEA$coefficient)
 
-      currGEA <- existGEA[ existGEA$sdy == sdy, ]
-      currGEA$key = paste(currGEA$arm_name, currGEA$coefficient)
+        if (nrow(impliedGEA) > 0) {
+          diff <- setdiff(impliedGEA$key, currGEA$key) # what is in implied and NOT in current
+          missing_data <- if(length(diff) == 0 ){ "no diff" }else{ paste(diff, collapse = "; ") }
+        } else {
+          missing_data <- NA
+        }
 
-      if (nrow(impliedGEA) > 0) {
-        diff <- setdiff(impliedGEA$key, currGEA$key) # what is in implied and NOT in current
-        missing_data <- if(length(diff) == 0 ){ "no diff" }else{ paste(diff, collapse = "; ") }
-      } else {
-        missing_data <- NA
+        res <- c( nrow(impliedGEA) > 0, nrow(currGEA) > 0 , missing_data)
+      }
+      else{
+        res <- c(FALSE, FALSE, NA)
       }
 
-      res <- c( nrow(impliedGEA) > 0, nrow(currGEA) > 0 , missing_data)
-
       return(res)
-    })
+    }))
 
     gea <- data.frame(do.call(rbind, gea), stringsAsFactors = FALSE)
     colnames(gea) <- c("DGEA_implied", "DGEA_actual","DGEA_missing")
@@ -519,8 +524,8 @@ ISCon$set(
       "DE_actual",
       "GEE_implied",
       "GEE_actual",
-      "DGEA_actual",
       "DGEA_implied",
+      "DGEA_actual",
       "DGEA_missing_data",
       "IRP_implied",
       "IRP_actual",
@@ -577,7 +582,7 @@ ISCon$set(
       baseUrl = self$config$labkey.url.base,
       folderPath = "/Studies/"
     )[, 1]
-    studies <- studies[!studies %in% c("SDY_template","Studies")]
+    studies <- studies[grepl('SDY[0-9]+', studies)]
 
     studies
   }
