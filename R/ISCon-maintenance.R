@@ -300,9 +300,15 @@ ISCon$set(
     ## HELPERS
     # Validation based on modules being turned on
     ..getModSdys <- function(name) {
+<<<<<<< HEAD
       url <-  url <- paste0(baseUrl, "/immport/studies/containersformodule.api?name=", name)
       res <- unlist(lapply(rjson::fromJSON(Rlabkey:::labkey.get(url))[[1]], function(x) {x[["name"]]}))
       res <- .spSort(res[grepl("SDY[0-9]+", res)])
+=======
+      url <- paste0(self$config$labkey.url.base, "/immport/studies/containersformodule.api?name=", name)
+      res <- unlist(lapply(fromJSON(Rlabkey:::labkey.get(url))[[1]], function(x) {x[["name"]]}))
+      res <- .spSort(res[res != "Studies" & res != "SDY_template"])
+>>>>>>> ff27209339f755692d699105f46b89e53b6b5f19
     }
 
     ## MAIN
