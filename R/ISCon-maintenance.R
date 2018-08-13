@@ -337,9 +337,6 @@ ISCon$set(
     file_list <- file_list[file_list != "NULL"]
     compDF$RAW <- rownames(compDF) %in% names(file_list)[file_list == TRUE]
 
-    # GEM missing
-    compDF$GEM_diff <- compDF$RAW == T & compDF$GEM == F | compDF$GEO == T & compDF$GEM == F
-
     # GEF
     gef <- self$getDataset("gene_expression_files")
     compDF$GEF <- rownames(compDF) %in% .subidsToSdy(gef$participant_id)
@@ -347,6 +344,9 @@ ISCon$set(
     # GEO
     geoGef <- gef[!is.na(gef$geo_accession), ]
     compDF$GEO <- rownames(compDF) %in% .subidsToSdy(geoGef$participant_id)
+
+    # GEM missing
+    compDF$GEM_diff <- (compDF$RAW == T | compDF$GEO == T) & compDF$GEM == F
 
     # GEE - Studies with subjects having both GEM and response data for any timepoints
     # NOTE: when GEE is changed to allow NAb, can uncomment nab / respSubs lines
@@ -415,45 +415,33 @@ ISCon$set(
         colNameOpt = "rname",
         showHidden = TRUE))
 
-      # Does each time point have at least three participants -- only check those that do for existing GEA
-      impliedGEA[, key := paste(biosample_arm_name,
-                                biosample_study_time_collected,
-                                biosample_study_time_collected_unit,
-                                sep = " ")]
-      # check for baseline samples -- if none skip
-      if(any(impliedGEA$biosample_study_time_collected == 0)){
-        # check for baseline in all cohorts
-        if(length(unique(impliedGEA[impliedGEA$biosample_study_time_collected == 0,"biosample_arm_name"])) != length(unique(impliedGEA$biosample_arm_name))) {
-          baselines <- unique(impliedGEA[impliedGEA$biosample_study_time_collected == 0, "biosample_arm_name"])
-          all <- unique(impliedGEA$biosample_arm_name)
-          missing <- setdiff(all, baselines)
-          impliedGEA <- impliedGEA[impliedGEA$biosample_arm_name != missing,]
-        }
-        # remove 0 day and negative time points
-        impliedGEA <- impliedGEA[impliedGEA$biosample_study_time_collected > 0,]
-        # count subjects per key
-        impliedGEA <- impliedGEA[ , .(pids = length(unique(biosample_participantid))), by = key ]
+      # Create summary table that shows only viable GEA.
+      # Cohorts with > 3 subjects at both baseline and a later timepoint.
+      smryGEA <- impliedGEA %>%
+        group_by(biosample_arm_name, biosample_study_time_collected) %>%
+        mutate(subs = unique(length(biosample_participantid))) %>%
+        filter(subs > 3) %>%
+        group_by(biosample_arm_name) %>%
+        mutate(baseline = any(biosample_study_time_collected <= 0)) %>%
+        filter(baseline == TRUE) %>%
+        filter(biosample_study_time_collected > 0) %>%
+        mutate(tps = length(unique(biosample_study_time_collected))) %>%
+        mutate(key = paste(biosample_arm_name, biosample_study_time_collected, biosample_study_time_collected_unit)) %>%
+        group_by(biosample_arm_name, biosample_study_time_collected) %>%
+        summarize(numsubs = subs[[1]], key = tpsNms[[1]])
 
-        # find coefs with more than 3 pids
-        impliedGEA <- impliedGEA[pids > 3,]
+      # Get current GEA and compare
+      currGEA <- existGEA[ existGEA$sdy == sdy, ]
+      currGEA$key = paste(currGEA$arm_name, currGEA$coefficient)
 
-        currGEA <- existGEA[ existGEA$sdy == sdy, ]
-        currGEA$key = paste(currGEA$arm_name, currGEA$coefficient)
-
-        if (nrow(impliedGEA) > 0) {
-          diff <- setdiff(impliedGEA$key, currGEA$key) # what is in implied and NOT in current
-          missing_data <- if(length(diff) == 0 ){ "no diff" }else{ paste(diff, collapse = "; ") }
-        } else {
-          missing_data <- NA
-        }
-
-        res <- c( nrow(impliedGEA) > 0, nrow(currGEA) > 0 , missing_data)
-      }
-      else{
-        res <- c(FALSE, FALSE, NA)
+      if (nrow(smryGEA) > 0) {
+        diff <- setdiff(smryGEA$key, currGEA$key) # what is in implied and NOT in current
+        missing_data <- if(length(diff) == 0 ){ "no diff" }else{ paste(diff, collapse = "; ") }
+      } else {
+        missing_data <- NA
       }
 
-      return(res)
+      res <- c( nrow(smryGEA) > 0, nrow(currGEA) > 0 , missing_data)
     }))
 
     gea <- data.frame(do.call(rbind, gea), stringsAsFactors = FALSE)
