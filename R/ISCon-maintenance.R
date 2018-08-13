@@ -338,7 +338,7 @@ ISCon$set(
     compDF$RAW <- rownames(compDF) %in% names(file_list)[file_list == TRUE]
 
     # GEM missing
-    compDF$GEM_diff <- compDF$RAW == T & compDF$GEM == F
+    compDF$GEM_diff <- compDF$RAW == T & compDF$GEM == F | compDF$GEO == T & compDF$GEM == F
 
     # GEF
     gef <- self$getDataset("gene_expression_files")
@@ -422,6 +422,13 @@ ISCon$set(
                                 sep = " ")]
       # check for baseline samples -- if none skip
       if(any(impliedGEA$biosample_study_time_collected == 0)){
+        # check for baseline in all cohorts
+        if(length(unique(impliedGEA[impliedGEA$biosample_study_time_collected == 0,"biosample_arm_name"])) != length(unique(impliedGEA$biosample_arm_name))) {
+          baselines <- unique(impliedGEA[impliedGEA$biosample_study_time_collected == 0, "biosample_arm_name"])
+          all <- unique(impliedGEA$biosample_arm_name)
+          missing <- setdiff(all, baselines)
+          impliedGEA <- impliedGEA[impliedGEA$biosample_arm_name != missing,]
+        }
         # remove 0 day and negative time points
         impliedGEA <- impliedGEA[impliedGEA$biosample_study_time_collected > 0,]
         # count subjects per key
