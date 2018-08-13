@@ -425,10 +425,9 @@ ISCon$set(
         mutate(baseline = any(biosample_study_time_collected <= 0)) %>%
         filter(baseline == TRUE) %>%
         filter(biosample_study_time_collected > 0) %>%
-        mutate(tps = length(unique(biosample_study_time_collected))) %>%
         mutate(key = paste(biosample_arm_name, biosample_study_time_collected, biosample_study_time_collected_unit)) %>%
         group_by(biosample_arm_name, biosample_study_time_collected) %>%
-        summarize(numsubs = subs[[1]], key = tpsNms[[1]])
+        summarize(numsubs = subs[[1]], key = key[[1]])
 
       # Get current GEA and compare
       currGEA <- existGEA[ existGEA$sdy == sdy, ]
