@@ -290,6 +290,7 @@ ISCon$set(
 
 # This method allows admin to check which studies are compliant with the
 # following modules/data files (GEF, RAW, GEO, GEM, DE, GEE, IRP, GSEA)
+#' @import dplyr
 ISCon$set(
   which = "private",
   name = ".checkStudyCompliance",

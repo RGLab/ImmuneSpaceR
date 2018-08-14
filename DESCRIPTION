@@ -47,7 +47,8 @@ Imports:
     rjson,
     rmarkdown,
     preprocessCore,
-    parallel
+    parallel,
+    dplyr
 RoxygenNote: 6.0.1
 Collate: 
     'CreateConnection.R'
