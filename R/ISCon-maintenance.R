@@ -350,7 +350,15 @@ ISCon$set(
       Sdys <- .spSort(Sdys)
     }
 
-    mods <- c("GEF", "RAW", "GEO", "GEM", "DE_implied", "GSEA_implied", "GEE_implied", "IRP_implied")
+    mods <- c("GEF",
+              "RAW",
+              "GEO",
+              "GEM_implied",
+              "GEM_actual",
+              "DE_implied",
+              "GSEA_implied",
+              "GEE_implied",
+              "IRP_implied")
 
     compDF <- data.frame(
       matrix(
@@ -360,10 +368,6 @@ ISCon$set(
       row.names = Sdys
     )
     colnames(compDF) <- mods
-
-    # GEM
-    withGems <- unique(self$cache$GE_matrices$folder)
-    compDF$GEM <- rownames(compDF) %in% withGems
 
     # RAW
     file_list <- private$.getGEFileNames(TRUE)
@@ -378,8 +382,12 @@ ISCon$set(
     geoGef <- gef[!is.na(gef$geo_accession), ]
     compDF$GEO <- rownames(compDF) %in% .subidsToSdy(geoGef$participant_id)
 
-    # GEM missing
-    compDF$GEM_diff <- (compDF$RAW == T | compDF$GEO == T) & compDF$GEM == F
+    # GEM possible
+    compDF$GEM_implied <- compDF$RAW == T | compDF$GEO == T
+
+    # GEM actual
+    withGems <- unique(self$cache$GE_matrices$folder)
+    compDF$GEM_actual <- rownames(compDF) %in% withGems
 
     # GEE - Studies with subjects having both GEM and response data for any timepoints
     # NOTE: when GEE is changed to allow NAb, can uncomment nab / respSubs lines
@@ -496,24 +504,17 @@ ISCon$set(
     # timepoint and baseline + response data
     nab <- self$getDataset("neut_ab_titer")
     resp <- rbind(nab, hai, fill = TRUE) # nab has a col that hai does not
-    suppressPackageStartupMessages(library(dplyr, quietly = TRUE))
+
     # NOTE: At least SDY180 has overlapping study_time_collected for both hours and days
     # so it is important to group by study_time_collected_unit as well. This is reflected
     # in IRP_timepoints_hai/nab.sql
-    geCohortSubs <- inputSmpls %>%
-      group_by(study, study_time_collected, study_time_collected_unit) %>%
-      # need multiple cohorts per timePoint (from IRP.js)
-      filter((length(unique(cohort)) > 1 ) == TRUE) %>%
-      ungroup() %>%
-      group_by(study, cohort, study_time_collected_unit) %>%
-      # need baseline + later timePoint (from IRP.Rmd)
-      filter((length(unique(study_time_collected)) > 1 ) == TRUE)
-
-    geRespSubs <- geCohortSubs[ geCohortSubs$participantid %in% unique(resp$participant_id), ]
+    inputSmpls <- data.table(inputSmpls)
+    geCohortSubs <- inputSmpls[ , .SD[length(unique(cohort)) > 1] , by = .(study, study_time_collected, study_time_collected_unit)]
+    geCohortSubs <- geCohortSubs[, .SD[length(unique(study_time_collected)) > 1], by = .(study, cohort, study_time_collected_unit)]
+    geRespSubs <- geCohortSubs[ geCohortSubs$participantid %in% unique(resp$participant_id) ]
     compDF$IRP_implied <- rownames(compDF) %in% .subidsToSdy(geRespSubs$participantid)
-    studyTimepoints <- geRespSubs %>%
-      group_by(study) %>%
-      summarize(timepoints = paste(unique(study_time_collected), collapse = ","))
+
+    studyTimepoints <- geRespSubs[ , list(timepoints = paste(unique(study_time_collected), collapse = ",")), by = .(study)]
     compDF$IrpTimepoints <- studyTimepoints$timepoints[ match(rownames(compDF), studyTimepoints$study) ]
 
     # DE
@@ -550,8 +551,8 @@ ISCon$set(
       "RAW",
       "GEF",
       "GEO",
-      "GEM",
-      "GEM_diff",
+      "GEM_implied",
+      "GEM_actual",
       "DE_implied",
       "DE_actual",
       "GEE_implied",
