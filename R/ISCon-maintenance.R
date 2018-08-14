@@ -104,31 +104,51 @@ ISCon$set(
 
 
     ## MAIN
+    
+    startTimeTotal <- Sys.time()
+    
     ret <- list()
     what <- tolower(what)
 
     if ("gene_expression_files" %in% what) {
+      startTime <- Sys.time()
+      
       ret$gene_expression_files <- ..checkLinks(
         "gene_expression_files",
         "gene_expression"
       )
+      
+      endTime <- Sys.time()
+      print( endTime - startTime )
     }
 
     if ("fcs_sample_files" %in% what) {
+      startTime <- Sys.time()
+      
       ret$fcs_sample_files <- ..checkLinks(
         "fcs_sample_files",
         "flow_cytometry"
       )
+      
+      endTime <- Sys.time()
+      print( endTime - startTime )
     }
 
     if ("fcs_control_files" %in% what) {
+      startTime <- Sys.time()
+      
       ret$fcs_control_files <- ..checkLinks(
         "fcs_control_files",
         "flow_cytometry"
       )
+      
+      endTime <- Sys.time()
+      print( endTime - startTime )
     }
 
     if ("protocols" %in% what) {
+      startTime <- Sys.time()
+      
       if (private$.isProject()) {
         folders_list <- labkey.getFolders(
           baseUrl = self$config$labkey.url.base,
@@ -166,9 +186,14 @@ ISCon$set(
         file_exists = file_exists,
         stringsAsFactors = FALSE
       )
+      
+      endTime <- Sys.time()
+      print( endTime - startTime )
     }
 
     if ("gene_expression_matrices" %in% what) {
+      startTime <- Sys.time()
+      
       suppressWarnings(
         mx <- .getLKtbl(
           con = self,
@@ -214,7 +239,15 @@ ISCon$set(
           stringsAsFactors = FALSE
         )
       }
+      
+      endTime <- Sys.time()
+      print( endTime - startTime )
     }
+    
+    endTimeTotal <- Sys.time()
+    print( '===========' )
+    print( 'TOTAL TIME:' )
+    print( endTimeTotal - startTimeTotal )
 
     ret
   }
