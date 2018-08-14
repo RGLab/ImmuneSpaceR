@@ -374,7 +374,7 @@ ISCon$set(
     compDF$GEE_implied <- rownames(compDF) %in% .subidsToSdy(unique(exprResp$participantid))
 
     # GSEA - studies with subjects having GEAR results (i.e. compared multiple GEM timepoints)
-    gear <- sapply(withGems, FUN = function(sdy){
+    gear <- suppressMessages(sapply(withGems, FUN = function(sdy){
       res <- tryCatch(labkey.selectRows(baseUrl = baseUrl,
                                         folderPath = paste0("/Studies/", sdy),
                                         schemaName = "gene_expression",
@@ -382,7 +382,7 @@ ISCon$set(
                                         maxRows = 1),
                       error = function(e){ return( NA ) })
       output <- !is.na(res) && nrow(res) > 0
-    })
+    }))
     compDF$GSEA_implied <- rownames(compDF) %in% names(gear)[gear == TRUE]
 
     # Do gea results exist? are they complete?
