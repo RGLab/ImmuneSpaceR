@@ -373,20 +373,19 @@ ISCon$set(
 
     compDF$GEE_implied <- rownames(compDF) %in% .subidsToSdy(unique(exprResp$participantid))
 
-    # GSEA - studies with subjects having GEAR results (i.e. compared multiple GEM timepoints)
+    # GSEA - studies with subjects having GEAR results for multiple non-baseline timepoints
+    gearSql <- "SELECT DISTINCT analysis_accession.coefficient FROM gene_expression_analysis_results"
     gear <- sapply(withGems, FUN = function(sdy){
-      res <- tryCatch(labkey.selectRows(baseUrl = baseUrl,
+      res <- tryCatch(labkey.executeSql(baseUrl = baseUrl,
                                         folderPath = paste0("/Studies/", sdy),
                                         schemaName = "gene_expression",
-                                        queryName = "gene_expression_analysis_results",
-                                        maxRows = 1),
+                                        sql = gearSql),
                       error = function(e){ return( NA ) })
-      output <- !is.na(res) && nrow(res) > 0
+      output <- !is.na(res) && nrow(res) > 1
     })
     compDF$GSEA_implied <- rownames(compDF) %in% names(gear)[gear == TRUE]
 
     # Do gea results exist? are they complete?
-
     existGEA <- labkey.selectRows(
       baseUrl = baseUrl,
       folderPath = "/Studies/",
