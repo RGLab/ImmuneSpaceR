@@ -417,11 +417,15 @@ ISCon$set(
     # GSEA - studies with subjects having GEAR results for multiple non-baseline timepoints
     gearSql <- "SELECT DISTINCT analysis_accession.coefficient FROM gene_expression_analysis_results"
     gear <- sapply(withGems, FUN = function(sdy){
-      res <- tryCatch(labkey.executeSql(baseUrl = baseUrl,
+      res <- suppressWarnings(
+               tryCatch(
+                 labkey.executeSql(baseUrl = baseUrl,
                                         folderPath = paste0("/Studies/", sdy),
                                         schemaName = "gene_expression",
                                         sql = gearSql),
-                      error = function(e){ return( NA ) })
+                  error = function(e){ return( NA ) }
+                 )
+               )
       output <- !is.na(res) && nrow(res) > 1
     })
     compDF$GSEA_implied <- rownames(compDF) %in% names(gear)[gear == TRUE]
@@ -509,7 +513,7 @@ ISCon$set(
     # so it is important to group by study_time_collected_unit as well. This is reflected
     # in IRP_timepoints_hai/nab.sql
     inputSmpls <- data.table(inputSmpls)
-    geCohortSubs <- inputSmpls[ , .SD[length(unique(cohort)) > 1] , by = .(study, study_time_collected, study_time_collected_unit)]
+    geCohortSubs <- inputSmpls[ , .SD[length(unique(cohort)) > 1], by = .(study, study_time_collected, study_time_collected_unit)]
     geCohortSubs <- geCohortSubs[, .SD[length(unique(study_time_collected)) > 1], by = .(study, cohort, study_time_collected_unit)]
     geRespSubs <- geCohortSubs[ geCohortSubs$participantid %in% unique(resp$participant_id) ]
     compDF$IRP_implied <- rownames(compDF) %in% .subidsToSdy(geRespSubs$participantid)
