@@ -396,7 +396,7 @@ ISCon$set(
 
     ugenes <- unique(dt$gene_symbol)
     ugenes <- ugenes[ ugenes != "NA"]
-    EM <- con$getGEMatrix(cohort = uarm, summary = TRUE)
+    EM <- con$getGEMatrix(cohort = uarm)
     ugenes <- ugenes[ugenes %in% featureNames(EM)]
     EM <- EM[ugenes, ]
     pd <- data.table(pData(EM))
