@@ -290,7 +290,6 @@ ISCon$set(
 
 # This method allows admin to check which studies are compliant with the
 # following modules/data files (GEF, RAW, GEO, GEM, DE, GEE, IRP, GSEA)
-#' @import dplyr
 ISCon$set(
   which = "private",
   name = ".checkStudyCompliance",
@@ -416,23 +415,29 @@ ISCon$set(
         colNameOpt = "rname",
         showHidden = TRUE))
 
-      # Create summary table that shows only viable GEA.
-      # Cohorts with > 3 subjects at both baseline and a later timepoint.
-      smryGEA <- impliedGEA %>%
-        group_by(biosample_arm_name, biosample_study_time_collected) %>%
-        mutate(subs = unique(length(biosample_participantid))) %>%
-        filter(subs > 3) %>%
-        group_by(biosample_arm_name) %>%
-        mutate(baseline = any(biosample_study_time_collected <= 0)) %>%
-        filter(baseline == TRUE) %>%
-        filter(biosample_study_time_collected > 0) %>%
-        mutate(key = paste(biosample_arm_name, biosample_study_time_collected, biosample_study_time_collected_unit)) %>%
-        group_by(biosample_arm_name, biosample_study_time_collected) %>%
-        summarize(numsubs = subs[[1]], key = key[[1]])
+      # ---- summarize to have same form and info as currGEA ----
+
+      # 1. Remove all arm_name * study_time_collected with less than 4 replicates
+      # otherwise predictive modeling cannot work
+      impliedGEA[, subs := unique(length(biosample_participantid)), by = .(biosample_arm_name, biosample_study_time_collected)]
+      impliedGEA <- impliedGEA[ subs > 3 ]
+
+      # 2. Check for baseline within each arm_name and then filter out baseline
+      impliedGEA[, baseline := any(biosample_study_time_collected <= 0), by = .(biosample_arm_name) ]
+      impliedGEA <- impliedGEA[ baseline == TRUE ]
+      impliedGEA <- impliedGEA[ biosample_study_time_collected > 0 ]
+
+      # 3. Generate key
+      impliedGEA[, key := paste(biosample_arm_name, biosample_study_time_collected, biosample_study_time_collected_unit)]
+
+      # 4. Summarize by arm_name * study_time_collected for number of subs and key
+      smryGEA <- impliedGEA[ , list(key = unique(key), subs = unique(subs)), by = .(biosample_arm_name, biosample_study_time_collected)]
+
+      # -------------------------------------------
 
       # Get current GEA and compare
       currGEA <- existGEA[ existGEA$sdy == sdy, ]
-      currGEA$key = paste(currGEA$arm_name, currGEA$coefficient)
+      currGEA$key <- paste(currGEA$arm_name, currGEA$coefficient)
 
       if (nrow(smryGEA) > 0) {
         diff <- setdiff(smryGEA$key, currGEA$key) # what is in implied and NOT in current
