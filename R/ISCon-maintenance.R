@@ -521,7 +521,9 @@ ISCon$set(
     studyTimepoints <- geRespSubs[ , list(timepoints = paste(unique(study_time_collected), collapse = ",")), by = .(study)]
     compDF$IrpTimepoints <- studyTimepoints$timepoints[ match(rownames(compDF), studyTimepoints$study) ]
 
-    # DE
+    # DE - b/c ISC_study_datasets cannot provide gene_expression info, we use
+    # compDF$DGEA_actual as a proxy since it pulls the current GEA query, which should
+    # have the same info as DGEA_filteredGEAR ( what the con$plot() uses via con$getGEAnalysis() )
     deSets <- c(
       "Neutralizing antibody titer",
       "Enzyme-linked immunosorbent assay (ELISA)",
@@ -543,7 +545,7 @@ ISCon$set(
           error = function(e) {return( NA )}
         )
       )
-      ret <- any(res[[1]] %in% deSets)
+      ret <- any(res[[1]] %in% deSets) | compDF$DGEA_actual == TRUE
     })
 
     compDF$DE_actual <- rownames(compDF) %in% ..getModSdys("DataExplorer")
@@ -598,7 +600,7 @@ ISCon$set(
 
     # Defaults to showing only the actual module status and the difference with the implied
     if (showAllCols == FALSE) {
-      compDF <- compDF[, grep("act|implied|RAW|GEO$", colnames(compDF))]
+      compDF <- compDF[, grep("act|implied$", colnames(compDF))]
     }
 
     if (verbose == TRUE) {
