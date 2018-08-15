@@ -520,6 +520,12 @@ ISCon$set(
     studyTimepoints <- geRespSubs[ , list(timepoints = paste(unique(study_time_collected), collapse = ",")), by = .(study)]
     compDF$IrpTimepoints <- studyTimepoints$timepoints[ match(rownames(compDF), studyTimepoints$study) ]
 
+    compDF$DE_actual <- rownames(compDF) %in% ..getModSdys("DataExplorer")
+    compDF$GEE_actual <- rownames(compDF) %in% ..getModSdys("GeneExpressionExplorer")
+    compDF$GSEA_actual <- rownames(compDF) %in% ..getModSdys("GeneSetEnrichmentAnalysis")
+    compDF$IRP_actual <- rownames(compDF) %in% ..getModSdys("ImmuneResponsePredictor")
+    compDF$DGEA_actual <- rownames(compDF) %in% ..getModSdys("DifferentialExpressionAnalysis")
+
     # DE - b/c ISC_study_datasets cannot provide gene_expression info, we use
     # compDF$DGEA_actual as a proxy since it pulls the current GEA query, which should
     # have the same info as DGEA_filteredGEAR ( what the con$plot() uses via con$getGEAnalysis() )
@@ -546,12 +552,6 @@ ISCon$set(
       )
       ret <- any(res[[1]] %in% deSets) | compDF$DGEA_actual[rownames(compDF) == sdy] == TRUE
     })
-
-    compDF$DE_actual <- rownames(compDF) %in% ..getModSdys("DataExplorer")
-    compDF$GEE_actual <- rownames(compDF) %in% ..getModSdys("GeneExpressionExplorer")
-    compDF$GSEA_actual <- rownames(compDF) %in% ..getModSdys("GeneSetEnrichmentAnalysis")
-    compDF$IRP_actual <- rownames(compDF) %in% ..getModSdys("ImmuneResponsePredictor")
-    compDF$DGEA_actual <- rownames(compDF) %in% ..getModSdys("DifferentialExpressionAnalysis")
 
     colOrder <- c(
       "RAW",
@@ -581,8 +581,7 @@ ISCon$set(
     if (filterNonGE == TRUE) {
       compDF <- compDF[compDF$GEO == TRUE | compDF$GEF == TRUE, ]
     }
-
-    # Subset to only show problematic studies
+        # Subset to only show problematic studies
     if (onlyShowNonCompliant == TRUE) {
       redux <- compDF[ , grep("implied|actual|missing", colnames(compDF))]
       mod_sub <- c("DE", "GEE", "IRP", "GSEA", "DGEA")
