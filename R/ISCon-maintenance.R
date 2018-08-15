@@ -509,7 +509,7 @@ ISCon$set(
     nab <- self$getDataset("neut_ab_titer")
     resp <- rbind(nab, hai, fill = TRUE) # nab has a col that hai does not
     resp <- resp[, list(study_time_collected, study_time_collected_unit,
-                    response = value_preferred/mean(value_preferred[study_time_collected <= 0])),
+                    response = value_preferred/mean(value_preferred[study_time_collected <= 0]), na.rm = T),
              by = "virus,participant_id"]
     resp <- resp[ !is.na(response) ]
 
@@ -517,10 +517,10 @@ ISCon$set(
     # so it is important to group by study_time_collected_unit as well. This is reflected
     # in IRP_timepoints_hai/nab.sql.
     inputSmpls <- data.table(inputSmpls)
-    geCohortSubs <- inputSmpls[ , .SD[length(unique(cohort)) > 1], by = .(study, study_time_collected, study_time_collected_unit)]
+    geCohortSubs <- inputSmpls[ participantid %in% resp$participant_id ]
+    geCohortSubs <- geCohortSubs[ , .SD[length(unique(cohort)) > 1], by = .(study, study_time_collected, study_time_collected_unit)]
     geCohortSubs <- geCohortSubs[, .SD[length(unique(study_time_collected)) > 1 & 0 %in% unique(study_time_collected)], by = .(study, cohort, study_time_collected_unit)]
-    geRespSubs <- geCohortSubs[ geCohortSubs$participantid %in% unique(resp$participant_id) ]
-    compDF$IRP_implied <- rownames(compDF) %in% unique(geRespSubs$study)
+    compDF$IRP_implied <- rownames(compDF) %in% unique(geCohortSubs$study)
 
     studyTimepoints <- geRespSubs[ , list(timepoints = paste(unique(study_time_collected), collapse = ",")), by = .(study)]
     compDF$IrpTimepoints <- studyTimepoints$timepoints[ match(rownames(compDF), studyTimepoints$study) ]
