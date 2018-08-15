@@ -545,7 +545,7 @@ ISCon$set(
           error = function(e) {return( NA )}
         )
       )
-      ret <- any(res[[1]] %in% deSets) | compDF$DGEA_actual == TRUE
+      ret <- any(res[[1]] %in% deSets) | compDF$DGEA_actual[rownames(compDF) == sdy] == TRUE
     })
 
     compDF$DE_actual <- rownames(compDF) %in% ..getModSdys("DataExplorer")
