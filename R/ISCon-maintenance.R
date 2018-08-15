@@ -504,18 +504,23 @@ ISCon$set(
     compDF <- compDF[,-1]
 
     # IRP - Studies with subjects from multiple cohorts with GEM data at both target
-    # timepoint and baseline + response data
+    # timepoint and baseline + response data that has baseline and a later timepoint.
+    # GEM and response later timepoints do NOT need to be the same!
     nab <- self$getDataset("neut_ab_titer")
     resp <- rbind(nab, hai, fill = TRUE) # nab has a col that hai does not
+    resp <- resp[, list(study_time_collected, study_time_collected_unit,
+                    response = value_preferred/mean(value_preferred[study_time_collected <= 0])),
+             by = "virus,participant_id"]
+    resp <- resp[ !is.na(response) ]
 
     # NOTE: At least SDY180 has overlapping study_time_collected for both hours and days
     # so it is important to group by study_time_collected_unit as well. This is reflected
-    # in IRP_timepoints_hai/nab.sql
+    # in IRP_timepoints_hai/nab.sql.
     inputSmpls <- data.table(inputSmpls)
     geCohortSubs <- inputSmpls[ , .SD[length(unique(cohort)) > 1], by = .(study, study_time_collected, study_time_collected_unit)]
-    geCohortSubs <- geCohortSubs[, .SD[length(unique(study_time_collected)) > 1], by = .(study, cohort, study_time_collected_unit)]
+    geCohortSubs <- geCohortSubs[, .SD[length(unique(study_time_collected)) > 1 & 0 %in% unique(study_time_collected)], by = .(study, cohort, study_time_collected_unit)]
     geRespSubs <- geCohortSubs[ geCohortSubs$participantid %in% unique(resp$participant_id) ]
-    compDF$IRP_implied <- rownames(compDF) %in% .subidsToSdy(geRespSubs$participantid)
+    compDF$IRP_implied <- rownames(compDF) %in% unique(geRespSubs$study)
 
     studyTimepoints <- geRespSubs[ , list(timepoints = paste(unique(study_time_collected), collapse = ",")), by = .(study)]
     compDF$IrpTimepoints <- studyTimepoints$timepoints[ match(rownames(compDF), studyTimepoints$study) ]
