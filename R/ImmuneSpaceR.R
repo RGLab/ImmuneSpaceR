@@ -24,7 +24,7 @@ globalVariables(
     "response",
     "analyte",
     "analyte_name",
-    "value_reported",
+    "value_preferred",
     "spot_number_reported",
     "cell_number_reported",
     "threshold_cycles",

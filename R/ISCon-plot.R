@@ -36,7 +36,7 @@ ISCon$set(
                   show_virus_strain = FALSE,
                   interactive = FALSE,
                   ...) {
-  logT <- TRUE #By default, log transform the value_reported
+  logT <- TRUE #By default, log transform the value_preferred
   extras <- list(...)
 
   # legend
@@ -353,7 +353,7 @@ ISCon$set(
   }
 
   if (dataset == "elispot") {
-    dt <- dt[, value_reported := (spot_number_reported) / cell_number_reported]
+    dt <- dt[, value_preferred := (spot_number_reported) / cell_number_reported]
   } else if (dataset %in% c("hai", "neut_ab_titer")) {
     if (isTRUE(show_virus_strain)) {
       dt <- dt[, analyte := virus]
@@ -367,15 +367,15 @@ ISCon$set(
   } else if (dataset == "mbaa") {
     if (all(dt$concentration_value ==0) || all(is.na(dt$concentration_value))) {
       if (any(!is.na(dt$mfi)) && any(dt$mfi != 0)) {
-        dt <- dt[, value_reported := as.numeric(mfi)]
+        dt <- dt[, value_preferred := as.numeric(mfi)]
       } else {
         stop("Plotting MBAA requires either concentration or MFI values")
       }
     } else {
-      dt <- dt[, value_reported := as.numeric(concentration_value)]
+      dt <- dt[, value_preferred := as.numeric(concentration_value)]
     }
   } else if (dataset == "fcs_analyzed_result") {
-    dt <- dt[, value_reported := as.numeric(population_cell_number)]
+    dt <- dt[, value_preferred := as.numeric(population_cell_number)]
     dt <- dt[, analyte := population_name_reported]
   } else if (dataset == "gene_expression") {
     logT <- FALSE # Matrices are already log2 transformed
@@ -403,13 +403,13 @@ ISCon$set(
     demo <- con$getDataset("demographics")
     demo <- unique(demo[, c("participant_id", demo_cols), with = FALSE])
     dt <- data.table(melt(exprs(EM)))
-    setnames(dt, c("analyte", "biosample_accession", "value_reported"))
+    setnames(dt, c("analyte", "biosample_accession", "value_preferred"))
     dt <- merge(dt, pd, by = "biosample_accession", all.x = TRUE) # Add s_t_c, s_t_c_u, arm
     dt <- merge(dt, demo, by = "participant_id", all.x = TRUE) # Add race, gender, age
     setkey(dt, NULL)
   }
 
-  dt <- dt[, response := ifelse(value_reported < 0, 0, value_reported)]
+  dt <- dt[, response := ifelse(value_preferred < 0, 0, value_preferred)]
   dt <- dt[, out_cols, with = FALSE]
   setnames(dt, demo_cols, c("Gender", "Age", "Race"))
 

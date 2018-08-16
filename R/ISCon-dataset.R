@@ -110,9 +110,9 @@ ISCon$set(
           data[, population_cell_number := as.numeric(population_cell_number)]
         }
 
-        # colNames current as of 6/2018
+        # colNames current as of 8/2018
         if (!(x %in% c("elispot", "fcs_analyzed_result"))) {
-          cNm <- "value_reported"
+          cNm <- "value_preferred"
         } else if (x == "elispot") {
           cNm <- "spot_number_reported"
         } else if (x == "fcs_analyzed_result"){
