@@ -522,7 +522,7 @@ ISCon$set(
     geCohortSubs <- geCohortSubs[, .SD[length(unique(study_time_collected)) > 1 & 0 %in% unique(study_time_collected)], by = .(study, cohort, study_time_collected_unit)]
     compDF$IRP_implied <- rownames(compDF) %in% unique(geCohortSubs$study)
 
-    studyTimepoints <- geRespSubs[ , list(timepoints = paste(unique(study_time_collected), collapse = ",")), by = .(study)]
+    studyTimepoints <- geCohortSubs[ , list(timepoints = paste(unique(study_time_collected), collapse = ",")), by = .(study)]
     compDF$IrpTimepoints <- studyTimepoints$timepoints[ match(rownames(compDF), studyTimepoints$study) ]
 
     compDF$DE_actual <- rownames(compDF) %in% ..getModSdys("DataExplorer")
