@@ -9,7 +9,7 @@ source("set_curlOptions.R")
 suppressMessages(sdy269 <- CreateConnection("SDY269", verbose = TRUE))
 suppressMessages(sdy180 <- CreateConnection("SDY180", verbose = TRUE))
 suppressMessages(sdy28 <- CreateConnection("SDY28", verbose = TRUE))
-suppressMessages(is1 <- CreateConnection("IS1", verbose = TRUE))
+# suppressMessages(is1 <- CreateConnection("IS1", verbose = TRUE))
 
 # Helper -------------------------------------------------------
 
@@ -73,9 +73,9 @@ test_that("get hla_typing", {
  test_dataset(sdy28, "hla_typing", common_cols, specif_cols = hlaCols)
 })
 
-test_that("get hai for IS1", {
-  test_dataset(is1, "hai", common_cols, specif_cols = haiCols)
-})
+# test_that("get hai for IS1", {
+#   test_dataset(is1, "hai", common_cols, specif_cols = haiCols, original_view = T)
+# })
 
 test_that("invalid dataset name", {
   # check if it returned an empty data frame
