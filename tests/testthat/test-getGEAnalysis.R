@@ -9,7 +9,7 @@ suppressPackageStartupMessages(library(Rlabkey))
 
 # Connections --------------------------------------------------
 sdy269 <- CreateConnection("SDY269", verbose = TRUE)
-suppressMessages(sdy34 <- CreateConnection("SDY34"))
+suppressMessages(sdy87 <- CreateConnection("SDY87"))
 allsdy <- CreateConnection("")
 
 
@@ -36,7 +36,7 @@ test_that("returns df of GE analysis using cohort filter", {
 })
 
 test_that("fails gracefully if GE analysis not present", {
-  res <- try_ggea(sdy34)
+  res <- try_ggea(sdy87)
   expect_true( res$message == "Gene Expression Analysis not found for study." )
 })
 

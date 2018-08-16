@@ -13,8 +13,8 @@ suppressMessages(is1 <- CreateConnection("IS1", verbose = TRUE))
 
 # Helper -------------------------------------------------------
 
-test_dataset <- function(con, name, common_cols , specif_cols){
-  x <- con$getDataset(name, reload = TRUE)
+test_dataset <- function(con, name, common_cols , specif_cols, ...){
+  x <- con$getDataset(name, reload = TRUE, ...)
 
   # Dataset is of the right class and not empty
   expect_is(x, "data.table")
@@ -33,56 +33,86 @@ test_dataset <- function(con, name, common_cols , specif_cols){
 }
 
 # Dataset Tests ------------------------------------------------
-test_that("get_hai", {
+test_that("get hai", {
   test_dataset(sdy269, "hai", common_cols, specif_cols = haiCols)
 })
 
-test_that("get_elisa", {
+test_that("get elisa", {
   test_dataset(sdy269, "elisa", common_cols, specif_cols = elisaCols)
 })
 
-test_that("get_elispot", {
+test_that("get elispot", {
   test_dataset(sdy269, "elispot", common_cols, specif_cols = elispotCols)
 })
 
-test_that("get_pcr", {
+test_that("get pcr", {
   test_dataset(sdy269, "pcr", common_cols, specif_cols = pcrCols)
 })
 
-test_that("get_gene_expression_files", {
+test_that("get gene_expression_files", {
   test_dataset(sdy269, "gene_expression_files", common_cols, specif_cols = gefCols)
 })
 
-test_that("get_neut_ab_titer", {
+test_that("get neut_ab_titer", {
   test_dataset(sdy180, "neut_ab_titer", common_cols, specif_cols = nabCols)
 })
 
-test_that("fcs_analyzed_result", {
+test_that("get fcs_analyzed_result", {
  test_dataset(sdy269, "fcs_analyzed_result", common_cols, specif_cols = farCols)
 })
 
-test_that("get_fcs_sample_files", {
+test_that("get fcs_sample_files", {
  test_dataset(sdy180, "fcs_sample_files", common_cols, specif_cols = fcsCols)
 })
 
-test_that("get_fcs_control_files", {
+test_that("get fcs_control_files", {
  test_dataset(sdy180, "fcs_control_files", common_cols, specif_cols = fccCols)
 })
 
-test_that("get_hla_typing", {
+test_that("get hla_typing", {
  test_dataset(sdy28, "hla_typing", common_cols, specif_cols = hlaCols)
 })
 
-test_that("get_hai for IS1", {
+test_that("get hai for IS1", {
   test_dataset(is1, "hai", common_cols, specif_cols = haiCols)
 })
 
 test_that("invalid dataset name", {
-  x <- sdy269$getDataset("fakeData", reload = TRUE)
-
   # check if it returned an empty data frame
+  x <- suppressWarnings(sdy269$getDataset("fakeData", reload = TRUE))
   expect_is(x, "data.frame")
   expect_equal(nrow(x), 0)
+
+  # check warning message
+  x <- tryCatch(
+    sdy269$getDataset("fakeData", reload = TRUE),
+    warning = function(w) return(w),
+    error = function(e) return(e)
+  )
+  expect_true(grepl("not a valid dataset", x$message))
+})
+
+test_that("get HAI with auto transform", {
+  test_dataset(sdy269, "hai", common_cols, specif_cols = haiCols, transformMethod = "auto")
+})
+
+test_that("get HAI with log transform", {
+  test_dataset(sdy269, "hai", common_cols, specif_cols = haiCols, transformMethod = "log")
+})
+
+test_that("get HAI with misnamed transform", {
+  # check if it returned an full data table
+  x <- suppressWarnings(sdy269$getDataset("hai", reload = TRUE, transformMethod = "log3"))
+  expect_is(x, "data.table")
+  expect_gt(nrow(x), 0)
+
+  # check warning message
+  x <- tryCatch(
+    sdy269$getDataset("hai", reload = TRUE, transformMethod = "log3"),
+    warning = function(w) return(w),
+    error = function(e) return(e)
+  )
+  expect_true(grepl("not recognized", x$message))
 })
 
 # cleanup ------------------------------------------------------

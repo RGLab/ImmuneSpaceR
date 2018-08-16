@@ -39,7 +39,7 @@ ISCon$set(
 ISCon$set(
   which = "public",
   name = "getDataset",
-  value = function(x, original_view = FALSE, reload = FALSE, colFilter = NULL, ...) {
+  value = function(x, original_view = FALSE, reload = FALSE, colFilter = NULL, transformMethod = "none", ...) {
     if (nrow(self$availableDatasets[Name%in%x]) == 0) {
       wstring <- paste0(
         "Empty data frame was returned.",
@@ -101,6 +101,46 @@ ISCon$set(
         ...
       )
       setnames(data, private$.munge(colnames(data)))
+
+      noTrx <- c("pcr", "mbaa", "hla_typing", "kir_typing", "gene_expression_files")
+
+      if (transformMethod != "none" && !(x %in% noTrx)) {
+
+        if (x == "fcs_analyzed_result"){
+          data[, population_cell_number := as.numeric(population_cell_number)]
+        }
+
+        # colNames current as of 6/2018
+        if (!(x %in% c("elispot", "fcs_analyzed_result"))) {
+          cNm <- "value_reported"
+        } else if (x == "elispot") {
+          cNm <- "spot_number_reported"
+        } else if (x == "fcs_analyzed_result"){
+          cNm <- "population_cell_number"
+        }
+
+        if (transformMethod == "auto") {
+          # Transformation options selected by RG
+          if (x %in% c("hai", "neut_ab_titer", "elisa")) {
+            tFun <- log
+          } else if (x %in% c("elispot")) {
+            tFun <- log1p
+          } else if (x %in% c("fcs_analyzed_result")){
+            tFun <- sqrt
+          }
+
+        }else{
+          if (transformMethod %in% c("log", "log1p", "sqrt")) {
+            tFun <- get(transformMethod)
+            data[, (cNm) := lapply(.SD, function(x) tFun(x)), .SDcols=grep(cNm, colnames(data))]
+          } else {
+            warning(paste0("'transformMethod' ", transformMethod, " not recognized. Please use 'log', 'log1p', or 'sqrt'. 'transformMethod' ignored." ))
+          }
+        }
+
+      } else if (transformMethod != "none" && x %in% noTrx) {
+        message(paste0(x, " is not a dataset that can be transformed. \n 'transformMethod' ignored."))
+      }
 
       if (cache) {
         self$cache[[cache_name]] <- data
