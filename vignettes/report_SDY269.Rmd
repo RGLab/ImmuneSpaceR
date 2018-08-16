@@ -63,7 +63,7 @@ dt_elispot <- study$getDataset("elispot", reload = TRUE)
 
 ```{r data-subset}
 # Compute max fold change for HAI, and remove time zero
-dt_hai <- dt_hai[, hai_response := value_reported / value_reported[study_time_collected == 0],
+dt_hai <- dt_hai[, hai_response := value_preferred / value_preferred[study_time_collected == 0],
                  by = "virus,cohort,participant_id"][study_time_collected == 28]
 dt_hai <- dt_hai[, list(hai_response = max(hai_response)), by = "cohort,participant_id"]
 

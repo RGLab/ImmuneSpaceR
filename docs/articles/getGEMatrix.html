@@ -8,8 +8,8 @@
 <title>Handling Expression Matrices with ImmuneSpaceR • ImmuneSpaceR</title>
 <!-- jquery --><script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/yeti/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script><!-- Font Awesome icons --><link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
-<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js" integrity="sha384-cV+rhyOuRHc9Ub/91rihWcGmMmCXDeksTtCihMupQHSsi8GIIRDG0ThDc3HGQFJ3" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
-<script src="../jquery.sticky-kit.min.js"></script><script src="../pkgdown.js"></script><meta property="og:title" content="Handling Expression Matrices with ImmuneSpaceR">
+<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js" integrity="sha384-cV+rhyOuRHc9Ub/91rihWcGmMmCXDeksTtCihMupQHSsi8GIIRDG0ThDc3HGQFJ3" crossorigin="anonymous"></script><!-- sticky kit --><script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
+<script src="../pkgdown.js"></script><meta property="og:title" content="Handling Expression Matrices with ImmuneSpaceR">
 <meta property="og:description" content="">
 <meta property="og:image" content="/logo.png">
 <meta name="twitter:card" content="summary">
@@ -36,7 +36,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ImmuneSpaceR</a>
-        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">1.7.3</span>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">1.7.4</span>
       </span>
     </div>
 
@@ -116,7 +116,7 @@
       <h1>Handling Expression Matrices with ImmuneSpaceR</h1>
                         <h4 class="author">Renan Sauteraud</h4>
             
-            <h4 class="date">2018-04-28</h4>
+            <h4 class="date">2018-08-16</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/RGLab/ImmuneSpaceR/blob/master/vignettes/getGEMatrix.Rmd"><code>vignettes/getGEMatrix.Rmd</code></a></small>
       <div class="hidden name"><code>getGEMatrix.Rmd</code></div>
@@ -143,48 +143,48 @@ all &lt;-<span class="st"> </span><span class="kw"><a href="../reference/CreateC
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sdy269<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">listDatasets</a></span>()</code></pre></div>
 <pre><code>## datasets
 ##  demographics
-##  elisa
-##  gene_expression_files
+##  elispot
 ##  hai
+##  fcs_analyzed_result
 ##  cohort_membership
 ##  pcr
+##  elisa
+##  gene_expression_files
 ##  fcs_sample_files
-##  fcs_analyzed_result
-##  elispot
 ## Expression Matrices
-##  LAIV_2008
-##  TIV_2008</code></pre>
+##  TIV_2008
+##  LAIV_2008</code></pre>
 <p>Using <code>output = "expression"</code>, we can remove the datasets from the output.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">all<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">listDatasets</a></span>(<span class="dt">output =</span> <span class="st">"expression"</span>)</code></pre></div>
 <pre><code>## Expression Matrices
-##  VLplus
-##  Fluzone_group1
-##  TIV_2007
-##  SDY400_youngerAdults
-##  VLminus
+##  SDY144_TIV2011
 ##  SDY67_batch2
-##  LAIV_2008
+##  SDY400_oldAdults
 ##  SDY522_LAIVvaccine
-##  Saline_group1
-##  Fluzone_group2
+##  SDY400_youngerAdults
+##  SDY301_AIRFV_2012
+##  SDY404_young_PBMC_year2
+##  SDY404_older_PBMC_year2
+##  SDY63_young_PBMC_year1
+##  SDY63_older_PBMC_year1
 ##  SDY296_AIRFV_2011
 ##  TIV_older
-##  SDY301_AIRFV_2012
-##  SDY404_older_PBMC_year2
-##  Cohort1_young
-##  Saline_group2
-##  SDY144_TIV2011
-##  pH1N1_2009
-##  SDY63_young_PBMC_year1
-##  Pneumovax23_group1
-##  Pneumovax23_group2
-##  TIV_2010
-##  SDY404_young_PBMC_year2
+##  TIV_young
 ##  Cohort2_older
-##  SDY63_older_PBMC_year1
-##  SDY400_oldAdults
+##  Cohort1_young
+##  pH1N1_2009
+##  TIV_2010
+##  VLplus
+##  VLminus
+##  Saline_group2
+##  Saline_group1
+##  Pneumovax23_group2
+##  Pneumovax23_group1
+##  Fluzone_group2
+##  Fluzone_group1
+##  TIV_2007
 ##  TIV_2008
-##  TIV_young</code></pre>
+##  LAIV_2008</code></pre>
 <p>Naturally, <code>all</code> contains every processed matrices available on ImmuneSpace as it combines all available studies.</p>
 </div>
 <div id="download" class="section level1">
@@ -207,7 +207,7 @@ all &lt;-<span class="st"> </span><span class="kw"><a href="../reference/CreateC
 ##   element names: exprs 
 ## protocolData: none
 ## phenoData
-##   sampleNames: BS586131 BS586187 ... BS586267 (80 total)
+##   sampleNames: BS586205 BS586250 ... BS586207 (80 total)
 ##   varLabels: study_time_collected study_time_collected_unit ...
 ##     biosample_accession (5 total)
 ##   varMetadata: labelDescription
@@ -241,7 +241,7 @@ all &lt;-<span class="st"> </span><span class="kw"><a href="../reference/CreateC
 ##   element names: exprs 
 ## protocolData: none
 ## phenoData
-##   sampleNames: BS586131 BS586187 ... BS586267 (80 total)
+##   sampleNames: BS586205 BS586250 ... BS586207 (80 total)
 ##   varLabels: study_time_collected study_time_collected_unit ...
 ##     biosample_accession (5 total)
 ##   varMetadata: labelDescription
@@ -299,56 +299,61 @@ TIV_seasons &lt;-<span class="st"> </span>all<span class="op">$</span><span clas
 <h1 class="hasAnchor">
 <a href="#session-info" class="anchor"></a>Session info</h1>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">sessionInfo</span>()</code></pre></div>
-<pre><code>## R version 3.5.0 (2018-04-23)
-## Platform: x86_64-apple-darwin17.5.0 (64-bit)
-## Running under: macOS High Sierra 10.13.4
+<pre><code>## R version 3.5.1 (2018-07-02)
+## Platform: x86_64-pc-linux-gnu (64-bit)
+## Running under: Ubuntu 16.04.1 LTS
 ## 
 ## Matrix products: default
-## BLAS: /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib
-## LAPACK: /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libLAPACK.dylib
+## BLAS: /usr/lib/libblas/libblas.so.3.6.0
+## LAPACK: /usr/lib/lapack/liblapack.so.3.6.0
 ## 
 ## locale:
-## [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+##  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+##  [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+##  [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+##  [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+##  [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+## [11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
 ## 
 ## attached base packages:
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-## [1] ImmuneSpaceR_1.7.3 knitr_1.20        
+## [1] ImmuneSpaceR_1.7.4 knitr_1.20        
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] Biobase_2.39.2        viridis_0.5.1         httr_1.3.1           
-##  [4] tidyr_0.8.0           foreach_1.4.4         jsonlite_1.5         
-##  [7] viridisLite_0.3.0     gtools_3.5.0          assertthat_0.2.0     
-## [10] stats4_3.5.0          yaml_2.1.18           robustbase_0.93-0    
-## [13] pillar_1.2.1          backports_1.1.2       lattice_0.20-35      
-## [16] glue_1.2.0            digest_0.6.15         RColorBrewer_1.1-2   
-## [19] colorspace_1.3-2      preprocessCore_1.41.0 htmltools_0.3.6      
-## [22] plyr_1.8.4            pkgconfig_2.0.1       pheatmap_1.0.8       
-## [25] purrr_0.2.4           mvtnorm_1.0-7         scales_0.5.0         
-## [28] webshot_0.5.0         gdata_2.18.0          whisker_0.3-2        
-## [31] tibble_1.4.2          ggplot2_2.2.1         nnet_7.3-12          
-## [34] BiocGenerics_0.25.3   lazyeval_0.2.1        magrittr_1.5         
-## [37] crayon_1.3.4          mclust_5.4            memoise_1.1.0        
-## [40] heatmaply_0.14.1      evaluate_0.10.1       fs_1.2.2             
-## [43] MASS_7.3-49           gplots_3.0.1          xml2_1.2.0           
-## [46] class_7.3-14          registry_0.5          tools_3.5.0          
-## [49] data.table_1.10.4-3   Rlabkey_2.2.1         trimcluster_0.1-2    
-## [52] stringr_1.3.0         plotly_4.7.1          kernlab_0.9-25       
-## [55] munsell_0.4.3         cluster_2.0.7-1       fpc_2.1-11           
-## [58] bindrcpp_0.2.2        compiler_3.5.0        pkgdown_1.0.0        
-## [61] caTools_1.17.1        rlang_0.2.0           grid_3.5.0           
-## [64] iterators_1.0.9       rstudioapi_0.7        rjson_0.2.15         
-## [67] htmlwidgets_1.2       bitops_1.0-6          rmarkdown_1.9        
-## [70] codetools_0.2-15      gtable_0.2.0          curl_3.2             
-## [73] flexmix_2.3-14        roxygen2_6.0.1        reshape2_1.4.3       
-## [76] TSP_1.1-5             R6_2.2.2              seriation_1.2-3      
-## [79] gridExtra_2.3         prabclus_2.2-6        dplyr_0.7.4          
-## [82] bindr_0.1.1           commonmark_1.4        rprojroot_1.3-2      
-## [85] KernSmooth_2.23-15    dendextend_1.7.0      desc_1.1.1           
-## [88] modeltools_0.2-21     stringi_1.1.7         parallel_3.5.0       
-## [91] Rcpp_0.12.16          gclus_1.3.1           DEoptimR_1.0-8       
-## [94] diptest_0.75-7</code></pre>
+##  [1] viridis_0.5.1         Biobase_2.40.0        httr_1.3.1           
+##  [4] tidyr_0.8.1           foreach_1.4.4         viridisLite_0.3.0    
+##  [7] jsonlite_1.5          gtools_3.8.1          assertthat_0.2.0     
+## [10] stats4_3.5.1          yaml_2.1.19           robustbase_0.93-1.1  
+## [13] pillar_1.3.0          backports_1.1.2       lattice_0.20-35      
+## [16] glue_1.3.0            digest_0.6.15         RColorBrewer_1.1-2   
+## [19] colorspace_1.3-2      preprocessCore_1.42.0 htmltools_0.3.6      
+## [22] plyr_1.8.4            pkgconfig_2.0.1       pheatmap_1.0.10      
+## [25] purrr_0.2.5           mvtnorm_1.0-8         webshot_0.5.0        
+## [28] scales_0.5.0          gdata_2.18.0          whisker_0.3-2        
+## [31] tibble_1.4.2          ggplot2_3.0.0         nnet_7.3-12          
+## [34] BiocGenerics_0.26.0   lazyeval_0.2.1        magrittr_1.5         
+## [37] crayon_1.3.4          mclust_5.4.1          memoise_1.1.0        
+## [40] heatmaply_0.15.2      evaluate_0.11         fs_1.2.5             
+## [43] MASS_7.3-50           gplots_3.0.1          xml2_1.2.0           
+## [46] class_7.3-14          registry_0.5          tools_3.5.1          
+## [49] data.table_1.11.4     Rlabkey_2.2.2         trimcluster_0.1-2.1  
+## [52] stringr_1.3.1         plotly_4.8.0          kernlab_0.9-26       
+## [55] munsell_0.5.0         cluster_2.0.7-1       fpc_2.1-11.1         
+## [58] bindrcpp_0.2.2        compiler_3.5.1        pkgdown_1.1.0        
+## [61] caTools_1.17.1.1      rlang_0.2.1           grid_3.5.1           
+## [64] iterators_1.0.10      rstudioapi_0.7        rjson_0.2.20         
+## [67] htmlwidgets_1.2       bitops_1.0-6          rmarkdown_1.10       
+## [70] codetools_0.2-15      gtable_0.2.0          flexmix_2.3-14       
+## [73] roxygen2_6.0.1        curl_3.2              reshape2_1.4.3       
+## [76] TSP_1.1-6             R6_2.2.2              seriation_1.2-3      
+## [79] gridExtra_2.3         prabclus_2.2-6        dplyr_0.7.6          
+## [82] bindr_0.1.1           commonmark_1.5        rprojroot_1.3-2      
+## [85] KernSmooth_2.23-15    dendextend_1.8.0      desc_1.2.0           
+## [88] modeltools_0.2-22     stringi_1.2.4         parallel_3.5.1       
+## [91] Rcpp_0.12.18          gclus_1.3.1           DEoptimR_1.0-8       
+## [94] tidyselect_0.2.4      diptest_0.75-7</code></pre>
 </div>
   </div>
 
