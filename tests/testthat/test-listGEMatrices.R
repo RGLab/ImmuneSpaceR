@@ -9,8 +9,8 @@ source("set_curlOptions.R")
 # Variables --------------------------------------------------
 em_list <- list()
 em_list[["SDY269"]] <- c("LAIV_2008", "TIV_2008")
-em_list[["SDY404"]] <- c("SDY404_young_PBMC_year2",
-                         "SDY404_older_PBMC_year2")
+em_list[["SDY404"]] <- c("SDY404_PBMC_Young",
+                         "SDY404_PBMC_Older")
 
 
 # Helper Functions ---------------------------------------------

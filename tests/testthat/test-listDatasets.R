@@ -8,7 +8,7 @@ source("set_curlOptions.R")
 
 # Connections --------------------------------------------------
 sdy269 <- CreateConnection("SDY269", verbose = TRUE)
-sdy34 <- suppressMessages(CreateConnection("SDY34", verbose = TRUE))
+sdy87 <- suppressMessages(CreateConnection("SDY87", verbose = TRUE))
 
 
 # Helper Functions ---------------------------------------------
@@ -43,7 +43,7 @@ test_that("argument of EM returns only EM", {
 })
 
 test_that("argument of EM returns error when no EM present", {
-  res <- try_ld(sdy34, output = "expression")
+  res <- try_ld(sdy87, output = "expression")
   expect_true( res == "No Expression Matrices Available")
 })
 
