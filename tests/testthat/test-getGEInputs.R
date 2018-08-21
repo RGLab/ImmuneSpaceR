@@ -8,7 +8,7 @@ source("set_curlOptions.R")
 
 # Connections --------------------------------------------------
 sdy269 <- CreateConnection("SDY269", verbose = TRUE)
-sdy34 <- suppressMessages(CreateConnection("SDY34", verbose = TRUE))
+sdy87 <- suppressMessages(CreateConnection("SDY87", verbose = TRUE))
 
 # Helper Functions ---------------------------------------------
 try_gei <- function(con){
@@ -26,7 +26,7 @@ test_that("returns GE inputs df if study has inputs", {
 })
 
 test_that("returns error if study does not have inputs", {
-  res <- try_gei(sdy34)
+  res <- try_gei(sdy87)
   expect_true( res$message == "Gene Expression Inputs not found for study.")
 })
 
