@@ -673,6 +673,13 @@ ISCon$set(
       features <- self$cache[[paste0("featureset_", annoSetId)]][, c("FeatureId","gene_symbol")]
 
       colnames(matrix)[[which(colnames(matrix) %in% c(" ", "V1", "X", "feature_id")) ]] <- "FeatureId"
+
+      # Only known case is SDY300 for "2-Mar" and "1-Mar" which are
+      # likely not actual probe_ids but mistransformed strings
+      if (any(duplicated(matrix$FeatureId))) {
+        matrix <- matrix[ !duplicated(matrix$FeatureId), ]
+      }
+
       fdata <- data.frame(
         FeatureId = as.character(matrix$FeatureId),
         stringsAsFactors = FALSE
