@@ -94,6 +94,13 @@ ISCon$set(
     if (!is.null(cohort_name)) {
       if (all(cohort_name %in% self$cache$GE_matrices$cohort)) {
         matrixName <- self$cache$GE_matrices[cohort %in% cohort_name, name]
+        # SDY67 is special case. "Batch2" matrix is only day 0 and has overlapping
+        # biosamples with full matrix "SDY67_HealthyAdults".  This causes
+        # .combineExpressionSets() to error out.  Therefore, selecting to use only
+        # full matrix for cohort.
+        if (grepl("SDY67", matrixName[[1]])) {
+          matrixName <- matrixName[ grep("Batch2", matrixName, invert = T) ]
+        }
       } else {
         validCohorts <- self$cache$GE_matrices[, cohort]
         stop(paste("No expression matrix for the given cohort.",
