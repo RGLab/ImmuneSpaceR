@@ -92,3 +92,51 @@ get_env_url <- function() {
          "https://www.immunespace.org",
          paste0("https://", Sys.getenv("ISR_machine")))
 }
+
+# get the path to where a netrc file should be
+.get_path <- function() {
+  os <- .Platform[[1]]
+  home <- Sys.getenv("HOME")
+  netrc <- ifelse (os == "unix", ".netrc", "_netrc")
+  filepath <- paste0(home, "/", netrc)
+  return(filepath)
+}
+
+# check that user can connect to IS with netrc file
+.check_con <- function(netrc_path) {
+  # try to connect to IS -- if no connection return NA
+  message("Checking netrc...")
+  con <- tryCatch(CreateConnection(""),
+                  error = function(e){return(NULL)})
+  if(is.null(con)){
+    message("Cannot connect to ImmuneSpace with current netrc information -- check login and password for errors")
+  } else {message("Ability to connect to ImmuneSpace confirmed")}
+}
+
+#' Interactively write a netrc file
+#'
+#' Write a netrc file that is valid for accessing ImmuneSpace
+#'
+#' @export
+#' @return A netrc file that is verified to connect to ImmuneSpace
+
+interactive_netrc <- function() {
+  # generate netrc path
+  filepath <- .get_path()
+  # check if netrc exists
+  if(file.exists(filepath)) {
+    message("A netrc file already exists!")
+    message("***Printing existing file to console***")
+    cat(readChar(filepath, nchars = 10000))
+    cat("\n\n")
+    overwrite <- menu(c("yes", "no"), title = cat("Overwrite existing netrc?"))
+  }
+  if(overwrite != 2) {
+    login <- readline("What is your ImmuneSpace login email?  ")
+    password <- readline("What is your ImmuneSpace password   ")
+    cat("machine www.immunespace.org\nlogin ", login, "\npassword ", password, "\n", file = filepath)
+  }
+
+  # check connection to IS
+  .check_con(filepath)
+}
