@@ -9,14 +9,14 @@ NULL
 ISCon$set(
   which = "public",
   name = "listGEMatrices",
-  value = function(verbose = FALSE) {
+  value = function(verbose = FALSE, reload = FALSE) {
     ## HELPERS
     ..getData <- function() {
       try(
         .getLKtbl(
           con = self,
           schema = "assay.ExpressionMatrix.matrix",
-          query = "Runs",
+          query = "SelectedRuns",
           colNameOpt = "fieldname",
           viewName = "expression_matrices"
         ),
@@ -26,9 +26,7 @@ ISCon$set(
 
 
     ## MAIN
-    if (!is.null(self$cache[[private$.constants$matrices]])) {
-      self$cache[[private$.constants$matrices]]
-    } else {
+    if (is.null(self$cache[[private$.constants$matrices]]) | reload) {
       if (verbose) {
         ge <- ..getData()
       } else {
@@ -37,18 +35,17 @@ ISCon$set(
 
       if (inherits(ge, "try-error") || nrow(ge) == 0) {
         # No assay or no runs
-        message("No gene expression data")
+        message("No gene expression data...")
         self$cache[[private$.constants$matrices]] <- NULL
       } else {
         # adding cols to allow for getGEMatrix() to update
-        ge[, annotation := ""]
-        ge[, outputType := ""]
+        ge[, annotation := ""][, outputType := ""][] # see data.table #869
         setnames(ge, private$.munge(colnames(ge)))
         self$cache[[private$.constants$matrices]] <- ge
       }
     }
 
-    return(self$cache[[private$.constants$matrices]])
+    self$cache[[private$.constants$matrices]]
   }
 )
 
@@ -97,6 +94,13 @@ ISCon$set(
     if (!is.null(cohort_name)) {
       if (all(cohort_name %in% self$cache$GE_matrices$cohort)) {
         matrixName <- self$cache$GE_matrices[cohort %in% cohort_name, name]
+        # SDY67 is special case. "Batch2" matrix is only day 0 and has overlapping
+        # biosamples with full matrix "SDY67_HealthyAdults".  This causes
+        # .combineExpressionSets() to error out.  Therefore, selecting to use only
+        # full matrix for cohort.
+        if (grepl("SDY67", matrixName[[1]])) {
+          matrixName <- matrixName[ grep("Batch2", matrixName, invert = T) ]
+        }
       } else {
         validCohorts <- self$cache$GE_matrices[, cohort]
         stop(paste("No expression matrix for the given cohort.",
@@ -124,7 +128,11 @@ ISCon$set(
       }
 
       if (verbose == TRUE) {
-        print(Biobase::experimentData(ret))
+        info <- Biobase::experimentData(ret)
+        message("\nNotes:")
+        dmp <- lapply(names(info@other), function(nm){
+          message(paste0(nm, ": ", info@other[[nm]]))
+        })
       }
 
       return(ret)
@@ -397,6 +405,16 @@ ISCon$set(
       return()
     }
 
+    # No current way to get which studies are RNAseq from gef tbl
+    # therefore curate here and in HIPCMatrix/pipeline/tasks/create-matrix.R.
+    # Important for users is to know there are no real probe ids.
+    isRNAseq <- c("SDY67", "SDY224")
+    sdy <- tolower(gsub("/Studies/", "", self$config$labkey.url.path))
+    if (sdy %in% isRNAseq) {
+      message("Study's gene expression is from RNAseq, therefore probeIDs may be either gene symbols or non-descriptive numbers.")
+    }
+
+
     if (annotation == "ImmSig") {
       fileSuffix <- ".immsig"
     } else {
@@ -415,6 +433,21 @@ ISCon$set(
       }
     }
 
+    # For HIPC studies, the matrix Import script generates subdirectories
+    # based on the original runs table in /Studies/ with the format "Run123"
+    # with the suffix being the RowId from the runs table.
+    mxName <- paste0(matrixName, ".tsv", fileSuffix)
+    if (grepl("HIPC", self$config$labkey.url.path)) {
+      runs <- labkey.selectRows(baseUrl = self$config$labkey.url.base,
+                                folderPath = "/Studies/",
+                                schemaName = "assay.ExpressionMatrix.matrix",
+                                queryName = "runs",
+                                colNameOpt = "fieldname",
+                                showHidden = TRUE)
+      runId <- runs$RowId[ runs$Name == matrixName]
+      mxName <- paste0("Run", runId, "/", mxName)
+    }
+
     if (self$config$labkey.url.path == "/Studies/") {
       path <- paste0("/Studies/", self$cache$GE_matrices[name == matrixName, folder], "/")
     } else {
@@ -430,7 +463,7 @@ ISCon$set(
         "_webdav",
         path,
         "@files/analysis/exprs_matrices",
-        paste0(matrixName, ".tsv", fileSuffix)
+        mxName
       )
     )
 
@@ -441,6 +474,7 @@ ISCon$set(
         localpath,
         header = TRUE,
         sep = "\t",
+        quote = "\"",
         stringsAsFactors = FALSE
       )
     } else {
@@ -452,10 +486,13 @@ ISCon$set(
       GET(url = link, config = opts, write_disk(fl))
 
       # fread does not read correctly
+      # SDY1289 has gene symbols in original version with single quote, therefore need
+      # to change 'quote' so that only looks for double-quote
       EM <- read.table(
         fl,
         header = TRUE,
         sep = "\t",
+        quote = "\"",
         stringsAsFactors = FALSE
       )
 
@@ -493,6 +530,7 @@ ISCon$set(
       return()
     }
 
+    # ---- queries ------
     runs <- labkey.selectRows(
       baseUrl = self$config$labkey.url.base,
       folderPath = self$config$labkey.url.path,
@@ -501,53 +539,35 @@ ISCon$set(
       showHidden = TRUE
     )
 
-    getOrigFasId <- function(config, matrixName) {
-      # Get annoSet based on name of FeatureAnnotationSet + "_orig" tag
-      faSets <- labkey.selectRows(
-        baseUrl = config$labkey.url.base,
-        folderPath = config$labkey.url.path,
-        schemaName = "Microarray",
-        queryName = "FeatureAnnotationSet",
-        showHidden = TRUE
-      )
+    faSets <- labkey.selectRows(
+      baseUrl = self$config$labkey.url.base,
+      folderPath = self$config$labkey.url.path,
+      schemaName = "Microarray",
+      queryName = "FeatureAnnotationSet",
+      showHidden = TRUE
+    )
 
-      fasId <- runs$`Feature Annotation Set`[runs$Name == matrixName]
-      fasNm <- faSets$Name[faSets$`Row Id` == fasId]
+    fasMap <- labkey.selectRows(
+      baseUrl = self$config$labkey.url.base,
+      folderPath = self$config$labkey.url.path,
+      schemaName = "Microarray",
+      queryName = "FasMap",
+      showHidden = TRUE
+    )
 
-      # '_orig' annotation is the feature annotation copy generated by
-      # updateAnno when run on the server.  In the case of SDY67, the copy is
-      # not generated because it is has 'ImmSig'.  Therefore, no change to the
-      # fasNm is needed.
-      if (annotation == "default" & !grepl("_orig|ImmSig", fasNm)) {
-        fasNm <- paste0(fasNm, "_orig")
+    #--------------------
 
-        # This situation occurred with SDY400 where annotation was added after original
-        # was generated.
-      } else if (annotation == "latest" & grepl("_orig", fasNm, fixed = TRUE)) {
-        # This situation occurred with SDY400 where annotation was added after
-        # original was generated.
-        fasNm <- gsub("_orig", "", fasNm, fixed = TRUE)
-      }
-      annoSetId <- faSets$`Row Id`[faSets$Name == fasNm]
-    }
-
-    # ImmuneSignatures data needs mapping from when microarray was read, not
-    # 'original' when IS matrices were created.
+    # Map to correct annotation regardless of name of FAS at time of creation.
+    # This is important because for legacy matrices, FAS name may not have '_orig'
+    # even though it is the original annotation.
     if (annotation == "ImmSig") {
-      faSets <- labkey.selectRows(
-        baseUrl = self$config$labkey.url.base,
-        folderPath = self$config$labkey.url.path,
-        schemaName = "Microarray",
-        queryName = "FeatureAnnotationSet",
-        showHidden = TRUE
-      )
-
       sdy <- tolower(gsub("/Studies/", "", self$config$labkey.url.path))
       annoSetId <- faSets$`Row Id`[faSets$Name == paste0("ImmSig_", sdy)]
-    } else if (annotation == "default") {
-      annoSetId <- getOrigFasId(self$config, matrixName)
-    } else if (annotation == "latest") {
-      annoSetId <- runs$`Feature Annotation Set`[ runs$Name == matrixName]
+    } else {
+      fasIdAtCreation <- runs$`Feature Annotation Set`[ runs$Name == matrixName ]
+      idCol <- ifelse( annotation == "default", "Orig Id", "Curr Id")
+      annoAlias <- gsub("_orig", "", faSets$Name[ faSets$`Row Id` == fasIdAtCreation ])
+      annoSetId <- fasMap[ fasMap$Name == annoAlias, idCol ]
     }
 
     if (outputType != "summary") {
@@ -660,6 +680,13 @@ ISCon$set(
       features <- self$cache[[paste0("featureset_", annoSetId)]][, c("FeatureId","gene_symbol")]
 
       colnames(matrix)[[which(colnames(matrix) %in% c(" ", "V1", "X", "feature_id")) ]] <- "FeatureId"
+
+      # Only known case is SDY300 for "2-Mar" and "1-Mar" which are
+      # likely not actual probe_ids but mistransformed strings
+      if (any(duplicated(matrix$FeatureId))) {
+        matrix <- matrix[ !duplicated(matrix$FeatureId), ]
+      }
+
       fdata <- data.frame(
         FeatureId = as.character(matrix$FeatureId),
         stringsAsFactors = FALSE
@@ -675,7 +702,7 @@ ISCon$set(
 
     # SDY212 has dbl biosample that is removed for ImmSig, but needs to be
     # present for normalization, so needs to be included in eSet!
-    if (runID == 469) {
+    if ("BS694717" %in% pheno$biosample_accession) {
       pheno["BS694717.1", ] <- pheno[pheno$biosample_accession == "BS694717", ]
       pheno$biosample_accession[rownames(pheno) == "BS694717.1"] <- "BS694717.1"
     }

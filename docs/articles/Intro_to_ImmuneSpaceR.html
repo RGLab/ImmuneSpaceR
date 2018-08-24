@@ -8,8 +8,8 @@
 <title>An Introduction to the ImmuneSpaceR Package • ImmuneSpaceR</title>
 <!-- jquery --><script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/yeti/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script><!-- Font Awesome icons --><link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
-<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js" integrity="sha384-cV+rhyOuRHc9Ub/91rihWcGmMmCXDeksTtCihMupQHSsi8GIIRDG0ThDc3HGQFJ3" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
-<script src="../jquery.sticky-kit.min.js"></script><script src="../pkgdown.js"></script><meta property="og:title" content="An Introduction to the ImmuneSpaceR Package">
+<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js" integrity="sha384-cV+rhyOuRHc9Ub/91rihWcGmMmCXDeksTtCihMupQHSsi8GIIRDG0ThDc3HGQFJ3" crossorigin="anonymous"></script><!-- sticky kit --><script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
+<script src="../pkgdown.js"></script><meta property="og:title" content="An Introduction to the ImmuneSpaceR Package">
 <meta property="og:description" content="">
 <meta property="og:image" content="/logo.png">
 <meta name="twitter:card" content="summary">
@@ -36,7 +36,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ImmuneSpaceR</a>
-        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">1.7.3</span>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">1.7.4</span>
       </span>
     </div>
 
@@ -115,7 +115,7 @@
     <div class="page-header toc-ignore">
       <h1>An Introduction to the ImmuneSpaceR Package</h1>
             
-            <h4 class="date">2018-04-28</h4>
+            <h4 class="date">2018-08-16</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/RGLab/ImmuneSpaceR/blob/master/vignettes/Intro_to_ImmuneSpaceR.Rmd"><code>vignettes/Intro_to_ImmuneSpaceR.Rmd</code></a></small>
       <div class="hidden name"><code>Intro_to_ImmuneSpaceR.Rmd</code></div>
@@ -149,19 +149,17 @@ sdy269</code></pre></div>
 ##   Study: SDY269
 ##   URL: https://www.immunespace.org/Studies/SDY269
 ##   User: unknown_user at not_a_domain.com
-##   Available Datasets:
+##   9 Available Datasets
 ##     - demographics
-##     - elisa
-##     - gene_expression_files
+##     - elispot
 ##     - hai
+##     - fcs_analyzed_result
 ##     - cohort_membership
 ##     - pcr
+##     - elisa
+##     - gene_expression_files
 ##     - fcs_sample_files
-##     - fcs_analyzed_result
-##     - elispot
-##   Available Expression Matrices:
-##     - LAIV_2008
-##     - TIV_2008</code></pre>
+##   2 Available Expression Matrices</code></pre>
 <p>The call to <code>CreateConnection</code> instantiates the connection. Printing the object shows where it’s connected, to what study, and the available data sets and gene expression matrices.</p>
 <p>Note that when a script is running on ImmuneSpace, some variables set in the global environments will automatically indicate which study should be used and the <code>study</code> argument can be skipped.</p>
 </div>
@@ -171,41 +169,41 @@ sdy269</code></pre></div>
 <p>We can grab any of the datasets listed in the connection.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sdy269<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getDataset</a></span>(<span class="st">"hai"</span>)</code></pre></div>
 <pre><code>##      participant_id age_reported gender                      race
-##   1:  SUB112831.269           40   Male Black or African American
-##   2:  SUB112858.269           28   Male                     Asian
-##   3:  SUB112873.269           25   Male                     White
-##   4:  SUB112881.269           29 Female Black or African American
-##   5:  SUB112851.269           42 Female                     Asian
+##   1:  SUB112868.269           37   Male                     White
+##   2:  SUB112869.269           41   Male                     White
+##   3:  SUB112841.269           28 Female                     White
+##   4:  SUB112836.269           28 Female                     White
+##   5:  SUB112844.269           29 Female                     White
 ##  ---                                                             
-## 332:  SUB112880.269           26 Female                     White
-## 333:  SUB112859.269           32   Male                     White
-## 334:  SUB112870.269           33   Male                     White
-## 335:  SUB112877.269           27   Male                     White
-## 336:  SUB112879.269           35 Female                     White
+## 332:  SUB112847.269           24   Male                     White
+## 333:  SUB112877.269           27   Male                     White
+## 334:  SUB112860.269           32 Female                     White
+## 335:  SUB112879.269           35 Female                     White
+## 336:  SUB112871.269           46 Female Black or African American
 ##               cohort study_time_collected study_time_collected_unit
-##   1: LAIV group 2008                    0                      Days
-##   2: LAIV group 2008                    0                      Days
-##   3: LAIV group 2008                    0                      Days
-##   4: LAIV group 2008                    0                      Days
-##   5:  TIV Group 2008                   28                      Days
+##   1: LAIV group 2008                   28                      Days
+##   2: LAIV group 2008                   28                      Days
+##   3:  TIV Group 2008                    0                      Days
+##   4: LAIV group 2008                   28                      Days
+##   5: LAIV group 2008                   28                      Days
 ##  ---                                                               
-## 332: LAIV group 2008                    0                      Days
-## 333: LAIV group 2008                   28                      Days
-## 334: LAIV group 2008                   28                      Days
+## 332:  TIV Group 2008                    0                      Days
+## 333:  TIV Group 2008                    0                      Days
+## 334: LAIV group 2008                    0                      Days
 ## 335:  TIV Group 2008                    0                      Days
-## 336:  TIV Group 2008                    0                      Days
-##                   virus value_reported
-##   1:   B/Florida/4/2006              5
-##   2:   B/Florida/4/2006              5
-##   3:   B/Florida/4/2006              5
-##   4:   B/Florida/4/2006              5
-##   5: A/Brisbane/59/2007              5
-##  ---                                  
-## 332: A/Uruguay/716/2007              5
-## 333:   B/Florida/4/2006              5
-## 334:   B/Florida/4/2006              5
-## 335: B/Brisbane/03/2007              5
-## 336: B/Brisbane/03/2007              5</code></pre>
+## 336:  TIV Group 2008                   28                      Days
+##                       virus value_preferred
+##   1:     A/Uruguay/716/2007               5
+##   2:       B/Florida/4/2006               5
+##   3:     A/Uruguay/716/2007               5
+##   4: A/South Dakota/06/2007               5
+##   5:     A/Uruguay/716/2007              20
+##  ---                                       
+## 332:     B/Brisbane/03/2007             320
+## 333:     A/Brisbane/59/2007               5
+## 334:     A/Uruguay/716/2007              20
+## 335:     B/Brisbane/03/2007               5
+## 336:     B/Brisbane/03/2007               5</code></pre>
 <p>The <em>sdy269</em> object is an <strong>R6</strong> class, so it behaves like a true object. Methods (like <code>getDataset</code>) are members of the object, thus the <code>$</code> semantics to access member functions.</p>
 <p>The first time you retrieve a data set, it will contact the database. The data is cached locally, so the next time you call <code>getDataset</code> on the same dataset, it will retrieve the cached local copy. This is much faster.</p>
 <p>To get only a subset of the data and speed up the download, filters can be passed to <code>getDataset</code>. The filters are created using the <code>makeFilter</code> function of the <code>Rlabkey</code> package.</p>
@@ -227,7 +225,7 @@ hai &lt;-<span class="st"> </span>sdy269<span class="op">$</span><span class="kw
 ##   element names: exprs 
 ## protocolData: none
 ## phenoData
-##   sampleNames: BS586216 BS586160 ... BS586111 (83 total)
+##   sampleNames: BS586175 BS586212 ... BS586178 (83 total)
 ##   varLabels: study_time_collected study_time_collected_unit ...
 ##     biosample_accession (5 total)
 ##   varMetadata: labelDescription
@@ -251,7 +249,7 @@ hai &lt;-<span class="st"> </span>sdy269<span class="op">$</span><span class="kw
 ##   element names: exprs 
 ## protocolData: none
 ## phenoData
-##   sampleNames: BS586131 BS586187 ... BS586111 (163 total)
+##   sampleNames: BS586205 BS586250 ... BS586178 (163 total)
 ##   varLabels: study_time_collected study_time_collected_unit ...
 ##     biosample_accession (5 total)
 ##   varMetadata: labelDescription
@@ -288,49 +286,21 @@ hai &lt;-<span class="st"> </span>sdy269<span class="op">$</span><span class="kw
 ##   Study: Studies
 ##   URL: https://www.immunespace.org/Studies/
 ##   User: unknown_user at not_a_domain.com
-##   Available Datasets:
-##     - hai
+##   13 Available Datasets
 ##     - fcs_analyzed_result
-##     - elispot
-##     - mbaa
-##     - pcr
-##     - hla_typing
-##     - elisa
-##     - fcs_sample_files
-##     - gene_expression_files
-##     - cohort_membership
-##     - fcs_control_files
-##     - demographics
 ##     - neut_ab_titer
-##   Available Expression Matrices:
-##     - VLplus
-##     - Fluzone_group1
-##     - TIV_2007
-##     - SDY400_youngerAdults
-##     - VLminus
-##     - SDY67_batch2
-##     - LAIV_2008
-##     - SDY522_LAIVvaccine
-##     - Saline_group1
-##     - Fluzone_group2
-##     - SDY296_AIRFV_2011
-##     - TIV_older
-##     - SDY301_AIRFV_2012
-##     - SDY404_older_PBMC_year2
-##     - Cohort1_young
-##     - Saline_group2
-##     - SDY144_TIV2011
-##     - pH1N1_2009
-##     - SDY63_young_PBMC_year1
-##     - Pneumovax23_group1
-##     - Pneumovax23_group2
-##     - TIV_2010
-##     - SDY404_young_PBMC_year2
-##     - Cohort2_older
-##     - SDY63_older_PBMC_year1
-##     - SDY400_oldAdults
-##     - TIV_2008
-##     - TIV_young</code></pre>
+##     - fcs_sample_files
+##     - fcs_control_files
+##     - elisa
+##     - pcr
+##     - cohort_membership
+##     - hai
+##     - demographics
+##     - elispot
+##     - hla_typing
+##     - gene_expression_files
+##     - mbaa
+##   28 Available Expression Matrices</code></pre>
 <p>In cross-study connections, <code>getDataset</code> and <code>getGEMatrix</code> will combine the requested datasets or expression matrices. See the dedicated vignettes for more information.</p>
 <p>Likewise, <code>plot</code> will visualize accross studies. Note that in most cases the datasets will have too many cohorts/subjects, making the filtering of the data a necessity. The <code>colFilter</code> argument can be used here, as described in the <code>getDataset</code> section.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">plotFilter &lt;-<span class="st"> </span><span class="kw"><a href="http://www.rdocumentation.org/packages/Rlabkey/topics/makeFilter">makeFilter</a></span>(<span class="kw">c</span>(<span class="st">"cohort"</span>, <span class="st">"IN"</span>, <span class="st">"TIV 2010;TIV Group 2008"</span>))
@@ -342,56 +312,61 @@ con<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceCo
 <h1 class="hasAnchor">
 <a href="#session-info" class="anchor"></a>Session info</h1>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">sessionInfo</span>()</code></pre></div>
-<pre><code>## R version 3.5.0 (2018-04-23)
-## Platform: x86_64-apple-darwin17.5.0 (64-bit)
-## Running under: macOS High Sierra 10.13.4
+<pre><code>## R version 3.5.1 (2018-07-02)
+## Platform: x86_64-pc-linux-gnu (64-bit)
+## Running under: Ubuntu 16.04.1 LTS
 ## 
 ## Matrix products: default
-## BLAS: /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib
-## LAPACK: /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libLAPACK.dylib
+## BLAS: /usr/lib/libblas/libblas.so.3.6.0
+## LAPACK: /usr/lib/lapack/liblapack.so.3.6.0
 ## 
 ## locale:
-## [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+##  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+##  [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+##  [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+##  [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+##  [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+## [11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
 ## 
 ## attached base packages:
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-## [1] Rlabkey_2.2.1      rjson_0.2.15       httr_1.3.1        
-## [4] ImmuneSpaceR_1.7.3 rmarkdown_1.9      knitr_1.20        
+## [1] Rlabkey_2.2.2      jsonlite_1.5       httr_1.3.1        
+## [4] ImmuneSpaceR_1.7.4 rmarkdown_1.10     knitr_1.20        
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] Biobase_2.39.2        viridis_0.5.1         tidyr_0.8.0          
-##  [4] foreach_1.4.4         jsonlite_1.5          viridisLite_0.3.0    
-##  [7] gtools_3.5.0          assertthat_0.2.0      stats4_3.5.0         
-## [10] yaml_2.1.18           robustbase_0.93-0     pillar_1.2.1         
-## [13] backports_1.1.2       lattice_0.20-35       glue_1.2.0           
-## [16] digest_0.6.15         RColorBrewer_1.1-2    colorspace_1.3-2     
-## [19] preprocessCore_1.41.0 htmltools_0.3.6       plyr_1.8.4           
-## [22] pkgconfig_2.0.1       pheatmap_1.0.8        purrr_0.2.4          
-## [25] mvtnorm_1.0-7         scales_0.5.0          webshot_0.5.0        
-## [28] gdata_2.18.0          whisker_0.3-2         tibble_1.4.2         
-## [31] ggplot2_2.2.1         nnet_7.3-12           BiocGenerics_0.25.3  
-## [34] lazyeval_0.2.1        magrittr_1.5          crayon_1.3.4         
-## [37] mclust_5.4            memoise_1.1.0         heatmaply_0.14.1     
-## [40] evaluate_0.10.1       fs_1.2.2              MASS_7.3-49          
-## [43] gplots_3.0.1          xml2_1.2.0            class_7.3-14         
-## [46] registry_0.5          tools_3.5.0           data.table_1.10.4-3  
-## [49] trimcluster_0.1-2     stringr_1.3.0         plotly_4.7.1         
-## [52] kernlab_0.9-25        munsell_0.4.3         cluster_2.0.7-1      
-## [55] fpc_2.1-11            bindrcpp_0.2.2        compiler_3.5.0       
-## [58] pkgdown_1.0.0         caTools_1.17.1        rlang_0.2.0          
-## [61] grid_3.5.0            iterators_1.0.9       rstudioapi_0.7       
+##  [1] viridis_0.5.1         Biobase_2.40.0        tidyr_0.8.1          
+##  [4] foreach_1.4.4         viridisLite_0.3.0     gtools_3.8.1         
+##  [7] assertthat_0.2.0      stats4_3.5.1          yaml_2.1.19          
+## [10] robustbase_0.93-1.1   pillar_1.3.0          backports_1.1.2      
+## [13] lattice_0.20-35       glue_1.3.0            digest_0.6.15        
+## [16] RColorBrewer_1.1-2    colorspace_1.3-2      preprocessCore_1.42.0
+## [19] htmltools_0.3.6       plyr_1.8.4            pkgconfig_2.0.1      
+## [22] pheatmap_1.0.10       purrr_0.2.5           mvtnorm_1.0-8        
+## [25] webshot_0.5.0         scales_0.5.0          gdata_2.18.0         
+## [28] whisker_0.3-2         tibble_1.4.2          ggplot2_3.0.0        
+## [31] nnet_7.3-12           BiocGenerics_0.26.0   lazyeval_0.2.1       
+## [34] magrittr_1.5          crayon_1.3.4          mclust_5.4.1         
+## [37] memoise_1.1.0         heatmaply_0.15.2      evaluate_0.11        
+## [40] fs_1.2.5              MASS_7.3-50           gplots_3.0.1         
+## [43] xml2_1.2.0            class_7.3-14          registry_0.5         
+## [46] tools_3.5.1           data.table_1.11.4     trimcluster_0.1-2.1  
+## [49] stringr_1.3.1         plotly_4.8.0          kernlab_0.9-26       
+## [52] munsell_0.5.0         cluster_2.0.7-1       fpc_2.1-11.1         
+## [55] bindrcpp_0.2.2        compiler_3.5.1        pkgdown_1.1.0        
+## [58] caTools_1.17.1.1      rlang_0.2.1           grid_3.5.1           
+## [61] iterators_1.0.10      rstudioapi_0.7        rjson_0.2.20         
 ## [64] htmlwidgets_1.2       labeling_0.3          bitops_1.0-6         
-## [67] codetools_0.2-15      gtable_0.2.0          curl_3.2             
-## [70] flexmix_2.3-14        roxygen2_6.0.1        reshape2_1.4.3       
-## [73] TSP_1.1-5             R6_2.2.2              seriation_1.2-3      
-## [76] gridExtra_2.3         prabclus_2.2-6        dplyr_0.7.4          
-## [79] bindr_0.1.1           commonmark_1.4        rprojroot_1.3-2      
-## [82] KernSmooth_2.23-15    dendextend_1.7.0      desc_1.1.1           
-## [85] modeltools_0.2-21     stringi_1.1.7         parallel_3.5.0       
-## [88] Rcpp_0.12.16          gclus_1.3.1           DEoptimR_1.0-8       
-## [91] diptest_0.75-7</code></pre>
+## [67] codetools_0.2-15      gtable_0.2.0          flexmix_2.3-14       
+## [70] roxygen2_6.0.1        curl_3.2              reshape2_1.4.3       
+## [73] TSP_1.1-6             R6_2.2.2              seriation_1.2-3      
+## [76] gridExtra_2.3         prabclus_2.2-6        dplyr_0.7.6          
+## [79] bindr_0.1.1           commonmark_1.5        rprojroot_1.3-2      
+## [82] KernSmooth_2.23-15    dendextend_1.8.0      desc_1.2.0           
+## [85] modeltools_0.2-22     stringi_1.2.4         parallel_3.5.1       
+## [88] Rcpp_0.12.18          gclus_1.3.1           DEoptimR_1.0-8       
+## [91] tidyselect_0.2.4      diptest_0.75-7</code></pre>
 </div>
   </div>
 

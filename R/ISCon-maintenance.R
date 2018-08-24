@@ -104,31 +104,51 @@ ISCon$set(
 
 
     ## MAIN
+
+    startTimeTotal <- Sys.time()
+
     ret <- list()
     what <- tolower(what)
 
     if ("gene_expression_files" %in% what) {
+      startTime <- Sys.time()
+
       ret$gene_expression_files <- ..checkLinks(
         "gene_expression_files",
         "gene_expression"
       )
+
+      endTime <- Sys.time()
+      print( endTime - startTime )
     }
 
     if ("fcs_sample_files" %in% what) {
+      startTime <- Sys.time()
+
       ret$fcs_sample_files <- ..checkLinks(
         "fcs_sample_files",
         "flow_cytometry"
       )
+
+      endTime <- Sys.time()
+      print( endTime - startTime )
     }
 
     if ("fcs_control_files" %in% what) {
+      startTime <- Sys.time()
+
       ret$fcs_control_files <- ..checkLinks(
         "fcs_control_files",
         "flow_cytometry"
       )
+
+      endTime <- Sys.time()
+      print( endTime - startTime )
     }
 
     if ("protocols" %in% what) {
+      startTime <- Sys.time()
+
       if (private$.isProject()) {
         folders_list <- labkey.getFolders(
           baseUrl = self$config$labkey.url.base,
@@ -166,9 +186,14 @@ ISCon$set(
         file_exists = file_exists,
         stringsAsFactors = FALSE
       )
+
+      endTime <- Sys.time()
+      print( endTime - startTime )
     }
 
     if ("gene_expression_matrices" %in% what) {
+      startTime <- Sys.time()
+
       suppressWarnings(
         mx <- .getLKtbl(
           con = self,
@@ -214,7 +239,15 @@ ISCon$set(
           stringsAsFactors = FALSE
         )
       }
+
+      endTime <- Sys.time()
+      print( endTime - startTime )
     }
+
+    endTimeTotal <- Sys.time()
+    print( '===========' )
+    print( 'TOTAL TIME:' )
+    print( endTimeTotal - startTimeTotal )
 
     ret
   }
@@ -300,9 +333,9 @@ ISCon$set(
     ## HELPERS
     # Validation based on modules being turned on
     ..getModSdys <- function(name) {
-      url <- paste0("https://www.immunespace.org/immport/studies/containersformodule.api?name=", name)
+      url <-  url <- paste0(baseUrl, "/immport/studies/containersformodule.api?name=", name)
       res <- unlist(lapply(rjson::fromJSON(Rlabkey:::labkey.get(url))[[1]], function(x) {x[["name"]]}))
-      res <- .spSort(res[res != "Studies" & res != "SDY_template"])
+      res <- .spSort(res[grepl("SDY[0-9]+", res)])
     }
 
     ## MAIN
@@ -314,10 +347,18 @@ ISCon$set(
       Sdys <- c(self$study) # single study
     } else {
       Sdys <- private$.getSdyVec()
-      Sdys <- .spSort(Sdys[Sdys != "angelica_test"])
+      Sdys <- .spSort(Sdys)
     }
 
-    mods <- c("GEF", "RAW", "GEO", "GEM", "DE_implied", "GSEA_implied", "GEE_implied", "IRP_implied")
+    mods <- c("GEF",
+              "RAW",
+              "GEO",
+              "GEM_implied",
+              "GEM_actual",
+              "DE_implied",
+              "GSEA_implied",
+              "GEE_implied",
+              "IRP_implied")
 
     compDF <- data.frame(
       matrix(
@@ -327,10 +368,6 @@ ISCon$set(
       row.names = Sdys
     )
     colnames(compDF) <- mods
-
-    # GEM
-    withGems <- unique(self$cache$GE_matrices$folder)
-    compDF$GEM <- rownames(compDF) %in% withGems
 
     # RAW
     file_list <- private$.getGEFileNames(TRUE)
@@ -344,6 +381,13 @@ ISCon$set(
     # GEO
     geoGef <- gef[!is.na(gef$geo_accession), ]
     compDF$GEO <- rownames(compDF) %in% .subidsToSdy(geoGef$participant_id)
+
+    # GEM possible
+    compDF$GEM_implied <- compDF$RAW == T | compDF$GEO == T
+
+    # GEM actual
+    withGems <- unique(self$cache$GE_matrices$folder)
+    compDF$GEM_actual <- rownames(compDF) %in% withGems
 
     # GEE - Studies with subjects having both GEM and response data for any timepoints
     # NOTE: when GEE is changed to allow NAb, can uncomment nab / respSubs lines
@@ -376,7 +420,7 @@ mat.biosample = gef.biosample_accession AND
 mat.run = runs.rowId")
 
 
-    inputSmpls$study <- gsub("^SUB\\d{6}\\.", "SDY", inputSmpls$participantid)
+    inputSmpls$study <- gsub("SUB[^>]+\\.", "SDY",inputSmpls$participantid)
 
     exprResp <- merge(
       inputSmpls,
@@ -387,20 +431,30 @@ mat.run = runs.rowId")
 
     compDF$GEE_implied <- rownames(compDF) %in% .subidsToSdy(unique(exprResp$participantid))
 
-    # GSEA - studies with subjects having GEAR results (i.e. compared multiple GEM timepoints)
+    # GSEA - studies with subjects having GEAR results for multiple non-baseline timepoints
+    gearSql <- "SELECT DISTINCT analysis_accession.coefficient FROM gene_expression_analysis_results"
     gear <- sapply(withGems, FUN = function(sdy){
-      res <- tryCatch(labkey.executeSql(baseUrl = baseUrl,
+      res <- suppressWarnings(
+               tryCatch(
+                 labkey.executeSql(baseUrl = baseUrl,
                                         folderPath = paste0("/Studies/", sdy),
                                         schemaName = "gene_expression",
-                                        sql = "SELECT COUNT (*) FROM gene_expression_analysis_results"),
-                      error = function(e){ return( NA ) })
-      output <- res[[1]] > 0 & !is.na(res)
+                                        sql = gearSql),
+                  error = function(e){ return( NA ) }
+                 )
+               )
+      output <- !is.na(res) && nrow(res) > 1
     })
+
     compDF$GSEA_implied <- rownames(compDF) %in% names(gear)[gear == TRUE]
 
     # Do gea results exist? are they complete?
+<<<<<<< HEAD
 
     existGEA <- labkey.executeSql(
+=======
+    existGEA <- labkey.selectRows(
+>>>>>>> d8caba3b1aaddd9e8c591d475842f425b0d7898d
       baseUrl = baseUrl,
       folderPath = "/Studies/",
       schemaName = "gene_expression",
@@ -423,80 +477,88 @@ mat.run = runs.rowId")
     existGEA$sdy <- containers$displayname[ match(existGEA$container, containers$entityid)]
 
     gea <- lapply(withGems, FUN = function(sdy) {
-      impliedGEA <- data.table(labkey.executeSql(
+      impliedGEA <- data.table(labkey.selectRows(
         baseUrl = baseUrl,
         folderPath = paste0("/Studies/", sdy),
         schemaName = "assay.expressionMatrix.matrix",
-        sql = "SELECT Run, Biosample.biosample_accession, Biosample.participantid, Biosample.arm_name, Biosample.study_time_collected, Biosample.study_time_collected_unit
-        FROM InputSamples",
         colNameOpt = "rname",
         showHidden = TRUE))
 
-      # Does each time point have at least three participants -- only check those that do for existing GEA
-      impliedGEA[, key := paste(arm_name,
-                                study_time_collected,
-                                study_time_collected_unit,
-                                sep = " ")]
-      # remove 0 day and negative time points
-      impliedGEA <- impliedGEA[impliedGEA$study_time_collected > 0,]
 
-      # count subjects per key
-      impliedGEA <- impliedGEA[ , .(pids = length(unique(participantid))), by = key ]
+      # ---- summarize to have same form and info as currGEA ----
 
-      # find coefs with more than 3 pids
-      impliedGEA <- impliedGEA[pids > 3,]
+      # 1. Remove all arm_name * study_time_collected with less than 4 replicates
+      # otherwise predictive modeling cannot work
+      impliedGEA[, subs := unique(length(biosample_participantid)), by = .(biosample_arm_name, biosample_study_time_collected)]
+      impliedGEA <- impliedGEA[ subs > 3 ]
 
-      if (nrow(impliedGEA) > 0) {
-        currGEA <- existGEA[ existGEA$sdy == sdy, ]
-        currGEA$key = paste(currGEA$arm_name, currGEA$coefficient)
-        diff <- setdiff(impliedGEA$key, currGEA$key) # what is in implied and NOT in current
+      # 2. Check for baseline within each arm_name and then filter out baseline
+      impliedGEA[, baseline := any(biosample_study_time_collected <= 0), by = .(biosample_arm_name) ]
+      impliedGEA <- impliedGEA[ baseline == TRUE ]
+      impliedGEA <- impliedGEA[ biosample_study_time_collected > 0 ]
+
+      # 3. Generate key
+      impliedGEA[, key := paste(biosample_arm_name, biosample_study_time_collected, biosample_study_time_collected_unit)]
+
+      # 4. Summarize by arm_name * study_time_collected for number of subs and key
+      smryGEA <- impliedGEA[ , list(key = unique(key), subs = unique(subs)), by = .(biosample_arm_name, biosample_study_time_collected)]
+
+      # -------------------------------------------
+
+      # Get current GEA and compare
+      currGEA <- existGEA[ existGEA$sdy == sdy, ]
+      currGEA$key <- paste(currGEA$arm_name, currGEA$coefficient)
+
+      if (nrow(smryGEA) > 0) {
+        diff <- setdiff(smryGEA$key, currGEA$key) # what is in implied and NOT in current
         missing_data <- if(length(diff) == 0 ){ "no diff" }else{ paste(diff, collapse = "; ") }
-        res <- c( nrow(impliedGEA) > 0, length(diff) == 0, missing_data)
-
-
       } else {
-        res <- c(FALSE, FALSE, NA)
+        missing_data <- NA
       }
 
-      return(res)
-    })
+      res <- c( nrow(smryGEA) > 0, missing_data)
+    }))
 
     gea <- data.frame(do.call(rbind, gea), stringsAsFactors = FALSE)
-    colnames(gea) <- c("DGEA_implied", "DGEA_actual","DGEA_missing")
+    colnames(gea) <- c("DGEA_implied", "DGEA_missing")
     rownames(gea) <- withGems
     compDF <- merge(compDF, gea, by = 0, all = TRUE)
     compDF$DGEA_implied[ is.na(compDF$DGEA_implied) ] <- FALSE
-    compDF$DGEA_actual[ is.na(compDF$DGEA_actual) ] <- FALSE
-    compDF$DGEA_actual <- as.logical(compDF$DGEA_actual)
     compDF$DGEA_implied <- as.logical(compDF$DGEA_implied)
     row.names(compDF) <- compDF$Row.names
     compDF <- compDF[,-1]
 
     # IRP - Studies with subjects from multiple cohorts with GEM data at both target
-    # timepoint and baseline + response data
+    # timepoint and baseline + response data that has baseline and a later timepoint.
+    # GEM and response later timepoints do NOT need to be the same!
     nab <- self$getDataset("neut_ab_titer")
     resp <- rbind(nab, hai, fill = TRUE) # nab has a col that hai does not
-    suppressPackageStartupMessages(library(dplyr, quietly = TRUE))
+    resp <- resp[, list(study_time_collected, study_time_collected_unit,
+                    response = value_preferred/mean(value_preferred[study_time_collected <= 0]), na.rm = T),
+             by = "virus,participant_id"]
+    resp <- resp[ !is.na(response) ]
+
     # NOTE: At least SDY180 has overlapping study_time_collected for both hours and days
     # so it is important to group by study_time_collected_unit as well. This is reflected
-    # in IRP_timepoints_hai/nab.sql
-    geCohortSubs <- inputSmpls %>%
-      group_by(study, study_time_collected, study_time_collected_unit) %>%
-      # need multiple cohorts per timePoint (from IRP.js)
-      filter((length(unique(cohort)) > 1 ) == TRUE) %>%
-      ungroup() %>%
-      group_by(study, cohort, study_time_collected_unit) %>%
-      # need baseline + later timePoint (from IRP.Rmd)
-      filter((length(unique(study_time_collected)) > 1 ) == TRUE)
+    # in IRP_timepoints_hai/nab.sql.
+    inputSmpls <- data.table(inputSmpls)
+    geCohortSubs <- inputSmpls[ participantid %in% resp$participant_id ]
+    geCohortSubs <- geCohortSubs[ , .SD[length(unique(cohort)) > 1], by = .(study, study_time_collected, study_time_collected_unit)]
+    geCohortSubs <- geCohortSubs[, .SD[length(unique(study_time_collected)) > 1 & 0 %in% unique(study_time_collected)], by = .(study, cohort, study_time_collected_unit)]
+    compDF$IRP_implied <- rownames(compDF) %in% unique(geCohortSubs$study)
 
-    geRespSubs <- geCohortSubs[ geCohortSubs$participantid %in% unique(resp$participant_id), ]
-    compDF$IRP_implied <- rownames(compDF) %in% .subidsToSdy(geRespSubs$participantid)
-    studyTimepoints <- geRespSubs %>%
-      group_by(study) %>%
-      summarize(timepoints = paste(unique(study_time_collected), collapse = ","))
+    studyTimepoints <- geCohortSubs[ , list(timepoints = paste(unique(study_time_collected), collapse = ",")), by = .(study)]
     compDF$IrpTimepoints <- studyTimepoints$timepoints[ match(rownames(compDF), studyTimepoints$study) ]
 
-    # DE
+    compDF$DE_actual <- rownames(compDF) %in% ..getModSdys("DataExplorer")
+    compDF$GEE_actual <- rownames(compDF) %in% ..getModSdys("GeneExpressionExplorer")
+    compDF$GSEA_actual <- rownames(compDF) %in% ..getModSdys("GeneSetEnrichmentAnalysis")
+    compDF$IRP_actual <- rownames(compDF) %in% ..getModSdys("ImmuneResponsePredictor")
+    compDF$DGEA_actual <- rownames(compDF) %in% ..getModSdys("DifferentialExpressionAnalysis")
+
+    # DE - b/c ISC_study_datasets cannot provide gene_expression info, we use
+    # compDF$DGEA_actual as a proxy since it pulls the current GEA query, which should
+    # have the same info as DGEA_filteredGEAR ( what the con$plot() uses via con$getGEAnalysis() )
     deSets <- c(
       "Neutralizing antibody titer",
       "Enzyme-linked immunosorbent assay (ELISA)",
@@ -518,25 +580,21 @@ mat.run = runs.rowId")
           error = function(e) {return( NA )}
         )
       )
-      ret <- any(res[[1]] %in% deSets)
+      ret <- any(res[[1]] %in% deSets) | compDF$DGEA_actual[rownames(compDF) == sdy] == TRUE
     })
-
-    compDF$DE_actual <- rownames(compDF) %in% ..getModSdys("DataExplorer")
-    compDF$GEE_actual <- rownames(compDF) %in% ..getModSdys("GeneExpressionExplorer")
-    compDF$GSEA_actual <- rownames(compDF) %in% ..getModSdys("GeneSetEnrichmentAnalysis")
-    compDF$IRP_actual <- rownames(compDF) %in% ..getModSdys("ImmuneResponsePredictor")
 
     colOrder <- c(
       "RAW",
       "GEF",
       "GEO",
-      "GEM",
+      "GEM_implied",
+      "GEM_actual",
       "DE_implied",
       "DE_actual",
       "GEE_implied",
       "GEE_actual",
-      "DGEA_actual",
       "DGEA_implied",
+      "DGEA_actual",
       "DGEA_missing_data",
       "IRP_implied",
       "IRP_actual",
@@ -553,16 +611,20 @@ mat.run = runs.rowId")
     if (filterNonGE == TRUE) {
       compDF <- compDF[compDF$GEO == TRUE | compDF$GEF == TRUE, ]
     }
-
-    # Subset to only show problematic studies
+        # Subset to only show problematic studies
     if (onlyShowNonCompliant == TRUE) {
-      redux <- compDF[ , grep("implied|actual", colnames(compDF))]
+      redux <- compDF[ , grep("implied|actual|missing", colnames(compDF))]
       mod_sub <- c("DE", "GEE", "IRP", "GSEA", "DGEA")
       compliant <- lapply(mod_sub, FUN = function(mod) {
         idx <- grepl(mod, names(redux))
         sub <- redux[,idx]
-        compliant <- sub[,1] == sub[,2]
+        if (mod == "DGEA") {
+          imp_vs_act <- sub[,1] == sub[,2]
+          missing_dat <- is.na(sub[,3]) == T | sub[,3] == "no diff"
+          compliant <- imp_vs_act == missing_dat
+        } else {compliant <- sub[,1] == sub[,2]}
       })
+      compliant[[6]] <- compDF$GEM_implied == compDF$GEM_actual
       compliant <- do.call(cbind, compliant)
       row.names(compliant) <- row.names(redux)
       idx <- which(apply(compliant, 1, all))
@@ -571,10 +633,11 @@ mat.run = runs.rowId")
 
     # Defaults to showing only the actual module status and the difference with the implied
     if (showAllCols == FALSE) {
-      compDF <- compDF[, grep("act|implied", colnames(compDF))]
+      compDF <- compDF[, grep("act|implied$", colnames(compDF))]
     }
+
     if (verbose == TRUE) {
-      message("NOTE: \n Return objects have an actual column that was generated by a call to the module url and an implied column that \n was created by looking at the filesystem. \n Please note that the DGEA_actual column is generated by looking at the file system and checking to ensure that all possible timepoints \n have been analyzed.")
+      message("NOTE: \n Return objects have an actual column that was generated by a call to the module url and an implied column that \n was created by looking at the filesystem.")
     }
 
 
@@ -592,7 +655,7 @@ ISCon$set(
       baseUrl = self$config$labkey.url.base,
       folderPath = "/Studies/"
     )[, 1]
-    studies <- studies[!studies %in% c("SDY_template","Studies")]
+    studies <- studies[grepl('SDY[0-9]+', studies)]
 
     studies
   }

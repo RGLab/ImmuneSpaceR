@@ -21,9 +21,11 @@
 <!-- clipboard.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js" integrity="sha384-cV+rhyOuRHc9Ub/91rihWcGmMmCXDeksTtCihMupQHSsi8GIIRDG0ThDc3HGQFJ3" crossorigin="anonymous"></script>
 
+<!-- sticky kit -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script>
+
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
-<script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
 
 
@@ -35,6 +37,7 @@ It provides function to download and display the data within these studies." />
 
 <meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
+
 
 
 <!-- mathjax -->
@@ -71,7 +74,7 @@ It provides function to download and display the data within these studies." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ImmuneSpaceR</a>
-        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">1.7.3</span>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">1.7.4</span>
       </span>
     </div>
 
@@ -212,7 +215,11 @@ study.</p>
     See <code><a href='CreateConnection.html'>CreateConnection</a></code>.</p></dd>
   <dt><code>print()</code></dt><dd><p>Print <code>ImmuneSpaceConnection</code> class.</p></dd>
   <dt><code>listDatasets(output = c("datasets", "expression"))</code></dt><dd><p>Lists the datasets available in the study or studies of the connection.</p></dd>
-  <dt><code>listGEMatrices()</code></dt><dd><p>Lists available gene expression matrices for the connection.</p></dd>
+  <dt><code>listGEMatrices(verbose = FALSE, reload = FALSE)</code></dt><dd><p>Lists available gene expression matrices for the connection.
+    <code>verbose</code>: A logical. If TRUE, whether to print the extra details
+    for troubleshooting.
+    <code>reload</code>: A logical. If TRUE, retrieve the table of available gene
+    expression matrices whether a cached version exist or not.</p></dd>
   <dt><code>listGEAnalysis()</code></dt><dd><p>Lists available gene expression analysis for the connection.</p></dd>
   <dt><code>listParticipantGroups()</code></dt><dd><p>Lists available participant groups on the ImmuneSpace portal.</p></dd>
   <dt><code>getDataset(x, original_view = FALSE, reload = FALSE,
@@ -226,7 +233,7 @@ study.</p>
     <code>makeFilter</code> function.
     <code>...</code>: Extra arguments to be passed to <code>labkey.selectRows</code>.</p></dd>
   <dt><code>getGEMatrix(matrixName = NULL, cohort = NULL,
-  outputType = "summary", annotation = "latest", reload = FALSE, verbose = FALSE)</code></dt><dd><p>Downloads a normalized gene expression matrix from ImmuneSpace.
+  outputType = "summary", annotation = "latest", reload = FALSE, verbose = FALSE)</code></dt><dd><p>Downloads a probe-level or gene-symbol summarized expression matrix from ImmuneSpace. Use experimentData() on the resulting expressionSet object to see version info for annotation.
     <code>matrixName</code>: A character. The name of the gene expression matrix
     to download.
     <code>cohort</code>: A character. The name of a cohort that has an associated
