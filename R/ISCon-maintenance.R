@@ -394,31 +394,14 @@ ISCon$set(
     hai <- self$getDataset("hai")
     # nab <- self$getDataset("neut_ab_titer")
     # resp <- union(resp$participant_id, nab$participant_id)
-
-    inputSmpls <- labkey.executeSql(
+    inputSmpls <- labkey.selectRows(
       baseUrl = baseUrl,
       folderPath = "/Studies",
-      schemaName = "assay.ExpressionMatrix.matrix",
+      schemaName = "study",
+      queryName = "HM_InputSamplesQuery",
       containerFilter = "CurrentAndSubfolders",
-      colNameOpt = "rname",
-      sql = "SELECT DISTINCT gef.SequenceNum,
-gef.study_time_collected,
-gef.study_time_collected_unit,
-gef.ParticipantId AS ParticipantId,
-gef.arm_name AS cohort,
-gef.biosample_accession as biosample_accession @title='biosample_accession',
-mat.container.entityid as container,
-mat.Run,
-runs.Name AS expression_matrix_accession,
-mat.Run.featureset as featureset
-FROM
-assay.ExpressionMatrix.matrix.InputSamples AS mat,
-study.gene_expression_files AS gef,
-assay.ExpressionMatrix.matrix.Runs AS runs
-WHERE
-mat.biosample = gef.biosample_accession AND
-mat.run = runs.rowId")
-
+      colNameOpt = "rname"
+    )
 
     inputSmpls$study <- gsub("SUB[^>]+\\.", "SDY",inputSmpls$participantid)
 
@@ -449,41 +432,33 @@ mat.run = runs.rowId")
     compDF$GSEA_implied <- rownames(compDF) %in% names(gear)[gear == TRUE]
 
     # Do gea results exist? are they complete?
-<<<<<<< HEAD
-
-    existGEA <- labkey.executeSql(
-=======
     existGEA <- labkey.selectRows(
->>>>>>> d8caba3b1aaddd9e8c591d475842f425b0d7898d
       baseUrl = baseUrl,
       folderPath = "/Studies/",
       schemaName = "gene_expression",
+      queryName = "gene_expression_analysis",
       colNameOpt = "rname",
-      sql = "SELECT *
-      FROM gene_expression_analysis",
-      containerFilter = "CurrentAndSubfolders",
       showHidden = TRUE)
 
-    containers <- labkey.executeSql(
+    containers <- labkey.selectRows(
       baseUrl = baseUrl,
       folderPath = "/Studies/",
       schemaName = "core",
-      colNameOpt = "rname",
-      sql = "SELECT *
-      FROM Containers",
+      queryName = "Containers",
       containerFilter = "CurrentAndSubfolders",
-      showHidden = TRUE)
+      showHidden = TRUE
+    )
 
-    existGEA$sdy <- containers$displayname[ match(existGEA$container, containers$entityid)]
+    existGEA$sdy <- containers$`Display Name`[ match(existGEA$container, containers$`Entity Id`)]
 
-    gea <- lapply(withGems, FUN = function(sdy) {
+    gea <- suppressWarnings(lapply(withGems, FUN = function(sdy) {
       impliedGEA <- data.table(labkey.selectRows(
         baseUrl = baseUrl,
         folderPath = paste0("/Studies/", sdy),
         schemaName = "assay.expressionMatrix.matrix",
+        queryName = "inputSamples",
         colNameOpt = "rname",
         showHidden = TRUE))
-
 
       # ---- summarize to have same form and info as currGEA ----
 
