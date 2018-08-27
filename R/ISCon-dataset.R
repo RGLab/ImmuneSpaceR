@@ -111,12 +111,14 @@ ISCon$set(
         }
 
         # colNames current as of 8/2018
-        if (!(x %in% c("elispot", "fcs_analyzed_result"))) {
+        if (!(x %in% c("elispot", "fcs_analyzed_result", "elisa"))) {
           cNm <- "value_preferred"
         } else if (x == "elispot") {
           cNm <- "spot_number_reported"
-        } else if (x == "fcs_analyzed_result"){
+        } else if (x == "fcs_analyzed_result") {
           cNm <- "population_cell_number"
+        } else if (x == "elisa") {
+          cNm <- "value_reported"
         }
 
         if (transformMethod == "auto") {
