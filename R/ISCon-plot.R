@@ -407,6 +407,8 @@ ISCon$set(
     dt <- merge(dt, pd, by = "biosample_accession", all.x = TRUE) # Add s_t_c, s_t_c_u, arm
     dt <- merge(dt, demo, by = "participant_id", all.x = TRUE) # Add race, gender, age
     setkey(dt, NULL)
+  } else if (dataset == "elisa") {
+    dt <- dt[, value_preferred := value_reported]
   }
 
   dt <- dt[, response := ifelse(value_preferred < 0, 0, value_preferred)]
