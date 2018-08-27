@@ -105,7 +105,7 @@ get_env_url <- function() {
 # check that user can connect to IS with netrc file
 .check_con <- function(netrc_path) {
   # try to connect to IS -- if no connection return NA
-  message("Checking netrc...")
+  message("Validating netrc...")
   con <- tryCatch(CreateConnection(""),
                   error = function(e){return(NULL)})
   if(is.null(con)){
@@ -123,14 +123,16 @@ get_env_url <- function() {
 interactive_netrc <- function() {
   # generate netrc path
   filepath <- .get_path()
+  overwrite <- 0
   # check if netrc exists
   if(file.exists(filepath)) {
     message("A netrc file already exists!")
-    message("***Printing existing file to console***")
+    message("***Printing existing netrc to console***")
     cat(readChar(filepath, nchars = 10000))
     cat("\n\n")
-    overwrite <- menu(c("yes", "no"), title = cat("Overwrite existing netrc?"))
+    overwrite <- menu(c("Yes", "No"), title = cat("Overwrite existing netrc?"))
   }
+  # write netrc
   if(overwrite != 2) {
     login <- readline("What is your ImmuneSpace login email?  ")
     password <- readline("What is your ImmuneSpace password   ")
