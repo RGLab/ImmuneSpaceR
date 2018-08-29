@@ -561,8 +561,15 @@ ISCon$set(
     # This is important because for legacy matrices, FAS name may not have '_orig'
     # even though it is the original annotation.
     if (annotation == "ImmSig") {
-      sdy <- tolower(gsub("/Studies/", "", self$config$labkey.url.path))
-      annoSetId <- faSets$`Row Id`[faSets$Name == paste0("ImmSig_", sdy)]
+      # for ImmSig1 aka IS1 studies only!
+      allRuns <- labkey.selectRows(
+        baseUrl = self$config$labkey.url.base,
+        folderPath = "/Studies/",
+        schemaName = "Assay.ExpressionMatrix.Matrix",
+        queryName = "Runs",
+        showHidden = TRUE)
+      sdy <- allRuns$Study[ allRuns$Name == matrixName ]
+      annoSetId <- faSets$`Row Id`[faSets$Name == paste0("ImmSig_", tolower(sdy))]
     } else {
       fasIdAtCreation <- runs$`Feature Annotation Set`[ runs$Name == matrixName ]
       idCol <- ifelse( annotation == "default", "Orig Id", "Curr Id")
