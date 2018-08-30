@@ -15,8 +15,9 @@ Installation
 Install from [Bioconductor](http://bioconductor.org/packages/release/bioc/html/ImmuneSpaceR.html):
 
 ``` r
-source("https://bioconductor.org/biocLite.R")
-biocLite("ImmuneSpaceR")
+if (!requireNamespace("BiocManager", quietly=TRUE))
+    install.packages("BiocManager")
+BiocManager::install("ImmuneSpaceR")
 ```
 
 Or install the latest development version via [`devtools`](https://cran.r-project.org/web/packages/devtools/index.html):
