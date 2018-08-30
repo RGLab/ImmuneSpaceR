@@ -3,6 +3,7 @@
 export(CreateConnection)
 export(ISpalette)
 export(check_netrc)
+export(interactive_netrc)
 export(loadConnection)
 export(saveConnection)
 export(template_IS)
