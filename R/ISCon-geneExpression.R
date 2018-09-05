@@ -41,6 +41,16 @@ ISCon$set(
         # adding cols to allow for getGEMatrix() to update
         ge[, annotation := ""][, outputType := ""][] # see data.table #869
         setnames(ge, private$.munge(colnames(ge)))
+
+        # adding cohort_type for use with getGEMatrix(cohort)
+        smpls <- .getLKtbl(
+                    con = self,
+                    schema = "study",
+                    query = "HM_inputSamplesQuery"
+        )
+        tmp <- smpls[, cohort_type := paste(Cohort, `Cell Type`, sep = "_")]
+        tmp <- tmp[, list(cohort_type = unique(cohort_type)), by = .(`Expression Matrix Accession`)]
+        ge$cohort_type <- tmp$cohort_type[ match(ge$name, tmp$`Expression Matrix Accession`)]
         self$cache[[private$.constants$matrices]] <- ge
       }
     }
@@ -80,7 +90,7 @@ ISCon$set(
   which = "public",
   name = "getGEMatrix",
   value = function(matrixName = NULL,
-                   cohort = NULL,
+                   cohort_type = NULL,
                    outputType = "summary",
                    annotation = "latest",
                    reload = FALSE,
@@ -90,9 +100,9 @@ ISCon$set(
            'raw' as outputType with ImmSig studies.")
     }
 
-    cohort_name <- cohort # can't use cohort = cohort in d.t
-    if (!is.null(cohort_name)) {
-      if (all(cohort_name %in% self$cache$GE_matrices$cohort)) {
+    ct_name <- cohort_type # can't use cohort = cohort in d.t
+    if (!is.null(ct_name)) {
+      if (all(ct_name %in% self$cache$GE_matrices$cohort)) {
         matrixName <- self$cache$GE_matrices[cohort %in% cohort_name, name]
         # SDY67 is special case. "Batch2" matrix is only day 0 and has overlapping
         # biosamples with full matrix "SDY67_HealthyAdults".  This causes
