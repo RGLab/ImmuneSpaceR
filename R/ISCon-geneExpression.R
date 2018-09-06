@@ -103,8 +103,8 @@ ISCon$set(
 
     ct_name <- cohort_type # can't use cohort = cohort in d.t
     if (!is.null(ct_name)) {
-      if (all(ct_name %in% self$cache$GE_matrices$cohort)) {
-        matrixName <- self$cache$GE_matrices[cohort %in% cohort_name, name]
+      if (all(ct_name %in% self$cache$GE_matrices$cohort_type)) {
+        matrixName <- self$cache$GE_matrices[cohort_type %in% ct_name, name]
         # SDY67 is special case. "Batch2" matrix is only day 0 and has overlapping
         # biosamples with full matrix "SDY67_HealthyAdults".  This causes
         # .combineExpressionSets() to error out.  Therefore, selecting to use only
@@ -113,9 +113,9 @@ ISCon$set(
           matrixName <- matrixName[ grep("Batch2", matrixName, invert = T) ]
         }
       } else {
-        validCohorts <- self$cache$GE_matrices[, cohort]
-        stop(paste("No expression matrix for the given cohort.",
-                   "Valid cohorts:", paste(validCohorts, collapse = ", ")))
+        validCohorts <- self$cache$GE_matrices[, cohort_type]
+        stop(paste("No expression matrix for the given cohort_type.",
+                   "Valid cohort_types:", paste(validCohorts, collapse = ", ")))
       }
     }
 
