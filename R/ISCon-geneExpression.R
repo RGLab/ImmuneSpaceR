@@ -46,7 +46,8 @@ ISCon$set(
         smpls <- .getLKtbl(
                     con = self,
                     schema = "study",
-                    query = "HM_inputSamplesQuery"
+                    query = "HM_inputSamplesQuery",
+                    containerFilter = "CurrentAndSubfolders"
         )
         tmp <- smpls[, cohort_type := paste(Cohort, `Cell Type`, sep = "_")]
         tmp <- tmp[, list(cohort_type = unique(cohort_type)), by = .(`Expression Matrix Accession`)]
