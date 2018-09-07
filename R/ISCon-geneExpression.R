@@ -658,9 +658,13 @@ ISCon$set(
 
     setnames(pheno, private$.munge(colnames(pheno)))
     pheno <- data.frame(pheno, stringsAsFactors = FALSE)
+
+    # Need cohort for updateGEAR() mapping to arm_accession
+    # Need cohort_type for modules
     pheno <- pheno[, colnames(pheno) %in% c("biosample_accession",
                                             "participant_id",
                                             "cohort_type",
+                                            "cohort",
                                             "study_time_collected",
                                             "study_time_collected_unit")]
     rownames(pheno) <- pheno$biosample_accession
