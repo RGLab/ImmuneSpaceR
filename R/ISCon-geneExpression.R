@@ -660,7 +660,7 @@ ISCon$set(
     pheno <- data.frame(pheno, stringsAsFactors = FALSE)
     pheno <- pheno[, colnames(pheno) %in% c("biosample_accession",
                                             "participant_id",
-                                            "cohort",
+                                            "cohort_type",
                                             "study_time_collected",
                                             "study_time_collected_unit")]
     rownames(pheno) <- pheno$biosample_accession
