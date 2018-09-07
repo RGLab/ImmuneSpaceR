@@ -47,11 +47,11 @@ ISCon$set(
                     con = self,
                     schema = "study",
                     query = "HM_inputSamplesQuery",
-                    containerFilter = "CurrentAndSubfolders"
+                    containerFilter = "CurrentAndSubfolders",
+                    colNameOpt = "fieldname"
         )
-        tmp <- smpls[, cohort_type := paste(Cohort, `Cell Type`, sep = "_")]
-        tmp <- tmp[, list(cohort_type = unique(cohort_type)), by = .(`Expression Matrix Accession`)]
-        ge$cohort_type <- tmp$cohort_type[ match(ge$name, tmp$`Expression Matrix Accession`)]
+        tmp <- smpls[, list(cohort_type = unique(cohort_type)), by = .(expression_matrix_accession)]
+        ge$cohort_type <- tmp$cohort_type[ match(ge$name, tmp$expression_matrix_accession)]
         self$cache[[private$.constants$matrices]] <- ge
       }
     }
