@@ -56,6 +56,11 @@ test_that("Lyoplate study cannot be loaded", {
   expect_true(errMsg == res$message)
 })
 
+test_that("Connection loads with cohort-type in GE_matrices", {
+  con <- CreateConnection("SDY400")
+  expect_true("cohort_type" %in% colnames(con$cache$GE_matrices))
+})
+
 # cleanup ------------------------------------------------------
 if(exists("netrc_file")){
   file.remove(netrc_file)
