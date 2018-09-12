@@ -83,12 +83,12 @@ TIV_2008
 ```
 
 
-## By cohort_type
+## By cohortType
 
-The `cohort_type` argument can be used in place of the run name (`x`). It is a concatenation of "cohort" and "cell type" so that you may use matrices for analysis that have been normalized within cell-type. Likewise, the list of valid cohort_types can be found in the Gene expression matrices table.
+The `cohortType` argument can be used in place of the run name (`x`). It is a concatenation of "cohort" and "cell type" so that you may use matrices for analysis that have been normalized within cell-type. Likewise, the list of valid cohortTypes can be found in the Gene expression matrices table.
 
 ```{r getGEMatrix-cohorts}
-LAIV_2008 <- sdy269$getGEMatrix(cohort_type = "LAIV group 2008_PBMC")
+LAIV_2008 <- sdy269$getGEMatrix(cohortType = "LAIV group 2008_PBMC")
 ```
 
 Note that when cohort is used, `x` is ignored.

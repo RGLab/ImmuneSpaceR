@@ -91,7 +91,7 @@ ISCon$set(
   which = "public",
   name = "getGEMatrix",
   value = function(matrixName = NULL,
-                   cohort_type = NULL,
+                   cohortType = NULL,
                    outputType = "summary",
                    annotation = "latest",
                    reload = FALSE,
@@ -101,7 +101,7 @@ ISCon$set(
            'raw' as outputType with ImmSig studies.")
     }
 
-    ct_name <- cohort_type # can't use cohort = cohort in d.t
+    ct_name <- cohortType # can't use cohort = cohort in d.t
     if (!is.null(ct_name)) {
       if (all(ct_name %in% self$cache$GE_matrices$cohort_type)) {
         matrixName <- self$cache$GE_matrices[cohort_type %in% ct_name, name]
@@ -660,10 +660,10 @@ ISCon$set(
     pheno <- data.frame(pheno, stringsAsFactors = FALSE)
 
     # Need cohort for updateGEAR() mapping to arm_accession
-    # Need cohort_type for modules
+    # Need cohortType for modules
     pheno <- pheno[, colnames(pheno) %in% c("biosample_accession",
                                             "participant_id",
-                                            "cohort_type",
+                                            "cohortType",
                                             "cohort",
                                             "study_time_collected",
                                             "study_time_collected_unit")]
