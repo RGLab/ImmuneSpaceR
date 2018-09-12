@@ -30,7 +30,7 @@ test_that("returns df of GE analysis for single study if present", {
 })
 
 test_that("returns df of GE analysis using cohort filter", {
-  filt <- makeFilter(c("cohort","equals","TIV Group 2008"))
+  filt <- makeFilter(c("cohort","equals","TIV Group 2008_PBMC"))
   res <- try_ggea(sdy269, colFilter = filt)
   expect_true( dim(res)[1] > 0 )
 })

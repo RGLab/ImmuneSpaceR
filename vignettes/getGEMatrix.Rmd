@@ -73,7 +73,7 @@ The `getGEMatrix` method will accept any of the run names listed in the connecti
 
 ```{r getGEMatrix}
 TIV_2008 <- sdy269$getGEMatrix("TIV_2008")
-TIV_2011 <- all$getGEMatrix(matrixName = "SDY144_TIV2011")
+TIV_2011 <- all$getGEMatrix(matrixName = "SDY144_TIV2011_geo")
 ```
 
 The matrices are returned as `ExpressionSet` where the phenoData slot contains basic demographic information and the featureData slot shows a mapping of probe to official gene symbols.
@@ -83,12 +83,12 @@ TIV_2008
 ```
 
 
-## By cohort
+## By cohortType
 
-The `cohort` argument can be used in place of the run name (`x`). Likewise, the list of valid cohorts can be found in the Gene expression matrices table.
+The `cohortType` argument can be used in place of the run name (`x`). It is a concatenation of "cohort" and "cell type" so that you may use matrices for analysis that have been normalized within cell-type. Likewise, the list of valid cohortTypes can be found in the Gene expression matrices table.
 
 ```{r getGEMatrix-cohorts}
-LAIV_2008 <- sdy269$getGEMatrix(cohort = "LAIV group 2008")
+LAIV_2008 <- sdy269$getGEMatrix(cohortType = "LAIV group 2008_PBMC")
 ```
 
 Note that when cohort is used, `x` is ignored.
@@ -123,7 +123,7 @@ To avoid returning an empty object, it is usually recommended to use the summari
 em269 <- sdy269$getGEMatrix(c("TIV_2008", "LAIV_2008"))
 
 # Combining across studies
-TIV_seasons <- all$getGEMatrix(c("TIV_2008", "SDY144_TIV2011"),
+TIV_seasons <- all$getGEMatrix(c("TIV_2008", "SDY144_TIV2011_geo"),
                                outputType = "summary",
                                annotation = "latest")
 ```

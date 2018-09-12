@@ -100,16 +100,17 @@
 #'
 #'     \code{...}: Extra arguments to be passed to \code{labkey.selectRows}.
 #'   }
-#'   \item{\code{getGEMatrix(matrixName = NULL, cohort = NULL,
+#'   \item{\code{getGEMatrix(matrixName = NULL, cohortType = NULL,
 #'   outputType = "summary", annotation = "latest", reload = FALSE, verbose = FALSE)}}{
 #'     Downloads a probe-level or gene-symbol summarized expression matrix from ImmuneSpace. Use experimentData() on the resulting expressionSet object to see version info for annotation.
 #'
 #'     \code{matrixName}: A character. The name of the gene expression matrix
 #'     to download.
 #'
-#'     \code{cohort}: A character. The name of a cohort that has an associated
+#'     \code{cohortType}: A character. The name of a cohortType that has an associated
 #'     gene expression matrix. Note that if this argument is not NULL, then
-#'     \code{matrixName} is ignored.
+#'     \code{matrixName} is ignored. CohortType is a concatenation of "cohort" and "cell type"
+#'     that allows the user to specify a matrix for the cell type subset of a cohort.
 #'
 #'     \code{outputType}: one of 'raw', 'normalized' or 'summary'. If 'raw'
 #'     then returns an expression matrix of non-normalized values by probe.
