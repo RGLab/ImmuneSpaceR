@@ -35,7 +35,7 @@ method.
 
 # Configuration
 
-In order to connect to ImmuneSpace, you will need a `.netrc` file in your home directory that will contain a `machine` name (hostname of ImmuneSpace), and  `login` and `password`. See [here](https://www.labkey.org/wiki/home/Documentation/page.view?name=netrc) for more information.
+In order to connect to ImmuneSpace, you will need a `.netrc` file in your home directory that will contain a `machine` name (hostname of ImmuneSpace), and your ImmuneSpace `login` and `password`. See [here](https://www.labkey.org/wiki/home/Documentation/page.view?name=netrc) for more information.
 
 A netrc file may look like this:
 
@@ -49,7 +49,7 @@ password supersecretpassword
 
 There are two options when it comes to writing a netrc. If you're familiar with the command line see the `Intro to ImmuneSpace` vignette. For those less comfortable with the command line there is the `interactive_netrc` method.  
   
-The `interactive_netrc` method will check if a netrc file already exists, prompt the user for login and password information in the R console, check that the provided login information allows the user to connect to ImmuneSpace, and if the connection is valid then write the information to a netrc file in the users home directory. Below is a gif demonstrating how to use this method.  
+The `interactive_netrc` method will check if a netrc file already exists, prompt the user for login and password information in the R console, check that the provided login information allows the user to connect to ImmuneSpace, and if the connection is valid then write the information to a netrc file in the user's home directory. Below is a gif demonstrating how to use this method.  
 <br>
 ```{r, echo = F, out.width="725px"}
 #![caption](img/createNetrc.gif)
@@ -58,9 +58,9 @@ knitr::include_graphics("img/createNetrc.gif")
 <br>
 <br>
 <br>
-In the case that the user did not provide login information that results in a connection to ImmuneSpace a netrc file will not be written to the users home directory and the user can try the method again, checking for typos. If the user still cannot connect to ImmuneSpace via the API they might want to double check that they are registered and that their login information works for [ImmuneSpace](https://immunespace.org/).  
+In the case that the user did not provide login information that results in a connection to ImmuneSpace, a netrc file will not be written to the user's home directory and the user can try the method again checking for typos. If the user still cannot connect to ImmuneSpace via the API they might want to double check that they are registered and that their login information works for [ImmuneSpace](https://immunespace.org/).  
 <br>
-If a netrc file already exists `interactive_netrc` will print the existing file to the console and ask the user if they wish to overwrite that file. A YES will result in the same process as if there were no netrc and overwrite the existing file. A NO will simply check if the exisiting netrc can connect to ImmuneSpace. No new netrc file will be created. Below is a gif demonstrating how this works.  
+If a netrc file already exists `interactive_netrc` will print the existing file to the console, and ask the user if they wish to overwrite that file. A YES will result in the same process as if there were no netrc and overwrite the existing file. A NO will simply check if the existing netrc is able to connect to ImmuneSpace. No new netrc file will be created. Below is a gif demonstrating how this works.  
 <br>
 ```{r, echo = F, out.width="725px"}
 #![caption](img/createNetrc.gif)
