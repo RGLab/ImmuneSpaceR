@@ -72,7 +72,7 @@ Naturally, `all` contains every processed matrices available on ImmuneSpace as i
 The `getGEMatrix` method will accept any of the run names listed in the connection.
 
 ```{r getGEMatrix}
-TIV_2008 <- sdy269$getGEMatrix("TIV_2008")
+TIV_2008 <- sdy269$getGEMatrix("SDY269_PBMC_TIV_Geo")
 TIV_2011 <- all$getGEMatrix(matrixName = "SDY144_TIV2011_geo")
 ```
 
