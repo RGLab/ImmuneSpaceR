@@ -23,44 +23,44 @@ test_EM <- function(EM, summary){
 
 # Main Tests ------------------------------------------------
 test_that("gets TIV_2008 eSet non-summary", {
-  EM <- sdy$getGEMatrix("TIV_2008", outputType = "normalized")
+  EM <- sdy$getGEMatrix("SDY269_PBMC_TIV_Geo", outputType = "normalized")
   test_EM(EM, summary = F)
 })
 
 # tests general raw output
 test_that("gets TIV_2008 eSet raw", {
-  EM <- sdy$getGEMatrix("TIV_2008", outputType = "raw")
+  EM <- sdy$getGEMatrix("SDY269_PBMC_TIV_Geo", outputType = "raw")
   test_EM(EM, summary = F)
 })
 
 # ensures that constructExpressionSet is working ok
 test_that("gets TIV_young eSet raw", {
-  EM <- sdy$getGEMatrix("TIV_young", outputType = "raw")
+  EM <- sdy$getGEMatrix("SDY56_PBMC_Young", outputType = "raw")
   test_EM(EM, summary = F)
 })
 
 test_that("gets TIV_2008 eSet summary", {
-  EM <- sdy$getGEMatrix("TIV_2008", outputType = "summary", annotation = "latest")
+  EM <- sdy$getGEMatrix("SDY269_PBMC_TIV_Geo", outputType = "summary", annotation = "latest")
   test_EM(EM, summary = T)
 })
 
 test_that("get_multiple matrices non-summary", {
-  EM <- sdy$getGEMatrix(c("TIV_2008","LAIV_2008"), outputType = "normalized")
+  EM <- sdy$getGEMatrix(c("SDY269_PBMC_TIV_Geo","SDY269_PBMC_LAIV_Geo"), outputType = "normalized")
   test_EM(EM, summary = F)
 })
 
 test_that("get_multiple matrices summary", {
-  EM <- sdy$getGEMatrix(c("TIV_2008","LAIV_2008"), outputType = "summary", annotation = "latest")
+  EM <- sdy$getGEMatrix(c("SDY269_PBMC_TIV_Geo","SDY269_PBMC_LAIV_Geo"), outputType = "summary", annotation = "latest")
   test_EM(EM, summary = T)
 })
 
 test_that("get_multiple matrices summary without cache error", {
-  EM <- sdy$getGEMatrix(c("TIV_2008","LAIV_2008"), outputType = "summary", annotation = "latest")
+  EM <- sdy$getGEMatrix(c("SDY269_PBMC_TIV_Geo","SDY269_PBMC_LAIV_Geo"), outputType = "summary", annotation = "latest")
   test_EM(EM, summary = T)
 })
 
 test_that("get_multiple matrices summary with reload", {
-  EM <- sdy$getGEMatrix(c("TIV_2008","LAIV_2008"),
+  EM <- sdy$getGEMatrix(c("SDY269_PBMC_TIV_Geo","SDY269_PBMC_LAIV_Geo"),
                         outputType = "summary",
                         annotation = "latest",
                         reload = TRUE)
