@@ -100,7 +100,7 @@ Note that when cohort is used, `x` is ignored.
 By default, the returned `ExpressionSet`s have probe names as features (or rows). However, multiple probes often match the same gene and merging experiments from different arrays is impossible at feature level. When they are available, the `summary` argument allows to return the matrices with gene symbols instead of probes. You should use `currAnno` set to `TRUE` to use the latest official gene symbols mapped for each probe, but you can also set this to `FALSE` to retrieve the original mappings from when the matrix was created.
 
 ```{r summary}
-TIV_2008_sum <- sdy269$getGEMatrix("TIV_2008", outputType = "summary", annotation = "latest")
+TIV_2008_sum <- sdy269$getGEMatrix("SDY269_PBMC_TIV_Geo", outputType = "summary", annotation = "latest")
 ```
 
 Probes that do not map to a unique gene are removed and expression is averaged 
@@ -120,10 +120,10 @@ To avoid returning an empty object, it is usually recommended to use the summari
 
 ```{r multi}
 # Within a study
-em269 <- sdy269$getGEMatrix(c("TIV_2008", "LAIV_2008"))
+em269 <- sdy269$getGEMatrix(c("SDY269_PBMC_TIV_Geo", "SDY269_PBMC_LAIV_Geo"))
 
 # Combining across studies
-TIV_seasons <- all$getGEMatrix(c("TIV_2008", "SDY144_TIV2011_geo"),
+TIV_seasons <- all$getGEMatrix(c("SDY269_PBMC_TIV_Geo", "SDY144_TIV2011_geo"),
                                outputType = "summary",
                                annotation = "latest")
 ```
@@ -145,7 +145,7 @@ names(sdy269$cache)
 If, for any reason, a specific marix needs to be redownloaded, the `reload` argument will clear the cache for that specific `getGEMatrix` call and download the file and metadata again.
 
 ```{r caching-reload}
-TIV_2008 <- sdy269$getGEMatrix("TIV_2008", reload = TRUE)
+TIV_2008 <- sdy269$getGEMatrix("SDY269_PBMC_TIV_Geo", reload = TRUE)
 ```
 
 Finally, it is possible to clear every cached expression matrix (and dataset).
