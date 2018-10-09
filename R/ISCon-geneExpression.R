@@ -536,7 +536,7 @@ ISCon$set(
     }
 
     status <- self$cache$GE_matrices$annotation[self$cache$GE_matrices$name == matrixName]
-    currOut <- self$cache$GE_matrices$outputtype
+    currOut <- self$cache$GE_matrices$outputtype[self$cache$GE_matrices$name == matrixName]
     if (status == annotation & reload != TRUE & currOut == outputType) {
       message(paste0("returning ", annotation, " annotation from cache"))
       return()
