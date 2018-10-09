@@ -4,7 +4,8 @@
 \alias{write_netrc}
 \title{Write a netrc file}
 \usage{
-write_netrc(login, password, machine = "www.immunespace.org", file = NULL)
+write_netrc(login, password, machine = "www.immunespace.org",
+  file = NULL)
 }
 \arguments{
 \item{login}{A \code{character}. The email address used for loging in on
