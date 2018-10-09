@@ -153,8 +153,8 @@ ISCon$set(
         message(paste0("returning ", esetName, " from cache"))
       } else {
         self$cache[[esetName]] <- NULL
-        private$.downloadMatrix(matrixName, outputType, annotation)
-        private$.getGEFeatures(matrixName, outputType, annotation)
+        private$.downloadMatrix(matrixName, outputType, annotation, reload)
+        private$.getGEFeatures(matrixName, outputType, annotation, reload)
         private$.constructExpressionSet(matrixName, outputType, annotation)
       }
 
@@ -536,7 +536,8 @@ ISCon$set(
     }
 
     status <- self$cache$GE_matrices$annotation[self$cache$GE_matrices$name == matrixName]
-    if (status == annotation & reload != TRUE) {
+    currOut <- self$cache$GE_matrices$outputtype
+    if (status == annotation & reload != TRUE & currOut == outputType) {
       message(paste0("returning ", annotation, " annotation from cache"))
       return()
     }
