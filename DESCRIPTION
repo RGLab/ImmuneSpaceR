@@ -48,7 +48,7 @@ Imports:
     rmarkdown,
     preprocessCore,
     parallel
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.0
 Collate: 
     'CreateConnection.R'
     'ISCon.R'

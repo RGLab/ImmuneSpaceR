@@ -102,7 +102,7 @@ For more information about `getDataset`'s options, refer to the dedicated vignet
 We can also grab a gene expression matrix
 
 ```{r getGEMatrix}
-sdy269$getGEMatrix("LAIV_2008")
+sdy269$getGEMatrix("SDY269_PBMC_LAIV_Geo")
 ```
 
 The object contacts the database and downloads the matrix file. This is stored and cached locally as a `data.table`. The next time you access it, it will be much faster since it won't need to contact the database again.
@@ -110,13 +110,13 @@ The object contacts the database and downloads the matrix file. This is stored a
 It is also possible to call this function using multiple matrix names. In this case, all the matrices are downloaded and combined into a single `ExpressionSet`.
 
 ```{r getGEMatrix-multiple}
-sdy269$getGEMatrix(c("TIV_2008", "LAIV_2008"))
+sdy269$getGEMatrix(c("SDY269_PBMC_TIV_Geo", "SDY269_PBMC_LAIV_Geo"))
 ```
 
 Finally, the summary argument will let you download the matrix with gene symbols in place of probe ids.
 
 ```{r getGEMatrix-summary}
-gs <- sdy269$getGEMatrix("TIV_2008", outputType = "summary", annotation = "latest")
+gs <- sdy269$getGEMatrix("SDY269_PBMC_TIV_Geo", outputType = "summary", annotation = "latest")
 ```
 
 If the connection was created with `verbose = TRUE`, some functions will display additional informations such as the valid dataset names.
