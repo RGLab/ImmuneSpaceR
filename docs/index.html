@@ -39,7 +39,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">ImmuneSpaceR</a>
-        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">1.7.4</span>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">1.7.5</span>
       </span>
     </div>
 
@@ -69,6 +69,9 @@
     </li>
     <li>
       <a href="articles/getGEMatrix.html">Handling Expression Matrices with ImmuneSpaceR</a>
+    </li>
+    <li>
+      <a href="articles/interactiveNetrc.html">An Interactive Netrc Walkthrough</a>
     </li>
     <li>
       <a href="articles/report_SDY144.html">SDY144: Correlation of HAI/Virus Neutralizition Titer and Cell Counts</a>
@@ -181,15 +184,15 @@ study &lt;-<span class="st"> </span><span class="kw"><a href="reference/CreateCo
 <span class="co">#&gt;  gene_expression_files</span>
 <span class="co">#&gt;  fcs_sample_files</span>
 <span class="co">#&gt; Expression Matrices</span>
-<span class="co">#&gt;  TIV_2008</span>
-<span class="co">#&gt;  LAIV_2008</span></code></pre></div>
+<span class="co">#&gt;  SDY269_PBMC_TIV_Geo</span>
+<span class="co">#&gt;  SDY269_PBMC_LAIV_Geo</span></code></pre></div>
 <p>which will print names of available datasets and gene expression matrices.</p>
 </div>
 <div id="retrieve-datasets" class="section level3">
 <h3 class="hasAnchor">
 <a href="#retrieve-datasets" class="anchor"></a>Retrieve datasets</h3>
 <p>Gene expression matrices or datasets can be retreived by:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">LAIV2008 &lt;-<span class="st"> </span>study<span class="op">$</span><span class="kw"><a href="reference/ImmuneSpaceConnection.html">getGEMatrix</a></span>(<span class="st">"LAIV_2008"</span>)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">LAIV2008 &lt;-<span class="st"> </span>study<span class="op">$</span><span class="kw"><a href="reference/ImmuneSpaceConnection.html">getGEMatrix</a></span>(<span class="st">"SDY269_PBMC_LAIV_Geo"</span>)
 <span class="co">#&gt; Downloading matrix..</span>
 <span class="co">#&gt; Constructing ExpressionSet</span>
 elisa &lt;-<span class="st"> </span>study<span class="op">$</span><span class="kw"><a href="reference/ImmuneSpaceConnection.html">getDataset</a></span>(<span class="st">"elisa"</span>)</code></pre></div>

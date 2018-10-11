@@ -36,7 +36,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ImmuneSpaceR</a>
-        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">1.7.4</span>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">1.7.5</span>
       </span>
     </div>
 
@@ -66,6 +66,9 @@
     </li>
     <li>
       <a href="../articles/getGEMatrix.html">Handling Expression Matrices with ImmuneSpaceR</a>
+    </li>
+    <li>
+      <a href="../articles/interactiveNetrc.html">An Interactive Netrc Walkthrough</a>
     </li>
     <li>
       <a href="../articles/report_SDY144.html">SDY144: Correlation of HAI/Virus Neutralizition Titer and Cell Counts</a>
@@ -115,7 +118,7 @@
     <div class="page-header toc-ignore">
       <h1>Downloading Datasets with getDataset</h1>
             
-            <h4 class="date">2018-08-16</h4>
+            <h4 class="date">2018-10-11</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/RGLab/ImmuneSpaceR/blob/master/vignettes/getDataset.Rmd"><code>vignettes/getDataset.Rmd</code></a></small>
       <div class="hidden name"><code>getDataset.Rmd</code></div>
@@ -149,8 +152,8 @@ all &lt;-<span class="st"> </span><span class="kw"><a href="../reference/CreateC
 ##  gene_expression_files
 ##  fcs_sample_files
 ## Expression Matrices
-##  TIV_2008
-##  LAIV_2008</code></pre>
+##  SDY269_PBMC_TIV_Geo
+##  SDY269_PBMC_LAIV_Geo</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">all<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">listDatasets</a></span>()</code></pre></div>
 <pre><code>## datasets
 ##  fcs_analyzed_result
@@ -167,34 +170,86 @@ all &lt;-<span class="st"> </span><span class="kw"><a href="../reference/CreateC
 ##  gene_expression_files
 ##  mbaa
 ## Expression Matrices
-##  SDY144_TIV2011
-##  SDY67_batch2
-##  SDY400_oldAdults
-##  SDY522_LAIVvaccine
-##  SDY400_youngerAdults
-##  SDY301_AIRFV_2012
-##  SDY404_young_PBMC_year2
-##  SDY404_older_PBMC_year2
-##  SDY63_young_PBMC_year1
-##  SDY63_older_PBMC_year1
-##  SDY296_AIRFV_2011
-##  TIV_older
-##  TIV_young
-##  Cohort2_older
-##  Cohort1_young
-##  pH1N1_2009
-##  TIV_2010
-##  VLplus
-##  VLminus
-##  Saline_group2
-##  Saline_group1
-##  Pneumovax23_group2
-##  Pneumovax23_group1
-##  Fluzone_group2
-##  Fluzone_group1
-##  TIV_2007
-##  TIV_2008
-##  LAIV_2008</code></pre>
+##  SDY113_IDTIV_Group_geo
+##  SDY113_LAIV_Group_geo
+##  SDY113_TIV_Group_geo
+##  SDY406_InfluenzaLikeIllness_geo
+##  SDY1293_PBMC_Vaccinated_geo
+##  SDY1293_PBMC_Control_Geo
+##  SDY1289_WholeBlood_Montreal_Geo
+##  SDY1289_WholeBlood_Lausanne_Geo
+##  SDY1289_WholeBlood_Emory_Geo
+##  SDY1276_WholeBlood_Validation_Geo
+##  SDY1276_WholeBlood_Discovery_Geo
+##  SDY1264_PBMC_Trial2_Geo
+##  SDY1264_PBMC_Trial1_Geo
+##  SDY1260_PBMC_MCV4_Geo
+##  SDY1260_PBMC_MPSV4_Geo
+##  SDY984_PBMC_Elderly_Geo
+##  SDY984_PBMC_Young_Geo
+##  SDY61_PBMC_TIVGrp
+##  SDY56_PBMC_Older
+##  SDY56_PBMC_Young
+##  SDY80_PBMC_Cohort2_Geo
+##  SDY63_PBMC_Young_Geo
+##  SDY63_PBMC_Older_Geo
+##  SDY404_PBMC_Young_Geo
+##  SDY404_PBMC_Older_Geo
+##  SDY400_PBMC_Older_Geo
+##  SDY400_PBMC_Young_Geo
+##  SDY269_PBMC_TIV_Geo
+##  SDY269_PBMC_LAIV_Geo
+##  SDY180_Other_Grp2Saline_Geo
+##  SDY180_Other_Grp2Pneunomax23_Geo
+##  SDY180_Other_Grp2Fluzone_Geo
+##  SDY180_Other_Grp1Saline_Geo
+##  SDY180_Other_Grp1Pneunomax23_Geo
+##  SDY180_Other_Grp1Fluzone_Geo
+##  SDY144_TIV2011_geo
+##  SDY224_PBMC_TIV2010_Geo
+##  SDY300_dendriticCell_dcMonoFlu2011
+##  SDY300_otherCell_dcMonoFlu2011
+##  SDY67_HealthyAdults
+##  SDY67_Batch2_HealthyAdult
+##  SDY1328_healthy_adults
+##  SDY1324_nonBCG_Vaccinated
+##  SDY1324_Latent_TB
+##  SDY1324_BCG_Vaccinated
+##  SDY888_denvNeg_endemicAreaTrue
+##  SDY888_DenvNeg_endemicAreaFalse
+##  SDY888_DenvPos_endemicAreaTrue
+##  SDY690_WholeBlood_EnergixB
+##  SDY690_PBMC_EnergixB
+##  SDY667_HIPC_PSOR_PPP
+##  SDY597_Cellsubs_Invitro
+##  SDY387_NCH
+##  SDY372_JDM_2012_2013
+##  SDY368_NCH_2013_2014
+##  SDY364_NCH_2012_2013
+##  SDY315_GroupC
+##  SDY315_GroupB
+##  SDY315_GroupA
+##  SDY312_GroupC_Cohort
+##  SDY312_GroupB_Cohort
+##  SDY312_GroupA_Cohort
+##  SDY305_TIVGroup
+##  SDY305_IDTIVGroup
+##  SDY299_HEPISLAV_Cohort
+##  SDY112_GroupC
+##  SDY112_GroupB
+##  SDY112_GroupA
+##  SDY34_InfluenzaVaccine
+##  SDY34_HealthyControls
+##  SDY28_Dryvax_Recipients
+##  SDY301_AIRFV
+##  SDY296_AIRFV
+##  SDY162_Macrophage_VLplus
+##  SDY162_PBMC_VLplus
+##  SDY162_Macrophage_VLminus
+##  SDY162_PBMC_VLminus
+##  SDY522_LAIV_Vaccine
+##  SDY212_Cohort2_Older
+##  SDY212_Cohort1_Young</code></pre>
 <p>Naturally, <code>all</code> contains every dataset available on ImmuneSpace as it combines all available studies. Additionaly, when creating connection object with <code>verbose = TRUE</code>, a call to the <code>getDataset</code> method with an invalid dataset name will return the list of valid datasets.</p>
 </div>
 <div id="download" class="section level1">
