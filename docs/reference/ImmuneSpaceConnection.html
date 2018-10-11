@@ -74,7 +74,7 @@ It provides function to download and display the data within these studies." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ImmuneSpaceR</a>
-        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">1.7.4</span>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">1.7.5</span>
       </span>
     </div>
 
@@ -104,6 +104,9 @@ It provides function to download and display the data within these studies." />
     </li>
     <li>
       <a href="../articles/getGEMatrix.html">Handling Expression Matrices with ImmuneSpaceR</a>
+    </li>
+    <li>
+      <a href="../articles/interactiveNetrc.html">An Interactive Netrc Walkthrough</a>
     </li>
     <li>
       <a href="../articles/report_SDY144.html">SDY144: Correlation of HAI/Virus Neutralizition Titer and Cell Counts</a>
@@ -232,13 +235,14 @@ study.</p>
     <code>colFilter</code>: A character. A filter as returned by Rlabkey's
     <code>makeFilter</code> function.
     <code>...</code>: Extra arguments to be passed to <code>labkey.selectRows</code>.</p></dd>
-  <dt><code>getGEMatrix(matrixName = NULL, cohort = NULL,
+  <dt><code>getGEMatrix(matrixName = NULL, cohortType = NULL,
   outputType = "summary", annotation = "latest", reload = FALSE, verbose = FALSE)</code></dt><dd><p>Downloads a probe-level or gene-symbol summarized expression matrix from ImmuneSpace. Use experimentData() on the resulting expressionSet object to see version info for annotation.
     <code>matrixName</code>: A character. The name of the gene expression matrix
     to download.
-    <code>cohort</code>: A character. The name of a cohort that has an associated
+    <code>cohortType</code>: A character. The name of a cohortType that has an associated
     gene expression matrix. Note that if this argument is not NULL, then
-    <code>matrixName</code> is ignored.
+    <code>matrixName</code> is ignored. CohortType is a concatenation of "cohort" and "cell type"
+    that allows the user to specify a matrix for the cell type subset of a cohort.
     <code>outputType</code>: one of 'raw', 'normalized' or 'summary'. If 'raw'
     then returns an expression matrix of non-normalized values by probe.
     'normalized' returns normalized values by probe. 'summary' returns

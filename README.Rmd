@@ -99,7 +99,7 @@ which will print names of available datasets and gene expression matrices.
 Gene expression matrices or datasets can be retreived by:
 
 ```{r retrieveDatasets}
-LAIV2008 <- study$getGEMatrix("LAIV_2008")
+LAIV2008 <- study$getGEMatrix("SDY269_PBMC_LAIV_Geo")
 elisa <- study$getDataset("elisa")
 ```
 

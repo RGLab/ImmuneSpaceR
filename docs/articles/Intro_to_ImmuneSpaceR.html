@@ -36,7 +36,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ImmuneSpaceR</a>
-        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">1.7.4</span>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">1.7.5</span>
       </span>
     </div>
 
@@ -66,6 +66,9 @@
     </li>
     <li>
       <a href="../articles/getGEMatrix.html">Handling Expression Matrices with ImmuneSpaceR</a>
+    </li>
+    <li>
+      <a href="../articles/interactiveNetrc.html">An Interactive Netrc Walkthrough</a>
     </li>
     <li>
       <a href="../articles/report_SDY144.html">SDY144: Correlation of HAI/Virus Neutralizition Titer and Cell Counts</a>
@@ -115,7 +118,7 @@
     <div class="page-header toc-ignore">
       <h1>An Introduction to the ImmuneSpaceR Package</h1>
             
-            <h4 class="date">2018-08-16</h4>
+            <h4 class="date">2018-10-11</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/RGLab/ImmuneSpaceR/blob/master/vignettes/Intro_to_ImmuneSpaceR.Rmd"><code>vignettes/Intro_to_ImmuneSpaceR.Rmd</code></a></small>
       <div class="hidden name"><code>Intro_to_ImmuneSpaceR.Rmd</code></div>
@@ -217,27 +220,27 @@ hai &lt;-<span class="st"> </span>sdy269<span class="op">$</span><span class="kw
 <h1 class="hasAnchor">
 <a href="#fetching-expression-matrices" class="anchor"></a>Fetching expression matrices</h1>
 <p>We can also grab a gene expression matrix</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sdy269<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getGEMatrix</a></span>(<span class="st">"LAIV_2008"</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sdy269<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getGEMatrix</a></span>(<span class="st">"SDY269_PBMC_LAIV_Geo"</span>)</code></pre></div>
 <pre><code>## Downloading matrix..</code></pre>
 <pre><code>## Constructing ExpressionSet</code></pre>
 <pre><code>## ExpressionSet (storageMode: lockedEnvironment)
-## assayData: 16729 features, 83 samples 
+## assayData: 16442 features, 83 samples 
 ##   element names: exprs 
 ## protocolData: none
 ## phenoData
-##   sampleNames: BS586175 BS586212 ... BS586178 (83 total)
+##   sampleNames: BS586100 BS586156 ... BS586239 (83 total)
 ##   varLabels: study_time_collected study_time_collected_unit ...
 ##     biosample_accession (5 total)
 ##   varMetadata: labelDescription
 ## featureData
-##   featureNames: DDR1 RFC2 ... NUS1P3 (16729 total)
+##   featureNames: DDR1 RFC2 ... NUS1P3 (16442 total)
 ##   fvarLabels: FeatureId gene_symbol
 ##   fvarMetadata: labelDescription
 ## experimentData: use 'experimentData(object)'
 ## Annotation:</code></pre>
 <p>The object contacts the database and downloads the matrix file. This is stored and cached locally as a <code>data.table</code>. The next time you access it, it will be much faster since it won’t need to contact the database again.</p>
 <p>It is also possible to call this function using multiple matrix names. In this case, all the matrices are downloaded and combined into a single <code>ExpressionSet</code>.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sdy269<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getGEMatrix</a></span>(<span class="kw">c</span>(<span class="st">"TIV_2008"</span>, <span class="st">"LAIV_2008"</span>))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sdy269<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getGEMatrix</a></span>(<span class="kw">c</span>(<span class="st">"SDY269_PBMC_TIV_Geo"</span>, <span class="st">"SDY269_PBMC_LAIV_Geo"</span>))</code></pre></div>
 <pre><code>## Downloading matrix..</code></pre>
 <pre><code>## returning summary matrix from cache</code></pre>
 <pre><code>## returning latest annotation from cache</code></pre>
@@ -245,23 +248,23 @@ hai &lt;-<span class="st"> </span>sdy269<span class="op">$</span><span class="kw
 ## Constructing ExpressionSet</code></pre>
 <pre><code>## Combining ExpressionSets</code></pre>
 <pre><code>## ExpressionSet (storageMode: lockedEnvironment)
-## assayData: 16729 features, 163 samples 
+## assayData: 16442 features, 163 samples 
 ##   element names: exprs 
 ## protocolData: none
 ## phenoData
-##   sampleNames: BS586205 BS586250 ... BS586178 (163 total)
+##   sampleNames: BS586128 BS586240 ... BS586239 (163 total)
 ##   varLabels: study_time_collected study_time_collected_unit ...
 ##     biosample_accession (5 total)
 ##   varMetadata: labelDescription
 ## featureData
-##   featureNames: 1 2 ... 16729 (16729 total)
+##   featureNames: 1 2 ... 16442 (16442 total)
 ##   fvarLabels: FeatureId gene_symbol
 ##   fvarMetadata: labelDescription
 ## experimentData: use 'experimentData(object)'
 ## Annotation:</code></pre>
 <p>Finally, the summary argument will let you download the matrix with gene symbols in place of probe ids.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">gs &lt;-<span class="st"> </span>sdy269<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getGEMatrix</a></span>(<span class="st">"TIV_2008"</span>, <span class="dt">outputType =</span> <span class="st">"summary"</span>, <span class="dt">annotation =</span> <span class="st">"latest"</span>)</code></pre></div>
-<pre><code>## returning TIV_2008_sum_eset from cache</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">gs &lt;-<span class="st"> </span>sdy269<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getGEMatrix</a></span>(<span class="st">"SDY269_PBMC_TIV_Geo"</span>, <span class="dt">outputType =</span> <span class="st">"summary"</span>, <span class="dt">annotation =</span> <span class="st">"latest"</span>)</code></pre></div>
+<pre><code>## returning SDY269_PBMC_TIV_Geo_sum_eset from cache</code></pre>
 <p>If the connection was created with <code>verbose = TRUE</code>, some functions will display additional informations such as the valid dataset names.</p>
 </div>
 <div id="plotting" class="section level1">
@@ -300,7 +303,7 @@ hai &lt;-<span class="st"> </span>sdy269<span class="op">$</span><span class="kw
 ##     - hla_typing
 ##     - gene_expression_files
 ##     - mbaa
-##   28 Available Expression Matrices</code></pre>
+##   80 Available Expression Matrices</code></pre>
 <p>In cross-study connections, <code>getDataset</code> and <code>getGEMatrix</code> will combine the requested datasets or expression matrices. See the dedicated vignettes for more information.</p>
 <p>Likewise, <code>plot</code> will visualize accross studies. Note that in most cases the datasets will have too many cohorts/subjects, making the filtering of the data a necessity. The <code>colFilter</code> argument can be used here, as described in the <code>getDataset</code> section.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">plotFilter &lt;-<span class="st"> </span><span class="kw"><a href="http://www.rdocumentation.org/packages/Rlabkey/topics/makeFilter">makeFilter</a></span>(<span class="kw">c</span>(<span class="st">"cohort"</span>, <span class="st">"IN"</span>, <span class="st">"TIV 2010;TIV Group 2008"</span>))

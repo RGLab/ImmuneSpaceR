@@ -36,7 +36,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ImmuneSpaceR</a>
-        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">1.7.4</span>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">1.7.5</span>
       </span>
     </div>
 
@@ -66,6 +66,9 @@
     </li>
     <li>
       <a href="../articles/getGEMatrix.html">Handling Expression Matrices with ImmuneSpaceR</a>
+    </li>
+    <li>
+      <a href="../articles/interactiveNetrc.html">An Interactive Netrc Walkthrough</a>
     </li>
     <li>
       <a href="../articles/report_SDY144.html">SDY144: Correlation of HAI/Virus Neutralizition Titer and Cell Counts</a>
@@ -116,7 +119,7 @@
       <h1>Handling Expression Matrices with ImmuneSpaceR</h1>
                         <h4 class="author">Renan Sauteraud</h4>
             
-            <h4 class="date">2018-08-16</h4>
+            <h4 class="date">2018-10-11</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/RGLab/ImmuneSpaceR/blob/master/vignettes/getGEMatrix.Rmd"><code>vignettes/getGEMatrix.Rmd</code></a></small>
       <div class="hidden name"><code>getGEMatrix.Rmd</code></div>
@@ -152,39 +155,91 @@ all &lt;-<span class="st"> </span><span class="kw"><a href="../reference/CreateC
 ##  gene_expression_files
 ##  fcs_sample_files
 ## Expression Matrices
-##  TIV_2008
-##  LAIV_2008</code></pre>
+##  SDY269_PBMC_TIV_Geo
+##  SDY269_PBMC_LAIV_Geo</code></pre>
 <p>Using <code>output = "expression"</code>, we can remove the datasets from the output.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">all<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">listDatasets</a></span>(<span class="dt">output =</span> <span class="st">"expression"</span>)</code></pre></div>
 <pre><code>## Expression Matrices
-##  SDY144_TIV2011
-##  SDY67_batch2
-##  SDY400_oldAdults
-##  SDY522_LAIVvaccine
-##  SDY400_youngerAdults
-##  SDY301_AIRFV_2012
-##  SDY404_young_PBMC_year2
-##  SDY404_older_PBMC_year2
-##  SDY63_young_PBMC_year1
-##  SDY63_older_PBMC_year1
-##  SDY296_AIRFV_2011
-##  TIV_older
-##  TIV_young
-##  Cohort2_older
-##  Cohort1_young
-##  pH1N1_2009
-##  TIV_2010
-##  VLplus
-##  VLminus
-##  Saline_group2
-##  Saline_group1
-##  Pneumovax23_group2
-##  Pneumovax23_group1
-##  Fluzone_group2
-##  Fluzone_group1
-##  TIV_2007
-##  TIV_2008
-##  LAIV_2008</code></pre>
+##  SDY113_IDTIV_Group_geo
+##  SDY113_LAIV_Group_geo
+##  SDY113_TIV_Group_geo
+##  SDY406_InfluenzaLikeIllness_geo
+##  SDY1293_PBMC_Vaccinated_geo
+##  SDY1293_PBMC_Control_Geo
+##  SDY1289_WholeBlood_Montreal_Geo
+##  SDY1289_WholeBlood_Lausanne_Geo
+##  SDY1289_WholeBlood_Emory_Geo
+##  SDY1276_WholeBlood_Validation_Geo
+##  SDY1276_WholeBlood_Discovery_Geo
+##  SDY1264_PBMC_Trial2_Geo
+##  SDY1264_PBMC_Trial1_Geo
+##  SDY1260_PBMC_MCV4_Geo
+##  SDY1260_PBMC_MPSV4_Geo
+##  SDY984_PBMC_Elderly_Geo
+##  SDY984_PBMC_Young_Geo
+##  SDY61_PBMC_TIVGrp
+##  SDY56_PBMC_Older
+##  SDY56_PBMC_Young
+##  SDY80_PBMC_Cohort2_Geo
+##  SDY63_PBMC_Young_Geo
+##  SDY63_PBMC_Older_Geo
+##  SDY404_PBMC_Young_Geo
+##  SDY404_PBMC_Older_Geo
+##  SDY400_PBMC_Older_Geo
+##  SDY400_PBMC_Young_Geo
+##  SDY269_PBMC_TIV_Geo
+##  SDY269_PBMC_LAIV_Geo
+##  SDY180_Other_Grp2Saline_Geo
+##  SDY180_Other_Grp2Pneunomax23_Geo
+##  SDY180_Other_Grp2Fluzone_Geo
+##  SDY180_Other_Grp1Saline_Geo
+##  SDY180_Other_Grp1Pneunomax23_Geo
+##  SDY180_Other_Grp1Fluzone_Geo
+##  SDY144_TIV2011_geo
+##  SDY224_PBMC_TIV2010_Geo
+##  SDY300_dendriticCell_dcMonoFlu2011
+##  SDY300_otherCell_dcMonoFlu2011
+##  SDY67_HealthyAdults
+##  SDY67_Batch2_HealthyAdult
+##  SDY1328_healthy_adults
+##  SDY1324_nonBCG_Vaccinated
+##  SDY1324_Latent_TB
+##  SDY1324_BCG_Vaccinated
+##  SDY888_denvNeg_endemicAreaTrue
+##  SDY888_DenvNeg_endemicAreaFalse
+##  SDY888_DenvPos_endemicAreaTrue
+##  SDY690_WholeBlood_EnergixB
+##  SDY690_PBMC_EnergixB
+##  SDY667_HIPC_PSOR_PPP
+##  SDY597_Cellsubs_Invitro
+##  SDY387_NCH
+##  SDY372_JDM_2012_2013
+##  SDY368_NCH_2013_2014
+##  SDY364_NCH_2012_2013
+##  SDY315_GroupC
+##  SDY315_GroupB
+##  SDY315_GroupA
+##  SDY312_GroupC_Cohort
+##  SDY312_GroupB_Cohort
+##  SDY312_GroupA_Cohort
+##  SDY305_TIVGroup
+##  SDY305_IDTIVGroup
+##  SDY299_HEPISLAV_Cohort
+##  SDY112_GroupC
+##  SDY112_GroupB
+##  SDY112_GroupA
+##  SDY34_InfluenzaVaccine
+##  SDY34_HealthyControls
+##  SDY28_Dryvax_Recipients
+##  SDY301_AIRFV
+##  SDY296_AIRFV
+##  SDY162_Macrophage_VLplus
+##  SDY162_PBMC_VLplus
+##  SDY162_Macrophage_VLminus
+##  SDY162_PBMC_VLminus
+##  SDY522_LAIV_Vaccine
+##  SDY212_Cohort2_Older
+##  SDY212_Cohort1_Young</code></pre>
 <p>Naturally, <code>all</code> contains every processed matrices available on ImmuneSpace as it combines all available studies.</p>
 </div>
 <div id="download" class="section level1">
@@ -194,35 +249,35 @@ all &lt;-<span class="st"> </span><span class="kw"><a href="../reference/CreateC
 <h2 class="hasAnchor">
 <a href="#by-run-name" class="anchor"></a>By run name</h2>
 <p>The <code>getGEMatrix</code> method will accept any of the run names listed in the connection.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">TIV_<span class="dv">2008</span> &lt;-<span class="st"> </span>sdy269<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getGEMatrix</a></span>(<span class="st">"TIV_2008"</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">TIV_<span class="dv">2008</span> &lt;-<span class="st"> </span>sdy269<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getGEMatrix</a></span>(<span class="st">"SDY269_PBMC_TIV_Geo"</span>)</code></pre></div>
 <pre><code>## Downloading matrix..</code></pre>
 <pre><code>## Constructing ExpressionSet</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">TIV_<span class="dv">2011</span> &lt;-<span class="st"> </span>all<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getGEMatrix</a></span>(<span class="dt">matrixName =</span> <span class="st">"SDY144_TIV2011"</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">TIV_<span class="dv">2011</span> &lt;-<span class="st"> </span>all<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getGEMatrix</a></span>(<span class="dt">matrixName =</span> <span class="st">"SDY144_TIV2011_geo"</span>)</code></pre></div>
 <pre><code>## Downloading matrix..
 ## Constructing ExpressionSet</code></pre>
 <p>The matrices are returned as <code>ExpressionSet</code> where the phenoData slot contains basic demographic information and the featureData slot shows a mapping of probe to official gene symbols.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">TIV_<span class="dv">2008</span></code></pre></div>
 <pre><code>## ExpressionSet (storageMode: lockedEnvironment)
-## assayData: 16729 features, 80 samples 
+## assayData: 16442 features, 80 samples 
 ##   element names: exprs 
 ## protocolData: none
 ## phenoData
-##   sampleNames: BS586205 BS586250 ... BS586207 (80 total)
+##   sampleNames: BS586128 BS586240 ... BS586267 (80 total)
 ##   varLabels: study_time_collected study_time_collected_unit ...
 ##     biosample_accession (5 total)
 ##   varMetadata: labelDescription
 ## featureData
-##   featureNames: DDR1 RFC2 ... NUS1P3 (16729 total)
+##   featureNames: DDR1 RFC2 ... NUS1P3 (16442 total)
 ##   fvarLabels: FeatureId gene_symbol
 ##   fvarMetadata: labelDescription
 ## experimentData: use 'experimentData(object)'
 ## Annotation:</code></pre>
 </div>
-<div id="by-cohort" class="section level2">
+<div id="by-cohorttype" class="section level2">
 <h2 class="hasAnchor">
-<a href="#by-cohort" class="anchor"></a>By cohort</h2>
-<p>The <code>cohort</code> argument can be used in place of the run name (<code>x</code>). Likewise, the list of valid cohorts can be found in the Gene expression matrices table.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">LAIV_<span class="dv">2008</span> &lt;-<span class="st"> </span>sdy269<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getGEMatrix</a></span>(<span class="dt">cohort =</span> <span class="st">"LAIV group 2008"</span>)</code></pre></div>
+<a href="#by-cohorttype" class="anchor"></a>By cohortType</h2>
+<p>The <code>cohortType</code> argument can be used in place of the run name (<code>x</code>). It is a concatenation of “cohort” and “cell type” so that you may use matrices for analysis that have been normalized within cell-type. Likewise, the list of valid cohortTypes can be found in the Gene expression matrices table.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">LAIV_<span class="dv">2008</span> &lt;-<span class="st"> </span>sdy269<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getGEMatrix</a></span>(<span class="dt">cohortType =</span> <span class="st">"LAIV group 2008_PBMC"</span>)</code></pre></div>
 <pre><code>## Downloading matrix..</code></pre>
 <pre><code>## Constructing ExpressionSet</code></pre>
 <p>Note that when cohort is used, <code>x</code> is ignored.</p>
@@ -232,21 +287,21 @@ all &lt;-<span class="st"> </span><span class="kw"><a href="../reference/CreateC
 <h1 class="hasAnchor">
 <a href="#summarized-matrices" class="anchor"></a>Summarized matrices</h1>
 <p>By default, the returned <code>ExpressionSet</code>s have probe names as features (or rows). However, multiple probes often match the same gene and merging experiments from different arrays is impossible at feature level. When they are available, the <code>summary</code> argument allows to return the matrices with gene symbols instead of probes. You should use <code>currAnno</code> set to <code>TRUE</code> to use the latest official gene symbols mapped for each probe, but you can also set this to <code>FALSE</code> to retrieve the original mappings from when the matrix was created.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">TIV_2008_sum &lt;-<span class="st"> </span>sdy269<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getGEMatrix</a></span>(<span class="st">"TIV_2008"</span>, <span class="dt">outputType =</span> <span class="st">"summary"</span>, <span class="dt">annotation =</span> <span class="st">"latest"</span>)</code></pre></div>
-<pre><code>## returning TIV_2008_sum_eset from cache</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">TIV_2008_sum &lt;-<span class="st"> </span>sdy269<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getGEMatrix</a></span>(<span class="st">"SDY269_PBMC_TIV_Geo"</span>, <span class="dt">outputType =</span> <span class="st">"summary"</span>, <span class="dt">annotation =</span> <span class="st">"latest"</span>)</code></pre></div>
+<pre><code>## returning SDY269_PBMC_TIV_Geo_sum_eset from cache</code></pre>
 <p>Probes that do not map to a unique gene are removed and expression is averaged by gene.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">TIV_2008_sum</code></pre></div>
 <pre><code>## ExpressionSet (storageMode: lockedEnvironment)
-## assayData: 16729 features, 80 samples 
+## assayData: 16442 features, 80 samples 
 ##   element names: exprs 
 ## protocolData: none
 ## phenoData
-##   sampleNames: BS586205 BS586250 ... BS586207 (80 total)
+##   sampleNames: BS586128 BS586240 ... BS586267 (80 total)
 ##   varLabels: study_time_collected study_time_collected_unit ...
 ##     biosample_accession (5 total)
 ##   varMetadata: labelDescription
 ## featureData
-##   featureNames: DDR1 RFC2 ... NUS1P3 (16729 total)
+##   featureNames: DDR1 RFC2 ... NUS1P3 (16442 total)
 ##   fvarLabels: FeatureId gene_symbol
 ##   fvarMetadata: labelDescription
 ## experimentData: use 'experimentData(object)'
@@ -258,7 +313,7 @@ all &lt;-<span class="st"> </span><span class="kw"><a href="../reference/CreateC
 <p>In order to faciliate analysis across experiments and studies, when multiple runs or cohorts are specified, <code>getGEMatrix</code> will attempt to combine the selected expression matrices into a single <code>ExpressionSet</code>.</p>
 <p>To avoid returning an empty object, it is usually recommended to use the summarized version of the matrices, thus combining by genes. This is almost always necessary when combining data from multiple studies.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Within a study</span>
-em269 &lt;-<span class="st"> </span>sdy269<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getGEMatrix</a></span>(<span class="kw">c</span>(<span class="st">"TIV_2008"</span>, <span class="st">"LAIV_2008"</span>))</code></pre></div>
+em269 &lt;-<span class="st"> </span>sdy269<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getGEMatrix</a></span>(<span class="kw">c</span>(<span class="st">"SDY269_PBMC_TIV_Geo"</span>, <span class="st">"SDY269_PBMC_LAIV_Geo"</span>))</code></pre></div>
 <pre><code>## returning summary matrix from cache
 ## returning summary matrix from cache</code></pre>
 <pre><code>## returning latest annotation from cache
@@ -267,7 +322,7 @@ em269 &lt;-<span class="st"> </span>sdy269<span class="op">$</span><span class="
 ## Constructing ExpressionSet</code></pre>
 <pre><code>## Combining ExpressionSets</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Combining across studies</span>
-TIV_seasons &lt;-<span class="st"> </span>all<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getGEMatrix</a></span>(<span class="kw">c</span>(<span class="st">"TIV_2008"</span>, <span class="st">"SDY144_TIV2011"</span>),
+TIV_seasons &lt;-<span class="st"> </span>all<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getGEMatrix</a></span>(<span class="kw">c</span>(<span class="st">"SDY269_PBMC_TIV_Geo"</span>, <span class="st">"SDY144_TIV2011_geo"</span>),
                                <span class="dt">outputType =</span> <span class="st">"summary"</span>,
                                <span class="dt">annotation =</span> <span class="st">"latest"</span>)</code></pre></div>
 <pre><code>## Downloading matrix..</code></pre>
@@ -284,12 +339,12 @@ TIV_seasons &lt;-<span class="st"> </span>all<span class="op">$</span><span clas
 <p>See <code><a href="http://www.rdocumentation.org/packages/R6/topics/R6Class">?R6::R6Class</a></code> for more information about R6 class system.</p>
 <p>We can see a list of already downloaded runs and feature sets the <code>cache</code> field. This is not intended to be used for data manipulation and only displayed here to explain what gets cached.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">names</span>(sdy269<span class="op">$</span>cache)</code></pre></div>
-<pre><code>## [1] "GE_matrices"        "TIV_2008_sum"       "featureset_18"     
-## [4] "TIV_2008_sum_eset"  "LAIV_2008_sum"      "LAIV_2008_sum_eset"</code></pre>
+<pre><code>## [1] "GE_matrices"                   "SDY269_PBMC_TIV_Geo_sum"      
+## [3] "featureset_18"                 "SDY269_PBMC_TIV_Geo_sum_eset" 
+## [5] "SDY269_PBMC_LAIV_Geo_sum"      "SDY269_PBMC_LAIV_Geo_sum_eset"</code></pre>
 <p>If, for any reason, a specific marix needs to be redownloaded, the <code>reload</code> argument will clear the cache for that specific <code>getGEMatrix</code> call and download the file and metadata again.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">TIV_<span class="dv">2008</span> &lt;-<span class="st"> </span>sdy269<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getGEMatrix</a></span>(<span class="st">"TIV_2008"</span>, <span class="dt">reload =</span> <span class="ot">TRUE</span>)</code></pre></div>
-<pre><code>## returning summary matrix from cache</code></pre>
-<pre><code>## returning latest annotation from cache</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">TIV_<span class="dv">2008</span> &lt;-<span class="st"> </span>sdy269<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getGEMatrix</a></span>(<span class="st">"SDY269_PBMC_TIV_Geo"</span>, <span class="dt">reload =</span> <span class="ot">TRUE</span>)</code></pre></div>
+<pre><code>## Downloading matrix..</code></pre>
 <pre><code>## Constructing ExpressionSet</code></pre>
 <p>Finally, it is possible to clear every cached expression matrix (and dataset).</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sdy269<span class="op">$</span><span class="kw">clearCache</span>()</code></pre></div>
@@ -367,7 +422,7 @@ TIV_seasons &lt;-<span class="st"> </span>all<span class="op">$</span><span clas
       <li>
 <a href="#download">Download</a><ul class="nav nav-pills nav-stacked">
 <li><a href="#by-run-name">By run name</a></li>
-      <li><a href="#by-cohort">By cohort</a></li>
+      <li><a href="#by-cohorttype">By cohortType</a></li>
       </ul>
 </li>
       <li><a href="#summarized-matrices">Summarized matrices</a></li>

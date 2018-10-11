@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>theme_IS — theme_IS • ImmuneSpaceR</title>
+<title>Interactively write a netrc file — interactive_netrc • ImmuneSpaceR</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -30,11 +30,9 @@
 
 
 
-<meta property="og:title" content="theme_IS — theme_IS" />
+<meta property="og:title" content="Interactively write a netrc file — interactive_netrc" />
 
-<meta property="og:description" content="Theme that matches ImmuneSpace's graphic style. The theme modifies the
-background, the grid lines, the axis, and the colors used by continuous and
-gradient scales." />
+<meta property="og:description" content="Write a netrc file that is valid for accessing ImmuneSpace" />
 
 <meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
@@ -156,61 +154,31 @@ gradient scales." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>theme_IS</h1>
-    <small class="dont-index">Source: <a href='https://github.com/RGLab/ImmuneSpaceR/blob/master/R/theme.R'><code>R/theme.R</code></a></small>
-    <div class="hidden name"><code>theme_IS.Rd</code></div>
+    <h1>Interactively write a netrc file</h1>
+    <small class="dont-index">Source: <a href='https://github.com/RGLab/ImmuneSpaceR/blob/master/R/netrc.R'><code>R/netrc.R</code></a></small>
+    <div class="hidden name"><code>interactive_netrc.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>Theme that matches ImmuneSpace's graphic style. The theme modifies the
-background, the grid lines, the axis, and the colors used by continuous and
-gradient scales.</p>
+    <p>Write a netrc file that is valid for accessing ImmuneSpace</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>theme_IS</span>(<span class='kw'>base_size</span> <span class='kw'>=</span> <span class='fl'>12</span>)</pre>
-    
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
-    <table class="ref-arguments">
-    <colgroup><col class="name" /><col class="desc" /></colgroup>
-    <tr>
-      <th>base_size</th>
-      <td><p>A <code>numeric</code>. Base font size.</p></td>
-    </tr>
-    </table>
-    
+    <pre class="usage"><span class='fu'>interactive_netrc</span>()</pre>
+        
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A theme object</p>
-    
-    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
-
-    <p>List of modified ggplot2 elements: <code>panel.background</code>,
-<code>panel.grid.major</code>, <code>panel.grid.minor</code>, <code>axis.ticks</code>,
-<code>axis.line.x</code>, <code>axis.line.y</code>, <code>plot.title</code>, and
-<code>strip.background</code>.</p>
-<p>The default <code>scale_fill_gradient</code>, <code>scale_fill_continuous</code>,
-<code>scale_colour_gradient</code> and <code>scale_colour_continous</code> are also
-replaced by a custom scale.</p>
+    <p>A netrc file that is verified to connect to ImmuneSpace</p>
     
 
-    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'>library</span>(<span class='no'>ggplot2</span>)
-<span class='no'>p</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='http://www.rdocumentation.org/packages/ggplot2/topics/ggplot'>ggplot</a></span>(<span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>mtcars</span>) + <span class='fu'><a href='http://www.rdocumentation.org/packages/ggplot2/topics/geom_point'>geom_point</a></span>(<span class='fu'><a href='http://www.rdocumentation.org/packages/ggplot2/topics/aes'>aes</a></span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='no'>mpg</span>, <span class='kw'>y</span> <span class='kw'>=</span> <span class='no'>cyl</span>, <span class='kw'>color</span> <span class='kw'>=</span> <span class='no'>hp</span>)) + <span class='fu'><a href='http://www.rdocumentation.org/packages/ggplot2/topics/facet_grid'>facet_grid</a></span>(<span class='no'>vs</span> ~ <span class='no'>am</span>)
-<span class='no'>p</span> + <span class='fu'>theme_IS</span>()</div><div class='img'><img src='theme_IS-1.png' alt='' width='700' height='433' /></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
-      <li><a href="#arguments">Arguments</a></li>
       
       <li><a href="#value">Value</a></li>
-
-      <li><a href="#details">Details</a></li>
-      
-      <li><a href="#examples">Examples</a></li>
-    </ul>
+          </ul>
 
   </div>
 </div>
