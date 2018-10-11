@@ -664,7 +664,7 @@ ISCon$set(
     # Need cohortType for modules
     pheno <- pheno[, colnames(pheno) %in% c("biosample_accession",
                                             "participant_id",
-                                            "cohortType",
+                                            "cohort_type",
                                             "cohort",
                                             "study_time_collected",
                                             "study_time_collected_unit")]
