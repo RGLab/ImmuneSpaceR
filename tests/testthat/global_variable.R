@@ -31,7 +31,9 @@ fcsCols     <- data.frame(name = c("file_info_name"),
                           type = c("character"))
 fccCols     <- data.frame(name = c("sample_file", "control_file"),
                           type = c("character", "character"))
-
+phenoCols <- c("participant_id", "study_time_collected", "study_time_collected_unit",
+               "cohort", "cohort_type", "biosample_accession", "exposure_material_reported",
+               "exposure_process_preferred")
 #------VALID-ESETS-----------------------------------------------
 # these are studies with valid expression matrices
 valid_esets <- c("SDY63", "SDY212", "SDY400", "SDY404")
