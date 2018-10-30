@@ -770,6 +770,36 @@ ISCon$set(
   }
 )
 
+# getGEMatrix test function
+
+mat_tst <- function(study, onTest = TRUE, allMatrices = FALSE, ...) {
+  # Create Connection
+  con <- CreateConnection(study = study, onTest = onTest)
+
+  # Grab expression set
+  if (allMatrices == FALSE) {
+    es <- con$getGEMatrix(con$cache$GE_matrices$name[[1]], ...)
+    mat_names <- con$cache$GE_matrices$name[[1]]
+  } else {
+    es <- con$getGEMatrix(con$cache$GE_matrices$name, ...)
+    mat_names <- "all_mats" #con$cache$GE_matrices$name
+  }
+  ###---add handling for a list of matrices---###
+  # Put passed down args into variable
+  opts <- list(...)
+  if (exists("opts") == FALSE) {
+    opts <- list()
+    opts$outputType <- "summary"
+  }
+  # expression matrix +
+  em <- Biobase::exprs(es)
+  pd <- Biobase::pData(es)
+
+  res <- cbind(.chk_em(em), .chk_pd(pd), .chk_biosmpl(em,pd))
+  row.names(res) <- mat_names
+  return(res)
+}
+
 
 
 # HELPER -----------------------------------------------------------------------
@@ -794,4 +824,48 @@ ISCon$set(
   sdys <- paste0("SDY", sdys)
 
   sdys
+}
+
+# expression matrix
+.chk_em <- function(em){
+  # check em rownames
+  is_probe <- all(grepl("ILMN_|[0-9]+_at|[0-9]+_[a-z]_at", row.names(em)))
+  # check range (log2)
+  expr_within_range <- all(0 < range(em) & range(em) < 30)
+  # check num of genes
+  if (opts$outputType == "summary") {
+    gene_num <- length(row.names(em)) >= 10000
+  } else {
+    gene_num <- length(row.names(em)) >= 20000
+  }
+  res <- data.frame(outputType, is_probe, expr_within_range, gene_num)
+  return(res)
+}
+
+# Check pdata
+.chk_pd <- function(pd){
+  cohort_type_col <- "cohort_type" %in% colnames(pd)
+  ct_split <- do.call(rbind, strsplit(pd$cohort_type, "_", fixed = TRUE))
+  # does cohort type cohort match pd$cohort
+  cohort_match <- all(ct_split[,1] == pd$cohort)
+  # does type == labkey lookup for cell type
+  lk_smpl_type <- c("Amniotic fluid", "B cell", "Bone", "Bone marrow", "Brachial lymph node", "Branchoalveolar lavage fluid",
+                    "Carbohydrate", "Cell culture supematant", "Cervical lymph nodes", "Colon", "Colonic lamina propria",
+                    "Cord blood", "Dendritic cell", "Dermis", "DNA", "Epithelium", "Gastric lamina propria", "Ileum",
+                    "Inguinal lymph node", "Jejunum", "Kidney", "Lipid", "Liver", "Lung", "Lung lymph node", "Lymph node",
+                    "Lymphocyte", "Macrophage", "Mesenteric lymph node", "Monocyte", "Nasal lavage fluid", "Neutrophil",
+                    "NK cell", "Not Specified", "Other", "PBMC", "Placenta", "Plasma", "Popliteal lymph node", "Protein",
+                    "Red Blood Cell", "Saliva", "Serum", "Skin of body", "Spleen", "Stomach", "Synovial fluid", "Synovial tissue",
+                    "T cell", "Thymus", "Tonsil", "Umbilical cord blood", "Urinary bladder", "Urine", "Vagina", "Whole blood")
+  type_match <- all(ct_split[,2] %in% lk_smpl_type)
+  res <- data.frame(cohort_type_col, cohort_match, type_match)
+  return(res)
+}
+
+# Check biosamples from pdata and expression matrix
+.chk_biosmpl <- function(em, pd){
+  biosmpl_length_equal <- setequal(colnames(em), pd$biosample_accession)
+  biosmpl_format_chk <- all(grepl("BS[0-9]+", colnames(em)))
+  res <- data.frame(biosmpl_length_equal, biosmpl_format_chk)
+  return(res)
 }
