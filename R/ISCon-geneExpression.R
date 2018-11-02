@@ -670,6 +670,10 @@ ISCon$set(
                                             "study_time_collected_unit")]
     rownames(pheno) <- pheno$biosample_accession
 
+    # ensure same order as GEM rownames
+    order <- names(self$cache$SDY404_PBMC_Young_Geo_sum[,-1])
+    pheno <- pheno[match(order, row.names(pheno)),]
+
     # handling multiple timepoints per subject
     dups <- colnames(matrix)[duplicated(colnames(matrix))]
     if (length(dups) > 0) {

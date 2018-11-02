@@ -771,35 +771,29 @@ ISCon$set(
 )
 
 # getGEMatrix test function
-
-mat_tst <- function(study, onTest = TRUE, allMatrices = FALSE, ...) {
-  # Create Connection
-  con <- CreateConnection(study = study, onTest = onTest)
-
+ISCon$set(
+  which = "private",
+  name = ".checkExpressionSet",
+  value = function(allMatrices = FALSE,
+                   ...) {
   # Grab expression set
-  if (allMatrices == FALSE) {
-    es <- con$getGEMatrix(con$cache$GE_matrices$name[[1]], ...)
-    mat_names <- con$cache$GE_matrices$name[[1]]
-  } else {
-    es <- con$getGEMatrix(con$cache$GE_matrices$name, ...)
-    mat_names <- "all_mats" #con$cache$GE_matrices$name
-  }
+  mat_names <- ifelse(allMatrices == FALSE, self$cache$GE_matrices$name[[1]], self$cache$GE_matrices$name)
+  es <- self$getGEMatrix(mat_names, ...)
   ###---add handling for a list of matrices---###
   # Put passed down args into variable
-  opts <- list(...)
   if (exists("opts") == FALSE) {
     opts <- list()
     opts$outputType <- "summary"
+  } else {
+    opts <- list(...)
   }
   # expression matrix +
   em <- Biobase::exprs(es)
   pd <- Biobase::pData(es)
 
-  res <- cbind(.chk_em(em), .chk_pd(pd), .chk_biosmpl(em,pd))
-  row.names(res) <- mat_names
+  res <- cbind(.checkEM(em, opts, self), .checkPD(pd, self), .checkBiosample(em,pd))
   return(res)
-}
-
+})
 
 
 # HELPER -----------------------------------------------------------------------
@@ -827,45 +821,56 @@ mat_tst <- function(study, onTest = TRUE, allMatrices = FALSE, ...) {
 }
 
 # expression matrix
-.chk_em <- function(em){
-  # check em rownames
-  is_probe <- all(grepl("ILMN_|[0-9]+_at|[0-9]+_[a-z]_at", row.names(em)))
+.checkEM <- function(em, opts, self){
+  # get feature set
+  anno <- labkey.selectRows(
+    baseUrl = self$config$labkey.url.base,
+    folderPath = self$config$labkey.url.path,
+    schemaName = "Microarray",
+    queryName = "FeatureAnnotation",
+    colSelect = c("FeatureId", "GeneSymbol"),
+    maxRows = 20,
+    showHidden = TRUE)
+
+  # compare to gem rows
+  anno <- ifelse(opts$outputType == "summary", anno$`Gene Symbol`, anno$`Feature Id`)
+  anno_match <- all(anno %in% row.names(em))
   # check range (log2)
-  expr_within_range <- all(0 < range(em) & range(em) < 30)
+  expr_within_range <- all(0 < range(em) & range(em) < 30)t
   # check num of genes
-  if (opts$outputType == "summary") {
-    gene_num <- length(row.names(em)) >= 10000
-  } else {
-    gene_num <- length(row.names(em)) >= 20000
-  }
-  res <- data.frame(outputType, is_probe, expr_within_range, gene_num)
+  min_genes <- ifelse(opts$outputType == 'summary', 10000, 20000)
+  gene_num <- length(row.names(em)) >= min_genes
+  res <- data.frame(outputType = opts$outputType, anno_match, expr_within_range, gene_num)
   return(res)
 }
 
 # Check pdata
-.chk_pd <- function(pd){
+.checkPD <- function(pd, self){
   cohort_type_col <- "cohort_type" %in% colnames(pd)
   ct_split <- do.call(rbind, strsplit(pd$cohort_type, "_", fixed = TRUE))
   # does cohort type cohort match pd$cohort
   cohort_match <- all(ct_split[,1] == pd$cohort)
   # does type == labkey lookup for cell type
-  lk_smpl_type <- c("Amniotic fluid", "B cell", "Bone", "Bone marrow", "Brachial lymph node", "Branchoalveolar lavage fluid",
-                    "Carbohydrate", "Cell culture supematant", "Cervical lymph nodes", "Colon", "Colonic lamina propria",
-                    "Cord blood", "Dendritic cell", "Dermis", "DNA", "Epithelium", "Gastric lamina propria", "Ileum",
-                    "Inguinal lymph node", "Jejunum", "Kidney", "Lipid", "Liver", "Lung", "Lung lymph node", "Lymph node",
-                    "Lymphocyte", "Macrophage", "Mesenteric lymph node", "Monocyte", "Nasal lavage fluid", "Neutrophil",
-                    "NK cell", "Not Specified", "Other", "PBMC", "Placenta", "Plasma", "Popliteal lymph node", "Protein",
-                    "Red Blood Cell", "Saliva", "Serum", "Skin of body", "Spleen", "Stomach", "Synovial fluid", "Synovial tissue",
-                    "T cell", "Thymus", "Tonsil", "Umbilical cord blood", "Urinary bladder", "Urine", "Vagina", "Whole blood")
-  type_match <- all(ct_split[,2] %in% lk_smpl_type)
+  lk_smpl_type <- labkey.selectRows(baseUrl = self$config$labkey.url.base,
+                                    folderPath = self$config$labkey.url.path,
+                                    schemaName = "immport",
+                                    queryName = "lk_sample_type",
+                                    showHidden = TRUE,
+                                    colSelect = "Name")
+  type_match <- all(ct_split[,2] %in% lk_smpl_type$Name)
   res <- data.frame(cohort_type_col, cohort_match, type_match)
   return(res)
 }
 
 # Check biosamples from pdata and expression matrix
-.chk_biosmpl <- function(em, pd){
-  biosmpl_length_equal <- setequal(colnames(em), pd$biosample_accession)
-  biosmpl_format_chk <- all(grepl("BS[0-9]+", colnames(em)))
-  res <- data.frame(biosmpl_length_equal, biosmpl_format_chk)
+.checkBiosample <- function(em, pd){
+  # change to all.equal fxn
+  biosample_match<- all.equal(row.names(pd), names(em))
+  if (all(biosample_match != TRUE)) {
+    biosample_match <- FALSE
+  }
+  res <- data.frame(biosample_match)
   return(res)
 }
+
+
