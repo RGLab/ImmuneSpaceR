@@ -125,7 +125,8 @@ ISCon$set(
     # length(x) > 1 means multiple cohorts
     if (length(matrixName) > 1) {
       lapply(matrixName, private$.downloadMatrix, outputType, annotation, reload)
-      lapply(matrixName, private$.getGEFeatures, outputType, annotation, reload)
+      lapply(matrixName, private$.getGEFeatures
+             , outputType, annotation, reload)
       lapply(matrixName, private$.constructExpressionSet, outputType, annotation)
       ret <- .combineEMs(self$cache[esetName])
       if (dim(ret)[[1]] == 0) {
@@ -671,7 +672,7 @@ ISCon$set(
     rownames(pheno) <- pheno$biosample_accession
 
     # ensure same order as GEM rownames
-    order <- names(self$cache$SDY404_PBMC_Young_Geo_sum[,-1])
+    order <- names(self$cache[[cache_name]][,-1])
     pheno <- pheno[match(order, row.names(pheno)),]
 
     # handling multiple timepoints per subject

@@ -836,7 +836,7 @@ ISCon$set(
   anno <- ifelse(opts$outputType == "summary", anno$`Gene Symbol`, anno$`Feature Id`)
   anno_match <- all(anno %in% row.names(em))
   # check range (log2)
-  expr_within_range <- all(0 < range(em) & range(em) < 30)t
+  expr_within_range <- all(0 < range(em) & range(em) < 30)
   # check num of genes
   min_genes <- ifelse(opts$outputType == 'summary', 10000, 20000)
   gene_num <- length(row.names(em)) >= min_genes
