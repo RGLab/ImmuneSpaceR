@@ -865,7 +865,7 @@ ISCon$set(
 # Check biosamples from pdata and expression matrix
 .checkBiosample <- function(em, pd){
   # change to all.equal fxn
-  biosample_match<- all.equal(row.names(pd), names(em))
+  biosample_match<- all.equal(row.names(pd), colnames(em))
   if (all(biosample_match != TRUE)) {
     biosample_match <- FALSE
   }

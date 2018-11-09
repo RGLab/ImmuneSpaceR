@@ -669,11 +669,14 @@ ISCon$set(
                                             "cohort",
                                             "study_time_collected",
                                             "study_time_collected_unit")]
-    rownames(pheno) <- pheno$biosample_accession
+
 
     # ensure same order as GEM rownames
+    rownames(pheno) <- pheno$biosample_accession
     order <- names(self$cache[[cache_name]][,-1])
     pheno <- pheno[match(order, row.names(pheno)),]
+
+
 
     # handling multiple timepoints per subject
     dups <- colnames(matrix)[duplicated(colnames(matrix))]
