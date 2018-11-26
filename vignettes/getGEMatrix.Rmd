@@ -73,7 +73,7 @@ The `getGEMatrix` method will accept any of the run names listed in the connecti
 
 ```{r getGEMatrix}
 TIV_2008 <- sdy269$getGEMatrix("SDY269_PBMC_TIV_Geo")
-TIV_2011 <- all$getGEMatrix(matrixName = "SDY144_TIV2011_geo")
+TIV_2011 <- all$getGEMatrix(matrixName = "SDY144_Other_TIV_Geo")
 ```
 
 The matrices are returned as `ExpressionSet` where the phenoData slot contains basic demographic information and the featureData slot shows a mapping of probe to official gene symbols.
@@ -123,7 +123,7 @@ To avoid returning an empty object, it is usually recommended to use the summari
 em269 <- sdy269$getGEMatrix(c("SDY269_PBMC_TIV_Geo", "SDY269_PBMC_LAIV_Geo"))
 
 # Combining across studies
-TIV_seasons <- all$getGEMatrix(c("SDY269_PBMC_TIV_Geo", "SDY144_TIV2011_geo"),
+TIV_seasons <- all$getGEMatrix(c("SDY269_PBMC_TIV_Geo", "SDY144_Other_TIV_Geo"),
                                outputType = "summary",
                                annotation = "latest")
 ```
