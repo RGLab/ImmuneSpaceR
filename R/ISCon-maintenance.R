@@ -770,30 +770,6 @@ ISCon$set(
   }
 )
 
-# getGEMatrix test function
-ISCon$set(
-  which = "private",
-  name = ".checkExpressionSet",
-  value = function(allMatrices = FALSE,
-                   ...) {
-  # Grab expression set
-  mat_names <- ifelse(allMatrices == FALSE, self$cache$GE_matrices$name[[1]], self$cache$GE_matrices$name)
-  es <- self$getGEMatrix(mat_names, ...)
-  ###---add handling for a list of matrices---###
-  # Put passed down args into variable
-  if (exists("opts") == FALSE) {
-    opts <- list()
-    opts$outputType <- "summary"
-  } else {
-    opts <- list(...)
-  }
-  # expression matrix +
-  em <- Biobase::exprs(es)
-  pd <- Biobase::pData(es)
-
-  res <- cbind(.checkEM(em, opts, self), .checkPD(pd, self), .checkBiosample(em,pd))
-  return(res)
-})
 
 # getGEMatrix test function
 ISCon$set(
