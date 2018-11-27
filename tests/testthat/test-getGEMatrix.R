@@ -9,7 +9,7 @@ library(Biobase)
 # CreateConnection ------------------------------------------
 sdy <- CreateConnection("")
 sdy212 <- CreateConnection("SDY212")
-# Helper Function -------------------------------------------
+# Helper Functions -------------------------------------------
 
 test_EM <- function(EM, summary){
   expect_is(EM, "ExpressionSet")
@@ -19,6 +19,12 @@ test_EM <- function(EM, summary){
     # In summary, no gene is NA
     expect_false(any(is.na(fData(EM)$gene_symbol)))
   }
+}
+
+test_PD <- function(PD, phenoCols){
+  expect_is(PD, "data.frame")
+  expect_gt(nrow(PD), 0)
+  expect_true(all(phenoCols %in% colnames(PD)))
 }
 
 # Main Tests ------------------------------------------------
@@ -74,7 +80,12 @@ test_that("get ImmSig Study - SDY212 with correct anno and summary", {
   test_EM(EM, summary = F)
 })
 
+test_that("check pheno data.frame", {
+  EM <- sdy$getGEMatrix("SDY269_PBMC_TIV_Geo", outputType = "normalized")
+  PD <- Biobase::pData(EM)
 
+  test_PD(PD, phenoCols)
+})
 
 # cleanup ------------------------------------------------------
 if(exists("netrc_file")){
