@@ -124,7 +124,8 @@ ISCon$set(
     # length(x) > 1 means multiple cohorts
     if (length(matrixName) > 1) {
       lapply(matrixName, private$.downloadMatrix, outputType, annotation, reload)
-      lapply(matrixName, private$.getGEFeatures, outputType, annotation, reload)
+      lapply(matrixName, private$.getGEFeatures
+             , outputType, annotation, reload)
       lapply(matrixName, private$.constructExpressionSet, outputType, annotation)
       ret <- .combineEMs(self$cache[esetName])
       if (dim(ret)[[1]] == 0) {
@@ -670,6 +671,10 @@ ISCon$set(
                                             "exposure_material_reported",
                                             "exposure_process_preferred")]
     rownames(pheno) <- pheno$biosample_accession
+    order <- names(self$cache[[cache_name]][,-1])
+    pheno <- pheno[match(order, row.names(pheno)),]
+
+
 
     # handling multiple timepoints per subject
     dups <- colnames(matrix)[duplicated(colnames(matrix))]
