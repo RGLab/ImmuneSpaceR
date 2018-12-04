@@ -107,7 +107,6 @@ ISCon$set(
         matrixName <- self$cache$GE_matrices[cohort_type %in% ct_name, name]
         # SDY67 is special case. "Batch2" matrix is only day 0 and has overlapping
         # biosamples with full matrix "SDY67_HealthyAdults".  This causes
-        # .combineExpressionSets() to error out.  Therefore, selecting to use only
         # full matrix for cohort.
         if (grepl("SDY67", matrixName[[1]])) {
           matrixName <- matrixName[ grep("Batch2", matrixName, invert = T) ]
@@ -125,7 +124,8 @@ ISCon$set(
     # length(x) > 1 means multiple cohorts
     if (length(matrixName) > 1) {
       lapply(matrixName, private$.downloadMatrix, outputType, annotation, reload)
-      lapply(matrixName, private$.getGEFeatures, outputType, annotation, reload)
+      lapply(matrixName, private$.getGEFeatures
+             , outputType, annotation, reload)
       lapply(matrixName, private$.constructExpressionSet, outputType, annotation)
       ret <- .combineEMs(self$cache[esetName])
       if (dim(ret)[[1]] == 0) {
@@ -649,7 +649,7 @@ ISCon$set(
       .getLKtbl(
         con = self,
         schema = "study",
-        query = "HM_InputSamplesQuery",
+        query = "HM_inputSmplsPlusImmEx",
         containerFilter = "CurrentAndSubfolders",
         colNameOpt = "caption",
         colFilter = pheno_filter,
@@ -667,8 +667,14 @@ ISCon$set(
                                             "cohort_type",
                                             "cohort",
                                             "study_time_collected",
-                                            "study_time_collected_unit")]
+                                            "study_time_collected_unit",
+                                            "exposure_material_reported",
+                                            "exposure_process_preferred")]
     rownames(pheno) <- pheno$biosample_accession
+    order <- names(self$cache[[cache_name]][,-1])
+    pheno <- pheno[match(order, row.names(pheno)),]
+
+
 
     # handling multiple timepoints per subject
     dups <- colnames(matrix)[duplicated(colnames(matrix))]

@@ -118,11 +118,10 @@ study$plot("hai")
 
 ## Examples & Documentation
 
-For more advanced examples and detailed documentation, see the package vignettes
-and the reports available on [ImmuneSpace](https://www.immunespace.org/).
+For more advanced examples and detailed documentation, see the package vignettes and the reports available on [ImmuneSpace](https://www.immunespace.org/).
 
 
 
 ## Contributing
 
-If you'd like to report bugs/issues/feature requests or contribute to the package, please see [the contributing guidelines](./CONTRIBUTING.md).
+If you'd like to report bugs/issues/feature requests or contribute to the package, please see [the contributing guidelines](./CONTRIBUTING.md) and join [our Slack workspace](https://immunespace.herokuapp.com/).
