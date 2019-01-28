@@ -58,24 +58,33 @@ ISCon$set(
       sql = "SELECT COUNT(DISTINCT control_file) as n FROM fcs_control_files;",
       colNameOpt = "fieldname"
     ))
-    n_population <- suppressWarnings(labkey.executeSql(
+    n_analyzed <- suppressWarnings(labkey.executeSql(
       folderPath = self$config$labkey.url.path,
       schemaName = "study",
-      sql = "SELECT COUNT(DISTINCT population_name_reported) as n FROM fcs_analyzed_result;",
+      sql = "SELECT COUNT(DISTINCT ParticipantID) as participants, COUNT(DISTINCT study_time_collected) as timepoints, COUNT(DISTINCT arm_accession.name) as cohorts, COUNT(DISTINCT population_name_reported) as names FROM fcs_analyzed_result;",
       colNameOpt = "fieldname"
     ))
+    n_workspaces <- nrow(self$listWorkspaces())
+    n_gatingsets <- nrow(self$listGatingSets())
 
-    cat(sum(n_sample$n), "FCS sample files")
+    cat("\n<CytometryDataSummary>\n")
+    cat("  -", sum(n_sample$n), "FCS sample files")
     if (nrow(n_sample) > 1) {
       cat(" (")
-      cat(paste(n_sample$n, n_sample$file_info_purpose), sep = ", ")
+      cat(paste(n_sample$n, gsub(" result", "", n_sample$file_info_purpose)), sep = ", ")
       cat(")")
     }
     cat("\n")
-    cat(n_control$n, "FCS control files\n")
-    cat(n_population$n, "reported population names\n")
-    cat(nrow(self$listWorkspaces()), "workspace files\n")
-    cat(nrow(self$listGatingSets()), "gating sets\n")
+    cat("  -", n_control$n, "FCS control files\n")
+    cat("  -", n_workspaces, "workspace files\n")
+    cat("  -", n_gatingsets, "gating sets\n")
+    if (nrow(n_analyzed) > 0) {
+      cat("  - flow cytometry analyzed results\n")
+      cat("    -", n_analyzed$participants, "participants\n")
+      cat("    -", n_analyzed$timepoints, "time points\n")
+      cat("    -", n_analyzed$cohorts, "cohorts\n")
+      cat("    -", n_analyzed$names, "reported population names\n")
+    }
   }
 )
 
