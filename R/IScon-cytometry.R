@@ -35,7 +35,7 @@ ISCon$set(
         schemaName = "assay.General.gatingset",
         queryName = "Data",
         colNameOpt = "fieldname",
-        parameters = paste0("$STUDY=", study)
+        containerFilter = "CurrentAndSubfolders"
       ))
     )
   }
@@ -61,7 +61,11 @@ ISCon$set(
     n_analyzed <- suppressWarnings(labkey.executeSql(
       folderPath = self$config$labkey.url.path,
       schemaName = "study",
-      sql = "SELECT COUNT(DISTINCT ParticipantID) as participants, COUNT(DISTINCT study_time_collected) as timepoints, COUNT(DISTINCT arm_accession.name) as cohorts, COUNT(DISTINCT population_name_reported) as names FROM fcs_analyzed_result;",
+      sql = "SELECT COUNT(DISTINCT ParticipantID) as participants,
+                    COUNT(DISTINCT study_time_collected) as timepoints,
+                    COUNT(DISTINCT arm_accession.name) as cohorts,
+                    COUNT(DISTINCT population_name_reported) as names
+             FROM fcs_analyzed_result;",
       colNameOpt = "fieldname"
     ))
     n_workspaces <- nrow(self$listWorkspaces())
@@ -93,17 +97,17 @@ ISCon$set(
 ISCon$set(
   which = "public",
   name = "loadGatingSet",
-  value = function(gatingSetName) {
+  value = function(gatingSet) {
     assertRstudio()
 
     gs_list <- self$listGatingSets()
-    study <- gs_list[gatingSetName == gating_set_file, study]
-    if (gatingSetName %in% gs_list$gating_set_file) {
+    study <- gs_list[gatingSet == gating_set, study]
+    if (gatingSet %in% gs_list$gating_set) {
       load_gs(
-        paste0("/share/files/Studies/", study[1], "/@files/rawdata/gating_set/", gatingSetName)
+        paste0("/share/files/Studies/", study[1], "/@files/analysis/gating_set/", gsub("SDY\\d+_", "", gatingSet))
       )
     } else {
-      stop(gatingSetName, " is not a valid gating set name.")
+      stop(gatingSet, " is not a valid gating set name.")
     }
   }
 )
@@ -138,8 +142,7 @@ isRstudioDocker <- function() {
 }
 
 assertRstudio <- function() {
-  assert_that(
-    isRstudioDocker(),
-    msg = "You are not in the ImmuneSpace RStudio Session."
-  )
+  if (!isRstudioDocker()) {
+    stop("You are not in the ImmuneSpace RStudio Session.")
+  }
 }
