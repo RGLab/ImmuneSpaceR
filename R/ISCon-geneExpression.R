@@ -645,12 +645,13 @@ ISCon$set(
 
     # pheno
     runID <- self$cache$GE_matrices[name == matrixName, rowid]
+    bs <- colnames(matrix)[ grep("^BS\\d{6}$", colnames(matrix))]
     pheno_filter <- makeFilter(c("Run",
                                  "EQUAL",
                                  runID),
-                               c("Biosample/biosample_accession",
+                               c("biosample_accession",
                                  "IN",
-                                 paste(colnames(matrix), collapse = ";")))
+                                 paste(bs, collapse = ";")))
 
     pheno <- unique(
       .getLKtbl(
@@ -687,7 +688,7 @@ ISCon$set(
     } else {
       stop("Flat file is not standardized and is missing 'feature_id' or 'gene_symbol' column. Please contact administrator regarding file processing.")
     }
-    order <- order[!("BS694717.1" %in% order)] # rm SDY212 dup for the moment
+    order <- order[ order != "BS694717.1" ] # rm SDY212 dup for the moment
     pheno <- pheno[match(order, row.names(pheno)),]
 
     # handling multiple timepoints per subject
