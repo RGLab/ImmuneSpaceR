@@ -4,17 +4,16 @@ context("getGEMatrix")
 source("global_variable.R")
 source("global_dependencies.R")
 source("set_curlOptions.R")
-library(Biobase)
 
 # CreateConnection ------------------------------------------
 sdy <- CreateConnection("")
-sdy212 <- CreateConnection("SDY212")
-# Helper Functions -------------------------------------------
+IS1 <- CreateConnection("IS1")
 
+# Helper Function -------------------------------------------
 test_EM <- function(EM, summary){
   expect_is(EM, "ExpressionSet")
-  expect_gt(ncol(exprs(EM)), 0)
-  expect_gt(nrow(exprs(EM)), 0)
+  expect_gt(ncol(Biobase::exprs(EM)), 0)
+  expect_gt(nrow(Biobase::exprs(EM)), 0)
   if(summary == T){
     # In summary, no gene is NA
     expect_false(any(is.na(fData(EM)$gene_symbol)))
@@ -74,9 +73,10 @@ test_that("get_multiple matrices summary with reload", {
 })
 
 test_that("get ImmSig Study - SDY212 with correct anno and summary", {
-  EM <- sdy212$getGEMatrix(sdy212$cache$GE_matrices$name,
-                           outputType = "raw",
-                           annotation = "ImmSig")
+  mats <- IS1$cache$GE_matrices$name[ grep("SDY212", IS1$cache$GE_matrices$name) ]
+  EM <- IS1$getGEMatrix(mats,
+                        outputType = "raw",
+                        annotation = "ImmSig")
   test_EM(EM, summary = F)
 })
 
