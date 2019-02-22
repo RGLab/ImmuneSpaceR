@@ -680,15 +680,10 @@ ISCon$set(
                                             "exposure_material_reported",
                                             "exposure_process_preferred")]
 
-    # ensure same order as GEM rownames and check that flat file has standard format
+    # ensure same order as GEM rownames
     rownames(pheno) <- pheno$biosample_accession
     order <- names(self$cache[[cache_name]])
-    stdFormat <- any(grepl("feature_id|gene_symbol", order))
-    if (stdFormat == TRUE) {
-      order <- order[-grep("feature_id|gene_symbol", order)]
-    } else {
-      stop("Flat file is not standardized and is missing 'feature_id' or 'gene_symbol' column. Please contact administrator regarding file processing.")
-    }
+    order <- order[-grep("feature_id|gene_symbol|X|V1", order)]
     order <- order[ order != "BS694717.1" ] # rm SDY212 dup for the moment
     pheno <- pheno[match(order, row.names(pheno)),]
 
@@ -720,10 +715,10 @@ ISCon$set(
       rownames(fdata) <- rownames(matrix) <- matrix$gene_symbol # exprs and fData must match
     } else {
       annoSetId <- self$cache$GE_matrices$featureset[self$cache$GE_matrices$name == matrixName]
-
       features <- self$cache[[paste0("featureset_", annoSetId)]][, c("FeatureId","gene_symbol")]
 
-      colnames(matrix)[[grep("feature_id", colnames(matrix))]] <- "FeatureId"
+      # IS1 matrices have not been standardized, otherwise all others should be 'feature_id'
+      colnames(matrix)[[grep("feature_id|X|V1", colnames(matrix))]] <- "FeatureId"
 
       # Only known case is SDY300 for "2-Mar" and "1-Mar" which are
       # likely not actual probe_ids but mistransformed strings

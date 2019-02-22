@@ -84,6 +84,14 @@ test_that("get ImmSig Study - SDY212 with correct anno and summary", {
   expect_true(all.equal(dim(Biobase::exprs(EM)), c(48771, 92)))
 })
 
+test_that("get ImmSig Study - SDY67 fixing 'X' for 'FeatureId'", {
+  mats <- IS1$cache$GE_matrices$name[ grep("SDY67", IS1$cache$GE_matrices$name) ]
+  EM <- IS1$getGEMatrix(mats,
+                        outputType = "raw",
+                        annotation = "ImmSig")
+  test_EM(EM, summary = FALSE)
+})
+
 test_that("check pheno data.frame", {
   EM <- sdy$getGEMatrix("SDY269_PBMC_TIV_Geo", outputType = "normalized")
   PD <- Biobase::pData(EM)
