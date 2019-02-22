@@ -448,7 +448,8 @@ ISCon$set(
     if (grepl("HIPC", self$config$labkey.url.path)) {
 
       # get list of run sub-directories from webdav on /HIPC/ISx
-      sdy <- gsub("/HIPC/", "", self$config$labkey.url.path)
+      sdy <- regmatches(self$config$labkey.url.path,
+                        regexpr("IS\\d{1}", self$config$labkey.url.path))
       folder_link <- paste0(
         self$config$labkey.url.base,
         "/_webdav/HIPC/",

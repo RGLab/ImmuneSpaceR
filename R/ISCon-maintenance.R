@@ -642,17 +642,16 @@ ISCon$set(
   which = "private",
   name = ".listISFiles",
   value = function(link) {
-    opts <- self$config$curlOptions
-    opts$options$netrc <- 1L
-
     response <- NULL
-
-    res <- GET(url = link, config = opts)
-    if (!http_error(res)) {
-      response_json <- httr::content(res)
-      response <- unlist(lapply(response_json$files, function(x) x$text))
+    res <- tryCatch(
+      Rlabkey:::labkey.get(link),
+      warning = function(w) return(w),
+      error = function(e) return(NULL)
+    )
+    if (!is.null(res)) {
+      tmp <- rjson::fromJSON(res)
+      response <- sapply(tmp$files, function(x){ return(x$text) }) # basename only
     }
-
     response
   }
 )
