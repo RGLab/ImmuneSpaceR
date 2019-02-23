@@ -5,7 +5,7 @@
 \title{CreateConnection}
 \usage{
 CreateConnection(study = NULL, login = NULL, password = NULL,
-  use.data.frame = FALSE, verbose = FALSE, onTest = FALSE)
+  verbose = FALSE, onTest = FALSE)
 }
 \arguments{
 \item{study}{A \code{"character"} vector naming the study.}
@@ -16,9 +16,6 @@ active ImmuneSpace account.}
 
 \item{password}{A \code{"character"}. Optional. The password for the selected
 login.}
-
-\item{use.data.frame}{A \code{"logical"}. If set to TRUE, the functions will
-return \code{data.frame} objects instead of \code{data.table}.}
 
 \item{verbose}{A \code{"logical"} whether to print the extra details for
 troubleshooting.}
