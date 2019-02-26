@@ -7,18 +7,21 @@ NULL
 ISCon$set(
   which = "public",
   name = "listWorkspaces",
-  value = function() {
-    study <- ifelse(self$study == "Studies", "", self$study)
-    data.table(
-      suppressWarnings(labkey.selectRows(
-        baseUrl = self$config$labkey.url.base,
-        folderPath = "/Studies",
-        schemaName = "immport",
-        queryName = "ds_workspace",
-        colNameOpt = "fieldname",
-        parameters = paste0("$STUDY=", study)
-      ))
-    )
+  value = function(reload = FALSE) {
+    if (is.null(self$cache$cyto$listWorkspaces) || reload) {
+      study <- ifelse(self$study == "Studies", "", self$study)
+      self$cache$cyto$listWorkspaces <- data.table(
+        suppressWarnings(labkey.selectRows(
+          baseUrl = self$config$labkey.url.base,
+          folderPath = "/Studies",
+          schemaName = "immport",
+          queryName = "ds_workspace",
+          colNameOpt = "fieldname",
+          parameters = paste0("$STUDY=", study)
+        )))
+    }
+
+    self$cache$cyto$listWorkspaces
   }
 )
 
@@ -26,39 +29,47 @@ ISCon$set(
 ISCon$set(
   which = "public",
   name = "listGatingSets",
-  value = function() {
-    study <- ifelse(self$study == "Studies", "", self$study)
-    data.table(
-      suppressWarnings(labkey.selectRows(
-        baseUrl = self$config$labkey.url.base,
-        folderPath = self$config$labkey.url.path,
-        schemaName = "assay.General.gatingset",
-        queryName = "Data",
-        colNameOpt = "fieldname",
-        containerFilter = "CurrentAndSubfolders"
-      ))
-    )
+  value = function(reload = FALSE) {
+    if (is.null(self$cache$cyto$listGatingSets) || reload) {
+      study <- ifelse(self$study == "Studies", "", self$study)
+      self$cache$cyto$listGatingSets <- data.table(
+        suppressWarnings(labkey.selectRows(
+          baseUrl = self$config$labkey.url.base,
+          folderPath = self$config$labkey.url.path,
+          schemaName = "assay.General.gatingset",
+          queryName = "Data",
+          colNameOpt = "fieldname",
+          containerFilter = "CurrentAndSubfolders"
+        ))
+      )
+    }
+
+    self$cache$cyto$listGatingSets
   }
 )
 
 
 ISCon$set(
   which = "public",
-  name = "summarizeCytometryData",
+  name = "summarizeCyto",
   value = function() {
-    n_sample <- suppressWarnings(labkey.executeSql(
+    # retrieve stats
+    nSamples <- suppressWarnings(labkey.executeSql(
       folderPath = self$config$labkey.url.path,
       schemaName = "study",
-      sql = "SELECT COUNT(DISTINCT file_info_name) as n, file_info_purpose FROM fcs_sample_files GROUP BY file_info_purpose;",
+      sql = "SELECT COUNT(DISTINCT file_info_name) as n,
+                    file_info_purpose
+             FROM fcs_sample_files
+             GROUP BY file_info_purpose;",
       colNameOpt = "fieldname"
     ))
-    n_control <- suppressWarnings(labkey.executeSql(
+    nControls <- suppressWarnings(labkey.executeSql(
       folderPath = self$config$labkey.url.path,
       schemaName = "study",
       sql = "SELECT COUNT(DISTINCT control_file) as n FROM fcs_control_files;",
       colNameOpt = "fieldname"
     ))
-    n_analyzed <- suppressWarnings(labkey.executeSql(
+    nAnalyzed <- suppressWarnings(labkey.executeSql(
       folderPath = self$config$labkey.url.path,
       schemaName = "study",
       sql = "SELECT COUNT(DISTINCT ParticipantID) as participants,
@@ -68,30 +79,74 @@ ISCon$set(
              FROM fcs_analyzed_result;",
       colNameOpt = "fieldname"
     ))
-    n_workspaces <- nrow(self$listWorkspaces())
-    n_gatingsets <- nrow(self$listGatingSets())
+    nWorkspaces <- nrow(self$listWorkspaces())
+    nGatingsets <- nrow(self$listGatingSets())
 
-    cat("\n<CytometryDataSummary>\n")
-    cat("  -", sum(n_sample$n), "FCS sample files")
-    if (nrow(n_sample) > 1) {
+    # print summary
+    cat("<CytometryDataSummary>\n")
+    cat("  -", sum(nSamples$n), "FCS sample files")
+    if (nrow(nSamples) > 1) {
       cat(" (")
-      cat(paste(n_sample$n, gsub(" result", "", n_sample$file_info_purpose)), sep = ", ")
+      cat(
+        paste(nSamples$n, gsub(" result", "", nSamples$file_info_purpose)),
+        sep = ", "
+      )
       cat(")")
     }
     cat("\n")
-    cat("  -", n_control$n, "FCS control files\n")
-    cat("  -", n_workspaces, "workspace files\n")
-    cat("  -", n_gatingsets, "gating sets\n")
-    if (nrow(n_analyzed) > 0) {
+    cat("  -", nControls$n, "FCS control files\n")
+    cat("  -", nWorkspaces, "workspace files\n")
+    cat("  -", nGatingsets, "gating sets\n")
+    if (nrow(nAnalyzed) > 0) {
       cat("  - flow cytometry analyzed results\n")
-      cat("    -", n_analyzed$participants, "participants\n")
-      cat("    -", n_analyzed$timepoints, "time points\n")
-      cat("    -", n_analyzed$cohorts, "cohorts\n")
-      cat("    -", n_analyzed$names, "reported population names\n")
+      cat("    -", nAnalyzed$participants, "participants\n")
+      cat("    -", nAnalyzed$timepoints, "time points\n")
+      cat("    -", nAnalyzed$cohorts, "cohorts\n")
+      cat("    -", nAnalyzed$names, "reported population names\n")
     }
+
+    invisible(NULL)
   }
 )
 
+#' @importFrom flowWorkspace pData sampleNames
+#' @importFrom flowCore markernames
+ISCon$set(
+  which = "public",
+  name = "summarizeGatingSet",
+  value = function(gatingSet) {
+    assertRstudio()
+
+    gsList <- self$listGatingSets()
+    study <- gsList[gatingSet == gating_set, study]
+    if (!gatingSet %in% gsList$gating_set) {
+      stop("'", gatingSet, "' is not a valid gating set name.")
+    }
+
+    # load gating set (RDS only) and merge metadata
+    gs <- readRDS(
+      paste0(buildGSPath(study[1], gatingSet), "/", gatingSet, ".rds")
+    )
+    gs <- private$.mergePD(gs, study)
+
+    # summarize pData
+    pd <- pData(gs)
+    lapply(pd, function(x) {
+      n <- length(unique(x))
+      if (n > 50) {
+        n
+      } else if (is.numeric(x)) {
+        if (n > 10) {
+          summary(x)
+        } else {
+          table(x, dnn = NULL)
+        }
+      } else {
+        table(x, dnn = NULL)
+      }
+    })
+  }
+)
 
 #' @importFrom flowWorkspace load_gs
 ISCon$set(
@@ -100,35 +155,104 @@ ISCon$set(
   value = function(gatingSet) {
     assertRstudio()
 
-    gs_list <- self$listGatingSets()
-    study <- gs_list[gatingSet == gating_set, study]
-    if (gatingSet %in% gs_list$gating_set) {
-      load_gs(
-        paste0("/share/files/Studies/", study[1], "/@files/analysis/gating_set/", gsub("SDY\\d+_", "", gatingSet))
-      )
-    } else {
-      stop(gatingSet, " is not a valid gating set name.")
+    gsList <- self$listGatingSets()
+    study <- gsList[gatingSet == gating_set, study]
+    if (!gatingSet %in% gsList$gating_set) {
+      stop("'", gatingSet, "' is not a valid gating set name.")
     }
+
+    # Load gating set and merge metadata
+    gs <- load_gs(buildGSPath(study[1], gatingSet))
+    private$.mergePD(gs, study)
   }
 )
 
 
 
 # PRIVATE ----------------------------------------------------------------------
+#' @importFrom flowWorkspace openWorkspace
 ISCon$set(
   which = "private",
-  name = ".downloadCytometryData",
+  name = ".openWorkspace",
+  value = function(workspace) {
+    assertRstudio()
+    if (grepl(".jo$", workspace)) {
+      stop(".jo files cannot be processed currently.")
+    }
+
+    wsList <- self$listWorkspaces()
+    study <- wsList[workspace == file_info_name, study_accession]
+    if (!workspace %in% wsList$file_info_name) {
+      stop("'", workspace, "' is not a valid workspace file name.")
+    }
+
+    # Open workspace
+    openWorkspace(
+      paste0(
+        "/share/files/Studies/",
+        study[1],
+        "/@files/rawdata/flow_cytometry/",
+        workspace
+      )
+    )
+  }
+)
+
+ISCon$set(
+  which = "private",
+  name = ".downloadCytoData",
   value = function(study = self$study, outputDir = ".") {
     assertRstudio()
-
     if (identical(study, "Studies")) {
-      warning("This is a cross study connection. Please specify the study argument.")
-    } else {
-      file.copy(
-        paste0("/share/files/Studies/", study, "/@files/rawdata/", study, "_cytometry.tar.gz"),
-        to = outputDir
+      stop(
+        "This is a cross study connection. ",
+        "Please specify the study argument."
       )
     }
+
+    file.copy(
+      paste0(
+        "/share/files/Studies/", study, "/@files/rawdata/",
+        study, "_cytometry.tar.gz"
+      ),
+      to = outputDir
+    )
+  }
+)
+
+ISCon$set(
+  which = "private",
+  name = ".mergePD",
+  value = function(gs, study) {
+    names <- names(pData(gs))
+
+    # merge panel
+    if (!"panel" %in% names) {
+      pData(gs)$panel <- unlist(lapply(gs@data@frames, function(x) {
+        markers <- markernames(x)
+        paste(markers[markers != "-"], collapse = "|")
+      }))[rownames(pData(gs))]
+    }
+
+    # merge demograhpics
+    if (!"participant_id" %in% names) {
+      pData(gs)$sampleNames <- sampleNames(gs)
+      pd <- pData(gs)
+      fcsSampleFiles <- self$getDataset(
+        "fcs_sample_files",
+        colFilter = makeFilter(c("study_accession", "EQUAL", study))
+      )
+      pd <- merge(
+        x = pd, y = fcsSampleFiles,
+        by.x = "FILENAME", by.y = "file_info_name",
+        all.x = TRUE
+      )
+      row.names(pd) <- pd$sampleNames
+      pData(gs) <- pd
+      pData(gs)$sampleNames <- NULL
+    }
+
+    gs
   }
 )
 
@@ -145,4 +269,13 @@ assertRstudio <- function() {
   if (!isRstudioDocker()) {
     stop("You are not in the ImmuneSpace RStudio Session.")
   }
+}
+
+buildGSPath <- function(study, gatingSet) {
+  paste0(
+    "/share/files/Studies/",
+    study,
+    "/@files/analysis/gating_set/",
+    gsub("SDY\\d+_", "", gatingSet)
+  )
 }
