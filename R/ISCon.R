@@ -80,6 +80,9 @@
 #'   \item{\code{listGEAnalysis()}}{
 #'     Lists available gene expression analysis for the connection.
 #'   }
+#'   \item{\code{listParticipantGroups()}}{
+#'     Lists available participant groups on the ImmuneSpace portal.
+#'   }
 #'   \item{\code{listWorkspaces(reload = FALSE)}}{
 #'     Lists available workspaces for the connection.
 #'
