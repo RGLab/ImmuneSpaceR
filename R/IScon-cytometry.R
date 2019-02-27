@@ -135,12 +135,8 @@ ISCon$set(
       n <- length(unique(x))
       if (n > 50) {
         n
-      } else if (is.numeric(x)) {
-        if (n > 10) {
-          summary(x)
-        } else {
-          table(x, dnn = NULL)
-        }
+      } else if (is.numeric(x) && n > 10) {
+        summary(x)
       } else {
         table(x, dnn = NULL)
       }
