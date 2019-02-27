@@ -705,6 +705,7 @@ ISCon$set(
 
       if (rawdata) {
         if (!is.null(files)) {
+          files <- files[ grep("\\.(tsv|csv|cel|txt)$", files, ignore.case = T) ]
           files <- length(files) > 0
         }
       }
