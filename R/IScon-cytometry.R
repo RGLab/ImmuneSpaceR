@@ -276,6 +276,6 @@ buildGSPath <- function(study, gatingSet) {
     "/share/files/Studies/",
     study,
     "/@files/analysis/gating_set/",
-    gsub("SDY\\d+_", "", gatingSet)
+    gsub("_GS\\d+$", "", gsub("^SDY\\d+_", "", gatingSet))
   )
 }
