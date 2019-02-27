@@ -50,7 +50,7 @@ Imports:
     parallel,
     flowCore,
     flowWorkspace
-RoxygenNote: 6.1.0
+RoxygenNote: 6.1.1
 Collate: 
     'CreateConnection.R'
     'ISCon.R'
