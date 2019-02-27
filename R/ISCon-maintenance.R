@@ -485,7 +485,7 @@ ISCon$set(
       currGEA$key <- paste(currGEA$arm_name, currGEA$coefficient)
 
       if (nrow(smryGEA) > 0) {
-        diff <- setdiff(smryGEA$key, currGEA$key) # what is in implied and NOT in current
+        diff <- sort(setdiff(smryGEA$key, currGEA$key)) # In implied and NOT in current
         missing_data <- if(length(diff) == 0 ){ "no diff" }else{ paste(diff, collapse = "; ") }
       } else {
         missing_data <- NA
@@ -570,7 +570,7 @@ ISCon$set(
       "GEE_actual",
       "DGEA_implied",
       "DGEA_actual",
-      "DGEA_missing_data",
+      "DGEA_missing",
       "IRP_implied",
       "IRP_actual",
       "IrpTimepoints",
