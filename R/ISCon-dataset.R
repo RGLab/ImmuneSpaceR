@@ -149,10 +149,6 @@ ISCon$set(
       }
     }
 
-    if (!is.null(self$config$use.data.frame) && self$config$use.data.frame) {
-      data <- data.frame(data)
-    }
-
     data
   }
 )
