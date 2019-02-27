@@ -10,9 +10,7 @@ ISCon$set(
   which = "public",
   name = "listParticipantGroups",
   value = function() {
-    if (self$config$labkey.url.path != "/Studies/") {
-      stop("labkey.url.path must be /Studies/. Use CreateConnection with all studies.")
-    }
+    private$.assertAllStudyConnection()
 
     userId <- private$.validateUser()
 
@@ -37,7 +35,7 @@ ISCon$set(
       "ParticipantGroup.Label"
     )
 
-    result <- labkey.executeSql(
+    participantGroups <- labkey.executeSql(
       baseUrl = self$config$labkey.url.base,
       folderPath = self$config$labkey.url.path,
       schemaName = "study",
@@ -46,11 +44,11 @@ ISCon$set(
       showHidden = TRUE
     )
 
-    if (nrow(result) == 0) {
-      warning("No participant groups found for current user")
+    if (nrow(participantGroups) == 0) {
+      warning("No participant groups found for the current user")
     }
 
-    result
+    participantGroups
   }
 )
 
@@ -60,33 +58,42 @@ ISCon$set(
   which = "public",
   name = "getParticipantData",
   value = function(group, dataType, original_view = FALSE, ...) {
-    if (self$config$labkey.url.path != "/Studies/") {
-      stop("labkey.url.path must be /Studies/. Use CreateConnection with all studies.")
-    }
+    private$.assertAllStudyConnection()
 
     if (!(dataType %in% self$availableDatasets$Name)) {
-      stop("DataType must be in ", paste(self$availableDatasets$Name, collapse = ", "))
+      warning(
+        "'", dataType, "' is not a valid data type. ",
+        "Valid data types are: ", paste(self$availableDatasets$Name, collapse = ", "),
+        immediate. = TRUE
+      )
+      return(data.table())
     }
 
     # Must rerun this to ensure valid groups are only for that user and are not
     # changed within cache.
-    validGrps <- self$listParticipantGroups()
+    validGroups <- self$listParticipantGroups()
 
-    if (typeof(group) == "double") {
+    if (is.numeric(group)) {
       col <- "GroupId"
       groupId <- group
-    } else if (typeof(group) == "character") {
+    } else if (is.character(group)) {
       col <- "GroupName"
-      groupId <- validGrps$GroupId[validGrps$GroupName == group]
+      groupId <- validGroups$GroupId[validGroups$GroupName == group]
     } else {
-      stop("Group ID or Name not interpretable as double or character. Please reset")
+      stop(
+        "`group` should be a number or string. ",
+        "Try again with valid `group`.",
+        "\n Call `listParticipantGroups()` to see the available groups."
+      )
     }
 
-    if (!(group %in% validGrps[[col]])) {
-      stop(paste0("group ", group,
-                  " is not in the set of ", col,
-                  " created by current user",
-                  " on ", self$config$labkey.url.base))
+    if (!(group %in% validGroups[[col]])) {
+      stop(
+        "'", group, "' is not in the set of `", col,
+        "` created by the current user",
+        " on ", self$config$labkey.url.base,
+        "\n Call `listParticipantGroups()` to see the available groups."
+      )
     }
 
     dt <- dataType # for brevity
@@ -230,6 +237,18 @@ ISCon$set(
   }
 )
 
+ISCon$set(
+  which = "private",
+  name = ".assertAllStudyConnection",
+  value = function() {
+    if (!identical(self$config$labkey.url.path, "/Studies/")) {
+      stop(
+        "This method only works with connection to all studies. ",
+        'Create a connection to all studies by `con <- CreateConnection("")`'
+      )
+    }
+  }
+)
 
 
 # HELPER -----------------------------------------------------------------------
