@@ -47,7 +47,9 @@ Imports:
     rjson,
     rmarkdown,
     preprocessCore,
-    parallel
+    parallel,
+    flowCore,
+    flowWorkspace
 RoxygenNote: 6.1.1
 Collate: 
     'CreateConnection.R'
@@ -58,6 +60,7 @@ Collate:
     'ISCon-participantGroup.R'
     'ISCon-plot.R'
     'ISCon-utils.R'
+    'IScon-cytometry.R'
     'ImmuneSpaceR.R'
     'netrc.R'
     'template.R'
