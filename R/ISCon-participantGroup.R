@@ -12,40 +12,43 @@ ISCon$set(
   value = function() {
     private$.assertAllStudyConnection()
 
-    userId <- private$.validateUser()
-
-    # Get summary data
-    pgrpSql <- paste0(
-      "SELECT ",
-      "ParticipantGroup.RowId AS GroupId, ",
-      "ParticipantGroup.Label AS GroupName, ",
-      "COUNT(*) AS Subjects ",
-      "FROM ",
-      "ParticipantGroupMap ",
-      "FULL OUTER JOIN ParticipantGroup ",
-      "ON ParticipantGroupMap.GroupId=ParticipantGroup.RowId ",
-      "WHERE ",
-      "ParticipantGroup.CategoryId IN (",
-      "SELECT rowId ",
-      "FROM ParticipantCategory ",
-      "WHERE OwnerId = ",
-      userId,
-      " ) GROUP BY ",
-      "ParticipantGroup.RowId, ",
-      "ParticipantGroup.Label"
+    participantGroupApi <- paste0(
+      self$config$labkey.url.base,
+      "/participant-group",
+      "/Studies",
+      "/browseParticipantGroups.api?",
+      "distinctCatgories=false&",
+      "type=participantGroup&",
+      "includeUnassigned=false&",
+      "includeParticipantIds=false"
     )
+    # execute via Rlabkey's standard GET function
+    response <- Rlabkey:::labkey.get(participantGroupApi)
 
-    participantGroups <- labkey.executeSql(
-      baseUrl = self$config$labkey.url.base,
-      folderPath = self$config$labkey.url.path,
-      schemaName = "study",
-      sql = pgrpSql,
-      colNameOpt = "fieldname",
-      showHidden = TRUE
-    )
+    # parse JSON response via rjson's fromJSON parsing function
+    parsed <- fromJSON(response)
+
+    # construct a data.table for each group
+    groupsList <- lapply(parsed$groups, function(group) {
+      data.table(
+        GroupId = group$id,
+        GroupName = group$label,
+        Subjects = length(group$category$participantIds)
+      )
+    })
+
+    # merge the list to data.table
+    participantGroups <- rbindlist(groupsList)
 
     if (nrow(participantGroups) == 0) {
-      warning("No participant groups found for the current user")
+      warning(
+        "No participant groups found for the current user",
+        immediate. = TRUE
+      )
+    } else {
+      # set order by id
+      setorder(participantGroups, GroupId)
+      setkey(participantGroups, GroupId)
     }
 
     participantGroups
@@ -184,59 +187,7 @@ ISCon$set(
 
 
 # PRIVATE ----------------------------------------------------------------------
-
-# Ensure only one valid user email is returned or possible errors handled
-ISCon$set(
-  which = "private",
-  name = ".validateUser",
-  value = function() {
-    # First Check for apiKey and netrc file
-    api <- Rlabkey:::ifApiKey()
-    sink(tempfile())
-    validNetrc <- tryCatch({
-      check_netrc()
-    }, error = function(e) {
-      return(NULL)
-    })
-    sink()
-
-    # Case 1: if apiKey, but no Netrc (possible in Integrated RStudio session UI)
-    # get user email from global environment, which is set by labkey.init and
-    # handle unexpected case of labkey.user.email not being found.
-    if (!is.null(api) & is.null(validNetrc)) {
-      user <- try(get("labkey.user.email"), silent = TRUE)
-      if (inherits(user, "try-error")) {
-        stop("labkey.user.email not found, please set")
-      }
-
-      # Case 2: valid netrc file (with or without ApiKey)
-      # To mimic LK.get() method - use first login for correct machine
-    } else if (!is.null(validNetrc)) {
-      machine <- gsub("https://", "", self$config$labkey.url.base)
-      netrc <- unlist(strsplit(readLines(validNetrc), split = " "))
-      user <- netrc[grep(machine, netrc) + 2][[1]]
-    }
-
-    siteUsers <- labkey.selectRows(
-      baseUrl = self$config$labkey.url.base,
-      folderPath = self$config$labkey.url.path,
-      schemaName = "core",
-      queryName = "siteUsers"
-    )
-
-    # Admin user pulls whole table
-    if (dim(siteUsers)[[1]] > 1) {
-      userId <- siteUsers$`User Id`[ siteUsers$Email == user ]
-
-      # Non-Admin sees only self and no email
-    } else {
-      userId <- siteUsers$`User Id`[[1]]
-    }
-
-    return(userId)
-  }
-)
-
+# Check if all study connection
 ISCon$set(
   which = "private",
   name = ".assertAllStudyConnection",
@@ -249,6 +200,7 @@ ISCon$set(
     }
   }
 )
+
 
 
 # HELPER -----------------------------------------------------------------------
