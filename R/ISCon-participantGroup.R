@@ -31,9 +31,11 @@ ISCon$set(
     # construct a data.table for each group
     groupsList <- lapply(parsed$groups, function(group) {
       data.table(
-        GroupId = group$id,
-        GroupName = group$label,
-        Subjects = length(group$category$participantIds)
+        group_id = group$id,
+        group_name = group$label,
+        created = as.Date(group$created),
+        subjects = length(group$category$participantIds),
+        studies = length(unique(gsub("SUB\\d+.", "", group$category$participantIds)))
       )
     })
 
@@ -47,8 +49,8 @@ ISCon$set(
       )
     } else {
       # set order by id
-      setorder(participantGroups, GroupId)
-      setkey(participantGroups, GroupId)
+      setorder(participantGroups, group_id)
+      setkey(participantGroups, group_id)
     }
 
     participantGroups
@@ -68,10 +70,10 @@ ISCon$set(
     validGroups <- self$listParticipantGroups()
 
     if (is.numeric(group)) {
-      col <- "GroupId"
-      groupName <- validGroups$GroupName[validGroups$GroupId == group]
+      col <- "group_id"
+      groupName <- validGroups$group_name[validGroups$group_id == group]
     } else if (is.character(group)) {
-      col <- "GroupName"
+      col <- "group_name"
       groupName <- group
     } else {
       stop(
