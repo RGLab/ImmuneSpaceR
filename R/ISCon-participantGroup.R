@@ -60,17 +60,8 @@ ISCon$set(
 ISCon$set(
   which = "public",
   name = "getParticipantData",
-  value = function(group, dataType, original_view = FALSE, ...) {
+  value = function(group, dataType, original_view = FALSE, reload = FALSE, colFilter = NULL, transformMethod = "none", ...) {
     private$.assertAllStudyConnection()
-
-    if (!(dataType %in% self$availableDatasets$Name)) {
-      warning(
-        "'", dataType, "' is not a valid data type. ",
-        "Valid data types are: ", paste(self$availableDatasets$Name, collapse = ", "),
-        immediate. = TRUE
-      )
-      return(data.table())
-    }
 
     # Must rerun this to ensure valid groups are only for that user and are not
     # changed within cache.
@@ -78,10 +69,10 @@ ISCon$set(
 
     if (is.numeric(group)) {
       col <- "GroupId"
-      groupId <- group
+      groupName <- validGroups$GroupName[validGroups$GroupId == group]
     } else if (is.character(group)) {
       col <- "GroupName"
-      groupId <- validGroups$GroupId[validGroups$GroupName == group]
+      groupName <- group
     } else {
       stop(
         "`group` should be a number or string. ",
@@ -99,88 +90,21 @@ ISCon$set(
       )
     }
 
-    dt <- dataType # for brevity
-
-    # Get assay data + participantGroup + demographic data
-    # Handle special cases
-    if (dt == "demographics") {
-      varSelect <- "cohort_membership.name AS Cohort "
-      varJoin <- paste0(" JOIN cohort_membership ",
-                        "ON ",
-                        dt, ".ParticipantId = cohort_membership.ParticipantId ")
-    } else {
-      varSelect <- paste0("demo.age_reported, ",
-                          "demo.race, ",
-                          "demo.gender, ")
-      varJoin <- paste0(" JOIN immport.arm_or_cohort ",
-                        "ON ",
-                        dt, ".arm_accession = arm_or_cohort.arm_accession ")
-      if (dt %in% c("gene_expression_files", "cohort_membership", "fcs_sample_files")) {
-        varSelect <- paste0( varSelect,
-                             "demo.age_unit, ",
-                             "demo.age_event, ",
-                             "demo.ethnicity, ",
-                             "demo.species, ",
-                             "demo.phenotype ")
-      } else {
-        varSelect <- paste0(varSelect, "arm_or_cohort.name AS arm_name ")
-      }
-    }
-
-    sqlAssay <- paste0("SELECT ",
-                       dt, ".*, ",
-                       "pmap.GroupId AS groupId, ",
-                       varSelect,
-                       "FROM ",
-                       dt,
-                       " JOIN ParticipantGroupMap AS pmap ",
-                       "ON ", dt, ".ParticipantId = pmap.ParticipantId",
-                       " JOIN Demographics AS demo ",
-                       "ON ", dt, ".ParticipantId = demo.ParticipantId",
-                       varJoin,
-                       " WHERE pmap.GroupId = ", as.character(groupId))
-
-    assayData <- labkey.executeSql(
-      baseUrl = self$config$labkey.url.base,
-      folderPath = self$config$labkey.url.path,
-      schemaName = "study",
-      sql = sqlAssay,
-      colNameOpt = "fieldname",
-      ...
-    ) # allow for params to be passed, e.g. maxRows
-
-    # Want to match getDataset() results in terms of colnames / order
-    defaultCols <- colnames(
-      self$getDataset(
-        x = dt,
-        original_view = original_view,
-        maxRows = 1
+    colFilter <- rbind(
+      colFilter,
+      makeFilter(
+        c(paste0("ParticipantID/", groupName), "EQUAL", groupName)
       )
     )
 
-    # Some names from assayData do not match default cols and need to changed manually.
-    colnames(assayData)[grep("ParticipantId", colnames(assayData))] <- "participant_id"
-
-    if (!original_view) {
-      if (dt == "demographics") {
-        changeCol <- "Cohort"
-      } else if (dt == "cohort_membership") {
-        changeCol <- "name"
-      } else {
-        changeCol <- "arm_name"
-      }
-
-      colnames(assayData)[grep(changeCol, colnames(assayData))] <- "cohort"
-    } else {
-      if (dt %in% c("gene_expression_files", "fcs_control_files")) {
-        colnames(assayData)[grep("arm_name", colnames(assayData))] <- "cohort"
-      }
-    }
-
-    filtData <- assayData[, colnames(assayData) %in% defaultCols]
-    filtData <- filtData[, order(match(colnames(filtData), defaultCols))]
-
-    filtData
+    self$getDataset(
+      dataType,
+      original_view = original_view,
+      reload = reload,
+      colFilter = colFilter,
+      transformMethod = transformMethod,
+      ...
+    )
   }
 )
 
