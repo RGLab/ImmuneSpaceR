@@ -8,8 +8,6 @@
 #'  active ImmuneSpace account.
 #' @param password A \code{"character"}. Optional. The password for the selected
 #'  login.
-#' @param use.data.frame A \code{"logical"}. If set to TRUE, the functions will
-#'  return \code{data.frame} objects instead of \code{data.table}.
 #' @param verbose A \code{"logical"} whether to print the extra details for
 #' troubleshooting.
 #' @param onTest A \code{"logical"} whether to connect to the test server
@@ -48,7 +46,6 @@
 CreateConnection <- function(study = NULL,
                              login = NULL,
                              password = NULL,
-                             use.data.frame = FALSE,
                              verbose = FALSE,
                              onTest = FALSE) {
   # check internet connection
@@ -139,7 +136,6 @@ CreateConnection <- function(study = NULL,
       study = study,
       labkey.url.base = labkey.url.base,
       labkey.user.email = labkey.user.email,
-      use.data.frame = use.data.frame,
       verbose = verbose,
       curlOptions = curlOptions
     )
@@ -152,7 +148,6 @@ CreateConnection <- function(study = NULL,
 .CreateConnection <- function(study = NULL,
                               labkey.url.base,
                               labkey.user.email,
-                              use.data.frame,
                               curlOptions,
                               verbose,
                               ...) {
@@ -173,11 +168,6 @@ CreateConnection <- function(study = NULL,
     labkey.url.path <- paste0(pathStr, study)
   } else if (!is.null(study)) {
     labkey.url.path <- file.path(dirname(labkey.url.path), study)
-  }
-
-  if (class(use.data.frame) != "logical") {
-    warning("use.data.frame should be of class `logical`. Setting it to FALSE.")
-    use.data.frame <- FALSE
   }
 
   # check credential
@@ -208,7 +198,6 @@ CreateConnection <- function(study = NULL,
     labkey.url.base = labkey.url.base,
     labkey.url.path = labkey.url.path,
     labkey.user.email = labkey.user.email,
-    use.data.frame = use.data.frame,
     curlOptions = curlOptions,
     verbose = verbose
   )
