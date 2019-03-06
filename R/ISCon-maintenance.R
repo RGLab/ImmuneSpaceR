@@ -560,6 +560,56 @@ ISCon$set(
       ret <- any(res[[1]] %in% deSets) | compDF$DGEA_actual[rownames(compDF) == sdy] == TRUE
     })
 
+    # ----- dimension reduction (DR) ------
+
+    # Get current
+    compDF$DR_actual <- rownames(compDF) %in% ..getModSdys("DimensionReduction")
+
+    # get dimension reduction assay info
+    dimRedux_assay_data <- labkey.selectRows(
+      baseUrl = baseUrl,
+      folderPath = "/Studies",
+      schemaName = "study",
+      queryName = "DimRedux_assay_data",
+      containerFilter = "CurrentAndSubfolders",
+      colNameOpt = "rname"
+    )
+
+    # Add a column for study
+    sub_split <- strsplit(dimRedux_assay_data$participantid, split = "\\.")
+    dimRedux_assay_data$study <- paste0("SDY", sapply(sub_split, "[", 2) )
+    setDT(dimRedux_assay_data)
+
+    # > dimRedux_assay_data
+    # participantid                name          label timepoint features  study
+    # 1:  SUB102424.28               elisa          ELISA    1 Days       10  SDY28
+    # 2:  SUB102425.28               elisa          ELISA    1 Days       24  SDY28
+    # 3:  SUB102426.28               elisa          ELISA    1 Days       18  SDY28
+    # 4:  SUB102427.28               elisa          ELISA    1 Days       12  SDY28
+    # 5:  SUB102428.28 fcs_analyzed_result Flow Cytometry    1 Days     1140  SDY28
+    # ---
+    # 28442:  SUB86640.241             elispot        ELISPOT   14 Days        1 SDY241
+    # 28443:  SUB86641.241               elisa          ELISA   14 Days        6 SDY241
+    # 28444:  SUB86641.241             elispot        ELISPOT   14 Days        2 SDY241
+    # 28445:  SUB86642.241               elisa          ELISA   14 Days        6 SDY241
+    # 28446:  SUB86642.241             elispot        ELISPOT   14 Days        1 SDY241
+    #
+
+    #
+    dimensionInfo <- dimRedux_assay_data[, .(subjectCount = length(unique(participantid)),
+                                             featureCount = min(features)),
+                                         by = c("study", "timepoint", "name")]
+
+    # make sure featureCount = 1 for hai and nab
+    dimensionInfo[, featureCount := ifelse(name == "hai" | name == "neut_ab_titer", 1, featureCount)]
+
+    # Are there any lines where subject count and feature count are both greater than three?
+    dimensionInfo[, dimMinMet := subjectCount >= 3 & featureCount >= 3]
+    DRPossible <- dimensionInfo[, .(dimMinMet = any(dimMinMet)), by = "study"]
+
+    # Add to compDF
+    compDF$DR_implied <- rownames(compDF) %in% dimRedPossible[dimMinMet == FALSE, study]
+
     colOrder <- c(
       "RAW",
       "GEF",
