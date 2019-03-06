@@ -560,7 +560,7 @@ ISCon$set(
       ret <- any(res[[1]] %in% deSets) | compDF$DGEA_actual[rownames(compDF) == sdy] == TRUE
     })
 
-    # ----- dimension reduction (DR) ------
+    # ---- dimension reduction (DR) ----
 
     # Get current
     compDF$DR_actual <- rownames(compDF) %in% ..getModSdys("DimensionReduction")
@@ -608,7 +608,7 @@ ISCon$set(
     DRPossible <- dimensionInfo[, .(dimMinMet = any(dimMinMet)), by = "study"]
 
     # Add to compDF
-    compDF$DR_implied <- rownames(compDF) %in% dimRedPossible[dimMinMet == FALSE, study]
+    compDF$DR_implied <- rownames(compDF) %in% dimRedPossible[dimMinMet == TRUE, study]
 
     colOrder <- c(
       "RAW",
@@ -627,7 +627,9 @@ ISCon$set(
       "IRP_actual",
       "IrpTimepoints",
       "GSEA_implied",
-      "GSEA_actual")
+      "GSEA_actual",
+      "DR_implied",
+      "DR_actual")
 
     rowOrder <- Sdys[order(gsub("([A-Z]+)([0-9]+)", "\\1", Sdys),
                              as.numeric(gsub("([A-Z]+)([0-9]+)", "\\2", Sdys)))]
