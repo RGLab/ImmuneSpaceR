@@ -322,7 +322,7 @@ ISCon$set(
 
 
 # This method allows admin to check which studies are compliant with the
-# following modules/data files (GEF, RAW, GEO, GEM, DE, GEE, IRP, GSEA)
+# following modules/data files (GEF, RAW, GEO, GEM, DE, GEE, IRP, GSEA, DR)
 ISCon$set(
   which = "private",
   name = ".checkStudyCompliance",
@@ -561,6 +561,17 @@ ISCon$set(
     })
 
     # ---- dimension reduction (DR) ----
+    # NOTE:  Dimension reduction is pointless or impossible to run on a study where
+    # NOTE:  there is not enough data to come up with a matrix where both dimensions
+    # NOTE:  are 3 or greater.
+    # NOTE:  For now, it seems that simply checking to see if there are any assay/subject
+    # NOTE:  combinations where number of subjects and features are both greater than 3
+    # NOTE:  is a good enough estimate of whether or not
+    # NOTE:  dimension reduction makes sense or is possible without doing too much of
+    # NOTE:  the checks and filtering that already happens in the module. It may mark as false
+    # NOTE:  some studies where dimension reduction might be possible when including
+    # NOTE:  multiple timepoints or assays. To fix this, we could further group
+    # NOTE:  by timepoint or assay to get an idea of what the dimensions would be.
 
     # Get current
     compDF$DR_actual <- rownames(compDF) %in% ..getModSdys("DimensionReduction")
@@ -576,8 +587,7 @@ ISCon$set(
     )
 
     # Add a column for study
-    sub_split <- strsplit(dimRedux_assay_data$participantid, split = "\\.")
-    dimRedux_assay_data$study <- paste0("SDY", sapply(sub_split, "[", 2) )
+    dimRedux_assay_data$study <- gsub("SUB[^>]+\\.", "SDY",dimRedux_assay_data$participantid)
     setDT(dimRedux_assay_data)
 
     # > dimRedux_assay_data
@@ -595,7 +605,8 @@ ISCon$set(
     # 28446:  SUB86642.241             elispot        ELISPOT   14 Days        1 SDY241
     #
 
-    #
+    # Group by study, timepoint, and assay, and get the number of subjects and features for that
+    # assay
     dimensionInfo <- dimRedux_assay_data[, .(subjectCount = length(unique(participantid)),
                                              featureCount = min(features)),
                                          by = c("study", "timepoint", "name")]
