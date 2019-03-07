@@ -320,7 +320,7 @@ ISCon$set(
   }
 )
 
-
+# ------------- CheckStudyCompliance ----------------------------------
 # This method allows admin to check which studies are compliant with the
 # following modules/data files (GEF, RAW, GEO, GEM, DE, GEE, IRP, GSEA, DR)
 ISCon$set(
@@ -330,7 +330,8 @@ ISCon$set(
                    showAllCols = FALSE,
                    onlyShowNonCompliant = TRUE,
                    verbose = FALSE) {
-    ## HELPERS
+
+    ## HELPERS ----------
     # Validation based on modules being turned on
     ..getModSdys <- function(name) {
       url <-  url <- paste0(baseUrl, "/immport/studies/containersformodule.api?name=", name)
@@ -338,11 +339,11 @@ ISCon$set(
       res <- .spSort(res[grepl("SDY[0-9]+", res)])
     }
 
-    ## MAIN
+    ## MAIN -------------------
     # For labkey.executeSql calls
     baseUrl <- self$config$labkey.url.base
 
-    # res table
+    # Set up results table -----
     if (self$study != "Studies") {
       Sdys <- c(self$study) # single study
     } else {
@@ -369,27 +370,39 @@ ISCon$set(
     )
     colnames(compDF) <- mods
 
-    # RAW
+
+    # Gene expression data -----------------
+
+    # Metadata
+    # GEF (metadata about gene expresssion data from immport)
+    gef <- self$getDataset("gene_expression_files")
+    compDF$GEF <- rownames(compDF) %in% .subidsToSdy(gef$participant_id)
+
+
+    # information on how to find the raw data
+    # RAW (raw gene expression data flat files on Rserve machine)
     file_list <- private$.getGEFileNames(TRUE)
     file_list <- file_list[file_list != "NULL"]
     compDF$RAW <- rownames(compDF) %in% names(file_list)[file_list == TRUE]
 
-    # GEF
-    gef <- self$getDataset("gene_expression_files")
-    compDF$GEF <- rownames(compDF) %in% .subidsToSdy(gef$participant_id)
-
-    # GEO
+    # GEO (geo accession IDs for raw data in gene expression omnibus database)
     geoGef <- gef[!is.na(gef$geo_accession), ]
     compDF$GEO <- rownames(compDF) %in% .subidsToSdy(geoGef$participant_id)
 
-    # GEM possible
+    # Gene Expression Matrix
+    # GEM_implied (can a GEM be created from raw files or GEO data?)
     compDF$GEM_implied <- compDF$RAW == T | compDF$GEO == T
 
-    # GEM actual
+    # GEM_actual (Has a GEM been created?)
     withGems <- unique(self$cache$GE_matrices$folder)
     compDF$GEM_actual <- rownames(compDF) %in% withGems
 
-    # GEE - Studies with subjects having both GEM and response data for any timepoints
+
+    # Modules --------------------
+    # Gene Expression Explorer - visualization of expression level of 1 or more genes
+    # vs immune response (HAI or NAb)
+    # Must have subjects with both GEM from any timepoint and response data for any timepoint
+    # (timepoints do not have to be the same)
     # NOTE: when GEE is changed to allow NAb, can uncomment nab / respSubs lines
     hai <- self$getDataset("hai")
     # nab <- self$getDataset("neut_ab_titer")
@@ -414,24 +427,42 @@ ISCon$set(
 
     compDF$GEE_implied <- rownames(compDF) %in% .subidsToSdy(unique(exprResp$participantid))
 
-    # GSEA - studies with subjects having GEAR results for multiple non-baseline timepoints
-    gearSql <- "SELECT DISTINCT analysis_accession.coefficient FROM gene_expression_analysis_results"
-    gear <- sapply(withGems, FUN = function(sdy){
-      res <- suppressWarnings(
-               tryCatch(
-                 labkey.executeSql(baseUrl = baseUrl,
-                                        folderPath = paste0("/Studies/", sdy),
-                                        schemaName = "gene_expression",
-                                        sql = gearSql),
-                  error = function(e){ return( NA ) }
-                 )
-               )
-      output <- !is.na(res) && nrow(res) > 1
-    })
+    # Immune Response Predictor - This module can be used to automatically select a group
+    # of genes whose expression at a given time point (e.g. gene expression levels at day 0)
+    # best predicts a given immunological response at a later time point (e.g. HAI at day 28)
+    # Requires studies with subjects from multiple cohorts with GEM data at both target
+    # timepoint and baseline + response data that has baseline and a later timepoint.
+    # GEM and response later timepoints do NOT need to be the same!
+    nab <- self$getDataset("neut_ab_titer")
+    resp <- rbind(nab, hai, fill = TRUE) # nab has a col that hai does not
+    resp <- resp[, list(study_time_collected, study_time_collected_unit,
+                        response = value_preferred/mean(value_preferred[study_time_collected <= 0]), na.rm = T),
+                 by = "virus,participant_id"]
+    resp <- resp[ !is.na(response) ]
 
-    compDF$GSEA_implied <- rownames(compDF) %in% names(gear)[gear == TRUE]
+    # NOTE: At least SDY180 has overlapping study_time_collected for both hours and days
+    # so it is important to group by study_time_collected_unit as well. This is reflected
+    # in IRP_timepoints_hai/nab.sql.
+    inputSmpls <- data.table(inputSmpls)
+    geCohortSubs <- inputSmpls[ participantid %in% resp$participant_id ]
+    geCohortSubs <- geCohortSubs[ , .SD[length(unique(cohort)) > 1], by = .(study, study_time_collected, study_time_collected_unit)]
+    geCohortSubs <- geCohortSubs[, .SD[length(unique(study_time_collected)) > 1 & 0 %in% unique(study_time_collected)], by = .(study, cohort, study_time_collected_unit)]
+    compDF$IRP_implied <- rownames(compDF) %in% unique(geCohortSubs$study)
 
-    # Do gea results exist? are they complete?
+    studyTimepoints <- geCohortSubs[ , list(timepoints = paste(sort(unique(study_time_collected)),
+                                                               collapse = ",")),
+                                     by = .(study)]
+    compDF$IrpTimepoints <- studyTimepoints$timepoints[ match(rownames(compDF), studyTimepoints$study) ]
+
+
+    # Differential Expression Analysis (DGEA) - creates GEAR and GEA tables
+    # compares baseline and other timepoint expression levels to find genes
+    # genes that are sigificantly differentially expressed between baseline
+    # and other timepoints
+
+    # Has DGEA already been run? If data has been added gea might not be complete
+    # with all timepoints and needs to be rerun
+    # Check: Do gea results exist? are they complete?
     existGEA <- labkey.selectRows(
       baseUrl = baseUrl,
       folderPath = "/Studies/",
@@ -503,37 +534,34 @@ ISCon$set(
     row.names(compDF) <- compDF$Row.names
     compDF <- compDF[,-1]
 
-    # IRP - Studies with subjects from multiple cohorts with GEM data at both target
-    # timepoint and baseline + response data that has baseline and a later timepoint.
-    # GEM and response later timepoints do NOT need to be the same!
-    nab <- self$getDataset("neut_ab_titer")
-    resp <- rbind(nab, hai, fill = TRUE) # nab has a col that hai does not
-    resp <- resp[, list(study_time_collected, study_time_collected_unit,
-                    response = value_preferred/mean(value_preferred[study_time_collected <= 0]), na.rm = T),
-             by = "virus,participant_id"]
-    resp <- resp[ !is.na(response) ]
 
-    # NOTE: At least SDY180 has overlapping study_time_collected for both hours and days
-    # so it is important to group by study_time_collected_unit as well. This is reflected
-    # in IRP_timepoints_hai/nab.sql.
-    inputSmpls <- data.table(inputSmpls)
-    geCohortSubs <- inputSmpls[ participantid %in% resp$participant_id ]
-    geCohortSubs <- geCohortSubs[ , .SD[length(unique(cohort)) > 1], by = .(study, study_time_collected, study_time_collected_unit)]
-    geCohortSubs <- geCohortSubs[, .SD[length(unique(study_time_collected)) > 1 & 0 %in% unique(study_time_collected)], by = .(study, cohort, study_time_collected_unit)]
-    compDF$IRP_implied <- rownames(compDF) %in% unique(geCohortSubs$study)
+    # Gene set enrichment analysis - visualize how gene expression changes over time
+    # for groups of genes
+    # studies with subjects having results in the
+    # gene_expression.gene_expression_analysis_results (GEAR) table for multiple non-baseline timepoints
+    # GEA and GEAR are generated by differential expression analysis (DGEA) report
+    gearSql <- "SELECT DISTINCT analysis_accession.coefficient FROM gene_expression_analysis_results"
+    gear <- sapply(withGems, FUN = function(sdy){
+      res <- suppressWarnings(
+               tryCatch(
+                 labkey.executeSql(baseUrl = baseUrl,
+                                        folderPath = paste0("/Studies/", sdy),
+                                        schemaName = "gene_expression",
+                                        sql = gearSql),
+                  error = function(e){ return( NA ) }
+                 )
+               )
+      output <- !is.na(res) && nrow(res) > 1
+    })
 
-    studyTimepoints <- geCohortSubs[ , list(timepoints = paste(sort(unique(study_time_collected)),
-                                                               collapse = ",")),
-                                     by = .(study)]
-    compDF$IrpTimepoints <- studyTimepoints$timepoints[ match(rownames(compDF), studyTimepoints$study) ]
+    compDF$GSEA_implied <- rownames(compDF) %in% names(gear)[gear == TRUE]
 
-    compDF$DE_actual <- rownames(compDF) %in% ..getModSdys("DataExplorer")
-    compDF$GEE_actual <- rownames(compDF) %in% ..getModSdys("GeneExpressionExplorer")
-    compDF$GSEA_actual <- rownames(compDF) %in% ..getModSdys("GeneSetEnrichmentAnalysis")
-    compDF$IRP_actual <- rownames(compDF) %in% ..getModSdys("ImmuneResponsePredictor")
-    compDF$DGEA_actual <- rownames(compDF) %in% ..getModSdys("DifferentialExpressionAnalysis")
 
-    # DE - b/c ISC_study_datasets cannot provide gene_expression info, we use
+
+
+
+    # Data Explorer - visualize assay data
+    # b/c ISC_study_datasets cannot provide gene_expression info, we use
     # compDF$DGEA_actual as a proxy since it pulls the current GEA query, which should
     # have the same info as DGEA_filteredGEAR ( what the con$plot() uses via con$getGEAnalysis() )
     deSets <- c(
@@ -557,7 +585,7 @@ ISCon$set(
           error = function(e) {return( NA )}
         )
       )
-      ret <- any(res[[1]] %in% deSets) | compDF$DGEA_actual[rownames(compDF) == sdy] == TRUE
+      ret <- any(res[[1]] %in% deSets) | compDF$DGEA_actual[rownames(compDF) == sdy]
     })
 
     # ---- dimension reduction (DR) ----
@@ -573,8 +601,8 @@ ISCon$set(
     # NOTE:  multiple timepoints or assays. To fix this, we could further group
     # NOTE:  by timepoint or assay to get an idea of what the dimensions would be.
 
+
     # Get current
-    compDF$DR_actual <- rownames(compDF) %in% ..getModSdys("DimensionReduction")
 
     # get dimension reduction assay info
     dimRedux_assay_data <- labkey.selectRows(
@@ -616,10 +644,19 @@ ISCon$set(
 
     # Are there any lines where subject count and feature count are both greater than three?
     dimensionInfo[, dimMinMet := subjectCount >= 3 & featureCount >= 3]
-    DRPossible <- dimensionInfo[, .(dimMinMet = any(dimMinMet)), by = "study"]
+    dimRedPossible <- dimensionInfo[, .(dimMinMet = any(dimMinMet)), by = "study"]
 
-    # Add to compDF
+
     compDF$DR_implied <- rownames(compDF) %in% dimRedPossible[dimMinMet == TRUE, study]
+
+    # Get studies with modules currently enabled
+    compDF$DE_actual <- rownames(compDF) %in% ..getModSdys("DataExplorer")
+    compDF$GEE_actual <- rownames(compDF) %in% ..getModSdys("GeneExpressionExplorer")
+    compDF$GSEA_actual <- rownames(compDF) %in% ..getModSdys("GeneSetEnrichmentAnalysis")
+    compDF$IRP_actual <- rownames(compDF) %in% ..getModSdys("ImmuneResponsePredictor")
+    compDF$DGEA_actual <- rownames(compDF) %in% ..getModSdys("DifferentialExpressionAnalysis")
+    compDF$DR_actual <- rownames(compDF) %in% ..getModSdys("DimensionReduction")
+
 
     colOrder <- c(
       "RAW",
