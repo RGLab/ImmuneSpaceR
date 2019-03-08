@@ -611,15 +611,12 @@ ISCon$set(
                                              featureCount = min(features)),
                                          by = c("study", "timepoint", "name")]
 
-    # make sure featureCount = 1 for hai and nab
-    dimensionInfo[, featureCount := ifelse(name == "hai" | name == "neut_ab_titer", 1, featureCount)]
-
     # Are there any lines where subject count and feature count are both greater than three?
     dimensionInfo[, dimMinMet := subjectCount >= 3 & featureCount >= 3]
     DRPossible <- dimensionInfo[, .(dimMinMet = any(dimMinMet)), by = "study"]
 
     # Add to compDF
-    compDF$DR_implied <- rownames(compDF) %in% dimRedPossible[dimMinMet == TRUE, study]
+    compDF$DR_implied <- rownames(compDF) %in% DRPossible[dimMinMet == TRUE, study]
 
     colOrder <- c(
       "RAW",
