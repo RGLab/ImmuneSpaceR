@@ -748,13 +748,11 @@ ISCon$set(
         act <- grep(paste0(module,"_actual"), colnames(compDF))
 
         if (module == "DGEA") {
-          imp_vs_act <- impl == act
-          missing_dat <- is.na(sub[,3]) | sub[,3] == "no diff"
-          compliant <- imp_vs_act == missing_dat
-        } else {compliant <- sub[,1] == sub[,2]}
-
-
-        return(compDF[[impl]] == compDF[[act]])
+          imp_vs_act <- compDF[[impl]] == compDF[[act]]
+          missing_dat <- is.na(compDF["DGEA_missing"]) | compDF["DGEA_missing"] == "no diff"
+          return(compliant <- imp_vs_act == missing_dat)
+        } else {
+          return(compliant <- compDF[[impl]] == compDF[[act]])}
 
       }))
       colnames(compliant) <- modules
