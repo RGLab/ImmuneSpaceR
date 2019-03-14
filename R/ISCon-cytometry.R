@@ -252,9 +252,7 @@ ISCon$set(
 
 # HELPER -----------------------------------------------------------------------
 isRstudioDocker <- function() {
-  dir.exists("/share/files/Studies") &
-    dir.exists("/home/rstudio/.rstudio") &
-    !is.null(Rlabkey:::ifApiKey())
+  dir.exists("/share/files/Studies") & dir.exists("/home/rstudio/.rstudio")
 }
 
 assertRstudio <- function() {
