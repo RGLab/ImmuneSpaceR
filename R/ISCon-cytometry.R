@@ -9,15 +9,13 @@ ISCon$set(
   name = "listWorkspaces",
   value = function(reload = FALSE) {
     if (is.null(self$cache$cyto$listWorkspaces) || reload) {
-      study <- ifelse(self$study == "Studies", "", self$study)
       self$cache$cyto$listWorkspaces <- data.table(
         suppressWarnings(labkey.selectRows(
           baseUrl = self$config$labkey.url.base,
-          folderPath = "/Studies",
-          schemaName = "immport",
-          queryName = "ds_workspace",
-          colNameOpt = "fieldname",
-          parameters = paste0("$STUDY=", study)
+          folderPath = self$config$labkey.url.path,
+          schemaName = "study",
+          queryName = "flow_workspace",
+          colNameOpt = "fieldname"
         )))
     }
 
@@ -31,15 +29,13 @@ ISCon$set(
   name = "listGatingSets",
   value = function(reload = FALSE) {
     if (is.null(self$cache$cyto$listGatingSets) || reload) {
-      study <- ifelse(self$study == "Studies", "", self$study)
       self$cache$cyto$listGatingSets <- data.table(
         suppressWarnings(labkey.selectRows(
           baseUrl = self$config$labkey.url.base,
           folderPath = self$config$labkey.url.path,
           schemaName = "assay.General.gatingset",
-          queryName = "Data",
-          colNameOpt = "fieldname",
-          containerFilter = "CurrentAndSubfolders"
+          queryName = "SelectedData",
+          colNameOpt = "fieldname"
         ))
       )
     }
