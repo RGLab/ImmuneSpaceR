@@ -517,7 +517,6 @@ ISCon$set(
                                        by = .(study)]
       compDF$IrpTimepoints <- studyTimepoints$timepoints[ match(rownames(compDF), studyTimepoints$study) ]
 
-      # TODO:  Check why DGEA timepoints are missing for 387 when it looks like it is in gene_expression.gene_expression_analysis query
       # DGEA - Differential Expression Analysis
       # --------
       # creates GEAR and GEA tables
@@ -548,31 +547,27 @@ ISCon$set(
       existGEA$sdy <- containers$`Display Name`[ match(existGEA$container, containers$`Entity Id`)]
 
       gea <- suppressWarnings(lapply(studiesWithGems, FUN = function(sdy) {
-        impliedGEA <- data.table(labkey.selectRows(
-          baseUrl = baseUrl,
-          folderPath = paste0("/Studies/", sdy),
-          schemaName = "assay.expressionMatrix.matrix",
-          queryName = "inputSamples",
-          colNameOpt = "rname",
-          showHidden = TRUE))
+        # TODO:  use inputSmpls instead and subset
+        impliedGEA <- inputSmpls[study == sdy]
 
         # ---- summarize to have same form and info as currGEA ----
 
         # 1. Remove all arm_name * study_time_collected with less than 4 replicates
         # otherwise predictive modeling cannot work
-        impliedGEA[, subs := unique(length(biosample_participantid)), by = .(biosample_arm_name, biosample_study_time_collected)]
+        impliedGEA[, subs := length(unique(participantid)), by = .(cohort, study_time_collected, study_time_collected_unit)]
         impliedGEA <- impliedGEA[ subs > 3 ]
 
         # 2. Check for baseline within each arm_name and then filter out baseline
-        impliedGEA[, baseline := any(biosample_study_time_collected <= 0), by = .(biosample_arm_name) ]
-        impliedGEA <- impliedGEA[ baseline == TRUE ]
-        impliedGEA <- impliedGEA[ biosample_study_time_collected > 0 ]
+        impliedGEA[, baseline := any(study_time_collected <= 0), by = .(cohort) ]
+        impliedGEA <- impliedGEA[ baseline == TRUE ] # filter out arms with no baseline
+        impliedGEA <- impliedGEA[ study_time_collected > 0 ] # remove baseline
 
         # 3. Generate key
-        impliedGEA[, key := paste(biosample_arm_name, biosample_study_time_collected, biosample_study_time_collected_unit)]
+
+        impliedGEA[, key := paste(cohort_type, study_time_collected, study_time_collected_unit)]
 
         # 4. Summarize by arm_name * study_time_collected for number of subs and key
-        smryGEA <- impliedGEA[ , list(key = unique(key), subs = unique(subs)), by = .(biosample_arm_name, biosample_study_time_collected)]
+        smryGEA <- impliedGEA[ , list(key = unique(key), subs = unique(subs)), by = .(cohort_type, study_time_collected, study_time_collected_unit)]
 
         # -------------------------------------------
 
