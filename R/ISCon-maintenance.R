@@ -329,33 +329,31 @@ ISCon$set(
   which = "private",
   name = ".checkStudyCompliance",
   value = function(reload = FALSE,
-                   format = c("dataframe", "summaryList")[2],
+                   summarize = TRUE,
                    filterNonGE = TRUE,
                    showAllCols = FALSE,
                    onlyShowNonCompliant = TRUE,
                    verbose = FALSE) {
 
-    # CACHING
-    if (!is.null(self$cache[["complianceDF"]]) &&
-        !reload)
-    { # Serve cache
+
+
+    ## ----- HELPERS ----------
+    # Get list of studies turned on for a specific module
+    ..getModSdys <- function(name) {
+      url <-  url <- paste0(baseUrl, "/immport/studies/containersformodule.api?name=", name)
+      res <- unlist(lapply(rjson::fromJSON(Rlabkey:::labkey.get(url))[[1]], function(x) {x[["name"]]}))
+      res <- .spSort(res[grepl("SDY[0-9]+", res)])
+    }
+
+    ## ------- MAIN -----------
+    # Check cache first and use preferentially
+    if (!is.null(self$cache[["complianceDF"]]) && !reload){
       compDF <- self$cache[["complianceDF"]]
     } else {
-      # Create compDF ----------
 
-      ## HELPERS ----------
-      # Validation based on modules being turned on
-      ..getModSdys <- function(name) {
-        url <-  url <- paste0(baseUrl, "/immport/studies/containersformodule.api?name=", name)
-        res <- unlist(lapply(rjson::fromJSON(Rlabkey:::labkey.get(url))[[1]], function(x) {x[["name"]]}))
-        res <- .spSort(res[grepl("SDY[0-9]+", res)])
-      }
+      baseUrl <- self$config$labkey.url.base # For labkey.executeSql calls
 
-      ## MAIN -------------------
-      # For labkey.executeSql calls
-      baseUrl <- self$config$labkey.url.base
-
-      # Set up results table -----
+      # Prepare list of studies for generating results table rownames
       if (self$study != "Studies") {
         Sdys <- c(self$study) # single study
       } else {
@@ -363,14 +361,14 @@ ISCon$set(
         Sdys <- .spSort(Sdys)
       }
 
-      # Columns included in the table
+      # Prepare list of columns included in the table from Modules and Gene-Expression work
       mods <- c(
-        # Data flat files
-        "GEF", # Gene Expression Files
-        "RAW", # raw data on RServe
-        "GEO", # gene expression omnibus
+        # Gene Expression Data columns
+        "GEF", # Gene Expression Files query for meta-data
+        "RAW", # Raw data on RServe filesystem and imported from ImmPort
+        "GEO", # Raw data in Gene Expression Omnibus Dbase
         "GEM_implied", # Gene Expression Matrix
-        "GEM_actual",
+        "GEM_actual", #
         # Modules
         "DE_implied", # Data Explorer
         "DE_actual",
@@ -396,7 +394,7 @@ ISCon$set(
       )
       colnames(compDF) <- mods
 
-      # Get studies with modules currently enabled
+      # Get lists of studies currently enabled for each module
       compDF$DE_actual <- rownames(compDF) %in% ..getModSdys("DataExplorer")
       compDF$GEE_actual <- rownames(compDF) %in% ..getModSdys("GeneExpressionExplorer")
       compDF$GSEA_actual <- rownames(compDF) %in% ..getModSdys("GeneSetEnrichmentAnalysis")
@@ -404,41 +402,57 @@ ISCon$set(
       compDF$DGEA_actual <- rownames(compDF) %in% ..getModSdys("DifferentialExpressionAnalysis")
       compDF$DR_actual <- rownames(compDF) %in% ..getModSdys("DimensionReduction")
 
-      # Gene expression data -----------------
+      ################################
+      ###   Gene Expression Data   ###
+      ################################
 
-      # Metadata
-      # GEF (study.gene_expression_files: table with metadata about gene expresssion data from immport)
+      # GEF
+      # --------
+      # study.gene_expression_files: table with metadata about gene expresssion data from immport
       gef <- self$getDataset("gene_expression_files")
       compDF$GEF <- rownames(compDF) %in% .subidsToSdy(gef$participant_id)
 
-      # information on how to find the raw data
-      # RAW (raw gene expression data flat files on Rserve machine)
+      # RAW
+      # --------
+      # information on how to find the raw gene expression data flat files on Rserve machine
       file_list <- private$.getGEFileNames(TRUE)
       file_list <- file_list[file_list != "NULL"]
       compDF$RAW <- rownames(compDF) %in% names(file_list)[file_list == TRUE]
 
-      # GEO (geo accession IDs for raw data in gene expression omnibus database)
+      # GEO
+      # --------
+      # geo accession IDs for raw data in gene expression omnibus database
       geoGef <- gef[!is.na(gef$geo_accession), ]
       compDF$GEO <- rownames(compDF) %in% .subidsToSdy(geoGef$participant_id)
 
-      # Gene Expression Matrix
-      # GEM_implied (can a GEM be created from raw files or GEO data?)
+      # GEM_implied
+      # --------
+      # Gene Expression Matrix can be created from raw files on Rserve or files downloaded from GEO.
       compDF$GEM_implied <- compDF$RAW == T | compDF$GEO == T
 
-      # GEM_actual (Has a GEM been created?)
+      # GEM_actual
+      # --------
+      # Does study have gene expression matrices in the assay.ExpressionMatrix.matrix.Runs query?
       studiesWithGems <- unique(self$cache$GE_matrices$folder)
       compDF$GEM_actual <- rownames(compDF) %in% studiesWithGems
 
 
-      # Modules --------------------
-      # Get immune response data (GEE and IRP use this)
-      # and merge hai and nab
+      ################################
+      ###          Modules         ###
+      ################################
+
+      # Get immune response data for GEE and IRP
+      # `hai` is hemaglutinin Inhibition assay data and `nab` is neutralizing antibody titer
+      # assay data.  Both assays measure the antibodies present for specific viral antigens.
+      # HAI is predominantly used for Influenza studies while NAb is more common for others.
       hai <- self$getDataset("hai")
       nab <- self$getDataset("neut_ab_titer")
       immuneResponse <- rbind(nab, hai, fill = TRUE) # nab has a col that hai does not
 
 
-      # Gene Expression Explorer - visualization of expression level of 1 or more genes
+      # GEE - Gene Expression Explorer
+      # --------
+      # visualization of expression level of 1 or more genes
       # vs immune response (HAI or NAb):
       # Must have subjects with both GEM from any timepoint and response data for any timepoint
       # (timepoints do not have to be the same)
@@ -465,7 +479,9 @@ ISCon$set(
 
       compDF$GEE_implied <- rownames(compDF) %in% .subidsToSdy(unique(exprResp$participantid))
 
-      # Immune Response Predictor - This module can be used to automatically select a group
+      # IRP - Immune Response Predictor
+      # --------
+      # This module can be used to automatically select a group
       # of genes whose expression at a given time point (e.g. gene expression levels at day 0)
       # best predicts a given immunological response at a later time point (e.g. HAI at day 28)
       # Requires studies with subjects from multiple cohorts with GEM data at both target
@@ -494,13 +510,17 @@ ISCon$set(
       compDF$IRP_implied <- rownames(compDF) %in% unique(geCohortSubs$study)
 
       # Get IrpTimepoints
+      # TODO:  Change to "IRP_missing" to be consistent, and only include when noncompliant (or missing?)
+      # TODO:  Determine if this field is necessary
       studyTimepoints <- geCohortSubs[ , list(timepoints = paste(sort(unique(study_time_collected)),
                                                                  collapse = ",")),
                                        by = .(study)]
       compDF$IrpTimepoints <- studyTimepoints$timepoints[ match(rownames(compDF), studyTimepoints$study) ]
 
-
-      # Differential Expression Analysis (DGEA) - creates GEAR and GEA tables
+      # TODO:  Check why DGEA timepoints are missing for 387 when it looks like it is in gene_expression.gene_expression_analysis query
+      # DGEA - Differential Expression Analysis
+      # --------
+      # creates GEAR and GEA tables
       # compares baseline and other timepoint expression levels to find
       # genes that are sigificantly differentially expressed between baseline
       # and other timepoints
@@ -578,7 +598,9 @@ ISCon$set(
       compDF$DGEA_implied[ is.na(compDF$DGEA_implied) ] <- FALSE
       compDF$DGEA_implied <- as.logical(compDF$DGEA_implied)
 
-      # Gene set enrichment analysis - visualize how gene expression changes over time
+      # GSEA - Gene set enrichment analysis
+      # --------
+      # visualize how gene expression changes over time
       # for groups of genes:
       # studies with subjects having results in the
       # gene_expression.gene_expression_analysis_results (GEAR) table for multiple non-baseline timepoints
@@ -599,10 +621,13 @@ ISCon$set(
 
       compDF$GSEA_implied <- rownames(compDF) %in% names(gear)[gear == TRUE]
 
-      # Data Explorer - visualize assay data
-      # b/c ISC_study_datasets cannot provide gene_expression info, we use
-      # compDF$DGEA_actual as a proxy since it pulls the current GEA query, which should
-      # have the same info as DGEA_filteredGEAR ( what the con$plot() uses via con$getGEAnalysis() )
+      # DE - Data Explorer
+      # --------
+      # visualize assay data b/c ISC_study_datasets
+      # cannot provide gene_expression info, we use compDF$DGEA_actual as a
+      # proxy since it pulls the current GEA query, which should have the same
+      # info as DGEA_filteredGEAR ( what the con$plot() uses via
+      # con$getGEAnalysis() )
       deSets <- c(
         "Neutralizing antibody titer",
         "Enzyme-linked immunosorbent assay (ELISA)",
@@ -627,18 +652,22 @@ ISCon$set(
         ret <- any(res[[1]] %in% deSets) | compDF$DGEA_actual[rownames(compDF) == sdy]
       })
 
-      # dimension reduction (DR) - visualize multiple assays/features using dimension
-      # reduction algorithms to identify clustering.
-      # Requires at enough subjects and features to come up with at least a 3x3 matrix
+      # DR - Dimension Reduction (DR)
+      # --------
+      # visualize multiple assays/features using dimension reduction algorithms
+      # to identify clustering. Requires at enough subjects and features to come
+      # up with at least a 3x3 matrix. See note below for details on how this is
+      # determined.
       #
-      # NOTE:  For now, it seems that simply checking to see if there are any assay/subject
-      # NOTE:  combinations where number of subjects and features are both greater than 3
-      # NOTE:  is a good enough estimate of whether or not
-      # NOTE:  dimension reduction makes sense or is possible without doing too much of
-      # NOTE:  the checks and filtering that already happens in the module. It may mark as false
-      # NOTE:  some studies where dimension reduction might be possible when including
-      # NOTE:  multiple timepoints or assays. If this proves to be a problem, we could further group
-      # NOTE:  by timepoint or assay to get an idea of what the dimensions would be.
+      # NOTE:  For now, it seems that simply checking to see if there are any
+      # assay/subject combinations where number of subjects and features are
+      # both greater than 3 is a good enough estimate of whether or not
+      # dimension reduction makes sense or is possible without doing too much of
+      # the checks and filtering that already happens in the module. It may mark
+      # as false some studies where dimension reduction might be possible when
+      # including multiple timepoints or assays. If this proves to be a problem,
+      # we could further group by timepoint or assay to get an idea of what the
+      # dimensions would be.
 
       # get dimension reduction assay info
       dimRedux_assay_data <- labkey.selectRows(
@@ -699,10 +728,43 @@ ISCon$set(
     }
 
 
-    # Filter/summarize -------------
-    # Do relevant filtering/summarizing on compDF based on arguments
+    ################################
+    ###     Filter/Summarize     ###
+    ################################
 
-    if (format == "dataframe") {
+    if ( summarize ) {
+
+      # Get noncompliant studies
+      modules <- c("GEM", "DE", "GEE", "IRP", "GSEA", "DGEA", "DR")
+      compliant <- data.frame(lapply(modules, function(module){
+        impl <- grep(paste0(module,"_implied"), colnames(compDF))
+        act <- grep(paste0(module,"_actual"), colnames(compDF))
+
+        if (module == "DGEA") {
+          imp_vs_act <- compDF[[impl]] == compDF[[act]]
+          missing_dat <- is.na(compDF["DGEA_missing"]) | compDF["DGEA_missing"] == "no diff"
+          return(compliant <- imp_vs_act == missing_dat)
+        } else {
+          return(compliant <- compDF[[impl]] == compDF[[act]])}
+      }))
+
+      colnames(compliant) <- modules
+      rownames(compliant) <- rownames(compDF)
+      nonCompliantStudies <- rownames(compliant[ !apply(compliant, 1, all), ])
+
+      summaryList <- lapply(nonCompliantStudies, function(study) {
+        list(
+          modules = modules[!compliant[study, ]],
+          IrpTimepoints = compDF[study, "IrpTimepoints"],
+          DGEA_missing = compDF[study, "DGEA_missing"]
+        )
+      })
+      names(summaryList) <- nonCompliantStudies
+      # IRP timepoints only shown if IRP in modules, same for DGEA
+      return(summaryList)
+
+    } else {
+
       # Filter out studies that don't have GE since this is basis for everything
       if (filterNonGE) {
         compDF <- compDF[compDF$GEO | compDF$GEF, ]
@@ -737,40 +799,10 @@ ISCon$set(
       }
 
       return(compDF)
-
-    } else if ( format == "summaryList" ) {
-      # Get noncompliant studies
-      modules <- c("GEM", "DE", "GEE", "IRP", "GSEA", "DGEA", "DR")
-      compliant <- data.frame(lapply(modules, function(module){
-
-
-        impl <- grep(paste0(module,"_implied"), colnames(compDF))
-        act <- grep(paste0(module,"_actual"), colnames(compDF))
-
-        if (module == "DGEA") {
-          imp_vs_act <- compDF[[impl]] == compDF[[act]]
-          missing_dat <- is.na(compDF["DGEA_missing"]) | compDF["DGEA_missing"] == "no diff"
-          return(compliant <- imp_vs_act == missing_dat)
-        } else {
-          return(compliant <- compDF[[impl]] == compDF[[act]])}
-
-      }))
-      colnames(compliant) <- modules
-      rownames(compliant) <- rownames(compDF)
-      nonCompliantStudies <- rownames(compliant[ !apply(compliant, 1, all), ])
-
-      summaryList <- lapply(nonCompliantStudies, function(study) {
-        list(
-          modules = modules[!compliant[study, ]],
-          IrpTimepoints = compDF[study, "IrpTimepoints"],
-          DGEA_missing = compDF[study, "DGEA_missing"]
-        )
-      })
-      names(summaryList) <- nonCompliantStudies
-      return(summaryList)
     }
   }
 )
+
 
 
 # Get vector of study folders
