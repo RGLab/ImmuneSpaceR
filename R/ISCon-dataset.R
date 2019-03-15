@@ -198,6 +198,11 @@ ISCon$set(
   which = "private",
   name = ".checkFilter",
   value = function(colFilter, schema, query, view = "") {
+    if (nrow(colFilter) == 1 &&
+        grepl("ParticipantId/(\\S+)~eq=\\1$", colFilter[1, 1])) {
+      return(colFilter)
+    }
+
     # step 1:
     # Extract the column names used in the column filter
     old <- .extractNames(colFilter)
