@@ -347,7 +347,7 @@ ISCon$set(
 
     ## ------- MAIN -----------
     # Check cache first and use preferentially
-    if (!is.null(self$cache[["complianceDF"]]) && !reload){
+    if (!is.null(self$cache[["complianceDF"]]) && !reload) {
       compDF <- self$cache[["complianceDF"]]
     } else {
 
@@ -582,12 +582,12 @@ ISCon$set(
           missing_data <- NA
         }
 
-        res <- c( nrow(smryGEA) > 0, missing_data)
+        res <- c( "DGEA_implied" = nrow(smryGEA) > 0, "DGEA_missing" = missing_data)
       }))
 
+      names(gea) <- studiesWithGems
+
       gea <- data.frame(do.call(rbind, gea), stringsAsFactors = FALSE)
-      colnames(gea) <- c("DGEA_implied", "DGEA_missing")
-      rownames(gea) <- studiesWithGems
       compDF[studiesWithGems, "DGEA_implied"] <- gea$DGEA_implied
       compDF[studiesWithGems, "DGEA_missing"] <- gea$DGEA_missing
       compDF$DGEA_implied[ is.na(compDF$DGEA_implied) ] <- FALSE
