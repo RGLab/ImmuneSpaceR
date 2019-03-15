@@ -748,14 +748,14 @@ ISCon$set(
       nonCompliantStudies <- rownames(compliant[ !apply(compliant, 1, all), ])
 
       summaryList <- lapply(nonCompliantStudies, function(study) {
-        list(
-          modules = modules[!compliant[study, ]],
-          IrpTimepoints = compDF[study, "IrpTimepoints"],
-          DGEA_missing = compDF[study, "DGEA_missing"]
+        sl <- list(
+          modules = modules[!compliant[study, ]]
         )
+        if ("IRP" %in% sl$modules) { sl$IrpTimepoints <-  compDF[study, "IrpTimepoints"] }
+        if ("DGEA" %in% sl$modules) { sl$DGEA_missing <- compDF[study, "DGEA_missing"] }
+        return(sl)
       })
       names(summaryList) <- nonCompliantStudies
-      # IRP timepoints only shown if IRP in modules, same for DGEA
       return(summaryList)
 
     } else {
