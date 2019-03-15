@@ -42,7 +42,7 @@ ISCon$set(
   value = function(x, original_view = FALSE, reload = FALSE, colFilter = NULL, transformMethod = "none", ...) {
     if (nrow(self$availableDatasets[Name%in%x]) == 0) {
       wstring <- paste0(
-        "Empty data frame was returned.",
+        "Empty data.table was returned.",
         " `", x, "` is not a valid dataset for ", self$study
       )
       if (self$config$verbose) {
@@ -53,7 +53,7 @@ ISCon$set(
         )
       }
       warning(wstring, immediate. = TRUE)
-      return(data.frame())
+      return(data.table())
     }
 
     cache_name <- paste0(x, ifelse(original_view, "_full", ""))
