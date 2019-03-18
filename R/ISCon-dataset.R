@@ -102,47 +102,7 @@ ISCon$set(
       )
       setnames(data, private$.munge(colnames(data)))
 
-      noTrx <- c("pcr", "mbaa", "hla_typing", "kir_typing", "gene_expression_files")
-
-      if (transformMethod != "none" && !(x %in% noTrx)) {
-
-        if (x == "fcs_analyzed_result"){
-          data[, population_cell_number := as.numeric(population_cell_number)]
-        }
-
-        # colNames current as of 8/2018
-        if (!(x %in% c("elispot", "fcs_analyzed_result", "elisa"))) {
-          cNm <- "value_preferred"
-        } else if (x == "elispot") {
-          cNm <- "spot_number_reported"
-        } else if (x == "fcs_analyzed_result") {
-          cNm <- "population_cell_number"
-        } else if (x == "elisa") {
-          cNm <- "value_reported"
-        }
-
-        if (transformMethod == "auto") {
-          # Transformation options selected by RG
-          if (x %in% c("hai", "neut_ab_titer", "elisa")) {
-            tFun <- log
-          } else if (x %in% c("elispot")) {
-            tFun <- log1p
-          } else if (x %in% c("fcs_analyzed_result")){
-            tFun <- sqrt
-          }
-
-        }else{
-          if (transformMethod %in% c("log", "log1p", "sqrt")) {
-            tFun <- get(transformMethod)
-            data[, (cNm) := lapply(.SD, function(x) tFun(x)), .SDcols=grep(cNm, colnames(data))]
-          } else {
-            warning(paste0("'transformMethod' ", transformMethod, " not recognized. Please use 'log', 'log1p', or 'sqrt'. 'transformMethod' ignored." ))
-          }
-        }
-
-      } else if (transformMethod != "none" && x %in% noTrx) {
-        message(paste0(x, " is not a dataset that can be transformed. \n 'transformMethod' ignored."))
-      }
+      data <- .transformData(data, x, transformMethod)
 
       if (cache) {
         self$cache[[cache_name]] <- data
@@ -277,4 +237,59 @@ ISCon$set(
   }
 
   colFilter
+}
+
+
+# Transform data
+.transformData <- function(data, dataType, transformMethod) {
+  if (transformMethod == "none") {
+    return(data)
+  }
+
+  # List of datasets with transformable column names (current as of March 2019)
+  # and default transformation methods (selected by Raphael)
+  datasets <- list(
+    "elisa" = list(column = "value_reported", method = "log"),
+    "elispot" = list(column = "spot_number_reported", method = "log1p"),
+    "fcs_analyzed_result" = list(column = "population_cell_number", method = "sqrt"),
+    "hai" = list(column = "value_preferred", method = "log"),
+    "neut_ab_titer" = list(column = "value_preferred", method = "log")
+  )
+
+  if (!dataType %in% names(datasets)) {
+    warning(
+      "'", dataType, "' is not a dataset that can be transformed. ",
+      "`transformMethod` argument is ignored."
+    )
+    return(data)
+  }
+
+  if (!transformMethod %in% c("auto", "log", "log1p", "sqrt")) {
+    warning(
+      "'", transformMethod, "' is not a valid transformation method. ",
+      "Please use 'log', 'log1p', or 'sqrt'. ",
+      "`transformMethod` argument is ignored."
+    )
+    return(data)
+  }
+
+  # retrieve transformation function
+  if (transformMethod == "auto") {
+    transformMethod <- datasets[[dataType]][["method"]]
+  }
+  transformFunction <- get(transformMethod)
+
+  # retrieve column name
+  column <- datasets[[dataType]][["column"]]
+
+  if (dataType == "fcs_analyzed_result") {
+    data[, population_cell_number := as.numeric(population_cell_number)]
+  }
+
+  message(
+    "Transformed '", column, "' column of '", dataType, "' dataset with ",
+    "'", transformMethod, "' transformation function."
+  )
+  data[, (column) := lapply(.SD, function(x) transformFunction(x)),
+       .SDcols = grep(column, colnames(data))][]
 }

@@ -112,7 +112,7 @@ test_that("get HAI with misnamed transform", {
     warning = function(w) return(w),
     error = function(e) return(e)
   )
-  expect_true(grepl("not recognized", x$message))
+  expect_true(grepl("not a valid", x$message))
 })
 
 # cleanup ------------------------------------------------------
