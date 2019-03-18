@@ -722,6 +722,37 @@ ISCon$set(
       self$cache[["complianceDF"]] <- compDF
     }
 
+    ################################
+    #  Studies that are loaded but not enabled
+    ################################
+
+    # Get list of study folders from webdav
+    folder_link <- paste0(
+      self$config$labkey.url.base,
+      "/_webdav/Studies?method=JSON"
+    )
+    shareStudies <- grep("SDY\\d+", private$.listISFiles(folder_link), value = TRUE)
+
+    # Get list of studies on IS
+    conStudies <- labkey.selectRows(
+      baseUrl=self$config$labkey.url.base,
+      folderPath="/home",
+      schemaName="lists",
+      queryName="Studies",
+      viewName="",
+      colSort="id",
+      colFilter=NULL,
+      containerFilter=NULL
+    )
+
+    missingStudies <- setdiff(shareStudies, conStudies$Name)
+    if (length(missingStudies > 0)) {
+      message(
+        paste0(length(missingStudies), " studies present on webdav but not enabled: ",
+               paste(missingStudies, collapse = ", "))
+      )
+    }
+
 
     ################################
     ###     Filter/Summarize     ###
