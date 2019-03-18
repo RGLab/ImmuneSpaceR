@@ -42,7 +42,7 @@ ISCon$set(
   value = function(x, original_view = FALSE, reload = FALSE, colFilter = NULL, transformMethod = "none", ...) {
     if (nrow(self$availableDatasets[Name%in%x]) == 0) {
       wstring <- paste0(
-        "Empty data frame was returned.",
+        "Empty data.table was returned.",
         " `", x, "` is not a valid dataset for ", self$study
       )
       if (self$config$verbose) {
@@ -53,7 +53,7 @@ ISCon$set(
         )
       }
       warning(wstring, immediate. = TRUE)
-      return(data.frame())
+      return(data.table())
     }
 
     cache_name <- paste0(x, ifelse(original_view, "_full", ""))
@@ -78,9 +78,9 @@ ISCon$set(
 
       if (!is.null(colFilter)) {
         colFilter <- private$.checkFilter(
+          colFilter = colFilter,
           schema = "study",
           query = x,
-          colFilter = colFilter,
           view = viewName
         )
         cache <- FALSE
@@ -173,68 +173,61 @@ ISCon$set(
 )
 
 
+# Retrieve column names
+ISCon$set(
+  which = "private",
+  name = ".getColnames",
+  value = function(colNameOpt, schema, query, view = "") {
+    colnames(
+      .getLKtbl(
+        con = self,
+        schema = schema,
+        query = query,
+        viewName = view,
+        maxRows = 0,
+        colNameOpt = colNameOpt,
+        showHidden = FALSE
+      )
+    )
+  }
+)
+
+
 # Decode filters in case the user used column labels instead of column names
-#' @importFrom utils URLdecode URLencode
 ISCon$set(
   which = "private",
   name = ".checkFilter",
-  value = function(schema, query, colFilter, view = "") {
-    ## HELPERS
-    extractNames <- function(colFilter) {
-      tolower(unlist(lapply(gsub("~.*$", "", colFilter), URLdecode)))
+  value = function(colFilter, schema, query, view = "") {
+    if (nrow(colFilter) == 1 &&
+        grepl("ParticipantId/(\\S+)~eq=\\1$", colFilter[1, 1])) {
+      return(colFilter)
     }
 
-    getColnames <- function(colNameOpt) {
-      colnames(
-        .getLKtbl(
-          con = self,
-          schema = schema,
-          query = query,
-          viewName = view,
-          maxRows = 0,
-          colNameOpt = colNameOpt,
-          showHidden = FALSE
-        )
-      )
-    }
-
-    fixColFilter <- function(colFilter, labels, names) {
-      if (any(old %in% labels)) {
-        idx <- which(old %in% labels)
-        new <- unlist(lapply(names[match(old[idx], labels)], URLencode))
-        colFilter[idx] <- paste0(paste0(new, "~"), gsub("^.*~", "", colFilter[idx]))
-      }
-
-      colFilter
-    }
-
-
-    ## MAIN
     # step 1:
-    # Extract the colnames used in the filter
-    old <- extractNames(colFilter)
+    # Extract the column names used in the column filter
+    old <- .extractNames(colFilter)
     old[old == "participant_id"] <- "participant id"
 
-    # get colnames by fieldname and caption
+    # Retrieve the column names by `fieldname` and `caption`
     suppressWarnings({
-      fieldname <- getColnames(colNameOpt = "fieldname")
-      caption <- tolower(getColnames(colNameOpt = "caption"))
+      fieldname <- private$.getColnames("fieldname", schema, query, view)
+      caption <- tolower(private$.getColnames("caption", schema, query, view))
     })
 
-    # Fix the colFilter with caption
-    colFilter <- fixColFilter(colFilter, caption, fieldname)
+    # Fix the column filter with `caption`
+    colFilter <- .fixColFilter(colFilter, old, caption, fieldname)
 
     # step 2:
-    # Extract the colnames in the modified filter
-    old <- extractNames(colFilter)
+    # Extract the column names in the modified column filter from step 1
+    old <- .extractNames(colFilter)
 
-    # get lookups columns and labels to fix them by
+    # Extract the lookups columns and the labels to fix the column names by
     lookups <- fieldname[grep("/", fieldname)]
     labels <- gsub("\\w+/", "", lookups)
 
-    # Fix the colFilter with lookups columns
+    # Fix the colulm filter with lookups columns
     # (e.g., "DataSets/demographics/age_reported")
-    colFilter <- fixColFilter(colFilter, labels, lookups)
+    colFilter <- .fixColFilter(colFilter, old, labels, lookups)
 
     colFilter
   }
@@ -264,4 +257,24 @@ ISCon$set(
   }
 
   data
+}
+
+
+# Extract the column names from the column filter
+#' @importFrom utils URLdecode
+.extractNames <- function(colFilter) {
+  tolower(unlist(lapply(gsub("~.*$", "", colFilter), URLdecode)))
+}
+
+
+# Fix the column filter
+#' @importFrom utils URLencode
+.fixColFilter <- function(colFilter, old, labels, names) {
+  if (any(old %in% labels)) {
+    idx <- which(old %in% labels)
+    new <- unlist(lapply(names[match(old[idx], labels)], URLencode))
+    colFilter[idx] <- paste0(paste0(new, "~"), gsub("^.*~", "", colFilter[idx]))
+  }
+
+  colFilter
 }

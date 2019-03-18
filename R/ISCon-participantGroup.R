@@ -95,7 +95,7 @@ ISCon$set(
     colFilter <- rbind(
       colFilter,
       makeFilter(
-        c(paste0("ParticipantID/", groupName), "EQUAL", groupName)
+        c(paste0("ParticipantId/", groupName), "EQUAL", groupName)
       )
     )
 
