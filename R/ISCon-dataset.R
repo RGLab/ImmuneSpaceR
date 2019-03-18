@@ -36,6 +36,7 @@ ISCon$set(
 
 
 # Downloads a dataset and cache the result in the connection object.
+#' @importFrom digest digest
 ISCon$set(
   which = "public",
   name = "getDataset",
@@ -56,58 +57,55 @@ ISCon$set(
       return(data.table())
     }
 
-    cache_name <- paste0(x, ifelse(original_view, "_full", ""))
-    nOpts <- length(list(...))
+    # build a list of arguments to digest and compare
+    args <- list(
+      x = x,
+      original_view = original_view,
+      reload = reload,
+      colFilter = colFilter,
+      transformMethod = transformMethod,
+      ...
+    )
 
-    if (!is.null(self$cache[[cache_name]]) &&
-        !reload &&
-        is.null(colFilter) &&
-        nOpts == 0) { # Serve cache
-      data <- self$cache[[cache_name]]
-      # if(!is.null(colFilter)) {
-      #   data <- .filterCachedCopy(colFilter, data)
-      #   return(data)
-      # } else {
-      # }
-
-    } else { # Download the data
-      viewName <- NULL
-      if (original_view) {
-        viewName <- "full"
-      }
-
-      if (!is.null(colFilter)) {
-        colFilter <- private$.checkFilter(
-          colFilter = colFilter,
-          schema = "study",
-          query = x,
-          view = viewName
-        )
-        cache <- FALSE
-      } else if (length(nOpts) > 0) {
-        cache <- FALSE
-      } else{
-        cache <- TRUE
-      }
-
-      data <- .getLKtbl(
-        con = self,
-        schema = "study",
-        query = x,
-        viewName = viewName,
-        colNameOpt = "caption",
-        colFilter = colFilter,
-        showHidden = FALSE,
-        ...
-      )
-      setnames(data, private$.munge(colnames(data)))
-
-      data <- .transformData(data, x, transformMethod)
-
-      if (cache) {
-        self$cache[[cache_name]] <- data
+    # retrieve dataset from cache if arguments match
+    digestedArgs <- digest(args)
+    if (digestedArgs %in% names(self$cache)) {
+      if (!reload) {
+        return(self$cache[[digestedArgs]]$data)
       }
     }
+
+    viewName <- NULL
+    if (original_view) {
+      viewName <- "full"
+    }
+
+    if (!is.null(colFilter)) {
+      colFilter <- private$.checkFilter(
+        colFilter = colFilter,
+        schema = "study",
+        query = x,
+        view = viewName
+      )
+    }
+
+    data <- .getLKtbl(
+      con = self,
+      schema = "study",
+      query = x,
+      viewName = viewName,
+      colNameOpt = "caption",
+      colFilter = colFilter,
+      showHidden = FALSE,
+      ...
+    )
+    setnames(data, private$.munge(colnames(data)))
+
+    # transform data if needed
+    data <- .transformData(data, x, transformMethod)
+
+    # caching
+    self$cache[[digestedArgs]] <- list(args = args, data = data)
 
     data
   }
@@ -196,29 +194,6 @@ ISCon$set(
 
 
 # HELPER -----------------------------------------------------------------------
-
-# Filter the data table object by column
-# TODO: Need a way to translate Curl operators into math
-# (so that we can filter the saved tables using colFilter).
-.filterDT <- function(table, col, value) {
-  table[eval(as.name(col)) == value]
-}
-
-
-# Filter data by the prodivded filters
-.filterCachedCopy <- function(filters, data) {
-  decoded <- unlist(lapply(filters, URLdecode))
-
-  cols <- gsub(".*/", "", gsub("~.*", "", decoded))
-  values <- gsub(".*=", "", decoded)
-
-  for (i in 1:length(filters)) {
-    data <- .filterDT(table, cols[i], values[i])
-  }
-
-  data
-}
-
 
 # Extract the column names from the column filter
 #' @importFrom utils URLdecode

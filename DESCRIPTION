@@ -49,7 +49,8 @@ Imports:
     preprocessCore,
     parallel,
     flowCore,
-    flowWorkspace
+    flowWorkspace,
+    digest
 RoxygenNote: 6.1.1
 Collate: 
     'CreateConnection.R'
