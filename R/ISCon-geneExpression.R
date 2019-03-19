@@ -43,15 +43,21 @@ ISCon$set(
         setnames(ge, private$.munge(colnames(ge)))
 
         # adding cohort_type for use with getGEMatrix(cohort)
-        smpls <- .getLKtbl(
-                    con = self,
-                    schema = "study",
-                    query = "HM_inputSamplesQuery",
-                    containerFilter = "CurrentAndSubfolders",
-                    colNameOpt = "fieldname"
+        samples <- labkey.executeSql(
+          baseUrl = self$config$labkey.url.base,
+          folderPath = self$config$labkey.url.path,
+          schemaName = "study",
+          sql = "
+            SELECT DISTINCT expression_matrix_accession, cohort_type
+            FROM HM_inputSamplesQuery
+            GROUP BY expression_matrix_accession, cohort_type
+          ",
+          containerFilter = "CurrentAndSubfolders",
+          colNameOpt = "fieldname"
         )
-        tmp <- smpls[, list(cohort_type = unique(cohort_type)), by = .(expression_matrix_accession)]
-        ge$cohort_type <- tmp$cohort_type[ match(ge$name, tmp$expression_matrix_accession)]
+        ge$cohort_type <- samples$cohort_type[match(ge$name, samples$expression_matrix_accession)]
+
+        # caching
         self$cache[[private$.constants$matrices]] <- ge
       }
     }
