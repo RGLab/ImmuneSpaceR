@@ -106,13 +106,14 @@ ISCon$set(
   }
 )
 
+
 #' @importFrom flowWorkspace pData sampleNames
 #' @importFrom flowCore markernames
 ISCon$set(
   which = "public",
   name = "summarizeGatingSet",
   value = function(gatingSet) {
-    assertRstudio()
+    .assertRstudio()
 
     gsList <- self$listGatingSets()
     study <- gsList[gatingSet == gating_set, study][1]
@@ -123,7 +124,7 @@ ISCon$set(
 
     # load gating set (RDS only) and merge metadata
     gs <- readRDS(
-      paste0(buildGSPath(study, wsId, gatingSet), "/", gatingSet, ".rds")
+      paste0(.buildGSPath(study, wsId, gatingSet), "/", gatingSet, ".rds")
     )
     gs <- private$.mergePD(gs, study)
 
@@ -142,12 +143,13 @@ ISCon$set(
   }
 )
 
+
 #' @importFrom flowWorkspace load_gs
 ISCon$set(
   which = "public",
   name = "loadGatingSet",
   value = function(gatingSet) {
-    assertRstudio()
+    .assertRstudio()
 
     gsList <- self$listGatingSets()
     study <- gsList[gatingSet == gating_set, study][1]
@@ -157,7 +159,7 @@ ISCon$set(
     }
 
     # Load gating set and merge metadata
-    gs <- load_gs(buildGSPath(study, wsId, gatingSet))
+    gs <- load_gs(.buildGSPath(study, wsId, gatingSet))
     private$.mergePD(gs, study)
   }
 )
@@ -170,7 +172,7 @@ ISCon$set(
   which = "private",
   name = ".openWorkspace",
   value = function(workspace) {
-    assertRstudio()
+    .assertRstudio()
     if (grepl(".jo$", workspace)) {
       stop(".jo files cannot be processed currently.")
     }
@@ -193,11 +195,12 @@ ISCon$set(
   }
 )
 
+
 ISCon$set(
   which = "private",
   name = ".downloadCytoData",
   value = function(study = self$study, outputDir = ".") {
-    assertRstudio()
+    .assertRstudio()
     if (identical(study, "Studies")) {
       stop(
         "This is a cross study connection. ",
@@ -214,6 +217,7 @@ ISCon$set(
     )
   }
 )
+
 
 ISCon$set(
   which = "private",
@@ -254,17 +258,19 @@ ISCon$set(
 
 
 # HELPER -----------------------------------------------------------------------
-isRstudioDocker <- function() {
+.isRstudioDocker <- function() {
   dir.exists("/share/files/Studies") & dir.exists("/home/rstudio/.rstudio")
 }
 
-assertRstudio <- function() {
-  if (!isRstudioDocker()) {
+
+.assertRstudio <- function() {
+  if (!.isRstudioDocker()) {
     stop("You are not in the ImmuneSpace RStudio Session.")
   }
 }
 
-buildGSPath <- function(study, wsId, gatingSet) {
+
+.buildGSPath <- function(study, wsId, gatingSet) {
   paste0(
     "/share/files/Studies/",
     study,
