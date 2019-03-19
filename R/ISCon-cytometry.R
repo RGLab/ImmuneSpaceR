@@ -115,14 +115,15 @@ ISCon$set(
     assertRstudio()
 
     gsList <- self$listGatingSets()
-    study <- gsList[gatingSet == gating_set, study]
+    study <- gsList[gatingSet == gating_set, study][1]
+    wsId <- gsList[gatingSet == gating_set, wsID][1]
     if (!gatingSet %in% gsList$gating_set) {
       stop("'", gatingSet, "' is not a valid gating set name.")
     }
 
     # load gating set (RDS only) and merge metadata
     gs <- readRDS(
-      paste0(buildGSPath(study[1], gatingSet), "/", gatingSet, ".rds")
+      paste0(buildGSPath(study, wsId, gatingSet), "/", gatingSet, ".rds")
     )
     gs <- private$.mergePD(gs, study)
 
@@ -149,13 +150,14 @@ ISCon$set(
     assertRstudio()
 
     gsList <- self$listGatingSets()
-    study <- gsList[gatingSet == gating_set, study]
+    study <- gsList[gatingSet == gating_set, study][1]
+    wsId <- gsList[gatingSet == gating_set, wsID][1]
     if (!gatingSet %in% gsList$gating_set) {
       stop("'", gatingSet, "' is not a valid gating set name.")
     }
 
     # Load gating set and merge metadata
-    gs <- load_gs(buildGSPath(study[1], gatingSet))
+    gs <- load_gs(buildGSPath(study, wsId, gatingSet))
     private$.mergePD(gs, study)
   }
 )
@@ -174,7 +176,7 @@ ISCon$set(
     }
 
     wsList <- self$listWorkspaces()
-    study <- wsList[workspace == file_info_name, study_accession]
+    study <- wsList[workspace == file_info_name, study_accession][1]
     if (!workspace %in% wsList$file_info_name) {
       stop("'", workspace, "' is not a valid workspace file name.")
     }
@@ -183,7 +185,7 @@ ISCon$set(
     openWorkspace(
       paste0(
         "/share/files/Studies/",
-        study[1],
+        study,
         "/@files/rawdata/flow_cytometry/",
         workspace
       )
@@ -262,11 +264,12 @@ assertRstudio <- function() {
   }
 }
 
-buildGSPath <- function(study, gatingSet) {
+buildGSPath <- function(study, wsId, gatingSet) {
   paste0(
     "/share/files/Studies/",
     study,
     "/@files/analysis/gating_set/",
-    gsub("_GS\\d+$", "", gsub("^SDY\\d+_", "", gatingSet))
+    wsId,
+    gatingSet
   )
 }
