@@ -276,6 +276,7 @@ ISCon$set(
     study,
     "/@files/analysis/gating_set/",
     wsId,
+    "/",
     gatingSet
   )
 }
