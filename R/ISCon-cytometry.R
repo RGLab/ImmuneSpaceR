@@ -29,14 +29,15 @@ ISCon$set(
   name = "listGatingSets",
   value = function(reload = FALSE) {
     if (is.null(self$cache$cyto$listGatingSets) || reload) {
-      self$cache$cyto$listGatingSets <- data.table(
-        suppressWarnings(labkey.selectRows(
+      self$cache$cyto$listGatingSets <- tryCatch(
+        data.table(suppressWarnings(labkey.selectRows(
           baseUrl = self$config$labkey.url.base,
           folderPath = self$config$labkey.url.path,
           schemaName = "assay.General.gatingset",
           queryName = "SelectedData",
           colNameOpt = "fieldname"
-        ))
+        ))),
+        error = function(e) data.table()
       )
     }
 
