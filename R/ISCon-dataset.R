@@ -156,6 +156,8 @@ ISCon$set(
   which = "private",
   name = ".checkFilter",
   value = function(colFilter, schema, query, view = "") {
+    stopifnot(is.matrix(colFilter))
+
     if (nrow(colFilter) == 1 &&
         grepl("ParticipantId/(\\S+)~eq=\\1$", colFilter[1, 1])) {
       return(colFilter)
