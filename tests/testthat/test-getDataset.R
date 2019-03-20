@@ -80,7 +80,7 @@ test_that("get hla_typing", {
 test_that("invalid dataset name", {
   # check if it returned an empty data frame
   x <- suppressWarnings(sdy269$getDataset("fakeData", reload = TRUE))
-  expect_is(x, "data.frame")
+  expect_is(x, "data.table")
   expect_equal(nrow(x), 0)
 
   # check warning message
@@ -112,7 +112,7 @@ test_that("get HAI with misnamed transform", {
     warning = function(w) return(w),
     error = function(e) return(e)
   )
-  expect_true(grepl("not recognized", x$message))
+  expect_true(grepl("not a valid", x$message))
 })
 
 # cleanup ------------------------------------------------------
