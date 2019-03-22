@@ -4,11 +4,11 @@
 #'
 #' @export
 #' @return A netrc file that is verified to connect to ImmuneSpace
-
 interactive_netrc <- function() {
   # generate netrc path
   filepath <- .get_path()
   overwrite <- ""
+
   # check if netrc exists
   if (file.exists(filepath)) {
     message("A netrc file already exists!")
@@ -16,20 +16,24 @@ interactive_netrc <- function() {
     cat(readChar(filepath, nchars = 10000))
     cat("\n\n")
     overwrite <- readline(prompt = "Overwrite current netrc? [Y / n] ")
-    }
+  }
+
   # write netrc
   if (toupper(overwrite) == "Y" | overwrite == "") {
     login <- readline("What is your ImmuneSpace login email?  ")
-    password <- readline("What is your ImmuneSpace password?   ")
+    password <- readline("What is your ImmuneSpace password?  ")
     chk <- .check_con(login, password)
-    if (chk == T) {
-      message(paste("writing netrc to ", filepath, sep = ""))
+
+    if (chk == TRUE) {
+      message("writing netrc to ", filepath)
       cat("machine www.immunespace.org\nlogin ", login, "\npassword ", password, "\n", file = filepath)
     }
-    # don't overwrite - validate available netrc
   } else {
+    # don't overwrite - validate available netrc
     chk <- .check_con()
   }
+
+  filepath
 }
 
 

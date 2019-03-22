@@ -20,9 +20,8 @@ library(ImmuneSpaceR)
 ```{r}
 study <- CreateConnection("SDY269")
 
-dt_hai <- study$getDataset("hai", reload = T)
-dt_fcs <- study$getDataset("fcs_analyzed_result", reload = T)
-dt_elispot <- study$getDataset("elispot", reload = T)
+hai <- study$getDataset("hai")
+elispot <- study$getDataset("elispot")
 ```
 
 
