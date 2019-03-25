@@ -272,6 +272,12 @@ LAIV <- sdy269$getGEMatrix("LAIV_2008")
 sdy269$plot("elisa")
 }
 
+sdy <- try(CreateConnection("SDY269"))
+if (inherits(sdy, "try-error")) {
+  warning("Read the Introduction vignette for more information on how to set
+  up a .netrc file.")
+}
+
 }
 \seealso{
 \code{\link{CreateConnection}} \code{\link{ImmuneSpaceR-package}}

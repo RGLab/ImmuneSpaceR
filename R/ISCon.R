@@ -263,6 +263,12 @@
 #' sdy269$plot("elisa")
 #' }
 #'
+#' sdy <- try(CreateConnection("SDY269"))
+#' if (inherits(sdy, "try-error")) {
+#'   warning("Read the Introduction vignette for more information on how to set
+#'   up a .netrc file.")
+#' }
+#'
 #' @docType class
 ISCon <- R6Class(
   classname = "ImmuneSpaceConnection",
