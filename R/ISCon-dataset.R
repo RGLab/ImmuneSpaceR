@@ -16,7 +16,7 @@ ISCon$set(
 
     if ("datasets" %in% output) {
       cat("datasets\n")
-      for (i in 1:nrow(self$availableDatasets)) {
+      for (i in seq_len(nrow(self$availableDatasets))) {
         cat(sprintf("\t%s\n", self$availableDatasets[i, Name]))
       }
     }
@@ -24,7 +24,7 @@ ISCon$set(
     if ("expression" %in% output) {
       if (!is.null(self$cache[[private$.constants$matrices]])) {
         cat("Expression Matrices\n")
-        for (i in 1:nrow(self$cache[[private$.constants$matrices]])) {
+        for (i in seq_len(nrow(self$cache[[private$.constants$matrices]]))) {
           cat(sprintf("\t%s\n", self$cache[[private$.constants$matrices]][i, name]))
         }
       } else {
