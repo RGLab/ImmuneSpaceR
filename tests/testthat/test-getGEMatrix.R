@@ -14,7 +14,7 @@ test_EM <- function(EM, summary){
   expect_is(EM, "ExpressionSet")
   expect_gt(ncol(Biobase::exprs(EM)), 0)
   expect_gt(nrow(Biobase::exprs(EM)), 0)
-  if(summary == T){
+  if(summary == TRUE){
     # In summary, no gene is NA
     expect_false(any(is.na(fData(EM)$gene_symbol)))
   }
