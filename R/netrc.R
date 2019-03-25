@@ -2,8 +2,13 @@
 #'
 #' Write a netrc file that is valid for accessing ImmuneSpace
 #'
-#' @export
 #' @return A netrc file that is verified to connect to ImmuneSpace
+#' @examples
+#' \dontrun{
+#' interactive_netrc()
+#' }
+#'
+#' @export
 interactive_netrc <- function() {
   # generate netrc path
   filepath <- .get_path()
@@ -47,11 +52,11 @@ interactive_netrc <- function() {
 #' @param machine A \code{character}. The server to connect.
 #' @param file A \code{character}. The credentials will be written into that
 #'  file. If left NULL, the netrc will be written into a temporary file.
-#' @export
 #' @return A character vector containing the file paths for netrc
 #' @examples
 #' write_netrc("immunespaceuser@gmail.com", "mypassword")
 #'
+#' @export
 write_netrc <- function(login,
                         password,
                         machine = "www.immunespace.org",

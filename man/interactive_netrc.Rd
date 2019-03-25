@@ -12,3 +12,9 @@ A netrc file that is verified to connect to ImmuneSpace
 \description{
 Write a netrc file that is valid for accessing ImmuneSpace
 }
+\examples{
+\dontrun{
+interactive_netrc()
+}
+
+}
