@@ -31,7 +31,7 @@ testPgrp <- function(dt, groupId){
 # Tests --------------------------------------------------------
 if (identical(Sys.getenv("ISR_login"), "readonly@rglab.org")) {
   test_that("", {
-    groups <- try(con$listParticipantGroups())
+    groups <- try(allSdy$listParticipantGroups())
 
     expect_is(groups, "data.table")
     expect_gt(nrow(groups), 0)
