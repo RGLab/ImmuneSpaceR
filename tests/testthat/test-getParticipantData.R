@@ -30,6 +30,15 @@ testPgrp <- function(dt, groupId){
 
 # Tests --------------------------------------------------------
 if (identical(Sys.getenv("ISR_login"), "readonly@rglab.org")) {
+  test_that("", {
+    groups <- try(con$listParticipantGroups())
+
+    expect_is(groups, "data.table")
+    expect_gt(nrow(groups), 0)
+    expect_named(groups, c("group_id", "group_name", "created", "subjects", "studies"))
+    expect_true(groupId %in% groups$group_name)
+  })
+
   test_that("Pdata neut_ab_titer", {
     res <- testPgrp(dt = "neut_ab_titer", groupId = groupId )
     expect_true( res$view_T == "TRUE")
