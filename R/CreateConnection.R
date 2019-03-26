@@ -36,8 +36,8 @@
 #'
 #' sdy <- try(CreateConnection("SDY269"))
 #' if (inherits(sdy, "try-error")) {
-#'   print("Read the Introduction vignette for more information on how to set up
-#'   a .netrc file.")
+#'   warning("Read the Introduction vignette for more information on how to set
+#'   up a .netrc file.")
 #' }
 #'
 #' @export

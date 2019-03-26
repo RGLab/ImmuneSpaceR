@@ -699,7 +699,7 @@ ISCon$set(
       matrix <- data.table(matrix)
       for (dup in dups) {
         dupIdx <- grep(dup, colnames(matrix))
-        newNames <- paste0(dup, 1:length(dupIdx))
+        newNames <- paste0(dup, seq_len(length(dupIdx)))
         setnames(matrix, dupIdx, newNames)
         eval(substitute(matrix[, `:=`(dup,
                                       rowMeans(matrix[, dupIdx, with = FALSE]))],
@@ -836,7 +836,7 @@ ISCon$set(
 
   EMlist <- lapply(EMlist, "[", as.character(fd$FeatureId))
 
-  for (i in 1:length(EMlist)) {
+  for (i in seq_len(length(EMlist))) {
     fData(EMlist[[i]]) <- fd
   }
 

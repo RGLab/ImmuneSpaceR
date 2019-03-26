@@ -75,7 +75,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ImmuneSpaceR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.11.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.11.5</span>
       </span>
     </div>
 
@@ -107,7 +107,7 @@
       <a href="../articles/getGEMatrix.html">Handling Expression Matrices with ImmuneSpaceR</a>
     </li>
     <li>
-      <a href="../articles/interactiveNetrc.html">An Interactive Netrc Walkthrough</a>
+      <a href="../articles/interactiveNetrc.html">`interactive_netrc()` Walkthrough</a>
     </li>
     <li>
       <a href="../articles/report_SDY144.html">SDY144: Correlation of HAI/Virus Neutralizition Titer and Cell Counts</a>
@@ -168,7 +168,7 @@
     </div>
 
     <pre class="usage"><span class='fu'>CreateConnection</span>(<span class='kw'>study</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>login</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>password</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>use.data.frame</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>onTest</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
+  <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>onTest</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -187,11 +187,6 @@ active ImmuneSpace account.</p></td>
       <th>password</th>
       <td><p>A <code>"character"</code>. Optional. The password for the selected
 login.</p></td>
-    </tr>
-    <tr>
-      <th>use.data.frame</th>
-      <td><p>A <code>"logical"</code>. If set to TRUE, the functions will
-return <code>data.frame</code> objects instead of <code>data.table</code>.</p></td>
     </tr>
     <tr>
       <th>verbose</th>
@@ -232,8 +227,8 @@ default values. These are assigned to `options`, which are then used by the
 <span class='co'># }</span><div class='input'>
 <span class='no'>sdy</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/try'>try</a></span>(<span class='fu'>CreateConnection</span>(<span class='st'>"SDY269"</span>))
 <span class='kw'>if</span> (<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/class'>inherits</a></span>(<span class='no'>sdy</span>, <span class='st'>"try-error"</span>)) {
-  <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/print'>print</a></span>(<span class='st'>"Read the Introduction vignette for more information on how to set up
-  a .netrc file."</span>)
+  <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/warning'>warning</a></span>(<span class='st'>"Read the Introduction vignette for more information on how to set
+  up a .netrc file."</span>)
 }</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">

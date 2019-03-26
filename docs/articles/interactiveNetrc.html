@@ -5,11 +5,12 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>An Interactive Netrc Walkthrough • ImmuneSpaceR</title>
+<title>
+<code><a href="../reference/interactive_netrc.html">interactive_netrc()</a></code> Walkthrough • ImmuneSpaceR</title>
 <!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.7/yeti/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- sticky kit --><script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
-<script src="../pkgdown.js"></script><meta property="og:title" content="An Interactive Netrc Walkthrough">
+<script src="../pkgdown.js"></script><meta property="og:title" content="&lt;code&gt;interactive_netrc()&lt;/code&gt; Walkthrough">
 <meta property="og:description" content="">
 <meta property="og:image" content="/logo.png">
 <meta name="twitter:card" content="summary">
@@ -37,7 +38,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ImmuneSpaceR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.11.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.11.5</span>
       </span>
     </div>
 
@@ -69,7 +70,7 @@
       <a href="../articles/getGEMatrix.html">Handling Expression Matrices with ImmuneSpaceR</a>
     </li>
     <li>
-      <a href="../articles/interactiveNetrc.html">An Interactive Netrc Walkthrough</a>
+      <a href="../articles/interactiveNetrc.html">`interactive_netrc()` Walkthrough</a>
     </li>
     <li>
       <a href="../articles/report_SDY144.html">SDY144: Correlation of HAI/Virus Neutralizition Titer and Cell Counts</a>
@@ -117,9 +118,11 @@
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
-      <h1>An Interactive Netrc Walkthrough</h1>
+      <h1>
+<code><a href="../reference/interactive_netrc.html">interactive_netrc()</a></code> Walkthrough</h1>
+                        <h4 class="author">Lauren Wolfe</h4>
             
-            <h4 class="date">2019-01-10</h4>
+            <h4 class="date">2019-03-26</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/RGLab/ImmuneSpaceR/blob/master/vignettes/interactiveNetrc.Rmd"><code>vignettes/interactiveNetrc.Rmd</code></a></small>
       <div class="hidden name"><code>interactiveNetrc.Rmd</code></div>
@@ -128,7 +131,7 @@
 
     
     
-<p>This vignette shows detailed examples for all functionalities of the <code>interactive_netrc</code> method.</p>
+<p>This vignette shows detailed examples for all functionalities of the <code><a href="../reference/interactive_netrc.html">interactive_netrc()</a></code> function.</p>
 <div id="configuration" class="section level1">
 <h1 class="hasAnchor">
 <a href="#configuration" class="anchor"></a>Configuration</h1>
@@ -141,43 +144,36 @@ password supersecretpassword</code></pre>
 <div id="writing-your-netrc-file" class="section level1">
 <h1 class="hasAnchor">
 <a href="#writing-your-netrc-file" class="anchor"></a>Writing your netrc file</h1>
-<p>There are two options when it comes to writing a netrc. If you’re familiar with the command line see the <code>Intro to ImmuneSpace</code> vignette. For those less comfortable with the command line there is the <code>interactive_netrc</code> method.</p>
-<p>The <code>interactive_netrc</code> method will check if a netrc file already exists, prompt the user for login and password information in the R console, check that the provided login information allows the user to connect to ImmuneSpace, and if the connection is valid then write the information to a netrc file in the user’s home directory. Below is a gif demonstrating how to use this method.<br><br><img src="img/createNetrc.gif" width="725px"><br><br><br> In the case that the user did not provide login information that results in a connection to ImmuneSpace, a netrc file will not be written to the user’s home directory and the user can try the method again checking for typos. If the user still cannot connect to ImmuneSpace via the API they might want to double check that they are registered and that their login information works for <a href="https://immunespace.org/">ImmuneSpace</a>.<br><br> If a netrc file already exists <code>interactive_netrc</code> will print the existing file to the console, and ask the user if they wish to overwrite that file. A YES will result in the same process as if there were no netrc and overwrite the existing file. A NO will simply check if the existing netrc is able to connect to ImmuneSpace. No new netrc file will be created. Below is a gif demonstrating how this works.<br><br><img src="img/netrcOverwriteOption.gif" width="725px"></p>
+<p>There are two options when it comes to writing a netrc:</p>
+<ul>
+<li>If you’re familiar with the command line, see the <code>Intro to ImmuneSpace</code> vignette.</li>
+<li>For those less comfortable with the command line, there is the <code>interactive_netrc</code> function.</li>
+</ul>
+<div id="interactive_netrc" class="section level2">
+<h2 class="hasAnchor">
+<a href="#interactive_netrc" class="anchor"></a><code><a href="../reference/interactive_netrc.html">interactive_netrc()</a></code>
+</h2>
+<p>The <code>interactive_netrc</code> function will:</p>
+<ul>
+<li>check if a netrc file already exists</li>
+<li>prompt the user for login and password information in the R console</li>
+<li>check that the provided login information allows the user to connect to ImmuneSpace</li>
+<li>if the connection is valid, then write the information to a netrc file in the user’s home directory</li>
+</ul>
+<p>Below is a gif demonstrating how to use this function:</p>
+<p><img src="img/createNetrc.gif" width="675"></p>
+<p>In the case that the user did not provide login information that results in a connection to ImmuneSpace, a netrc file will not be written to the user’s home directory, and the user can try the method again checking for typos.</p>
+<p>If the user still cannot connect to ImmuneSpace via the API, they might want to double check that they are registered and that their login information works for <a href="https://immunespace.org/">ImmuneSpace</a>.</p>
+<p>If a netrc file already exists, <code>interactive_netrc</code> will print the existing file to the console and ask the user if they wish to overwrite that file.</p>
+<ul>
+<li>
+<code>Y</code> or <code>y</code> will result in the same process as if there were no netrc and overwrite the existing file.</li>
+<li>
+<code>N</code> or <code>n</code> will simply check if the existing netrc is able to connect to ImmuneSpace. No new netrc file will be created.</li>
+</ul>
+<p>Below is a gif demonstrating how this works:</p>
+<p><img src="img/netrcOverwriteOption.gif" width="675"></p>
 </div>
-<div id="session-info" class="section level1">
-<h1 class="hasAnchor">
-<a href="#session-info" class="anchor"></a>Session info</h1>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/sessionInfo">sessionInfo</a></span>()</a></code></pre></div>
-<pre><code>## R version 3.5.0 (2018-04-23)
-## Platform: x86_64-pc-linux-gnu (64-bit)
-## Running under: Ubuntu 18.04.1 LTS
-## 
-## Matrix products: default
-## BLAS: /usr/local/lib/R/lib/libRblas.so
-## LAPACK: /usr/local/lib/R/lib/libRlapack.so
-## 
-## locale:
-##  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
-##  [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
-##  [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
-##  [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
-##  [9] LC_ADDRESS=C               LC_TELEPHONE=C            
-## [11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
-## 
-## attached base packages:
-## [1] stats     graphics  grDevices utils     datasets  methods   base     
-## 
-## other attached packages:
-## [1] rmarkdown_1.11 knitr_1.21    
-## 
-## loaded via a namespace (and not attached):
-##  [1] Rcpp_1.0.0       rstudioapi_0.8   xml2_1.2.0       magrittr_1.5    
-##  [5] roxygen2_6.1.1   MASS_7.3-49      R6_2.3.0         rlang_0.3.0.1   
-##  [9] stringr_1.3.1    tools_3.5.0      xfun_0.4         htmltools_0.3.6 
-## [13] commonmark_1.7   yaml_2.2.0       digest_0.6.18    assertthat_0.2.0
-## [17] rprojroot_1.3-2  pkgdown_1.3.0    crayon_1.3.4     fs_1.2.6        
-## [21] memoise_1.1.0    evaluate_0.12    stringi_1.2.4    compiler_3.5.0  
-## [25] desc_1.2.0       backports_1.1.3</code></pre>
 </div>
   </div>
 
@@ -187,8 +183,11 @@ password supersecretpassword</code></pre>
 <a href="#tocnav" class="anchor"></a>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
 <li><a href="#configuration">Configuration</a></li>
-      <li><a href="#writing-your-netrc-file">Writing your netrc file</a></li>
-      <li><a href="#session-info">Session info</a></li>
+      <li>
+<a href="#writing-your-netrc-file">Writing your netrc file</a><ul class="nav nav-pills nav-stacked">
+<li><a href="#interactive_netrc"><code><a href="--/reference/interactive_netrc-html">interactive_netrc()</a></code></a></li>
+      </ul>
+</li>
       </ul>
 </div>
       </div>

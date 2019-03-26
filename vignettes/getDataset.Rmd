@@ -1,10 +1,10 @@
 ---
 title: "Downloading Datasets with getDataset"
+author: "Renan Sauteraud"
 date: "`r Sys.Date()`"
 output:
-  html_document:
+  html_vignette:
     toc: true
-    toc_float: true
     number_sections: true
 vignette: >
   %\VignetteEngine{knitr::rmarkdown}
@@ -110,7 +110,7 @@ Note that filtering is done before download. When performance is a concern, it i
 Any dataset grid on ImmuneSpace offers the possibility to switch views between 'Default' and 'Full'. The Default view contains information that is directly relevant to the user. Sample description and results are joined with basic demographic. However, this is not the way data is organized in the database. The 'Full' view is a representation of the data as it is stored on [ImmPort](http://www.immport.org/immport-open/public/home/home). The accession columns are used under the hood for join operations. They will be useful to developers and user writing reports to be displayed in ImmuneSpace studies.
 
 
-![](./img/getDataset-views.png)
+![](./img/getDataset-views.png){width=675px}
 
 Screen capture of the button bar of a dataset grid on ImmuneSpace.
 

@@ -37,7 +37,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ImmuneSpaceR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.11.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.11.5</span>
       </span>
     </div>
 
@@ -69,7 +69,7 @@
       <a href="../articles/getGEMatrix.html">Handling Expression Matrices with ImmuneSpaceR</a>
     </li>
     <li>
-      <a href="../articles/interactiveNetrc.html">An Interactive Netrc Walkthrough</a>
+      <a href="../articles/interactiveNetrc.html">`interactive_netrc()` Walkthrough</a>
     </li>
     <li>
       <a href="../articles/report_SDY144.html">SDY144: Correlation of HAI/Virus Neutralizition Titer and Cell Counts</a>
@@ -120,7 +120,7 @@
       <h1>Handling Expression Matrices with ImmuneSpaceR</h1>
                         <h4 class="author">Renan Sauteraud</h4>
             
-            <h4 class="date">2019-01-10</h4>
+            <h4 class="date">2019-03-26</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/RGLab/ImmuneSpaceR/blob/master/vignettes/getGEMatrix.Rmd"><code>vignettes/getGEMatrix.Rmd</code></a></small>
       <div class="hidden name"><code>getGEMatrix.Rmd</code></div>
@@ -146,21 +146,41 @@
 <p>Printing the connections will, among other information, list the datasets availables. The <code>listDatasets</code> method will only display the downloadable data. looking for. With <code>output = "expression"</code>, the datasets wont be printed.</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1">sdy269<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">listDatasets</a></span>()</a></code></pre></div>
 <pre><code>## datasets
+##  gene_expression_files
+##  fcs_sample_files
+##  demographics
 ##  elispot
+##  hai
+##  elisa
 ##  pcr
 ##  cohort_membership
 ##  fcs_analyzed_result
-##  demographics
-##  hai
-##  gene_expression_files
-##  elisa
-##  fcs_sample_files
 ## Expression Matrices
 ##  SDY269_PBMC_TIV_Geo
 ##  SDY269_PBMC_LAIV_Geo</code></pre>
 <p>Using <code>output = "expression"</code>, we can remove the datasets from the output.</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1">all<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">listDatasets</a></span>(<span class="dt">output =</span> <span class="st">"expression"</span>)</a></code></pre></div>
 <pre><code>## Expression Matrices
+##  SDY1325_WholeBlood_LowIntraMuscularPS_geo
+##  SDY1294_PBMC_ChineseCohort_Geo
+##  SDY1119_PBMC_oldHealthy_Geo
+##  SDY1119_PBMC_oldT2D_Geo
+##  SDY1119_PBMC_youngT2D_Geo
+##  SDY1119_PBMC_youngHealthy_Geo
+##  SDY1289_WholeBlood_MontrealCohort_Geo
+##  SDY1289_WholeBlood_LausanneCohort_Geo
+##  SDY1324_PBMC_nonBCGvacc
+##  SDY1324_PBMC_LatentTB
+##  SDY1324_PBMC_BCGvacc
+##  SDY89_WholeBlood_EnergixB
+##  SDY1370_Bcell_lc16m8_geo
+##  SDY1370_Bcell_dryvax_geo
+##  SDY1370_Tcell_lc16m8_geo
+##  SDY1370_Tcell_dryvax_geo
+##  SDY1370_PBMC_lc16m8_geo
+##  SDY1370_PBMC_dryvax_geo
+##  SDY1368_WholeBlood_Twin_Geo
+##  SDY1368_WholeBlood_NonTwin_Geo
 ##  SDY67_PBMC_HealthyAdults
 ##  SDY1328_WholeBlood_HealthyAdults_geo
 ##  SDY224_PBMC_TIV2010_ImmPort
@@ -209,15 +229,11 @@
 ##  SDY1364_PBMC_IntraMuscular_Geo
 ##  SDY1325_WholeBlood_IntramuscularCRM_Geo
 ##  SDY1325_WholeBlood_IntramuscularPS_Geo
-##  SDY1325_WholeBlood_LowIntraMuscularPS_Geo
 ##  SDY1325_WholeBlood_SubcutaneousPS_Geo
 ##  SDY1291_PBMC_HealthyHIVUninfected_Geo
 ##  SDY80_Other_Cohort2_Geo
 ##  SDY1293_PBMC_Vaccinated_geo
 ##  SDY1293_PBMC_Control_Geo
-##  SDY1289_WholeBlood_Montreal_Geo
-##  SDY1289_WholeBlood_Lausanne_Geo
-##  SDY1289_WholeBlood_Emory_Geo
 ##  SDY1276_WholeBlood_Validation_Geo
 ##  SDY1276_WholeBlood_Discovery_Geo
 ##  SDY1264_PBMC_Trial2_Geo
@@ -365,13 +381,13 @@
 <h1 class="hasAnchor">
 <a href="#session-info" class="anchor"></a>Session info</h1>
 <div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb37-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/sessionInfo">sessionInfo</a></span>()</a></code></pre></div>
-<pre><code>## R version 3.5.0 (2018-04-23)
+<pre><code>## R version 3.5.2 (2018-12-20)
 ## Platform: x86_64-pc-linux-gnu (64-bit)
-## Running under: Ubuntu 18.04.1 LTS
+## Running under: Ubuntu 18.04.2 LTS
 ## 
 ## Matrix products: default
-## BLAS: /usr/local/lib/R/lib/libRblas.so
-## LAPACK: /usr/local/lib/R/lib/libRlapack.so
+## BLAS: /usr/lib/x86_64-linux-gnu/blas/libblas.so.3.7.1
+## LAPACK: /usr/lib/x86_64-linux-gnu/lapack/liblapack.so.3.7.1
 ## 
 ## locale:
 ##  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
@@ -385,41 +401,46 @@
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-## [1] ImmuneSpaceR_1.7.5 knitr_1.21        
+## [1] ImmuneSpaceR_1.11.5 knitr_1.22         
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] viridis_0.5.1         Biobase_2.40.0        httr_1.4.0           
-##  [4] tidyr_0.8.2           foreach_1.4.4         viridisLite_0.3.0    
-##  [7] jsonlite_1.6          gtools_3.8.1          assertthat_0.2.0     
-## [10] stats4_3.5.0          yaml_2.2.0            robustbase_0.93-3    
-## [13] pillar_1.3.1          backports_1.1.3       lattice_0.20-35      
-## [16] glue_1.3.0            digest_0.6.18         RColorBrewer_1.1-2   
-## [19] colorspace_1.3-2      preprocessCore_1.42.0 htmltools_0.3.6      
-## [22] plyr_1.8.4            pkgconfig_2.0.2       pheatmap_1.0.10      
-## [25] purrr_0.2.5           mvtnorm_1.0-8         webshot_0.5.1        
-## [28] scales_1.0.0          gdata_2.18.0          whisker_0.3-2        
-## [31] tibble_1.4.2          ggplot2_3.1.0         nnet_7.3-12          
-## [34] BiocGenerics_0.26.0   lazyeval_0.2.1        magrittr_1.5         
-## [37] crayon_1.3.4          mclust_5.4.2          memoise_1.1.0        
-## [40] heatmaply_0.15.2      evaluate_0.12         fs_1.2.6             
-## [43] MASS_7.3-49           gplots_3.0.1          xml2_1.2.0           
-## [46] class_7.3-14          registry_0.5          tools_3.5.0          
-## [49] data.table_1.11.8     Rlabkey_2.2.4         trimcluster_0.1-2.1  
-## [52] stringr_1.3.1         plotly_4.8.0          kernlab_0.9-27       
-## [55] munsell_0.5.0         cluster_2.0.7-1       fpc_2.1-11.1         
-## [58] bindrcpp_0.2.2        compiler_3.5.0        pkgdown_1.3.0        
-## [61] caTools_1.17.1.1      rlang_0.3.0.1         grid_3.5.0           
-## [64] iterators_1.0.10      rstudioapi_0.8        rjson_0.2.20         
-## [67] htmlwidgets_1.3       bitops_1.0-6          rmarkdown_1.11       
-## [70] codetools_0.2-15      gtable_0.2.0          flexmix_2.3-14       
-## [73] roxygen2_6.1.1        curl_3.2              reshape2_1.4.3       
-## [76] TSP_1.1-6             R6_2.3.0              seriation_1.2-3      
-## [79] gridExtra_2.3         prabclus_2.2-6        dplyr_0.7.8          
-## [82] bindr_0.1.1           commonmark_1.7        rprojroot_1.3-2      
-## [85] KernSmooth_2.23-15    dendextend_1.9.0      desc_1.2.0           
-## [88] modeltools_0.2-22     stringi_1.2.4         parallel_3.5.0       
-## [91] Rcpp_1.0.0            gclus_1.3.1           DEoptimR_1.0-8       
-## [94] tidyselect_0.2.5      xfun_0.4              diptest_0.75-7</code></pre>
+##   [1] ncdfFlow_2.28.1       bitops_1.0-6          matrixStats_0.54.0   
+##   [4] fs_1.2.6              webshot_0.5.1         RColorBrewer_1.1-2   
+##   [7] httr_1.4.0            rprojroot_1.3-2       prabclus_2.2-7       
+##  [10] Rgraphviz_2.26.0      tools_3.5.2           backports_1.1.3      
+##  [13] R6_2.4.0              KernSmooth_2.23-15    lazyeval_0.2.1       
+##  [16] BiocGenerics_0.28.0   colorspace_1.4-0      flowWorkspace_4.0.3  
+##  [19] trimcluster_0.1-2.1   nnet_7.3-12           gridExtra_2.3        
+##  [22] tidyselect_0.2.5      preprocessCore_1.44.0 curl_3.3             
+##  [25] compiler_3.5.2        graph_1.60.0          Biobase_2.42.0       
+##  [28] TSP_1.1-6             xml2_1.2.0            plotly_4.8.0         
+##  [31] desc_1.2.0            diptest_0.75-7        caTools_1.17.1.2     
+##  [34] scales_1.0.0          DEoptimR_1.0-8        hexbin_1.27.2        
+##  [37] mvtnorm_1.0-10        robustbase_0.93-3     pkgdown_1.3.0        
+##  [40] commonmark_1.7        stringr_1.4.0         digest_0.6.18        
+##  [43] rmarkdown_1.11        rrcov_1.4-7           pkgconfig_2.0.2      
+##  [46] htmltools_0.3.6       htmlwidgets_1.3       rlang_0.3.1          
+##  [49] rstudioapi_0.9.0      flowCore_1.49.7       jsonlite_1.6         
+##  [52] mclust_5.4.2          gtools_3.8.1          dendextend_1.9.0     
+##  [55] dplyr_0.8.0.1         magrittr_1.5          modeltools_0.2-22    
+##  [58] RProtoBufLib_2.1.7    Rcpp_1.0.0            munsell_0.5.0        
+##  [61] viridis_0.5.1         stringi_1.3.1         whisker_0.3-2        
+##  [64] yaml_2.2.0            MASS_7.3-51.1         zlibbioc_1.28.0      
+##  [67] flexmix_2.3-15        gplots_3.0.1.1        plyr_1.8.4           
+##  [70] grid_3.5.2            parallel_3.5.2        gdata_2.18.0         
+##  [73] crayon_1.3.4          lattice_0.20-38       pillar_1.3.1         
+##  [76] rjson_0.2.20          fpc_2.1-11.1          Rlabkey_2.2.5        
+##  [79] corpcor_1.6.9         reshape2_1.4.3        codetools_0.2-15     
+##  [82] stats4_3.5.2          XML_3.98-1.19         glue_1.3.0           
+##  [85] gclus_1.3.2           evaluate_0.13         latticeExtra_0.6-28  
+##  [88] data.table_1.12.0     RcppParallel_4.4.2-2  foreach_1.4.4        
+##  [91] tidyr_0.8.3           gtable_0.2.0          purrr_0.3.1          
+##  [94] kernlab_0.9-27        heatmaply_0.15.2      assertthat_0.2.0     
+##  [97] ggplot2_3.1.0         xfun_0.5              roxygen2_6.1.1       
+## [100] viridisLite_0.3.0     class_7.3-15          IDPmisc_1.1.19       
+## [103] pcaPP_1.9-73          pheatmap_1.0.12       seriation_1.2-3      
+## [106] tibble_2.0.1          iterators_1.0.10      registry_0.5-1       
+## [109] memoise_1.1.0         flowViz_1.46.1        cluster_2.0.7-1</code></pre>
 </div>
   </div>
 

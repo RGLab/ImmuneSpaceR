@@ -1,10 +1,10 @@
 ---
 title: "An Introduction to the ImmuneSpaceR Package"
+author: "Renan Sauteraud"
 date: "`r Sys.Date()`"
 output:
-  html_document:
+  html_vignette:
     toc: true
-    toc_float: true
     number_sections: true
 vignette: >
   %\VignetteEngine{knitr::rmarkdown}
@@ -81,7 +81,7 @@ sdy269$getDataset("hai")
 
 The *sdy269* object is an **R6** class, so it behaves like a true object. Methods (like `getDataset`) are members of the object, thus the `$` semantics to access member functions.
 
-The first time you retrieve a data set, it will contact the database. The data is cached locally, so the next time you call `getDataset` on the same dataset, it will retrieve the cached local copy. This is much faster.
+The first time you retrieve a dataset, it will contact the database. The data is cached in the object, so the next time you call `getDataset` on the same dataset, it will retrieve the cached local copy. This is much faster.
 
 To get only a subset of the data and speed up the download, filters can be passed to `getDataset`. The filters are created using the `makeFilter` function of the `Rlabkey` package.
 
@@ -119,7 +119,7 @@ Finally, the summary argument will let you download the matrix with gene symbols
 gs <- sdy269$getGEMatrix("SDY269_PBMC_TIV_Geo", outputType = "summary", annotation = "latest")
 ```
 
-If the connection was created with `verbose = TRUE`, some functions will display additional informations such as the valid dataset names.
+If the connection was created with `verbose = TRUE`, some methods will display additional informations such as the valid dataset names.
 
 
 
@@ -155,7 +155,7 @@ con
 
 In cross-study connections, `getDataset` and `getGEMatrix` will combine the requested datasets or expression matrices. See the dedicated vignettes for more information.
 
-Likewise, `plot` will visualize accross studies. Note that in most cases the datasets will have too many cohorts/subjects, making the filtering of the data a necessity. The `colFilter` argument can be used here, as described in the  `getDataset` section.
+Likewise, `plot` will visualize accross studies. Note that in most cases the datasets will have too many cohorts/subjects, making the filtering of the data a necessity. The `colFilter` argument can be used here, as described in the `getDataset` section.
 
 ```{r cross-connection-qplot, dev='png', fig.align="center"}
 plotFilter <- makeFilter(c("cohort", "IN", "TIV 2010;TIV Group 2008"))

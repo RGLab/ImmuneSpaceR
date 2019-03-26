@@ -76,7 +76,7 @@ It provides function to download and display the data within these studies." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ImmuneSpaceR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.11.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.11.5</span>
       </span>
     </div>
 
@@ -108,7 +108,7 @@ It provides function to download and display the data within these studies." />
       <a href="../articles/getGEMatrix.html">Handling Expression Matrices with ImmuneSpaceR</a>
     </li>
     <li>
-      <a href="../articles/interactiveNetrc.html">An Interactive Netrc Walkthrough</a>
+      <a href="../articles/interactiveNetrc.html">`interactive_netrc()` Walkthrough</a>
     </li>
     <li>
       <a href="../articles/report_SDY144.html">SDY144: Correlation of HAI/Virus Neutralizition Titer and Cell Counts</a>
@@ -227,6 +227,20 @@ study.</p>
     expression matrices whether a cached version exist or not.</p></dd>
   <dt><code>listGEAnalysis()</code></dt><dd><p>Lists available gene expression analysis for the connection.</p></dd>
   <dt><code>listParticipantGroups()</code></dt><dd><p>Lists available participant groups on the ImmuneSpace portal.</p></dd>
+  <dt><code>listWorkspaces(reload = FALSE)</code></dt><dd><p>Lists available workspaces for the connection.
+    <code>reload</code>: A logical. If TRUE, download the table whether a cached
+    version exist or not.</p></dd>
+  <dt><code>listGatingSets(reload = FALSE)</code></dt><dd><p>Lists available gating sets for the connection.
+    <code>reload</code>: A logical. If TRUE, download the table whether a cached
+    version exist or not.</p></dd>
+  <dt><code>summarizeCyto()</code></dt><dd><p>Prints a summary of cytometry data for the connection.</p></dd>
+  <dt><code>summarizeGatingSet(gatingSet)</code></dt><dd><p>Prints a summary of a gating set. Note that this method currently works
+    only in the ImmuneSpace RStudio session.
+    <code>gatingSet</code>: A character. The name of the gating set to summarize.</p></dd>
+  <dt><code>loadGatingSet(gatingSet)</code></dt><dd><p>Loads a gating set via <code><a href='https://www.rdocumentation.org/packages/flowWorkspace/topics/save_gs'>load_gs</a></code> to the
+    current environment. Note that this method currently works only in the
+    ImmuneSpace RStudio Docker session.
+    <code>gatingSet</code>: A character. The name of the gating set to load.</p></dd>
   <dt><code>getDataset(x, original_view = FALSE, reload = FALSE,
   colFilter = NULL, ...)</code></dt><dd><p>Get a dataset form the connection.
     <code>x</code>: A character. The name of the dataset to download.
@@ -332,7 +346,11 @@ study.</p>
 <span class='co'># Visualize the ELISA dataset</span>
 <span class='no'>sdy269</span>$<span class='fu'>plot</span>(<span class='st'>"elisa"</span>)
 <span class='co'># }</span><div class='input'>
-</div></pre>
+<span class='no'>sdy</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/try'>try</a></span>(<span class='fu'><a href='CreateConnection.html'>CreateConnection</a></span>(<span class='st'>"SDY269"</span>))
+<span class='kw'>if</span> (<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/class'>inherits</a></span>(<span class='no'>sdy</span>, <span class='st'>"try-error"</span>)) {
+  <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/warning'>warning</a></span>(<span class='st'>"Read the Introduction vignette for more information on how to set
+  up a .netrc file."</span>)
+}</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>

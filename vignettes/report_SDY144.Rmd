@@ -3,9 +3,8 @@ title: "SDY144: Correlation of HAI/Virus Neutralizition Titer and Cell Counts"
 author: "Renan Sauteraud"
 date: "`r Sys.Date()`"
 output:
-  html_document:
+  html_vignette:
     toc: true
-    toc_float: true
     number_sections: true
 vignette: >
   %\VignetteIndexEntry{SDY144: Correlation of HAI/Virus Neutralizition Titer and Cell Counts}
@@ -52,7 +51,7 @@ con <- CreateConnection("SDY144")
 We grab the datasets of interests with the `getDataset` method.
 
 ```{r}
-flow <- con$getDataset("fcs_analyzed_result", maxRows = 10000) # maxRows for Rlabkey 2.1.136 / LK 17.2
+flow <- con$getDataset("fcs_analyzed_result")
 hai <- con$getDataset("hai")
 vn <- con$getDataset("neut_ab_titer")
 ```

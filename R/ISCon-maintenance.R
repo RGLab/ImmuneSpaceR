@@ -299,7 +299,7 @@ ISCon$set(
     }
     ok2rm <- readline(prompt = "Ok to remove all files listed above? [Y / n] ")
     if (toupper(ok2rm) == "Y" | ok2rm == "") {
-      for (i in 1:length(noRunPres)) {
+      for (i in seq_len(length(noRunPres))) {
         private$.curlDelete(
           noRunPres[i],
           names(noRunPres)[i]
