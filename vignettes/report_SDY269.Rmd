@@ -3,9 +3,8 @@ title: "SDY269: Correlating HAI with Flow Cytometry and ELISPOT Results"
 author: "Renan Sauteraud"
 date: "`r Sys.Date()`"
 output:
-  html_document:
+  html_vignette:
     toc: true
-    toc_float: true
     number_sections: true
 vignette: >
   %\VignetteEngine{knitr::rmarkdown}

@@ -83,6 +83,34 @@
 #'   \item{\code{listParticipantGroups()}}{
 #'     Lists available participant groups on the ImmuneSpace portal.
 #'   }
+#'   \item{\code{listWorkspaces(reload = FALSE)}}{
+#'     Lists available workspaces for the connection.
+#'
+#'     \code{reload}: A logical. If TRUE, download the table whether a cached
+#'     version exist or not.
+#'   }
+#'   \item{\code{listGatingSets(reload = FALSE)}}{
+#'     Lists available gating sets for the connection.
+#'
+#'     \code{reload}: A logical. If TRUE, download the table whether a cached
+#'     version exist or not.
+#'   }
+#'   \item{\code{summarizeCyto()}}{
+#'     Prints a summary of cytometry data for the connection.
+#'   }
+#'   \item{\code{summarizeGatingSet(gatingSet)}}{
+#'     Prints a summary of a gating set. Note that this method currently works
+#'     only in the ImmuneSpace RStudio session.
+#'
+#'     \code{gatingSet}: A character. The name of the gating set to summarize.
+#'   }
+#'   \item{\code{loadGatingSet(gatingSet)}}{
+#'     Loads a gating set via \code{\link[flowWorkspace]{load_gs}} to the
+#'     current environment. Note that this method currently works only in the
+#'     ImmuneSpace RStudio Docker session.
+#'
+#'     \code{gatingSet}: A character. The name of the gating set to load.
+#'   }
 #'   \item{\code{getDataset(x, original_view = FALSE, reload = FALSE,
 #'   colFilter = NULL, ...)}}{
 #'     Get a dataset form the connection.
@@ -233,6 +261,12 @@
 #'
 #' # Visualize the ELISA dataset
 #' sdy269$plot("elisa")
+#' }
+#'
+#' sdy <- try(CreateConnection("SDY269"))
+#' if (inherits(sdy, "try-error")) {
+#'   warning("Read the Introduction vignette for more information on how to set
+#'   up a .netrc file.")
 #' }
 #'
 #' @docType class

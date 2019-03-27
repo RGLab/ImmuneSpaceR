@@ -77,7 +77,7 @@ package with css, theme, and template parameters disabled." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ImmuneSpaceR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.11.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.11.5</span>
       </span>
     </div>
 
@@ -109,7 +109,7 @@ package with css, theme, and template parameters disabled." />
       <a href="../articles/getGEMatrix.html">Handling Expression Matrices with ImmuneSpaceR</a>
     </li>
     <li>
-      <a href="../articles/interactiveNetrc.html">An Interactive Netrc Walkthrough</a>
+      <a href="../articles/interactiveNetrc.html">`interactive_netrc()` Walkthrough</a>
     </li>
     <li>
       <a href="../articles/report_SDY144.html">SDY144: Correlation of HAI/Virus Neutralizition Titer and Cell Counts</a>
@@ -202,7 +202,162 @@ Compared to html_document, it:</p><ul>
 <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/library'>library</a></span>(<span class='no'>ImmuneSpaceR</span>)
 <span class='kw pkg'>rmarkdown</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/rmarkdown/topics/render'>render</a></span>(<span class='st'>"input.Rmd"</span>, <span class='fu'>template_IS</span>())
 <span class='kw pkg'>rmarkdown</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/rmarkdown/topics/render'>render</a></span>(<span class='st'>"input.Rmd"</span>, <span class='fu'>template_IS</span>(<span class='kw'>toc</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>))
-<span class='co'># }</span></pre>
+<span class='co'># }</span><div class='input'><span class='fu'>template_IS</span>()</div><div class='output co'>#&gt; $knitr
+#&gt; $knitr$opts_knit
+#&gt; NULL
+#&gt; 
+#&gt; $knitr$opts_chunk
+#&gt; $knitr$opts_chunk$dev
+#&gt; [1] "png"
+#&gt; 
+#&gt; $knitr$opts_chunk$dpi
+#&gt; [1] 96
+#&gt; 
+#&gt; $knitr$opts_chunk$fig.width
+#&gt; [1] 7
+#&gt; 
+#&gt; $knitr$opts_chunk$fig.height
+#&gt; [1] 5
+#&gt; 
+#&gt; $knitr$opts_chunk$fig.retina
+#&gt; [1] 2
+#&gt; 
+#&gt; 
+#&gt; $knitr$knit_hooks
+#&gt; NULL
+#&gt; 
+#&gt; $knitr$opts_hooks
+#&gt; NULL
+#&gt; 
+#&gt; $knitr$opts_template
+#&gt; NULL
+#&gt; 
+#&gt; 
+#&gt; $pandoc
+#&gt; $pandoc$to
+#&gt; [1] "html"
+#&gt; 
+#&gt; $pandoc$from
+#&gt; [1] "markdown+autolink_bare_uris+ascii_identifiers+tex_math_single_backslash+smart"
+#&gt; 
+#&gt; $pandoc$args
+#&gt;  [1] "--email-obfuscation"                                                                                      
+#&gt;  [2] "none"                                                                                                     
+#&gt;  [3] "--self-contained"                                                                                         
+#&gt;  [4] "--standalone"                                                                                             
+#&gt;  [5] "--section-divs"                                                                                           
+#&gt;  [6] "--template"                                                                                               
+#&gt;  [7] "/home/jkim2345/R/x86_64-pc-linux-gnu-library/3.5/rmarkdown/rmd/h/default.html"                            
+#&gt;  [8] "--no-highlight"                                                                                           
+#&gt;  [9] "--variable"                                                                                               
+#&gt; [10] "highlightjs=1"                                                                                            
+#&gt; [11] "--css"                                                                                                    
+#&gt; [12] "/home/jkim2345/git/ImmuneSpace/ImmuneSpaceR/inst/rmarkdown/templates/ImmuneSpace/resources/IStemplate.css"
+#&gt; 
+#&gt; $pandoc$keep_tex
+#&gt; [1] FALSE
+#&gt; 
+#&gt; $pandoc$latex_engine
+#&gt; [1] "pdflatex"
+#&gt; 
+#&gt; $pandoc$ext
+#&gt; NULL
+#&gt; 
+#&gt; 
+#&gt; $keep_md
+#&gt; [1] FALSE
+#&gt; 
+#&gt; $clean_supporting
+#&gt; [1] TRUE
+#&gt; 
+#&gt; $df_print
+#&gt; [1] "default"
+#&gt; 
+#&gt; $pre_knit
+#&gt; function (...) 
+#&gt; {
+#&gt;     op(base(...), overlay(...))
+#&gt; }
+#&gt; &lt;bytecode: 0x562d21334c80&gt;
+#&gt; &lt;environment: 0x562d1c7203d8&gt;
+#&gt; 
+#&gt; $post_knit
+#&gt; function (...) 
+#&gt; {
+#&gt;     op(base(...), overlay(...))
+#&gt; }
+#&gt; &lt;bytecode: 0x562d21334c80&gt;
+#&gt; &lt;environment: 0x562d1c720ad8&gt;
+#&gt; 
+#&gt; $pre_processor
+#&gt; function (...) 
+#&gt; {
+#&gt;     op(base(...), overlay(...))
+#&gt; }
+#&gt; &lt;bytecode: 0x562d21334c80&gt;
+#&gt; &lt;environment: 0x562d1c7211d8&gt;
+#&gt; 
+#&gt; $intermediates_generator
+#&gt; function (original_input, encoding, intermediates_dir) 
+#&gt; {
+#&gt;     return(copy_render_intermediates(original_input, encoding, 
+#&gt;         intermediates_dir, !self_contained))
+#&gt; }
+#&gt; &lt;bytecode: 0x562d212f3030&gt;
+#&gt; &lt;environment: 0x562d1c7461e0&gt;
+#&gt; 
+#&gt; $post_processor
+#&gt; function (metadata, input_file, output_file, clean, verbose) 
+#&gt; {
+#&gt;     if (length(preserved_chunks) == 0 &amp;&amp; !isTRUE(copy_resources) &amp;&amp; 
+#&gt;         self_contained) 
+#&gt;         return(output_file)
+#&gt;     output_str &lt;- read_utf8(output_file)
+#&gt;     if (length(preserved_chunks) &gt; 0) {
+#&gt;         for (i in names(preserved_chunks)) {
+#&gt;             output_str &lt;- gsub(paste0("&lt;p&gt;", i, "&lt;/p&gt;"), i, output_str, 
+#&gt;                 fixed = TRUE, useBytes = TRUE)
+#&gt;             output_str &lt;- gsub(paste0(" id=\"[^\"]*?", i, "[^\"]*?\" "), 
+#&gt;                 " ", output_str, useBytes = TRUE)
+#&gt;         }
+#&gt;         output_str &lt;- restorePreserveChunks(output_str, preserved_chunks)
+#&gt;     }
+#&gt;     if (copy_resources) {
+#&gt;         output_str &lt;- copy_html_resources(one_string(output_str), 
+#&gt;             lib_dir, output_dir)
+#&gt;     }
+#&gt;     else if (!self_contained) {
+#&gt;         image_relative &lt;- function(img_src, src) {
+#&gt;             in_file &lt;- utils::URLdecode(src)
+#&gt;             if (grepl("^[.][.]", in_file)) 
+#&gt;                 return(img_src)
+#&gt;             if (length(in_file) &amp;&amp; file.exists(in_file)) {
+#&gt;                 img_src &lt;- sub(src, utils::URLencode(normalized_relative_to(output_dir, 
+#&gt;                   in_file)), img_src, fixed = TRUE)
+#&gt;             }
+#&gt;             img_src
+#&gt;         }
+#&gt;         output_str &lt;- process_images(output_str, image_relative)
+#&gt;     }
+#&gt;     write_utf8(output_str, output_file)
+#&gt;     output_file
+#&gt; }
+#&gt; &lt;bytecode: 0x562d212f6878&gt;
+#&gt; &lt;environment: 0x562d1c7461e0&gt;
+#&gt; 
+#&gt; $on_exit
+#&gt; function () 
+#&gt; {
+#&gt;     if (is.function(base)) 
+#&gt;         base()
+#&gt;     if (is.function(overlay)) 
+#&gt;         overlay()
+#&gt; }
+#&gt; &lt;bytecode: 0x562d2133b0e0&gt;
+#&gt; &lt;environment: 0x562d1c71e9f8&gt;
+#&gt; 
+#&gt; attr(,"class")
+#&gt; [1] "rmarkdown_output_format"</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>

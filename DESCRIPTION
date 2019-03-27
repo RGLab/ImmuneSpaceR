@@ -1,7 +1,7 @@
 Package: ImmuneSpaceR
 Type: Package
 Title: A Thin Wrapper around the ImmuneSpace Database
-Version: 1.10.2
+Version: 1.10.5
 Date: 2014-06-12
 Authors@R: c(person("Greg", "Finak", role = "aut"),
              person("Renan", "Sauteraud", role = "aut"),
@@ -47,11 +47,15 @@ Imports:
     rjson,
     rmarkdown,
     preprocessCore,
-    parallel
+    parallel,
+    flowCore,
+    flowWorkspace,
+    digest
 RoxygenNote: 6.1.1
 Collate: 
     'CreateConnection.R'
     'ISCon.R'
+    'ISCon-cytometry.R'
     'ISCon-dataset.R'
     'ISCon-geneExpression.R'
     'ISCon-maintenance.R'

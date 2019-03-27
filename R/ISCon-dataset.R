@@ -16,7 +16,7 @@ ISCon$set(
 
     if ("datasets" %in% output) {
       cat("datasets\n")
-      for (i in 1:nrow(self$availableDatasets)) {
+      for (i in seq_len(nrow(self$availableDatasets))) {
         cat(sprintf("\t%s\n", self$availableDatasets[i, Name]))
       }
     }
@@ -24,7 +24,7 @@ ISCon$set(
     if ("expression" %in% output) {
       if (!is.null(self$cache[[private$.constants$matrices]])) {
         cat("Expression Matrices\n")
-        for (i in 1:nrow(self$cache[[private$.constants$matrices]])) {
+        for (i in seq_len(nrow(self$cache[[private$.constants$matrices]]))) {
           cat(sprintf("\t%s\n", self$cache[[private$.constants$matrices]][i, name]))
         }
       } else {
@@ -36,13 +36,14 @@ ISCon$set(
 
 
 # Downloads a dataset and cache the result in the connection object.
+#' @importFrom digest digest
 ISCon$set(
   which = "public",
   name = "getDataset",
   value = function(x, original_view = FALSE, reload = FALSE, colFilter = NULL, transformMethod = "none", ...) {
     if (nrow(self$availableDatasets[Name%in%x]) == 0) {
       wstring <- paste0(
-        "Empty data frame was returned.",
+        "Empty data.table was returned.",
         " `", x, "` is not a valid dataset for ", self$study
       )
       if (self$config$verbose) {
@@ -53,105 +54,58 @@ ISCon$set(
         )
       }
       warning(wstring, immediate. = TRUE)
-      return(data.frame())
+      return(data.table())
     }
 
-    cache_name <- paste0(x, ifelse(original_view, "_full", ""))
-    nOpts <- length(list(...))
+    # build a list of arguments to digest and compare
+    args <- list(
+      x = x,
+      original_view = original_view,
+      reload = reload,
+      colFilter = colFilter,
+      transformMethod = transformMethod,
+      ...
+    )
 
-    if (!is.null(self$cache[[cache_name]]) &&
-        !reload &&
-        is.null(colFilter) &&
-        nOpts == 0) { # Serve cache
-      data <- self$cache[[cache_name]]
-      # if(!is.null(colFilter)) {
-      #   data <- .filterCachedCopy(colFilter, data)
-      #   return(data)
-      # } else {
-      # }
-
-    } else { # Download the data
-      viewName <- NULL
-      if (original_view) {
-        viewName <- "full"
+    # retrieve dataset from cache if arguments match
+    digestedArgs <- digest(args)
+    if (digestedArgs %in% names(self$cache)) {
+      if (!reload) {
+        return(self$cache[[digestedArgs]]$data)
       }
+    }
 
-      if (!is.null(colFilter)) {
-        colFilter <- private$.checkFilter(
-          schema = "study",
-          query = x,
-          colFilter = colFilter,
-          view = viewName
-        )
-        cache <- FALSE
-      } else if (length(nOpts) > 0) {
-        cache <- FALSE
-      } else{
-        cache <- TRUE
-      }
+    viewName <- NULL
+    if (original_view) {
+      viewName <- "full"
+    }
 
-      data <- .getLKtbl(
-        con = self,
+    if (!is.null(colFilter)) {
+      colFilter <- private$.checkFilter(
+        colFilter = colFilter,
         schema = "study",
         query = x,
-        viewName = viewName,
-        colNameOpt = "caption",
-        colFilter = colFilter,
-        showHidden = FALSE,
-        ...
+        view = viewName
       )
-      setnames(data, private$.munge(colnames(data)))
-
-      noTrx <- c("pcr", "mbaa", "hla_typing", "kir_typing", "gene_expression_files")
-
-      if (transformMethod != "none" && !(x %in% noTrx)) {
-
-        if (x == "fcs_analyzed_result"){
-          data[, population_cell_number := as.numeric(population_cell_number)]
-        }
-
-        # colNames current as of 8/2018
-        if (!(x %in% c("elispot", "fcs_analyzed_result", "elisa"))) {
-          cNm <- "value_preferred"
-        } else if (x == "elispot") {
-          cNm <- "spot_number_reported"
-        } else if (x == "fcs_analyzed_result") {
-          cNm <- "population_cell_number"
-        } else if (x == "elisa") {
-          cNm <- "value_reported"
-        }
-
-        if (transformMethod == "auto") {
-          # Transformation options selected by RG
-          if (x %in% c("hai", "neut_ab_titer", "elisa")) {
-            tFun <- log
-          } else if (x %in% c("elispot")) {
-            tFun <- log1p
-          } else if (x %in% c("fcs_analyzed_result")){
-            tFun <- sqrt
-          }
-
-        }else{
-          if (transformMethod %in% c("log", "log1p", "sqrt")) {
-            tFun <- get(transformMethod)
-            data[, (cNm) := lapply(.SD, function(x) tFun(x)), .SDcols=grep(cNm, colnames(data))]
-          } else {
-            warning(paste0("'transformMethod' ", transformMethod, " not recognized. Please use 'log', 'log1p', or 'sqrt'. 'transformMethod' ignored." ))
-          }
-        }
-
-      } else if (transformMethod != "none" && x %in% noTrx) {
-        message(paste0(x, " is not a dataset that can be transformed. \n 'transformMethod' ignored."))
-      }
-
-      if (cache) {
-        self$cache[[cache_name]] <- data
-      }
     }
 
-    if (!is.null(self$config$use.data.frame) && self$config$use.data.frame) {
-      data <- data.frame(data)
-    }
+    data <- .getLKtbl(
+      con = self,
+      schema = "study",
+      query = x,
+      viewName = viewName,
+      colNameOpt = "caption",
+      colFilter = colFilter,
+      showHidden = FALSE,
+      ...
+    )
+    setnames(data, private$.munge(colnames(data)))
+
+    # transform data if needed
+    data <- .transformData(data, x, transformMethod)
+
+    # caching
+    self$cache[[digestedArgs]] <- list(args = args, data = data)
 
     data
   }
@@ -177,68 +131,63 @@ ISCon$set(
 )
 
 
+# Retrieve column names
+ISCon$set(
+  which = "private",
+  name = ".getColnames",
+  value = function(colNameOpt, schema, query, view = "") {
+    colnames(
+      .getLKtbl(
+        con = self,
+        schema = schema,
+        query = query,
+        viewName = view,
+        maxRows = 0,
+        colNameOpt = colNameOpt,
+        showHidden = FALSE
+      )
+    )
+  }
+)
+
+
 # Decode filters in case the user used column labels instead of column names
-#' @importFrom utils URLdecode URLencode
 ISCon$set(
   which = "private",
   name = ".checkFilter",
-  value = function(schema, query, colFilter, view = "") {
-    ## HELPERS
-    extractNames <- function(colFilter) {
-      tolower(unlist(lapply(gsub("~.*$", "", colFilter), URLdecode)))
+  value = function(colFilter, schema, query, view = "") {
+    stopifnot(is.matrix(colFilter))
+
+    if (nrow(colFilter) == 1 &&
+        grepl("ParticipantId/(\\S+)~eq=\\1$", colFilter[1, 1])) {
+      return(colFilter)
     }
 
-    getColnames <- function(colNameOpt) {
-      colnames(
-        .getLKtbl(
-          con = self,
-          schema = schema,
-          query = query,
-          viewName = view,
-          maxRows = 0,
-          colNameOpt = colNameOpt,
-          showHidden = FALSE
-        )
-      )
-    }
-
-    fixColFilter <- function(colFilter, labels, names) {
-      if (any(old %in% labels)) {
-        idx <- which(old %in% labels)
-        new <- unlist(lapply(names[match(old[idx], labels)], URLencode))
-        colFilter[idx] <- paste0(paste0(new, "~"), gsub("^.*~", "", colFilter[idx]))
-      }
-
-      colFilter
-    }
-
-
-    ## MAIN
     # step 1:
-    # Extract the colnames used in the filter
-    old <- extractNames(colFilter)
+    # Extract the column names used in the column filter
+    old <- .extractNames(colFilter)
     old[old == "participant_id"] <- "participant id"
 
-    # get colnames by fieldname and caption
+    # Retrieve the column names by `fieldname` and `caption`
     suppressWarnings({
-      fieldname <- getColnames(colNameOpt = "fieldname")
-      caption <- tolower(getColnames(colNameOpt = "caption"))
+      fieldname <- private$.getColnames("fieldname", schema, query, view)
+      caption <- tolower(private$.getColnames("caption", schema, query, view))
     })
 
-    # Fix the colFilter with caption
-    colFilter <- fixColFilter(colFilter, caption, fieldname)
+    # Fix the column filter with `caption`
+    colFilter <- .fixColFilter(colFilter, old, caption, fieldname)
 
     # step 2:
-    # Extract the colnames in the modified filter
-    old <- extractNames(colFilter)
+    # Extract the column names in the modified column filter from step 1
+    old <- .extractNames(colFilter)
 
-    # get lookups columns and labels to fix them by
+    # Extract the lookups columns and the labels to fix the column names by
     lookups <- fieldname[grep("/", fieldname)]
     labels <- gsub("\\w+/", "", lookups)
 
-    # Fix the colFilter with lookups columns
+    # Fix the colulm filter with lookups columns
     # (e.g., "DataSets/demographics/age_reported")
-    colFilter <- fixColFilter(colFilter, labels, lookups)
+    colFilter <- .fixColFilter(colFilter, old, labels, lookups)
 
     colFilter
   }
@@ -248,24 +197,76 @@ ISCon$set(
 
 # HELPER -----------------------------------------------------------------------
 
-# Filter the data table object by column
-# TODO: Need a way to translate Curl operators into math
-# (so that we can filter the saved tables using colFilter).
-.filterDT <- function(table, col, value) {
-  table[eval(as.name(col)) == value]
+# Extract the column names from the column filter
+#' @importFrom utils URLdecode
+.extractNames <- function(colFilter) {
+  tolower(unlist(lapply(gsub("~.*$", "", colFilter), URLdecode)))
 }
 
 
-# Filter data by the prodivded filters
-.filterCachedCopy <- function(filters, data) {
-  decoded <- unlist(lapply(filters, URLdecode))
-
-  cols <- gsub(".*/", "", gsub("~.*", "", decoded))
-  values <- gsub(".*=", "", decoded)
-
-  for (i in 1:length(filters)) {
-    data <- .filterDT(table, cols[i], values[i])
+# Fix the column filter
+#' @importFrom utils URLencode
+.fixColFilter <- function(colFilter, old, labels, names) {
+  if (any(old %in% labels)) {
+    idx <- which(old %in% labels)
+    new <- unlist(lapply(names[match(old[idx], labels)], URLencode))
+    colFilter[idx] <- paste0(paste0(new, "~"), gsub("^.*~", "", colFilter[idx]))
   }
 
-  data
+  colFilter
+}
+
+
+# Transform data
+.transformData <- function(data, dataType, transformMethod) {
+  if (transformMethod == "none") {
+    return(data)
+  }
+
+  # List of datasets with transformable column names (current as of March 2019)
+  # and default transformation methods (selected by Raphael)
+  datasets <- list(
+    "elisa" = list(column = "value_reported", method = "log"),
+    "elispot" = list(column = "spot_number_reported", method = "log1p"),
+    "fcs_analyzed_result" = list(column = "population_cell_number", method = "sqrt"),
+    "hai" = list(column = "value_preferred", method = "log"),
+    "neut_ab_titer" = list(column = "value_preferred", method = "log")
+  )
+
+  if (!dataType %in% names(datasets)) {
+    warning(
+      "'", dataType, "' is not a dataset that can be transformed. ",
+      "`transformMethod` argument is ignored."
+    )
+    return(data)
+  }
+
+  if (!transformMethod %in% c("auto", "log", "log1p", "sqrt")) {
+    warning(
+      "'", transformMethod, "' is not a valid transformation method. ",
+      "Please use 'log', 'log1p', or 'sqrt'. ",
+      "`transformMethod` argument is ignored."
+    )
+    return(data)
+  }
+
+  # retrieve transformation function
+  if (transformMethod == "auto") {
+    transformMethod <- datasets[[dataType]][["method"]]
+  }
+  transformFunction <- get(transformMethod)
+
+  # retrieve column name
+  column <- datasets[[dataType]][["column"]]
+
+  if (dataType == "fcs_analyzed_result") {
+    data[, population_cell_number := as.numeric(population_cell_number)]
+  }
+
+  message(
+    "Transformed '", column, "' column of '", dataType, "' dataset with ",
+    "'", transformMethod, "' transformation function."
+  )
+  data[, (column) := lapply(.SD, function(x) transformFunction(x)),
+       .SDcols = grep(column, colnames(data))][]
 }

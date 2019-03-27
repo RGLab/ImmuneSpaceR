@@ -16,10 +16,10 @@ groupId <- "auto_test" # both travis and bioc on test / prod
 
 # Helper Functions ---------------------------------------------
 testPgrp <- function(dt, groupId){
-  pgrp_T <- allSdy$getParticipantData(group = groupId, dataType = dt, original_view = T, maxRows = 1)
-  pgrp_F <- allSdy$getParticipantData(group = groupId, dataType = dt, original_view = F, maxRows = 1)
-  orig_T <- allSdy$getDataset(dt, original_view = T, maxRows = 1)
-  orig_F <- allSdy$getDataset(dt, original_view = F, maxRows = 1)
+  pgrp_T <- allSdy$getParticipantData(group = groupId, dataType = dt, original_view = TRUE, maxRows = 1)
+  pgrp_F <- allSdy$getParticipantData(group = groupId, dataType = dt, original_view = FALSE, maxRows = 1)
+  orig_T <- allSdy$getDataset(dt, original_view = TRUE, maxRows = 1)
+  orig_F <- allSdy$getDataset(dt, original_view = FALSE, maxRows = 1)
 
   res <- list()
   res$view_T <- all.equal(colnames(pgrp_T), colnames(orig_T))
@@ -30,6 +30,15 @@ testPgrp <- function(dt, groupId){
 
 # Tests --------------------------------------------------------
 if (identical(Sys.getenv("ISR_login"), "readonly@rglab.org")) {
+  test_that("", {
+    groups <- try(allSdy$listParticipantGroups())
+
+    expect_is(groups, "data.table")
+    expect_gt(nrow(groups), 0)
+    expect_named(groups, c("group_id", "group_name", "created", "subjects", "studies"))
+    expect_true(groupId %in% groups$group_name)
+  })
+
   test_that("Pdata neut_ab_titer", {
     res <- testPgrp(dt = "neut_ab_titer", groupId = groupId )
     expect_true( res$view_T == "TRUE")

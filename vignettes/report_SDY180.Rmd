@@ -3,9 +3,8 @@ title: "SDY180: Abundance of Plasmablasts Measured by Multiparameter Flow Cytome
 author: "Renan Sauteraud"
 date: "`r Sys.Date()`"
 output:
-  html_document:
+  html_vignette:
     toc: true
-    toc_float: true
     number_sections: true
 vignette: >
   %\VignetteIndexEntry{SDY180: Abundance of Plasmablasts Measured by Multiparameter Flow Cytometry}

@@ -43,15 +43,21 @@ ISCon$set(
         setnames(ge, private$.munge(colnames(ge)))
 
         # adding cohort_type for use with getGEMatrix(cohort)
-        smpls <- .getLKtbl(
-                    con = self,
-                    schema = "study",
-                    query = "HM_inputSamplesQuery",
-                    containerFilter = "CurrentAndSubfolders",
-                    colNameOpt = "fieldname"
+        samples <- labkey.executeSql(
+          baseUrl = self$config$labkey.url.base,
+          folderPath = self$config$labkey.url.path,
+          schemaName = "study",
+          sql = "
+            SELECT DISTINCT expression_matrix_accession, cohort_type
+            FROM HM_inputSamplesQuery
+            GROUP BY expression_matrix_accession, cohort_type
+          ",
+          containerFilter = "CurrentAndSubfolders",
+          colNameOpt = "fieldname"
         )
-        tmp <- smpls[, list(cohort_type = unique(cohort_type)), by = .(expression_matrix_accession)]
-        ge$cohort_type <- tmp$cohort_type[ match(ge$name, tmp$expression_matrix_accession)]
+        ge$cohort_type <- samples$cohort_type[match(ge$name, samples$expression_matrix_accession)]
+
+        # caching
         self$cache[[private$.constants$matrices]] <- ge
       }
     }
@@ -96,13 +102,18 @@ ISCon$set(
                    annotation = "latest",
                    reload = FALSE,
                    verbose = FALSE) {
+
+    # Handle potential incorrect use of "ImmSig" annotation
     if (outputType == "summary" & annotation == "ImmSig") {
       stop("Not able to provide summary eSets for ImmSig annotated studies. Please use
            'raw' as outputType with ImmSig studies.")
+    } else if (annotation == "ImmSig" & !grepl("IS1", self$config$labkey.url.path)) {
+      stop("ImmSig annotation only allowable with IS1, no other studies")
     }
 
-    ct_name <- cohortType # can't use cohort = cohort in d.t
-    if (!is.null(ct_name)) {
+    # Handle use of cohortType instead of matrixName
+    if (!is.null(cohortType)) {
+      ct_name <- cohortType # can't use cohort = cohort in d.t
       if (all(ct_name %in% self$cache$GE_matrices$cohort_type)) {
         matrixName <- self$cache$GE_matrices[cohort_type %in% ct_name, name]
         # SDY67 is special case. "Batch2" matrix is only day 0 and has overlapping
@@ -121,19 +132,18 @@ ISCon$set(
     cache_name <- .setCacheName(matrixName, outputType)
     esetName <- paste0(cache_name, "_eset")
 
-    # length(x) > 1 means multiple cohorts
+    # Multiple matrices
     if (length(matrixName) > 1) {
       lapply(matrixName, private$.downloadMatrix, outputType, annotation, reload)
-      lapply(matrixName, private$.getGEFeatures
-             , outputType, annotation, reload)
+      lapply(matrixName, private$.getGEFeatures, outputType, annotation, reload)
       lapply(matrixName, private$.constructExpressionSet, outputType, annotation)
       ret <- .combineEMs(self$cache[esetName])
+
+      # Handle cases where combineEMs() results in no return object
       if (dim(ret)[[1]] == 0) {
-        # No features shared
         warn <- "Returned ExpressionSet has 0 rows. No feature is shared across the selected runs or cohorts."
         if (outputType != "summary") {
-          warn <- paste(warn,
-                        "Try outputType = 'summary' to merge matrices by gene symbol.")
+          warn <- paste(warn, "Try outputType = 'summary' to merge matrices by gene symbol.")
         }
         warning(warn)
       }
@@ -148,6 +158,7 @@ ISCon$set(
 
       return(ret)
 
+    # Single matrix
     } else {
       if (esetName %in% names(self$cache) & !reload) {
         message(paste0("returning ", esetName, " from cache"))
@@ -416,16 +427,6 @@ ISCon$set(
       return()
     }
 
-    # No current way to get which studies are RNAseq from gef tbl
-    # therefore curate here and in HIPCMatrix/pipeline/tasks/create-matrix.R.
-    # Important for users is to know there are no real probe ids.
-    isRNAseq <- c("SDY67", "SDY224")
-    sdy <- tolower(gsub("/Studies/", "", self$config$labkey.url.path))
-    if (sdy %in% isRNAseq) {
-      message("Study's gene expression is from RNAseq, therefore probeIDs may be either gene symbols or non-descriptive numbers.")
-    }
-
-
     if (annotation == "ImmSig") {
       fileSuffix <- ".immsig"
     } else {
@@ -443,20 +444,37 @@ ISCon$set(
         )
       }
     }
+    mxName <- paste0(matrixName, ".tsv", fileSuffix)
 
     # For HIPC studies, the matrix Import script generates subdirectories
     # based on the original runs table in /Studies/ with the format "Run123"
-    # with the suffix being the RowId from the runs table.
-    mxName <- paste0(matrixName, ".tsv", fileSuffix)
+    # with the suffix being the RowId from the runs table. However, since
+    # some of the original runs may have been deleted to fix issues found
+    # later on, more complex logic must be used to find the correct flat file.
     if (grepl("HIPC", self$config$labkey.url.path)) {
-      runs <- labkey.selectRows(baseUrl = self$config$labkey.url.base,
-                                folderPath = "/Studies/",
-                                schemaName = "assay.ExpressionMatrix.matrix",
-                                queryName = "runs",
-                                colNameOpt = "fieldname",
-                                showHidden = TRUE)
-      runId <- runs$RowId[ runs$Name == matrixName]
-      mxName <- paste0("Run", runId, "/", mxName)
+
+      # get list of run sub-directories from webdav on /HIPC/ISx
+      sdy <- regmatches(self$config$labkey.url.path,
+                        regexpr("IS\\d{1}", self$config$labkey.url.path))
+      folder_link <- paste0(
+        self$config$labkey.url.base,
+        "/_webdav/HIPC/",
+        sdy,
+        "/%40files/analysis/exprs_matrices?method=JSON"
+      )
+      runDirs <- unlist(lapply(folder_link, private$.listISFiles))
+      runDirs <- grep("Run", runDirs, value = TRUE)
+
+      # Map run sub-directories to the matrixNames passed to downloadMatrix
+      id2MxNm <- sapply(runDirs, function(x){
+        run_folder <- gsub("exprs_matrices", paste0("exprs_matrices/", x), folder_link)
+        fls <- unlist(lapply(run_folder, private$.listISFiles))
+        newNm <- gsub("\\.tsv*", "", grep("tsv", fls, value = TRUE)[[1]])
+      })
+
+      # Generate correct filepath in /HIPC/IS1/@files/analysis/exprs_matrices/
+      runId <- names(id2MxNm)[ match(matrixName, id2MxNm) ]
+      mxName <- paste0(runId, "/", mxName)
     }
 
     if (self$config$labkey.url.path == "/Studies/") {
@@ -571,16 +589,11 @@ ISCon$set(
 
     # Map to correct annotation regardless of name of FAS at time of creation.
     # This is important because for legacy matrices, FAS name may not have '_orig'
-    # even though it is the original annotation.
+    # even though it is the original annotation. 'ImmSig' anno only applies to IS1
+    # as other ISx studies will use 'latest' from that study's container.
+
     if (annotation == "ImmSig") {
-      # for ImmSig1 aka IS1 studies only!
-      allRuns <- labkey.selectRows(
-        baseUrl = self$config$labkey.url.base,
-        folderPath = "/Studies/",
-        schemaName = "Assay.ExpressionMatrix.Matrix",
-        queryName = "Runs",
-        showHidden = TRUE)
-      sdy <- allRuns$Study[ allRuns$Name == matrixName ]
+      sdy <- regmatches(matrixName, regexpr("SDY\\d{2,3}", matrixName))
       annoSetId <- faSets$`Row Id`[faSets$Name == paste0("ImmSig_", tolower(sdy))]
     } else {
       fasIdAtCreation <- runs$`Feature Annotation Set`[ runs$Name == matrixName ]
@@ -591,7 +604,7 @@ ISCon$set(
 
     if (outputType != "summary") {
       message("Downloading Features..")
-      featureAnnotationSetQuery = sprintf("SELECT * from FeatureAnnotation
+      featureAnnotationSetQuery <- sprintf("SELECT * from FeatureAnnotation
                                           where FeatureAnnotationSetId='%s';",
                                           annoSetId)
       features <- labkey.executeSql(
@@ -629,6 +642,7 @@ ISCon$set(
   which = "private",
   name = ".constructExpressionSet",
   value = function(matrixName, outputType, annotation) {
+
     cache_name <- .setCacheName(matrixName, outputType)
     esetName <- paste0(cache_name, "_eset")
 
@@ -638,12 +652,13 @@ ISCon$set(
 
     # pheno
     runID <- self$cache$GE_matrices[name == matrixName, rowid]
+    bs <- colnames(matrix)[ grep("^BS\\d{6}$", colnames(matrix))]
     pheno_filter <- makeFilter(c("Run",
                                  "EQUAL",
                                  runID),
-                               c("Biosample/biosample_accession",
+                               c("biosample_accession",
                                  "IN",
-                                 paste(colnames(matrix), collapse = ";")))
+                                 paste(bs, collapse = ";")))
 
     pheno <- unique(
       .getLKtbl(
@@ -670,11 +685,13 @@ ISCon$set(
                                             "study_time_collected_unit",
                                             "exposure_material_reported",
                                             "exposure_process_preferred")]
+
+    # ensure same order as GEM rownames
     rownames(pheno) <- pheno$biosample_accession
-    order <- names(self$cache[[cache_name]][,-1])
+    order <- names(self$cache[[cache_name]])
+    order <- order[-grep("feature_id|gene_symbol|X|V1", order)]
+    order <- order[ order != "BS694717.1" ] # rm SDY212 dup for the moment
     pheno <- pheno[match(order, row.names(pheno)),]
-
-
 
     # handling multiple timepoints per subject
     dups <- colnames(matrix)[duplicated(colnames(matrix))]
@@ -682,7 +699,7 @@ ISCon$set(
       matrix <- data.table(matrix)
       for (dup in dups) {
         dupIdx <- grep(dup, colnames(matrix))
-        newNames <- paste0(dup, 1:length(dupIdx))
+        newNames <- paste0(dup, seq_len(length(dupIdx)))
         setnames(matrix, dupIdx, newNames)
         eval(substitute(matrix[, `:=`(dup,
                                       rowMeans(matrix[, dupIdx, with = FALSE]))],
@@ -701,14 +718,13 @@ ISCon$set(
         gene_symbol = matrix$gene_symbol
       )
 
-      # exprs and fData must match
-      rownames(fdata) <- rownames(matrix) <- matrix$gene_symbol
+      rownames(fdata) <- rownames(matrix) <- matrix$gene_symbol # exprs and fData must match
     } else {
       annoSetId <- self$cache$GE_matrices$featureset[self$cache$GE_matrices$name == matrixName]
-
       features <- self$cache[[paste0("featureset_", annoSetId)]][, c("FeatureId","gene_symbol")]
 
-      colnames(matrix)[[which(colnames(matrix) %in% c(" ", "V1", "X", "feature_id")) ]] <- "FeatureId"
+      # IS1 matrices have not been standardized, otherwise all others should be 'feature_id'
+      colnames(matrix)[[grep("feature_id|X|V1", colnames(matrix))]] <- "FeatureId"
 
       # Only known case is SDY300 for "2-Mar" and "1-Mar" which are
       # likely not actual probe_ids but mistransformed strings
@@ -729,8 +745,8 @@ ISCon$set(
       rownames(matrix) <- matrix$FeatureId
     }
 
-    # SDY212 has dbl biosample that is removed for ImmSig, but needs to be
-    # present for normalization, so needs to be included in eSet!
+    # SDY212 has dbl biosample that is need for IS1 normalization, but later removed
+    # in the IS1 report.
     if ("BS694717" %in% pheno$biosample_accession) {
       pheno["BS694717.1", ] <- pheno[pheno$biosample_accession == "BS694717", ]
       pheno$biosample_accession[rownames(pheno) == "BS694717.1"] <- "BS694717.1"
@@ -743,13 +759,13 @@ ISCon$set(
     pheno <- pheno[colnames(exprs), ]
 
     # add processing information for user
-    isRNA <- self$study %in% c("SDY888","SDY224","SDY67")
     fasInfo <- .getLKtbl(con = self,
                          schema = "Microarray",
                          query = "FeatureAnnotationSet")
     gemx <- self$cache$GE_matrices
     fasId <- gemx$featureset[ gemx$name == matrixName & gemx$outputtype == outputType ]
     fasInfo <- fasInfo[ match(fasId, fasInfo$`Row Id`)]
+    isRNA <- (fasInfo$Vendor == "NA" & !grepl("ImmSig", fasInfo$Name)) | grepl("SDY67", fasInfo$Name)
     if (fasInfo$Comment == "Do not update" | is.na(fasInfo$Comment)) {
       annoVer <- annotation
     } else {
@@ -820,7 +836,7 @@ ISCon$set(
 
   EMlist <- lapply(EMlist, "[", as.character(fd$FeatureId))
 
-  for (i in 1:length(EMlist)) {
+  for (i in seq_len(length(EMlist))) {
     fData(EMlist[[i]]) <- fd
   }
 

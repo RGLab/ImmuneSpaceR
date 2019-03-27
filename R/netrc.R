@@ -2,13 +2,18 @@
 #'
 #' Write a netrc file that is valid for accessing ImmuneSpace
 #'
-#' @export
 #' @return A netrc file that is verified to connect to ImmuneSpace
-
+#' @examples
+#' \dontrun{
+#' interactive_netrc()
+#' }
+#'
+#' @export
 interactive_netrc <- function() {
   # generate netrc path
   filepath <- .get_path()
   overwrite <- ""
+
   # check if netrc exists
   if (file.exists(filepath)) {
     message("A netrc file already exists!")
@@ -16,20 +21,24 @@ interactive_netrc <- function() {
     cat(readChar(filepath, nchars = 10000))
     cat("\n\n")
     overwrite <- readline(prompt = "Overwrite current netrc? [Y / n] ")
-    }
+  }
+
   # write netrc
   if (toupper(overwrite) == "Y" | overwrite == "") {
     login <- readline("What is your ImmuneSpace login email?  ")
-    password <- readline("What is your ImmuneSpace password?   ")
+    password <- readline("What is your ImmuneSpace password?  ")
     chk <- .check_con(login, password)
-    if (chk == T) {
-      message(paste("writing netrc to ", filepath, sep = ""))
+
+    if (chk == TRUE) {
+      message("writing netrc to ", filepath)
       cat("machine www.immunespace.org\nlogin ", login, "\npassword ", password, "\n", file = filepath)
     }
-    # don't overwrite - validate available netrc
   } else {
+    # don't overwrite - validate available netrc
     chk <- .check_con()
   }
+
+  filepath
 }
 
 
@@ -43,11 +52,11 @@ interactive_netrc <- function() {
 #' @param machine A \code{character}. The server to connect.
 #' @param file A \code{character}. The credentials will be written into that
 #'  file. If left NULL, the netrc will be written into a temporary file.
-#' @export
 #' @return A character vector containing the file paths for netrc
 #' @examples
 #' write_netrc("immunespaceuser@gmail.com", "mypassword")
 #'
+#' @export
 write_netrc <- function(login,
                         password,
                         machine = "www.immunespace.org",
