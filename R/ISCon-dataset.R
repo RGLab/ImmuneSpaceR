@@ -69,10 +69,8 @@ ISCon$set(
 
     # retrieve dataset from cache if arguments match
     digestedArgs <- digest(args)
-    if (digestedArgs %in% names(self$cache)) {
-      if (!reload) {
-        return(self$cache[[digestedArgs]]$data)
-      }
+    if (digestedArgs %in% names(self$cache) && !reload) {
+      return(self$cache[[digestedArgs]]$data)
     }
 
     viewName <- NULL
@@ -158,8 +156,8 @@ ISCon$set(
   value = function(colFilter, schema, query, view = "") {
     stopifnot(is.matrix(colFilter))
 
-    if (nrow(colFilter) == 1 &&
-        grepl("ParticipantId/(\\S+)~eq=\\1$", colFilter[1, 1])) {
+    holdsGroupFilter <-  grepl("ParticipantId/(\\S+)~eq=\\1$", colFilter[1, 1])
+    if (nrow(colFilter) == 1 && holdsGroupFilter) {
       return(colFilter)
     }
 
@@ -259,14 +257,13 @@ ISCon$set(
   # retrieve column name
   column <- datasets[[dataType]][["column"]]
 
-  if (dataType == "fcs_analyzed_result") {
-    data[, population_cell_number := as.numeric(population_cell_number)]
-  }
-
   message(
     "Transformed '", column, "' column of '", dataType, "' dataset with ",
     "'", transformMethod, "' transformation function."
   )
+  if (dataType == "fcs_analyzed_result") {
+    data[, population_cell_number := as.numeric(population_cell_number)]
+  }
   data[, (column) := lapply(.SD, function(x) transformFunction(x)),
        .SDcols = grep(column, colnames(data))][]
 }
