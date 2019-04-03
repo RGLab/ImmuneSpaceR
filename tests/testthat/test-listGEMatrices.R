@@ -1,10 +1,4 @@
-context("listGEMatrices")
-
-# Source depdencies -------------------------------------------
-source("global_variable.R")
-source("global_dependencies.R")
-source("set_curlOptions.R")
-
+context("ISCon$listGEMatrices()")
 
 # Variables --------------------------------------------------
 em_list <- list()
@@ -33,9 +27,3 @@ test_that("gets correct matrices for SDY404", {
   sdy <- "SDY404"
   chk_mats(sdy, em_list[[sdy]])
 })
-
-
-# cleanup ------------------------------------------------------
-if(exists("netrc_file")){
-  file.remove(netrc_file)
-}

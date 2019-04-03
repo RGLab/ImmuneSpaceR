@@ -1,10 +1,4 @@
-context("listGEAnalysis")
-
-# Source depdencies -------------------------------------------
-source("global_variable.R")
-source("global_dependencies.R")
-source("set_curlOptions.R")
-
+context("ISCon$listGEAnalysis()")
 
 # Connections --------------------------------------------------
 sdy269 <- CreateConnection("SDY269", verbose = TRUE)
@@ -34,11 +28,3 @@ test_that("returns df of GE analysis for all studies", {
   res <- try_lgea(allsdy)
   expect_true( dim(res)[1] > 0 )
 })
-
-
-# cleanup ------------------------------------------------------
-if(exists("netrc_file")){
-  file.remove(netrc_file)
-}
-
-

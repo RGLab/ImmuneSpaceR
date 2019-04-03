@@ -1,9 +1,4 @@
-
-# Source depdencies -------------------------------------------
-source("global_variable.R")
-source("global_dependencies.R")
-source("set_curlOptions.R")
-
+context("ISCon$.checkExpressionSet()")
 
 # Connections --------------------------------------------------
 sdy269 <- CreateConnection("SDY269", verbose = TRUE)
@@ -20,8 +15,6 @@ test_ES <- function(sdy, outputType, fail = FALSE) {
 
 
 # Tests --------------------------------------------------------
-context(".checkExpressionSet")
-
 test_that("gets summary expression matrix and tests", {
   test_ES(sdy269, "summary")
 })
@@ -29,10 +22,3 @@ test_that("gets summary expression matrix and tests", {
 test_that("gets raw expression matrix and tests", {
   test_ES(sdy269, "raw")
 })
-
-# cleanup ------------------------------------------------------
-if(exists("netrc_file")){
-  file.remove(netrc_file)
-}
-
-

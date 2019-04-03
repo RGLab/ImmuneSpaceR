@@ -1,9 +1,4 @@
-context("getParticipantData")
-
-# Source depdencies -------------------------------------------
-source("global_variable.R")
-source("global_dependencies.R")
-source("set_curlOptions.R")
+context("ISCon$getParticipantData()")
 
 
 # Connections --------------------------------------------------
@@ -15,7 +10,7 @@ allSdy <- CreateConnection("")
 groupId <- "auto_test" # both travis and bioc on test / prod
 
 # Helper Functions ---------------------------------------------
-testPgrp <- function(dt, groupId){
+testPgrp <- function(dt, groupId) {
   pgrp_T <- allSdy$getParticipantData(group = groupId, dataType = dt, original_view = TRUE, maxRows = 1)
   pgrp_F <- allSdy$getParticipantData(group = groupId, dataType = dt, original_view = FALSE, maxRows = 1)
   orig_T <- allSdy$getDataset(dt, original_view = TRUE, maxRows = 1)
@@ -28,9 +23,10 @@ testPgrp <- function(dt, groupId){
   return(res)
 }
 
+
 # Tests --------------------------------------------------------
 if (identical(Sys.getenv("ISR_login"), "readonly@rglab.org")) {
-  test_that("", {
+  test_that("listParticipantGroups() works", {
     groups <- try(allSdy$listParticipantGroups())
 
     expect_is(groups, "data.table")
@@ -117,11 +113,3 @@ if (identical(Sys.getenv("ISR_login"), "readonly@rglab.org")) {
     expect_true( res$view_F == "TRUE")
   })
 }
-
-
-# cleanup ------------------------------------------------------
-if(exists("netrc_file")){
-  file.remove(netrc_file)
-}
-
-

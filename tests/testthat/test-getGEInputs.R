@@ -1,14 +1,9 @@
-context("getGEInputs")
-
-# Source depdencies -------------------------------------------
-source("global_variable.R")
-source("global_dependencies.R")
-source("set_curlOptions.R")
-
+context("ISCon$getGEInputs()")
 
 # Connections --------------------------------------------------
 sdy269 <- CreateConnection("SDY269", verbose = TRUE)
 sdy87 <- suppressMessages(CreateConnection("SDY87", verbose = TRUE))
+
 
 # Helper Functions ---------------------------------------------
 try_gei <- function(con){
@@ -18,6 +13,7 @@ try_gei <- function(con){
     error = function(e) return(e)
   )
 }
+
 
 # Tests --------------------------------------------------------
 test_that("returns GE inputs df if study has inputs", {
@@ -29,10 +25,3 @@ test_that("returns error if study does not have inputs", {
   res <- try_gei(sdy87)
   expect_true( res$message == "Gene Expression Inputs not found for study.")
 })
-
-# cleanup ------------------------------------------------------
-if(exists("netrc_file")){
-  file.remove(netrc_file)
-}
-
-

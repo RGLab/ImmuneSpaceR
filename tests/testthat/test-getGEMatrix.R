@@ -1,30 +1,33 @@
-context("getGEMatrix")
-
-# Source depdencies -------------------------------------------
-source("global_variable.R")
-source("global_dependencies.R")
-source("set_curlOptions.R")
+context("ISCon$getGEMatrix()")
 
 # CreateConnection ------------------------------------------
 sdy <- CreateConnection("")
 IS1 <- CreateConnection("IS1")
 
+
 # Helper Function -------------------------------------------
-test_EM <- function(EM, summary){
+phenoCols <- c(
+  "participant_id", "study_time_collected", "study_time_collected_unit",
+  "cohort", "cohort_type", "biosample_accession", "exposure_material_reported",
+  "exposure_process_preferred"
+)
+
+test_EM <- function(EM, summary) {
   expect_is(EM, "ExpressionSet")
   expect_gt(ncol(Biobase::exprs(EM)), 0)
   expect_gt(nrow(Biobase::exprs(EM)), 0)
-  if(summary == TRUE){
+  if (summary == TRUE) {
     # In summary, no gene is NA
     expect_false(any(is.na(fData(EM)$gene_symbol)))
   }
 }
 
-test_PD <- function(PD, phenoCols){
+test_PD <- function(PD, phenoCols) {
   expect_is(PD, "data.frame")
   expect_gt(nrow(PD), 0)
   expect_true(all(phenoCols %in% colnames(PD)))
 }
+
 
 # Main Tests ------------------------------------------------
 test_that("gets TIV_2008 eSet non-summary", {
@@ -97,8 +100,3 @@ test_that("check pheno data.frame", {
   PD <- Biobase::pData(EM)
   test_PD(PD, phenoCols)
 })
-
-# cleanup ------------------------------------------------------
-if(exists("netrc_file")){
-  file.remove(netrc_file)
-}

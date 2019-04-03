@@ -1,10 +1,4 @@
-context("getGEFiles")
-
-# Source depdencies -------------------------------------------
-source("global_variable.R")
-source("global_dependencies.R")
-source("set_curlOptions.R")
-
+context("ISCon$getGEFiles()")
 
 # Connections --------------------------------------------------
 sdy269 <- CreateConnection("SDY269", verbose = TRUE)
@@ -28,13 +22,3 @@ try_ggef <- function(con){
     error = function(e) return(e)
   )
 }
-
-
-# Tests --------------------------------------------------------
-# destdir <- tempdir()
-# cleanup ------------------------------------------------------
-if(exists("netrc_file")){
-  file.remove(netrc_file)
-}
-
-

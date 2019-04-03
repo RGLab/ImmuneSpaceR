@@ -1,10 +1,4 @@
-context("cytometry")
-
-# Source depdencies -------------------------------------------
-source("global_variable.R")
-source("global_dependencies.R")
-source("set_curlOptions.R")
-
+context("Cytometry")
 
 # Connections --------------------------------------------------
 con <- CreateConnection("")
@@ -22,7 +16,7 @@ test_that("listGatingSets", {
   gs <- con$listGatingSets()
 
   expect_is(gs, "data.table")
-  expect_gt(nrow(gs), 0)
+  expect_gte(nrow(gs), 0)
 })
 
 test_that("summarizeCyto", {
@@ -36,10 +30,3 @@ test_that("summarizeCyto", {
 # test_that("loadGatingSet", {
 #
 # })
-
-
-# cleanup ------------------------------------------------------
-if(exists("netrc_file")){
-  file.remove(netrc_file)
-}
-
