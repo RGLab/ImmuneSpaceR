@@ -1,28 +1,9 @@
-# Load depenendcies ------------------------------------------------------------
-suppressPackageStartupMessages(library(ImmuneSpaceR))
-suppressPackageStartupMessages(library(data.table))
-
-
 # Declare test-wide variables --------------------------------------------------
-connections <- list(
-  SDY269 = try(CreateConnection("SDY269", verbose = FALSE)),
-  SDY180 = try(CreateConnection("SDY180", verbose = FALSE)),
-  SDY28 = try(CreateConnection("SDY28", verbose = FALSE))
-  # IS1 = try(CreateConnection("IS1", verbose = FALSE))
-)
-commonColumns <- c("age_reported", "gender", "race", "participant_id")
-specificColumnsSet <- list(
-  hai = data.table(
-    name = c("value_preferred", "virus"),
-    type = c("numeric", "character")
-  ),
-  neut_ab_titer = data.table(
-    name = c("value_preferred", "virus"),
-    type = c("numeric", "character")
-  ),
-  hla_typing = data.table(
-    name = c("allele_1", "allele_2", "locus_name"),
-    type = c("character", "character", "character")
+COMMON_COLUMNS <- c("age_reported", "gender", "race", "participant_id")
+SPECIFIC_COLUMNS_SET <- list(
+  demographics = data.table(
+    name = c("cohort", "species"),
+    type = c("character", "character")
   ),
   elisa = data.table(
     name = c("value_reported", "analyte"),
@@ -32,28 +13,41 @@ specificColumnsSet <- list(
     name = c("spot_number_reported", "analyte"),
     type = c("numeric", "character")
   ),
-  pcr = data.table(
-    name = c("value_reported", "entrez_gene_id"),
-    type = c("numeric", "character")
-  ),
-  gene_expression_files = data.table(
-    name = c("file_info_name", "cohort"),
-    type = c("character", "character")
-  ),
-  mbaa = data.table(
-    name = c("analyte_name", "concentration_value")
-  ),
   fcs_analyzed_result = data.table(
     name = c("population_cell_number", "population_definition_reported"),
+    type = c("character", "character")
+  ),
+  fcs_control_files = data.table(
+    name = c("sample_file", "control_file"),
     type = c("character", "character")
   ),
   fcs_sample_files = data.table(
     name = c("file_info_name"),
     type = c("character")
-    ),
-  fcs_control_files = data.table(
-    name = c("sample_file", "control_file"),
+  ),
+  gene_expression_files = data.table(
+    name = c("file_info_name", "cohort"),
     type = c("character", "character")
+  ),
+  hai = data.table(
+    name = c("value_preferred", "virus"),
+    type = c("numeric", "character")
+  ),
+  hla_typing = data.table(
+    name = c("allele_1", "allele_2", "locus_name"),
+    type = c("character", "character", "character")
+  ),
+  mbaa = data.table(
+    name = c("analyte", "concentration_value"),
+    type = c("character", "character")
+  ),
+  neut_ab_titer = data.table(
+    name = c("value_preferred", "virus"),
+    type = c("numeric", "character")
+  ),
+  pcr = data.table(
+    name = c("value_reported", "entrez_gene_id"),
+    type = c("numeric", "character")
   )
 )
 
@@ -61,8 +55,8 @@ specificColumnsSet <- list(
 # Define helper test functions -------------------------------------------------
 test_getDataset <- function(study, dataset) {
   test_that(paste(study, dataset), {
-    con <- connections[[study]]
-    specificColumns <- specificColumnsSet[[dataset]]
+    con <- CONNECTIONS[[study]]
+    specificColumns <- SPECIFIC_COLUMNS_SET[[dataset]]
 
     data <- try(con$getDataset(dataset, reload = TRUE))
 
@@ -71,7 +65,7 @@ test_getDataset <- function(study, dataset) {
     expect_gt(nrow(data), 0)
 
     # All required columns are here
-    expect_true(all(commonColumns %in% colnames(data)))
+    expect_true(all(COMMON_COLUMNS %in% colnames(data)))
     expect_true(all(specificColumns$name %in% colnames(data)))
 
     # Important columns have no NAs
