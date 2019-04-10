@@ -53,7 +53,7 @@ SPECIFIC_COLUMNS_SET <- list(
 
 
 # Define helper test functions -------------------------------------------------
-test_getDataset <- function(study, dataset, hash = NULL) {
+test_getDataset <- function(study, dataset) {
   test_that(paste(study, dataset), {
     con <- CONNECTIONS[[study]]
     specificColumns <- SPECIFIC_COLUMNS_SET[[dataset]]
