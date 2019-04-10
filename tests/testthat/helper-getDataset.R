@@ -78,6 +78,6 @@ test_getDataset <- function(study, dataset) {
 
     # Check data
     file <- file.path("datasets", paste0(study, "_", dataset, ".rds"))
-    expect_known_value(data, file, update = FALSE)
+    expect_known_value(data, file, update = FALSE, ignore.row.order = TRUE)
   })
 }
