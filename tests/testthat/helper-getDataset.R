@@ -53,7 +53,7 @@ SPECIFIC_COLUMNS_SET <- list(
 
 
 # Define helper test functions -------------------------------------------------
-test_getDataset <- function(study, dataset) {
+test_getDataset <- function(study, dataset, hash = NULL) {
   test_that(paste(study, dataset), {
     con <- CONNECTIONS[[study]]
     specificColumns <- SPECIFIC_COLUMNS_SET[[dataset]]
@@ -75,5 +75,9 @@ test_getDataset <- function(study, dataset) {
     columns <- data[, specificColumns$name, with = FALSE]
     columnTypes <- vapply(columns, class, character(1), USE.NAMES = FALSE)
     expect_equal(columnTypes, specificColumns$type)
+
+    # Check data
+    file <- file.path("datasets", paste0(study, "_", dataset, ".rds"))
+    expect_known_value(data, file, update = FALSE)
   })
 }
