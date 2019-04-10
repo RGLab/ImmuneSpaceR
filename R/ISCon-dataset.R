@@ -216,7 +216,7 @@ ISCon$set(
 
 
 # Transform data
-.transformData <- function(data, dataType, transformMethod) {
+.transformData <- function(data, dataType, transformMethod = "auto") {
   if (transformMethod == "none") {
     return(data)
   }
