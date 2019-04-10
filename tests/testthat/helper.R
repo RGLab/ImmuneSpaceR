@@ -10,6 +10,7 @@ if (!any(file.exists("~/.netrc", "~/_netrc"))) {
 }
 
 CONNECTIONS <- list(
+  ALL = suppressWarnings(try(CreateConnection(""), silent = TRUE)),
   SDY28 = suppressWarnings(try(CreateConnection("SDY28"), silent = TRUE)),
   SDY180 = suppressWarnings(try(CreateConnection("SDY180"), silent = TRUE)),
   SDY269 = suppressWarnings(try(CreateConnection("SDY269"), silent = TRUE))
