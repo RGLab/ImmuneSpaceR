@@ -10,5 +10,5 @@ hai <- sdy269$getDataset("hai")
 
 # Tests --------------------------------------------------------
 test_that("participant_id in both eset and hai", {
-  expect_true( "participant_id" %in% colnames(hai) & "participant_id" %in% colnames(pheno) )
+  expect_true("participant_id" %in% colnames(hai) & "participant_id" %in% colnames(pheno))
 })

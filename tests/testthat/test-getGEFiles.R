@@ -7,14 +7,16 @@ allsdy <- CreateConnection("")
 
 
 # Helper Functions ---------------------------------------------
-getFileList <- function(con){
+getFileList <- function(con) {
   gef <- con$getDataset("gene_expression_files")
   nms <- unique(gef$name)
-  if(length(nms) > 5){ nms <- nms[1:5] }
+  if (length(nms) > 5) {
+    nms <- nms[1:5]
+  }
   return(nms)
 }
 
-try_ggef <- function(con){
+try_ggef <- function(con) {
   files <- getFileList(con)
   tryCatch(
     capture.output(con$getGEFiles(files = files[1:5]), destdir = destdir),

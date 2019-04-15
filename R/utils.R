@@ -7,15 +7,15 @@
 #' @param file The file name to be saved to or loaded from
 #'
 #' @examples
-#' #Sample saved connection with pre-downloaded expression matrices and datasets
+#' # Sample saved connection with pre-downloaded expression matrices and datasets
 #' saved <- system.file("extdata/saved_con.rds", package = "ImmuneSpaceR")
 #' new_con <- loadConnection(saved)
 #' new_con
 #' names(new_con$cache)
 #' \dontrun{
-#'   saveConnection(new_con, tempfile())
+#' saveConnection(new_con, tempfile())
 #' }
-#'
+#' 
 #' @rdname loadConnection
 #' @export
 #' @return An ImmuneSpaceConnection object
@@ -23,7 +23,7 @@ loadConnection <- function(file) {
   con <- readRDS(file = file)
   conType <- class(con)
 
-  if (conType == 'ImmuneSpaceConnection') {
+  if (conType == "ImmuneSpaceConnection") {
     labkey.url.base <- con$config$labkey.url.base
   } else {
     stop("invalid ImmuneSpaceConnection object!")

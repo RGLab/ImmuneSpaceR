@@ -16,7 +16,7 @@ test_that("Study argument is not NULL", {
 })
 
 test_that("Study argument accepts only one study", {
-  res <- try_con(c("SDY269","SDY180"))
+  res <- try_con(c("SDY269", "SDY180"))
   msg_list <- strsplit(res$message, split = " ")[[1]]
   expect_true("multiple" %in% msg_list)
 })

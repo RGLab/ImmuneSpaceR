@@ -249,26 +249,25 @@
 #' \dontrun{
 #' # Create a connection (Initiate a ImmuneSpaceConnection object)
 #' sdy269 <- CreateConnection("SDY269")
-#'
+#' 
 #' # Print the connection object
 #' sdy269
-#'
+#' 
 #' # Retrieve the HAI dataset
 #' HAI <- sdy269$getDataset("hai")
-#'
+#' 
 #' # Fetch a summarized gene expresssion matrix with latest annotation
 #' LAIV <- sdy269$getGEMatrix("LAIV_2008")
-#'
+#' 
 #' # Visualize the ELISA dataset
 #' sdy269$plot("elisa")
 #' }
-#'
+#' 
 #' sdy <- try(CreateConnection("SDY269"))
 #' if (inherits(sdy, "try-error")) {
 #'   warning("Read the Introduction vignette for more information on how to set
-#'   up a .netrc file.")
+#' up a .netrc file.")
 #' }
-#'
 #' @docType class
 ISCon <- R6Class(
   classname = "ImmuneSpaceConnection",

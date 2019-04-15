@@ -17,12 +17,14 @@ NULL
 ISCon$set(
   which = "private",
   name = ".checkRawFiles",
-  value = function(what = c("gene_expression_files",
-                            "fcs_sample_files",
-                            "fcs_control_files",
-                            "protocols",
-                            "gene_expression_matrices"),
-                   mc.cores = 1) {
+  value = function(what = c(
+                       "gene_expression_files",
+                       "fcs_sample_files",
+                       "fcs_control_files",
+                       "protocols",
+                       "gene_expression_matrices"
+                     ),
+                     mc.cores = 1) {
     ## HELPERS
     ..messageResults <- function(dataset, file_exists) {
       message(
@@ -37,7 +39,7 @@ ISCon$set(
       )
     }
 
-    ..checkLinks <- function (dataset, folder) {
+    ..checkLinks <- function(dataset, folder) {
       res <- data.frame(
         file_info_name = NULL,
         study_accession = NULL,
@@ -119,7 +121,7 @@ ISCon$set(
       )
 
       endTime <- Sys.time()
-      print( endTime - startTime )
+      print(endTime - startTime)
     }
 
     if ("fcs_sample_files" %in% what) {
@@ -131,7 +133,7 @@ ISCon$set(
       )
 
       endTime <- Sys.time()
-      print( endTime - startTime )
+      print(endTime - startTime)
     }
 
     if ("fcs_control_files" %in% what) {
@@ -143,7 +145,7 @@ ISCon$set(
       )
 
       endTime <- Sys.time()
-      print( endTime - startTime )
+      print(endTime - startTime)
     }
 
     if ("protocols" %in% what) {
@@ -155,7 +157,7 @@ ISCon$set(
           folderPath = "/Studies/"
         )
         folders <- folders_list[, 1]
-        folders <- folders[!folders %in% c("SDY_template","Studies")]
+        folders <- folders[!folders %in% c("SDY_template", "Studies")]
       } else {
         folders <- basename(self$config$labkey.url.path)
       }
@@ -188,7 +190,7 @@ ISCon$set(
       )
 
       endTime <- Sys.time()
-      print( endTime - startTime )
+      print(endTime - startTime)
     }
 
     if ("gene_expression_matrices" %in% what) {
@@ -241,13 +243,13 @@ ISCon$set(
       }
 
       endTime <- Sys.time()
-      print( endTime - startTime )
+      print(endTime - startTime)
     }
 
     endTimeTotal <- Sys.time()
-    print( '===========' )
-    print( 'TOTAL TIME:' )
-    print( endTimeTotal - startTimeTotal )
+    print("===========")
+    print("TOTAL TIME:")
+    print(endTimeTotal - startTimeTotal)
 
     ret
   }
@@ -329,19 +331,21 @@ ISCon$set(
   which = "private",
   name = ".checkStudyCompliance",
   value = function(reload = FALSE,
-                   summarize = TRUE,
-                   filterNonGE = TRUE,
-                   showAllCols = FALSE,
-                   onlyShowNonCompliant = TRUE,
-                   verbose = FALSE) {
+                     summarize = TRUE,
+                     filterNonGE = TRUE,
+                     showAllCols = FALSE,
+                     onlyShowNonCompliant = TRUE,
+                     verbose = FALSE) {
 
 
 
     ## ----- HELPERS ----------
     # Get list of studies turned on for a specific module
     ..getModSdys <- function(name) {
-      url <-  url <- paste0(baseUrl, "/immport/studies/containersformodule.api?name=", name)
-      res <- unlist(lapply(rjson::fromJSON(Rlabkey:::labkey.get(url))[[1]], function(x) {x[["name"]]}))
+      url <- url <- paste0(baseUrl, "/immport/studies/containersformodule.api?name=", name)
+      res <- unlist(lapply(rjson::fromJSON(Rlabkey:::labkey.get(url))[[1]], function(x) {
+        x[["name"]]
+      }))
       res <- .spSort(res[grepl("SDY[0-9]+", res)])
     }
 
@@ -350,7 +354,6 @@ ISCon$set(
     if (!is.null(self$cache[["complianceDF"]]) && !reload) {
       compDF <- self$cache[["complianceDF"]]
     } else {
-
       baseUrl <- self$config$labkey.url.base # For labkey.executeSql calls
 
       # Prepare list of studies for generating results table rownames
@@ -372,7 +375,7 @@ ISCon$set(
         # Modules
         "DE_implied", # Data Explorer
         "DE_actual",
-        "GEE_implied",  # Gene Expression Explorer
+        "GEE_implied", # Gene Expression Explorer
         "GEE_actual",
         "DGEA_implied", # Differential Expression Analysis (report)
         "DGEA_actual",
@@ -383,7 +386,8 @@ ISCon$set(
         "GSEA_implied", # Gene Set Enrichment Analysis
         "GSEA_actual",
         "DR_implied", # Dimension Reduction
-        "DR_actual")
+        "DR_actual"
+      )
 
       compDF <- data.frame(
         matrix(
@@ -468,7 +472,7 @@ ISCon$set(
       )
       setDT(inputSmpls)
 
-      inputSmpls$study <- gsub("SUB[^>]+\\.", "SDY",inputSmpls$participantid)
+      inputSmpls$study <- gsub("SUB[^>]+\\.", "SDY", inputSmpls$participantid)
 
       exprResp <- merge(
         inputSmpls,
@@ -489,9 +493,11 @@ ISCon$set(
       # GEM and response later timepoints do NOT need to be the same!
 
       resp <- immuneResponse[, list(study_time_collected,
-                                    study_time_collected_unit,
-                                    response = value_preferred/mean(value_preferred[study_time_collected <= 0], na.rm = TRUE)),
-                             by = "virus,participant_id"]
+        study_time_collected_unit,
+        response = value_preferred / mean(value_preferred[study_time_collected <= 0], na.rm = TRUE)
+      ),
+      by = "virus,participant_id"
+      ]
       resp <- resp[ !is.na(response) ]
 
       # NOTE: At least SDY180 has overlapping study_time_collected for both hours and days
@@ -502,19 +508,23 @@ ISCon$set(
       geCohortSubs <- inputSmpls[ participantid %in% resp$participant_id ]
       # Subset to only samples from studies where there is data from multiple cohorts at
       # a given timepoint
-      geCohortSubs <- geCohortSubs[ , .SD[length(unique(cohort)) > 1],
-                                    by = .(study, study_time_collected, study_time_collected_unit)]
+      geCohortSubs <- geCohortSubs[, .SD[length(unique(cohort)) > 1],
+        by = .(study, study_time_collected, study_time_collected_unit)
+      ]
       # Subset to only samples where there is baseline data and data from other timepoints
       geCohortSubs <- geCohortSubs[, .SD[length(unique(study_time_collected)) > 1 & 0 %in% unique(study_time_collected)],
-                                   by = .(study, cohort, study_time_collected_unit)]
+        by = .(study, cohort, study_time_collected_unit)
+      ]
       compDF$IRP_implied <- rownames(compDF) %in% unique(geCohortSubs$study)
 
       # Get IrpTimepoints
       # TODO:  Change to "IRP_missing" to be consistent, and only include when noncompliant (or missing?)
       # TODO:  Determine if this field is necessary
-      studyTimepoints <- geCohortSubs[ , list(timepoints = paste(sort(unique(study_time_collected)),
-                                                                 collapse = ",")),
-                                       by = .(study)]
+      studyTimepoints <- geCohortSubs[, list(timepoints = paste(sort(unique(study_time_collected)),
+        collapse = ","
+      )),
+      by = .(study)
+      ]
       compDF$IrpTimepoints <- studyTimepoints$timepoints[ match(rownames(compDF), studyTimepoints$study) ]
 
       # DGEA - Differential Expression Analysis
@@ -533,7 +543,8 @@ ISCon$set(
         schemaName = "gene_expression",
         queryName = "gene_expression_analysis",
         colNameOpt = "rname",
-        showHidden = TRUE)
+        showHidden = TRUE
+      )
 
       containers <- labkey.selectRows(
         baseUrl = baseUrl,
@@ -567,7 +578,7 @@ ISCon$set(
         impliedGEA[, key := paste(cohort_type, study_time_collected, study_time_collected_unit)]
 
         # 4. Summarize by arm_name * study_time_collected for number of subs and key
-        smryGEA <- impliedGEA[ , list(key = unique(key), subs = unique(subs)), by = .(cohort_type, study_time_collected, study_time_collected_unit)]
+        smryGEA <- impliedGEA[, list(key = unique(key), subs = unique(subs)), by = .(cohort_type, study_time_collected, study_time_collected_unit)]
 
         # -------------------------------------------
 
@@ -577,12 +588,16 @@ ISCon$set(
 
         if (nrow(smryGEA) > 0) {
           diff <- sort(setdiff(smryGEA$key, currGEA$key)) # In implied and NOT in current
-          missing_data <- if(length(diff) == 0 ){ "no diff" }else{ paste(diff, collapse = "; ") }
+          missing_data <- if (length(diff) == 0) {
+            "no diff"
+          } else {
+            paste(diff, collapse = "; ")
+          }
         } else {
           missing_data <- NA
         }
 
-        res <- c( "DGEA_implied" = nrow(smryGEA) > 0, "DGEA_missing" = missing_data)
+        res <- c("DGEA_implied" = nrow(smryGEA) > 0, "DGEA_missing" = missing_data)
       }))
 
       names(gea) <- studiesWithGems
@@ -601,14 +616,18 @@ ISCon$set(
       # gene_expression.gene_expression_analysis_results (GEAR) table for multiple non-baseline timepoints
       # (GEA and GEAR are generated by differential expression analysis (DGEA) report)
       gearSql <- "SELECT DISTINCT analysis_accession.coefficient FROM gene_expression_analysis_results"
-      gear <- sapply(studiesWithGems, FUN = function(sdy){
+      gear <- sapply(studiesWithGems, FUN = function(sdy) {
         res <- suppressWarnings(
           tryCatch(
-            labkey.executeSql(baseUrl = baseUrl,
-                              folderPath = paste0("/Studies/", sdy),
-                              schemaName = "gene_expression",
-                              sql = gearSql),
-            error = function(e){ return( NA ) }
+            labkey.executeSql(
+              baseUrl = baseUrl,
+              folderPath = paste0("/Studies/", sdy),
+              schemaName = "gene_expression",
+              sql = gearSql
+            ),
+            error = function(e) {
+              return(NA)
+            }
           )
         )
         output <- !is.na(res) && nrow(res) > 1
@@ -641,7 +660,9 @@ ISCon$set(
               schemaName = "study",
               sql = "SELECT Label FROM ISC_datasets"
             ),
-            error = function(e) {return( NA )}
+            error = function(e) {
+              return(NA)
+            }
           )
         )
         ret <- any(res[[1]] %in% deSets) | compDF$DGEA_actual[rownames(compDF) == sdy]
@@ -675,14 +696,17 @@ ISCon$set(
       )
 
       # Add a column for study
-      dimRedux_assay_data$study <- gsub("SUB[^>]+\\.", "SDY",dimRedux_assay_data$participantid)
+      dimRedux_assay_data$study <- gsub("SUB[^>]+\\.", "SDY", dimRedux_assay_data$participantid)
       setDT(dimRedux_assay_data)
 
       # Group by study, timepoint, and assay, and get the number of subjects and features for that
       # assay
-      dimensionInfo <- dimRedux_assay_data[, .(subjectCount = length(unique(participantid)),
-                                               featureCount = min(features)),
-                                           by = c("study", "timepoint", "name")]
+      dimensionInfo <- dimRedux_assay_data[, .(
+        subjectCount = length(unique(participantid)),
+        featureCount = min(features)
+      ),
+      by = c("study", "timepoint", "name")
+      ]
 
       # Are there any lines where subject count and feature count are both greater than three?
       dimensionInfo[, dimMinMet := subjectCount >= 3 & featureCount >= 3]
@@ -711,12 +735,15 @@ ISCon$set(
         "GSEA_implied",
         "GSEA_actual",
         "DR_implied",
-        "DR_actual")
+        "DR_actual"
+      )
 
-      rowOrder <- Sdys[order(gsub("([A-Z]+)([0-9]+)", "\\1", Sdys),
-                             as.numeric(gsub("([A-Z]+)([0-9]+)", "\\2", Sdys)))]
+      rowOrder <- Sdys[order(
+        gsub("([A-Z]+)([0-9]+)", "\\1", Sdys),
+        as.numeric(gsub("([A-Z]+)([0-9]+)", "\\2", Sdys))
+      )]
 
-      compDF <- compDF[order(match(row.names(compDF), rowOrder)) , order(match(colnames(compDF), colOrder))]
+      compDF <- compDF[order(match(row.names(compDF), rowOrder)), order(match(colnames(compDF), colOrder))]
 
       # Cache ---------------
       self$cache[["complianceDF"]] <- compDF
@@ -735,21 +762,23 @@ ISCon$set(
 
     # Get list of studies on IS
     conStudies <- labkey.selectRows(
-      baseUrl=self$config$labkey.url.base,
-      folderPath="/home",
-      schemaName="lists",
-      queryName="Studies",
-      viewName="",
-      colSort="id",
-      colFilter=NULL,
-      containerFilter=NULL
+      baseUrl = self$config$labkey.url.base,
+      folderPath = "/home",
+      schemaName = "lists",
+      queryName = "Studies",
+      viewName = "",
+      colSort = "id",
+      colFilter = NULL,
+      containerFilter = NULL
     )
 
     missingStudies <- setdiff(shareStudies, conStudies$Name)
     if (length(missingStudies > 0)) {
       message(
-        paste0(length(missingStudies), " studies present on webdav but not enabled: ",
-               paste(missingStudies, collapse = ", "))
+        paste0(
+          length(missingStudies), " studies present on webdav but not enabled: ",
+          paste(missingStudies, collapse = ", ")
+        )
       )
     }
 
@@ -758,20 +787,21 @@ ISCon$set(
     ###     Filter/Summarize     ###
     ################################
 
-    if ( summarize ) {
+    if (summarize) {
 
       # Get noncompliant studies
       modules <- c("GEM", "DE", "GEE", "IRP", "GSEA", "DGEA", "DR")
-      compliant <- data.frame(lapply(modules, function(module){
-        impl <- grep(paste0(module,"_implied"), colnames(compDF))
-        act <- grep(paste0(module,"_actual"), colnames(compDF))
+      compliant <- data.frame(lapply(modules, function(module) {
+        impl <- grep(paste0(module, "_implied"), colnames(compDF))
+        act <- grep(paste0(module, "_actual"), colnames(compDF))
 
         if (module == "DGEA") {
           imp_vs_act <- compDF[[impl]] == compDF[[act]]
           missing_dat <- is.na(compDF["DGEA_missing"]) | compDF["DGEA_missing"] == "no diff"
           return(compliant <- imp_vs_act == missing_dat)
         } else {
-          return(compliant <- compDF[[impl]] == compDF[[act]])}
+          return(compliant <- compDF[[impl]] == compDF[[act]])
+        }
       }))
 
       colnames(compliant) <- modules
@@ -782,13 +812,16 @@ ISCon$set(
         sl <- list(
           modules = modules[!compliant[study, ]]
         )
-        if ("IRP" %in% sl$modules) { sl$IrpTimepoints <-  compDF[study, "IrpTimepoints"] }
-        if ("DGEA" %in% sl$modules) { sl$DGEA_missing <- compDF[study, "DGEA_missing"] }
+        if ("IRP" %in% sl$modules) {
+          sl$IrpTimepoints <- compDF[study, "IrpTimepoints"]
+        }
+        if ("DGEA" %in% sl$modules) {
+          sl$DGEA_missing <- compDF[study, "DGEA_missing"]
+        }
         return(sl)
       })
       names(summaryList) <- nonCompliantStudies
       return(summaryList)
-
     } else {
 
       # Filter out studies that don't have GE since this is basis for everything
@@ -797,22 +830,24 @@ ISCon$set(
       }
       # Subset to only show problematic studies
       if (onlyShowNonCompliant) {
-        redux <- compDF[ , grep("implied|actual|missing", colnames(compDF))]
+        redux <- compDF[, grep("implied|actual|missing", colnames(compDF))]
         mod_sub <- c("DE", "GEE", "IRP", "GSEA", "DGEA", "DR")
         compliant <- lapply(mod_sub, FUN = function(mod) {
           idx <- grepl(mod, names(redux))
-          sub <- redux[,idx]
+          sub <- redux[, idx]
           if (mod == "DGEA") {
-            imp_vs_act <- sub[,1] == sub[,2]
-            missing_dat <- is.na(sub[,3]) | sub[,3] == "no diff"
+            imp_vs_act <- sub[, 1] == sub[, 2]
+            missing_dat <- is.na(sub[, 3]) | sub[, 3] == "no diff"
             compliant <- imp_vs_act == missing_dat
-          } else {compliant <- sub[,1] == sub[,2]}
+          } else {
+            compliant <- sub[, 1] == sub[, 2]
+          }
         })
         compliant[[7]] <- compDF$GEM_implied == compDF$GEM_actual
         compliant <- do.call(cbind, compliant)
         row.names(compliant) <- row.names(redux)
         idx <- which(apply(compliant, 1, all))
-        compDF <- compDF[-(idx),]
+        compDF <- compDF[-(idx), ]
       }
 
       # Defaults to showing only the actual module status and the difference with the implied
@@ -840,7 +875,7 @@ ISCon$set(
       baseUrl = self$config$labkey.url.base,
       folderPath = "/Studies/"
     )[, 1]
-    studies <- studies[grepl('SDY[0-9]+', studies)]
+    studies <- studies[grepl("SDY[0-9]+", studies)]
 
     studies
   }
@@ -860,7 +895,9 @@ ISCon$set(
     )
     if (!is.null(res)) {
       tmp <- rjson::fromJSON(res)
-      response <- sapply(tmp$files, function(x){ return(x$text) }) # basename only
+      response <- sapply(tmp$files, function(x) {
+        return(x$text)
+      }) # basename only
     }
     response
   }
@@ -904,13 +941,16 @@ ISCon$set(
     # check webdav folder for presence of rawdata
     file_list <- lapply(studies, FUN = function(sdy) {
       suffix <- ifelse(rawdata,
-                       "/%40files/rawdata/gene_expression?method=JSON",
-                       "/%40files/analysis/exprs_matrices?method=JSON")
+        "/%40files/rawdata/gene_expression?method=JSON",
+        "/%40files/analysis/exprs_matrices?method=JSON"
+      )
 
-      dirLink <-  paste0(self$config$labkey.url.base,
-                         "/_webdav/Studies/",
-                         sdy,
-                         suffix)
+      dirLink <- paste0(
+        self$config$labkey.url.base,
+        "/_webdav/Studies/",
+        sdy,
+        suffix
+      )
       files <- private$.listISFiles(dirLink)
 
       if (rawdata) {
@@ -963,7 +1003,7 @@ ISCon$set(
     opts <- self$config$curlOptions
     opts$options$netrc <- 1L
 
-    tsv <-  paste0(
+    tsv <- paste0(
       self$config$labkey.url.base,
       "/_webdav/Studies/",
       sdy,
@@ -986,25 +1026,26 @@ ISCon$set(
   which = "private",
   name = ".checkExpressionSet",
   value = function(allMatrices = FALSE,
-                   ...) {
-  # Grab expression set
-  mat_names <- ifelse(allMatrices == FALSE, self$cache$GE_matrices$name[[1]], self$cache$GE_matrices$name)
-  es <- self$getGEMatrix(mat_names, ...)
-  opts <- list(...)
-
-  if (length(opts) == 0) {
-    opts <- list()
-    opts$outputType <- "summary"
-  } else {
+                     ...) {
+    # Grab expression set
+    mat_names <- ifelse(allMatrices == FALSE, self$cache$GE_matrices$name[[1]], self$cache$GE_matrices$name)
+    es <- self$getGEMatrix(mat_names, ...)
     opts <- list(...)
-  }
-  # expression matrix +
-  em <- Biobase::exprs(es)
-  pd <- Biobase::pData(es)
 
-  res <- cbind(.checkEM(em, opts, self), .checkPD(pd, self), .checkBiosample(em,pd))
-  return(res)
-})
+    if (length(opts) == 0) {
+      opts <- list()
+      opts$outputType <- "summary"
+    } else {
+      opts <- list(...)
+    }
+    # expression matrix +
+    em <- Biobase::exprs(es)
+    pd <- Biobase::pData(es)
+
+    res <- cbind(.checkEM(em, opts, self), .checkPD(pd, self), .checkBiosample(em, pd))
+    return(res)
+  }
+)
 
 
 
@@ -1033,7 +1074,7 @@ ISCon$set(
 }
 
 # expression matrix
-.checkEM <- function(em, opts, self){
+.checkEM <- function(em, opts, self) {
   # get feature set
   anno <- labkey.selectRows(
     baseUrl = self$config$labkey.url.base,
@@ -1042,7 +1083,8 @@ ISCon$set(
     queryName = "FeatureAnnotation",
     colSelect = c("FeatureId", "GeneSymbol"),
     maxRows = 20,
-    showHidden = TRUE)
+    showHidden = TRUE
+  )
 
   # compare to gem rows
   anno <- ifelse(opts$outputType == "summary", anno$`Gene Symbol`, anno$`Feature Id`)
@@ -1050,39 +1092,39 @@ ISCon$set(
   # check range (log2)
   expr_within_range <- all(0 < range(em) & range(em) < 30)
   # check num of genes
-  min_genes <- ifelse(opts$outputType == 'summary', 10000, 20000)
+  min_genes <- ifelse(opts$outputType == "summary", 10000, 20000)
   gene_num <- length(row.names(em)) >= min_genes
   res <- data.frame(outputType = opts$outputType, anno_match, expr_within_range, gene_num)
   return(res)
 }
 
 # Check pdata
-.checkPD <- function(pd, self){
+.checkPD <- function(pd, self) {
   cohort_type_col <- "cohort_type" %in% colnames(pd)
   ct_split <- do.call(rbind, strsplit(pd$cohort_type, "_", fixed = TRUE))
   # does cohort type cohort match pd$cohort
-  cohort_match <- all(ct_split[,1] == pd$cohort)
+  cohort_match <- all(ct_split[, 1] == pd$cohort)
   # does type == labkey lookup for cell type
-  lk_smpl_type <- labkey.selectRows(baseUrl = self$config$labkey.url.base,
-                                    folderPath = self$config$labkey.url.path,
-                                    schemaName = "immport",
-                                    queryName = "lk_sample_type",
-                                    showHidden = TRUE,
-                                    colSelect = "Name")
-  type_match <- all(ct_split[,2] %in% lk_smpl_type$Name)
+  lk_smpl_type <- labkey.selectRows(
+    baseUrl = self$config$labkey.url.base,
+    folderPath = self$config$labkey.url.path,
+    schemaName = "immport",
+    queryName = "lk_sample_type",
+    showHidden = TRUE,
+    colSelect = "Name"
+  )
+  type_match <- all(ct_split[, 2] %in% lk_smpl_type$Name)
   res <- data.frame(cohort_type_col, cohort_match, type_match)
   return(res)
 }
 
 # Check biosamples from pdata and expression matrix
-.checkBiosample <- function(em, pd){
+.checkBiosample <- function(em, pd) {
   # change to all.equal fxn
-  biosample_match<- all.equal(row.names(pd), colnames(em))
+  biosample_match <- all.equal(row.names(pd), colnames(em))
   if (all(biosample_match != TRUE)) {
     biosample_match <- FALSE
   }
   res <- data.frame(biosample_match)
   return(res)
 }
-
-

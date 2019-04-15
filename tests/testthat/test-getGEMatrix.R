@@ -53,25 +53,26 @@ test_that("gets TIV_2008 eSet summary", {
 })
 
 test_that("get_multiple matrices non-summary", {
-  EM <- sdy$getGEMatrix(c("SDY269_PBMC_TIV_Geo","SDY269_PBMC_LAIV_Geo"), outputType = "normalized")
+  EM <- sdy$getGEMatrix(c("SDY269_PBMC_TIV_Geo", "SDY269_PBMC_LAIV_Geo"), outputType = "normalized")
   test_EM(EM, summary = FALSE)
 })
 
 test_that("get_multiple matrices summary", {
-  EM <- sdy$getGEMatrix(c("SDY269_PBMC_TIV_Geo","SDY269_PBMC_LAIV_Geo"), outputType = "summary", annotation = "latest")
+  EM <- sdy$getGEMatrix(c("SDY269_PBMC_TIV_Geo", "SDY269_PBMC_LAIV_Geo"), outputType = "summary", annotation = "latest")
   test_EM(EM, summary = TRUE)
 })
 
 test_that("get_multiple matrices summary without cache error", {
-  EM <- sdy$getGEMatrix(c("SDY269_PBMC_TIV_Geo","SDY269_PBMC_LAIV_Geo"), outputType = "summary", annotation = "latest")
+  EM <- sdy$getGEMatrix(c("SDY269_PBMC_TIV_Geo", "SDY269_PBMC_LAIV_Geo"), outputType = "summary", annotation = "latest")
   test_EM(EM, summary = TRUE)
 })
 
 test_that("get_multiple matrices summary with reload", {
-  EM <- sdy$getGEMatrix(c("SDY269_PBMC_TIV_Geo","SDY269_PBMC_LAIV_Geo"),
-                        outputType = "summary",
-                        annotation = "latest",
-                        reload = TRUE)
+  EM <- sdy$getGEMatrix(c("SDY269_PBMC_TIV_Geo", "SDY269_PBMC_LAIV_Geo"),
+    outputType = "summary",
+    annotation = "latest",
+    reload = TRUE
+  )
   test_EM(EM, summary = TRUE)
 })
 
@@ -79,8 +80,9 @@ test_that("get_multiple matrices summary with reload", {
 test_that("get ImmSig Study - SDY212 with correct anno and summary", {
   mats <- IS1$cache$GE_matrices$name[ grep("SDY212", IS1$cache$GE_matrices$name) ]
   EM <- IS1$getGEMatrix(mats,
-                        outputType = "raw",
-                        annotation = "ImmSig")
+    outputType = "raw",
+    annotation = "ImmSig"
+  )
   test_EM(EM, summary = FALSE)
   expect_true("BS694717.1" %in% colnames(Biobase::exprs(EM)))
   expect_true("BS694717.1" %in% Biobase::sampleNames(EM))
@@ -90,8 +92,9 @@ test_that("get ImmSig Study - SDY212 with correct anno and summary", {
 test_that("get ImmSig Study - SDY67 fixing 'X' for 'FeatureId'", {
   mats <- IS1$cache$GE_matrices$name[ grep("SDY67", IS1$cache$GE_matrices$name) ]
   EM <- IS1$getGEMatrix(mats,
-                        outputType = "raw",
-                        annotation = "ImmSig")
+    outputType = "raw",
+    annotation = "ImmSig"
+  )
   test_EM(EM, summary = FALSE)
 })
 

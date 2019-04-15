@@ -7,7 +7,7 @@ allsdy <- CreateConnection("")
 
 
 # Helper Functions ---------------------------------------------
-try_ggea <- function(con, ...){
+try_ggea <- function(con, ...) {
   tryCatch(
     suppressMessages(con$getGEAnalysis(...)),
     warning = function(w) return(w),
@@ -19,21 +19,21 @@ try_ggea <- function(con, ...){
 # Tests --------------------------------------------------------
 test_that("returns df of GE analysis for single study if present", {
   res <- try_ggea(sdy269)
-  expect_true( dim(res)[1] > 0 )
+  expect_true(dim(res)[1] > 0)
 })
 
 test_that("returns df of GE analysis using cohort filter", {
-  filt <- makeFilter(c("cohort","equals","TIV Group 2008_PBMC"))
+  filt <- makeFilter(c("cohort", "equals", "TIV Group 2008_PBMC"))
   res <- try_ggea(sdy269, colFilter = filt)
-  expect_true( dim(res)[1] > 0 )
+  expect_true(dim(res)[1] > 0)
 })
 
 test_that("fails gracefully if GE analysis not present", {
   res <- try_ggea(sdy87)
-  expect_true( res$message == "Gene Expression Analysis not found for study." )
+  expect_true(res$message == "Gene Expression Analysis not found for study.")
 })
 
 test_that("returns df of GE analysis for all studies", {
   res <- try_ggea(allsdy)
-  expect_true( dim(res)[1] > 0 )
+  expect_true(dim(res)[1] > 0)
 })

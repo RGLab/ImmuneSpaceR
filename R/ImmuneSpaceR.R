@@ -33,9 +33,9 @@ globalVariables(
     "concentration_value",
     "population_cell_number",
     "population_name_reported",
-    "x", "y", "err", #ggplot2 aes
-    "ID", #qpHeatmap
-    "stc", "stcu", "time_str", #standardize_time
+    "x", "y", "err", # ggplot2 aes
+    "ID", # qpHeatmap
+    "stc", "stcu", "time_str", # standardize_time
     "virus_strain", "virus", "cohort",
     "participant_id",
     "PROBE_ID",

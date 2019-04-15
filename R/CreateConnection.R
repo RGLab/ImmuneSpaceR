@@ -33,13 +33,12 @@
 #' # Cross study
 #' con <- CreateConnection("")
 #' }
-#'
+#' 
 #' sdy <- try(CreateConnection("SDY269"))
 #' if (inherits(sdy, "try-error")) {
 #'   warning("Read the Introduction vignette for more information on how to set
-#'   up a .netrc file.")
+#' up a .netrc file.")
 #' }
-#'
 #' @export
 #' @importFrom utils packageVersion
 #' @importFrom curl has_internet nslookup
@@ -156,7 +155,7 @@ CreateConnection <- function(study = NULL,
     silent = TRUE
   )
 
-  if (inherits(labkey.url.path,"try-error")) {
+  if (inherits(labkey.url.path, "try-error")) {
     if (is.null(study)) {
       stop("study cannot be NULL")
     }

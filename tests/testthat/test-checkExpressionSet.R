@@ -10,8 +10,8 @@ test_ES <- function(sdy, outputType, fail = FALSE) {
   expect_that(nrow(out), equals(1))
   expect_that(ncol(out), equals(8))
   expect_true(out$outputType == outputType)
-  expect_true(all(as.vector(t(out[1,-1]))))
-  }
+  expect_true(all(as.vector(t(out[1, -1]))))
+}
 
 
 # Tests --------------------------------------------------------

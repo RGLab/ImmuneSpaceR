@@ -1,5 +1,5 @@
 # This must be done locally because getParticipantData() is user-specific and takes a long time
-testPgrp <- function(dt, groupId){
+testPgrp <- function(dt, groupId) {
   print(dt)
   pgrp_T <- con$getParticipantData(group = groupId, dataType = dt, original_view = TRUE)
   pgrp_F <- con$getParticipantData(group = groupId, dataType = dt, original_view = FALSE)
@@ -40,4 +40,3 @@ dataTypes <- c(
 )
 
 chk <- lapply(dataTypes, testPgrp, groupId = 155)
-

@@ -41,7 +41,7 @@ ISCon$set(
   which = "public",
   name = "getDataset",
   value = function(x, original_view = FALSE, reload = FALSE, colFilter = NULL, transformMethod = "none", ...) {
-    if (nrow(self$availableDatasets[Name%in%x]) == 0) {
+    if (nrow(self$availableDatasets[Name %in% x]) == 0) {
       wstring <- paste0(
         "Empty data.table was returned.",
         " `", x, "` is not a valid dataset for ", self$study
@@ -156,7 +156,7 @@ ISCon$set(
   value = function(colFilter, schema, query, view = "") {
     stopifnot(is.matrix(colFilter))
 
-    holdsGroupFilter <-  grepl("ParticipantId/(\\S+)~eq=\\1$", colFilter[1, 1])
+    holdsGroupFilter <- grepl("ParticipantId/(\\S+)~eq=\\1$", colFilter[1, 1])
     if (nrow(colFilter) == 1 && holdsGroupFilter) {
       return(colFilter)
     }
@@ -265,5 +265,6 @@ ISCon$set(
     data[, population_cell_number := as.numeric(population_cell_number)]
   }
   data[, (column) := lapply(.SD, function(x) transformFunction(x)),
-       .SDcols = grep(column, colnames(data))][]
+    .SDcols = grep(column, colnames(data))
+  ][]
 }
