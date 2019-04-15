@@ -619,8 +619,7 @@ ISCon$set(
     if (outputType != "summary") {
       message("Downloading Features..")
       featureAnnotationSetQuery <- sprintf(
-        "SELECT * from FeatureAnnotation
-                                          where FeatureAnnotationSetId='%s';",
+        "SELECT * from FeatureAnnotation where FeatureAnnotationSetId='%s';",
         annoSetId
       )
       features <- labkey.executeSql(
@@ -733,8 +732,11 @@ ISCon$set(
         ))
         eval(substitute(matrix[, `:=`(newNames, NULL)], list(newNames = newNames)))
       }
-      if (config$verbose) {
-        warning("The matrix contains subjects with multiple measures per timepoint. Averaging expression values.")
+      if (self$config$verbose) {
+        warning(
+          "The matrix contains subjects with multiple measures per timepoint. ",
+          "Averaging the expression values.."
+        )
       }
     }
 
