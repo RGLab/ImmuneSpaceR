@@ -2,8 +2,11 @@
 
 language: r
 r:
-- bioc-devel
-- bioc-release
+  - bioc-devel
+  - bioc-release
+os:
+  - linux
+  - osx
 cache: packages
 sudo: false
 
