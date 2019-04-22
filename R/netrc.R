@@ -7,7 +7,7 @@
 #' \dontrun{
 #' interactive_netrc()
 #' }
-#' 
+#'
 #' @export
 interactive_netrc <- function() {
   # generate netrc path
@@ -118,7 +118,7 @@ check_netrc <- function() {
 
 
 # Get (and create) temporary netrc file from environment variables
-get_env_netrc <- function() {
+.get_env_netrc <- function() {
   ISR_login <- Sys.getenv("ISR_login")
   ISR_pwd <- Sys.getenv("ISR_pwd")
   ISR_machine <- ifelse(Sys.getenv("ISR_machine") == "",
@@ -132,7 +132,7 @@ get_env_netrc <- function() {
 
 
 # Get labkey.url.base from environment variable
-get_env_url <- function() {
+.get_env_url <- function() {
   ifelse(Sys.getenv("ISR_machine") == "",
     "https://www.immunespace.org",
     paste0("https://", Sys.getenv("ISR_machine"))
