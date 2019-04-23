@@ -119,7 +119,7 @@ ISCon$set(
   name = ".setAvailableDatasets",
   value = function() {
     if (length(self$availableDatasets) == 0) {
-      .getLKtbl(
+      self$availableDatasets <- .getLKtbl(
         con = self,
         schema = "study",
         query = "ISC_study_datasets"
