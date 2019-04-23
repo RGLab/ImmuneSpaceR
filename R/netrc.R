@@ -7,7 +7,7 @@
 #' \dontrun{
 #' interactive_netrc()
 #' }
-#'
+#' 
 #' @export
 interactive_netrc <- function() {
   # generate netrc path
