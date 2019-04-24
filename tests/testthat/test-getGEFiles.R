@@ -1,10 +1,4 @@
-context("getGEFiles")
-
-# Source depdencies -------------------------------------------
-source("global_variable.R")
-source("global_dependencies.R")
-source("set_curlOptions.R")
-
+context("ISCon$getGEFiles()")
 
 # Connections --------------------------------------------------
 sdy269 <- CreateConnection("SDY269", verbose = TRUE)
@@ -13,14 +7,16 @@ allsdy <- CreateConnection("")
 
 
 # Helper Functions ---------------------------------------------
-getFileList <- function(con){
+getFileList <- function(con) {
   gef <- con$getDataset("gene_expression_files")
   nms <- unique(gef$name)
-  if(length(nms) > 5){ nms <- nms[1:5] }
+  if (length(nms) > 5) {
+    nms <- nms[1:5]
+  }
   return(nms)
 }
 
-try_ggef <- function(con){
+try_ggef <- function(con) {
   files <- getFileList(con)
   tryCatch(
     capture.output(con$getGEFiles(files = files[1:5]), destdir = destdir),
@@ -28,13 +24,3 @@ try_ggef <- function(con){
     error = function(e) return(e)
   )
 }
-
-
-# Tests --------------------------------------------------------
-# destdir <- tempdir()
-# cleanup ------------------------------------------------------
-if(exists("netrc_file")){
-  file.remove(netrc_file)
-}
-
-

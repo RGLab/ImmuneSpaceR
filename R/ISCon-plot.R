@@ -36,13 +36,15 @@ ISCon$set(
                   show_virus_strain = FALSE,
                   interactive = FALSE,
                   ...) {
-  logT <- TRUE #By default, log transform the value_preferred
+  logT <- TRUE # By default, log transform the value_preferred
   extras <- list(...)
 
   # legend
   if (!is.null(legend)) {
-    legend <- unique(paste0(toupper(substring(legend, 1, 1)),
-                            substring(tolower(gsub("_.*$", "", legend)), 2)))
+    legend <- unique(paste0(
+      toupper(substring(legend, 1, 1)),
+      substring(tolower(gsub("_.*$", "", legend)), 2)
+    ))
   }
 
   # Datasets
@@ -60,16 +62,19 @@ ISCon$set(
 
     if (logT) {
       dt <- dt[, response := mean(log2(response + 1), na.rm = TRUE),
-               by = "cohort,participant_id,analyte,time_str"]
+        by = "cohort,participant_id,analyte,time_str"
+      ]
     } else {
       dt <- dt[, response := mean(response, na.rm = TRUE),
-               by = "cohort,participant_id,analyte,time_str"]
+        by = "cohort,participant_id,analyte,time_str"
+      ]
     }
     dt <- unique(dt)
 
     if (normalize_to_baseline) {
       dt <- dt[, response := response - response[study_time_collected <= 0],
-               by="cohort,participant_id,analyte"][study_time_collected > 0]
+        by = "cohort,participant_id,analyte"
+      ][study_time_collected > 0]
       if (nrow(dt) == 0) {
         stop("All data points are <= 0. Cannot normalize to baseline.")
       }
@@ -93,14 +98,14 @@ ISCon$set(
   if (facet == "grid") {
     facet <- facet_grid(aes(analyte, cohort), scales = "free")
   } else if (facet == "wrap") {
-    facet <- facet_wrap(~cohort + analyte, scales = "free")
+    facet <- facet_wrap(~ cohort + analyte, scales = "free")
   }
   if (type == "heatmap") {
     p <- .qpHeatmap2(dt, normalize_to_baseline, legend, text_size, interactive)
     if (interactive) p
   } else if (type %in% c("boxplot", "violin")) {
     .qpBoxplotViolin(dt, type, facet, ylab, text_size, extras, interactive, ...)
-  } else if(type == "line") {
+  } else if (type == "line") {
     .qpLineplot(dt, facet, ylab, text_size, extras, interactive, ...)
   } else { # } if (type == "error") {
     data <- data.frame(x = 0, y = 0, err = error_string)
@@ -132,15 +137,15 @@ ISCon$set(
 
     # Get levels
     ut <- sort(unique(data$stc))
-    levs <- ifelse(abs(ut) < 24, paste("Hour", ut), paste("Day", ut/24))
+    levs <- ifelse(abs(ut) < 24, paste("Hour", ut), paste("Day", ut / 24))
 
     # Concatenate time and unit
-    data <- data[, stc := ifelse(abs(stc) < 24, stc, stc/24)]
+    data <- data[, stc := ifelse(abs(stc) < 24, stc, stc / 24)]
     data <- data[, time_str := factor(paste(stcu, stc), levels = levs)]
 
     # Cleanup
     data <- data[, c("study_time_collected", "study_time_collected_unit") :=
-                   list(stc, stcu)]
+      list(stc, stcu)]
     data <- data[, c("stc", "stcu") := NULL]
   } else {
     ut <- sort(unique(data$study_time_collected))
@@ -172,7 +177,7 @@ ISCon$set(
   )
 
   if (ncol(mat) > 2 & nrow(mat) > 1) {
-    mat <- mat[rowSums(apply(mat, 2, is.na)) < ncol(mat),, drop = FALSE]
+    mat <- mat[rowSums(apply(mat, 2, is.na)) < ncol(mat), , drop = FALSE]
   }
 
   annos <- .heatmapAnnotations(dt, legend)
@@ -345,7 +350,7 @@ ISCon$set(
   out_cols <- c("study_time_collected", "study_time_collected_unit", "cohort", "participant_id")
   out_cols <- c(c("response", "analyte"), demo_cols, out_cols)
 
-  if(dataset != "gene_expression") {
+  if (dataset != "gene_expression") {
     dt <- copy(con$getDataset(dataset, colFilter = filter, reload = TRUE))
     if (!"analyte" %in% colnames(dt)) {
       dt <- dt[, analyte := ""]
@@ -365,7 +370,7 @@ ISCon$set(
     dt <- dt[, analyte := entrez_gene_id]
     logT <- FALSE # Threshold cycle is already log transformed
   } else if (dataset == "mbaa") {
-    if (all(dt$concentration_value ==0) || all(is.na(dt$concentration_value))) {
+    if (all(dt$concentration_value == 0) || all(is.na(dt$concentration_value))) {
       if (any(!is.na(dt$mfi)) && any(dt$mfi != 0)) {
         dt <- dt[, value_preferred := as.numeric(mfi)]
       } else {
@@ -380,7 +385,9 @@ ISCon$set(
   } else if (dataset == "gene_expression") {
     logT <- FALSE # Matrices are already log2 transformed
     dt <- copy(con$getGEAnalysis(colFilter = filter))
-    if (!is.null(filter) & any(sapply(filter, function(x) {gsub("~.*$", "", x)}) == "cohort")) {
+    if (!is.null(filter) & any(sapply(filter, function(x) {
+      gsub("~.*$", "", x)
+    }) == "cohort")) {
       uarm <- unique(dt$cohort)
     } else {
       uarm <- labkey.selectRows(
@@ -458,12 +465,13 @@ ISCon$set(
 # TODO: Add units. But they are in dt.
 .format_lab <- function(dataset, normalize_to_baseline) {
   lab <- switch(dataset,
-                "hai" = "HAI",
-                "elisa" = "Concentration",
-                "elispot" =  "Spot count",
-                "mbaa" = "Concentration",
-                "fcs_analyzed_result" = "Cell number",
-                "gene_expression" = "")
+    "hai" = "HAI",
+    "elisa" = "Concentration",
+    "elispot" = "Spot count",
+    "mbaa" = "Concentration",
+    "fcs_analyzed_result" = "Cell number",
+    "gene_expression" = ""
+  )
 
   if (normalize_to_baseline) {
     lab <- paste(lab, "normalized to baseline")

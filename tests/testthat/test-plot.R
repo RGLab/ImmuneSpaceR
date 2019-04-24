@@ -1,12 +1,8 @@
-context("plot")
-
-# Source depdencies -------------------------------------------
-source("global_variable.R")
-source("global_dependencies.R")
-source("set_curlOptions.R")
+context("ISCon$plot()")
 
 # Connections --------------------------------------------------
 sdy269 <- CreateConnection("SDY269")
+
 
 # Helper Functions ---------------------------------------------
 testPlot <- function(con, dataset, ...) {
@@ -111,10 +107,3 @@ test_that("interactive = TRUE", {
   )
   expect_true(!is.null(res$x)) # note: diff named list
 })
-
-# cleanup ------------------------------------------------------
-if (exists("netrc_file")) {
-  file.remove(netrc_file)
-}
-
-

@@ -7,7 +7,7 @@
 #' \dontrun{
 #' interactive_netrc()
 #' }
-#'
+#' 
 #' @export
 interactive_netrc <- function() {
   # generate netrc path
@@ -55,18 +55,19 @@ interactive_netrc <- function() {
 #' @return A character vector containing the file paths for netrc
 #' @examples
 #' write_netrc("immunespaceuser@gmail.com", "mypassword")
-#'
 #' @export
 write_netrc <- function(login,
                         password,
                         machine = "www.immunespace.org",
                         file = NULL) {
-  string <- paste("machine", machine,
-                  "login", login,
-                  "password", password)
+  string <- paste(
+    "machine", machine,
+    "login", login,
+    "password", password
+  )
   if (is.null(file)) {
     file <- tempfile()
-  } else if(file.exists(file)) {
+  } else if (file.exists(file)) {
     stop("The file you are trying to write to already exists. Remove manually if you wish to overwrite.")
   }
   write(string, file)
@@ -94,22 +95,21 @@ write_netrc <- function(login,
 #' @seealso CreateConnection write_netrc
 #' @examples
 #' try(check_netrc())
-#'
 #' @export
-check_netrc <- function(){
-  if(exists("labkey.netrc.file", .GlobalEnv)){
+check_netrc <- function() {
+  if (exists("labkey.netrc.file", .GlobalEnv)) {
     netrc_file <- labkey.netrc.file
-  } else{
+  } else {
     netrc_file <- "~/.netrc"
   }
-  if(!file.exists(netrc_file)){
+  if (!file.exists(netrc_file)) {
     stop("There is no netrc file. Use `write_netrc`")
-  } else{
+  } else {
     print(paste("netrc file found at", netrc_file))
   }
   lines <- readLines(netrc_file)
   lines <- gsub("http.*//", "", lines)
-  if(length(grep("machine\\swww.immunespace.org", lines)) == 0){
+  if (length(grep("machine\\swww.immunespace.org", lines)) == 0) {
     stop("No entry found for www.immunespace.org in the netrc file.")
   }
   print("The netrc looks valid.")
@@ -118,29 +118,31 @@ check_netrc <- function(){
 
 
 # Get (and create) temporary netrc file from environment variables
-get_env_netrc <- function() {
+.get_env_netrc <- function() {
   ISR_login <- Sys.getenv("ISR_login")
   ISR_pwd <- Sys.getenv("ISR_pwd")
   ISR_machine <- ifelse(Sys.getenv("ISR_machine") == "",
-                        "www.immunespace.org",
-                        Sys.getenv("ISR_machine"))
-  if (ISR_login != ""  &  ISR_pwd != "") {
+    "www.immunespace.org",
+    Sys.getenv("ISR_machine")
+  )
+  if (ISR_login != "" & ISR_pwd != "") {
     write_netrc(login = ISR_login, password = ISR_pwd, machine = ISR_machine)
   }
 }
 
 
 # Get labkey.url.base from environment variable
-get_env_url <- function() {
+.get_env_url <- function() {
   ifelse(Sys.getenv("ISR_machine") == "",
-         "https://www.immunespace.org",
-         paste0("https://", Sys.getenv("ISR_machine")))
+    "https://www.immunespace.org",
+    paste0("https://", Sys.getenv("ISR_machine"))
+  )
 }
 
 # get the path to where a netrc file should be
 .get_path <- function() {
   home <- Sys.getenv("HOME")
-  netrc <- ifelse (.Platform[[1]] == "unix", ".netrc", "_netrc")
+  netrc <- ifelse(.Platform[[1]] == "unix", ".netrc", "_netrc")
   filepath <- paste0(home, "/", netrc)
   return(filepath)
 }
@@ -151,17 +153,23 @@ get_env_url <- function() {
   if (!is.null(login)) {
     message("Validating netrc ...")
     con <- tryCatch(CreateConnection(study = "SDY269", login = login, password = passwd),
-                    error = function(e){return(NULL)})
+      error = function(e) {
+        return(NULL)
+      }
+    )
   } else {
     message("Validating netrc ...")
     con <- tryCatch(CreateConnection(study = "SDY269"),
-                    error = function(e){return(NULL)})
+      error = function(e) {
+        return(NULL)
+      }
+    )
   }
-  if(is.null(con)){
+  if (is.null(con)) {
     message("Cannot connect to ImmuneSpace with current netrc information -- check login and password for errors")
     return(FALSE)
   } else {
     message("Ability to connect to ImmuneSpace with netrc confirmed")
     return(TRUE)
-    }
+  }
 }

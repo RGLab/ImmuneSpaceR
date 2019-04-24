@@ -1,14 +1,7 @@
-context("CreateConnection")
-
-# Source depdencies -------------------------------------------
-source("global_variable.R")
-source("global_dependencies.R")
-source("set_curlOptions.R")
-
+context("CreateConnection()")
 
 # Helper Functions ---------------------------------------------
-
-try_con <- function(study){
+try_con <- function(study) {
   tryCatch(
     con <- CreateConnection(study),
     error = function(e) return(e)
@@ -23,7 +16,7 @@ test_that("Study argument is not NULL", {
 })
 
 test_that("Study argument accepts only one study", {
-  res <- try_con(c("SDY269","SDY180"))
+  res <- try_con(c("SDY269", "SDY180"))
   msg_list <- strsplit(res$message, split = " ")[[1]]
   expect_true("multiple" %in% msg_list)
 })
@@ -60,10 +53,3 @@ test_that("Connection loads with cohort-type in GE_matrices", {
   con <- CreateConnection("SDY400")
   expect_true("cohort_type" %in% colnames(con$cache$GE_matrices))
 })
-
-# cleanup ------------------------------------------------------
-if(exists("netrc_file")){
-  file.remove(netrc_file)
-}
-
-

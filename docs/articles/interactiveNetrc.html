@@ -38,7 +38,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ImmuneSpaceR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.11.5</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.11.6</span>
       </span>
     </div>
 
@@ -122,7 +122,7 @@
 <code><a href="../reference/interactive_netrc.html">interactive_netrc()</a></code> Walkthrough</h1>
                         <h4 class="author">Lauren Wolfe</h4>
             
-            <h4 class="date">2019-03-26</h4>
+            <h4 class="date">2019-04-24</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/RGLab/ImmuneSpaceR/blob/master/vignettes/interactiveNetrc.Rmd"><code>vignettes/interactiveNetrc.Rmd</code></a></small>
       <div class="hidden name"><code>interactiveNetrc.Rmd</code></div>
@@ -161,7 +161,9 @@ password supersecretpassword</code></pre>
 <li>if the connection is valid, then write the information to a netrc file in the user’s home directory</li>
 </ul>
 <p>Below is a gif demonstrating how to use this function:</p>
-<p><img src="img/createNetrc.gif" width="675"></p>
+<div class="figure">
+<img src="img/createNetrc.gif" width="675">
+</div>
 <p>In the case that the user did not provide login information that results in a connection to ImmuneSpace, a netrc file will not be written to the user’s home directory, and the user can try the method again checking for typos.</p>
 <p>If the user still cannot connect to ImmuneSpace via the API, they might want to double check that they are registered and that their login information works for <a href="https://immunespace.org/">ImmuneSpace</a>.</p>
 <p>If a netrc file already exists, <code>interactive_netrc</code> will print the existing file to the console and ask the user if they wish to overwrite that file.</p>
@@ -172,7 +174,9 @@ password supersecretpassword</code></pre>
 <code>N</code> or <code>n</code> will simply check if the existing netrc is able to connect to ImmuneSpace. No new netrc file will be created.</li>
 </ul>
 <p>Below is a gif demonstrating how this works:</p>
-<p><img src="img/netrcOverwriteOption.gif" width="675"></p>
+<div class="figure">
+<img src="img/netrcOverwriteOption.gif" width="675">
+</div>
 </div>
 </div>
   </div>
@@ -196,7 +200,7 @@ password supersecretpassword</code></pre>
 
 
       <footer><div class="copyright">
-  <p>Developed by Greg Finak, Renan Sauteraud, Mike Jiang, Gil Guday, Leo Dashevskiy, Evan Henrich, Ju Yeong Kim, Lauren Wolfe, Raphael Gottardo, ImmuneSpace Package Maintainer.</p>
+  <p>Developed by Greg Finak, Renan Sauteraud, Mike Jiang, Gil Guday, Leo Dashevskiy, Evan Henrich, Ju Yeong Kim, Lauren Wolfe, Helen Miller, Raphael Gottardo, ImmuneSpace Package Maintainer.</p>
 </div>
 
 <div class="pkgdown">

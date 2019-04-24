@@ -48,9 +48,8 @@ con <- CreateConnection("")
 sdy <- try(CreateConnection("SDY269"))
 if (inherits(sdy, "try-error")) {
   warning("Read the Introduction vignette for more information on how to set
-  up a .netrc file.")
+up a .netrc file.")
 }
-
 }
 \seealso{
 \code{\link{ImmuneSpaceConnection}}

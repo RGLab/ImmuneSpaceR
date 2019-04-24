@@ -1,7 +1,7 @@
 Package: ImmuneSpaceR
 Type: Package
 Title: A Thin Wrapper around the ImmuneSpace Database
-Version: 1.11.5
+Version: 1.11.6
 Date: 2014-06-12
 Authors@R: c(person("Greg", "Finak", role = "aut"),
              person("Renan", "Sauteraud", role = "aut"),
@@ -11,6 +11,7 @@ Authors@R: c(person("Greg", "Finak", role = "aut"),
              person("Evan", "Henrich", role = "aut"),
              person("Ju Yeong", "Kim", role = "aut"),
              person("Lauren", "Wolfe", role = "aut"),
+             person("Helen", "Miller", role = "aut"),
              person("Raphael", "Gottardo", role = "aut"),
              person("ImmuneSpace Package Maintainer",
                     email = "immunespace@gmail.com",

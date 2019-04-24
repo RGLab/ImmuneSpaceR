@@ -25,7 +25,6 @@ can be used to write one. Otherwise, when specifying login and password in
 }
 \examples{
 try(check_netrc())
-
 }
 \seealso{
 CreateConnection write_netrc

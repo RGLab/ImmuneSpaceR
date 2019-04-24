@@ -37,7 +37,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ImmuneSpaceR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.11.5</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.11.6</span>
       </span>
     </div>
 
@@ -120,7 +120,7 @@
       <h1>SDY180: Abundance of Plasmablasts Measured by Multiparameter Flow Cytometry</h1>
                         <h4 class="author">Renan Sauteraud</h4>
             
-            <h4 class="date">2019-03-26</h4>
+            <h4 class="date">2019-04-24</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/RGLab/ImmuneSpaceR/blob/master/vignettes/report_SDY180.Rmd"><code>vignettes/report_SDY180.Rmd</code></a></small>
       <div class="hidden name"><code>report_SDY180.Rmd</code></div>
@@ -140,42 +140,42 @@
 <div id="load-immunespacer-and-other-libraries" class="section level1">
 <h1 class="hasAnchor">
 <a href="#load-immunespacer-and-other-libraries" class="anchor"></a>Load ImmuneSpaceR and other libraries</h1>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(ImmuneSpaceR)</a>
-<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(ggplot2)</a>
-<a class="sourceLine" id="cb1-3" data-line-number="3"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(data.table)</a></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(ImmuneSpaceR)
+<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(ggplot2)
+<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(data.table)</code></pre></div>
 </div>
 <div id="connect-to-the-study-and-get-the-flow-cytometry-results" class="section level1">
 <h1 class="hasAnchor">
 <a href="#connect-to-the-study-and-get-the-flow-cytometry-results" class="anchor"></a>Connect to the study and get the flow cytometry results</h1>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1">study &lt;-<span class="st"> </span><span class="kw"><a href="../reference/CreateConnection.html">CreateConnection</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"SDY180"</span>))</a>
-<a class="sourceLine" id="cb2-2" data-line-number="2">dt_fcs &lt;-<span class="st"> </span>study<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getDataset</a></span>(<span class="st">"fcs_analyzed_result"</span>)</a></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">study &lt;-<span class="st"> </span><span class="kw"><a href="../reference/CreateConnection.html">CreateConnection</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"SDY180"</span>))
+dt_fcs &lt;-<span class="st"> </span>study<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getDataset</a></span>(<span class="st">"fcs_analyzed_result"</span>)</code></pre></div>
 </div>
 <div id="subset-the-population-of-interest" class="section level1">
 <h1 class="hasAnchor">
 <a href="#subset-the-population-of-interest" class="anchor"></a>Subset the population of interest</h1>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1">dt_fcs19 &lt;-<span class="st"> </span>dt_fcs[population_name_reported <span class="op">%like%</span><span class="st"> "Plasma"</span>]</a>
-<a class="sourceLine" id="cb3-2" data-line-number="2">dt_fcs19 &lt;-<span class="st"> </span>dt_fcs19[, cohort <span class="op">:</span><span class="er">=</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/grep">gsub</a></span>(<span class="st">"Study g"</span>, <span class="st">"G"</span>, cohort), ]</a></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dt_fcs19 &lt;-<span class="st"> </span>dt_fcs[population_name_reported <span class="op">%like%</span><span class="st"> "Plasma"</span>]
+dt_fcs19 &lt;-<span class="st"> </span>dt_fcs19[, cohort <span class="op">:</span><span class="er">=</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/grep">gsub</a></span>(<span class="st">"Study g"</span>, <span class="st">"G"</span>, cohort), ]</code></pre></div>
 </div>
 <div id="compute-the-median" class="section level1">
 <h1 class="hasAnchor">
 <a href="#compute-the-median" class="anchor"></a>Compute the median</h1>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1">dt_fcs19_median &lt;-<span class="st"> </span>dt_fcs19[, .(<span class="dt">median_cell_reported =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/median">median</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/double">as.double</a></span>(population_cell_number) <span class="op">+</span><span class="st"> </span><span class="dv">1</span>,</a>
-<a class="sourceLine" id="cb4-2" data-line-number="2">                   <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)), by =<span class="st"> </span>.(cohort,study_time_collected,population_name_reported)]</a></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dt_fcs19_median &lt;-<span class="st"> </span>dt_fcs19[, .(<span class="dt">median_cell_reported =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/median">median</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/double">as.double</a></span>(population_cell_number) <span class="op">+</span><span class="st"> </span><span class="dv">1</span>,
+                   <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)), by =<span class="st"> </span>.(cohort,study_time_collected,population_name_reported)]</code></pre></div>
 </div>
 <div id="flow-cytometry-vs-elispot" class="section level1">
 <h1 class="hasAnchor">
 <a href="#flow-cytometry-vs-elispot" class="anchor"></a>Flow cytometry vs. ELISPOT</h1>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/ggplot">ggplot</a></span>(dt_fcs19, <span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/aes">aes</a></span>(<span class="dt">x =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/factor">as.factor</a></span>(study_time_collected), <span class="dt">y =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/double">as.double</a></span>(population_cell_number) <span class="op">+</span><span class="st"> </span><span class="dv">1</span>)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb5-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/geom_boxplot">geom_boxplot</a></span>() <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb5-3" data-line-number="3"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/geom_jitter">geom_jitter</a></span>() <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb5-4" data-line-number="4"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/scale_continuous">scale_y_log10</a></span>() <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb5-5" data-line-number="5"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/facet_grid">facet_grid</a></span>(cohort<span class="op">~</span>population_name_reported, <span class="dt">scale =</span> <span class="st">"free"</span>) <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb5-6" data-line-number="6"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/labs">xlab</a></span>(<span class="st">"Time"</span>) <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb5-7" data-line-number="7"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/labs">ylab</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/expression">expression</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/paste">paste</a></span>(<span class="st">"Number of cells/"</span>, mu, <span class="st">"l"</span>))) <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb5-8" data-line-number="8"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/geom_path">geom_line</a></span>(<span class="dt">data =</span> dt_fcs19_median, <span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/aes">aes</a></span>(<span class="dt">x =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/factor">as.factor</a></span>(study_time_collected), <span class="dt">y =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/double">as.double</a></span>(median_cell_reported),</a>
-<a class="sourceLine" id="cb5-9" data-line-number="9">  <span class="dt">group =</span> <span class="dv">1</span>), <span class="dt">color =</span> <span class="st">"black"</span>, <span class="dt">size =</span> <span class="fl">1.2</span>) <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb5-10" data-line-number="10"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/labs">labs</a></span>(<span class="dt">title =</span> <span class="st">"Plasma cell abundance after vaccination"</span>) <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb5-11" data-line-number="11"><span class="st">  </span><span class="kw"><a href="../reference/theme_IS.html">theme_IS</a></span>()</a></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/ggplot">ggplot</a></span>(dt_fcs19, <span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/aes">aes</a></span>(<span class="dt">x =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/factor">as.factor</a></span>(study_time_collected), <span class="dt">y =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/double">as.double</a></span>(population_cell_number) <span class="op">+</span><span class="st"> </span><span class="dv">1</span>)) <span class="op">+</span>
+<span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/geom_boxplot">geom_boxplot</a></span>() <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/geom_jitter">geom_jitter</a></span>() <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/scale_continuous">scale_y_log10</a></span>() <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/facet_grid">facet_grid</a></span>(cohort<span class="op">~</span>population_name_reported, <span class="dt">scale =</span> <span class="st">"free"</span>) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/labs">xlab</a></span>(<span class="st">"Time"</span>) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/labs">ylab</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/expression">expression</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/paste">paste</a></span>(<span class="st">"Number of cells/"</span>, mu, <span class="st">"l"</span>))) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/geom_path">geom_line</a></span>(<span class="dt">data =</span> dt_fcs19_median, <span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/aes">aes</a></span>(<span class="dt">x =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/factor">as.factor</a></span>(study_time_collected), <span class="dt">y =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/double">as.double</a></span>(median_cell_reported),
+  <span class="dt">group =</span> <span class="dv">1</span>), <span class="dt">color =</span> <span class="st">"black"</span>, <span class="dt">size =</span> <span class="fl">1.2</span>) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/labs">labs</a></span>(<span class="dt">title =</span> <span class="st">"Plasma cell abundance after vaccination"</span>) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw"><a href="../reference/theme_IS.html">theme_IS</a></span>()</code></pre></div>
 <p><img src="report_SDY180_files/figure-html/unnamed-chunk-1-1.png" width="1000" style="display: block; margin: auto;"></p>
 </div>
   </div>
@@ -199,7 +199,7 @@
 
 
       <footer><div class="copyright">
-  <p>Developed by Greg Finak, Renan Sauteraud, Mike Jiang, Gil Guday, Leo Dashevskiy, Evan Henrich, Ju Yeong Kim, Lauren Wolfe, Raphael Gottardo, ImmuneSpace Package Maintainer.</p>
+  <p>Developed by Greg Finak, Renan Sauteraud, Mike Jiang, Gil Guday, Leo Dashevskiy, Evan Henrich, Ju Yeong Kim, Lauren Wolfe, Helen Miller, Raphael Gottardo, ImmuneSpace Package Maintainer.</p>
 </div>
 
 <div class="pkgdown">

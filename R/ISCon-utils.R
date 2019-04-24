@@ -15,9 +15,13 @@ ISCon$set(
     cat(sprintf("  Study: %s\n", self$study))
 
     cat(
-      sprintf("  URL: %s\n",
-              file.path(gsub("/$","", self$config$labkey.url.base),
-                        gsub("^/","", self$config$labkey.url.path)))
+      sprintf(
+        "  URL: %s\n",
+        file.path(
+          gsub("/$", "", self$config$labkey.url.base),
+          gsub("^/", "", self$config$labkey.url.path)
+        )
+      )
     )
 
     cat(sprintf("  User: %s\n", self$config$labkey.user.email))
@@ -73,8 +77,10 @@ ISCon$set(
       if (verbose == FALSE) {
         stop(paste0(sdyNm, " is not a valid study. \n Use `verbose = TRUE` to see list of valid studies."))
       } else {
-        stop(paste0(sdyNm, " is not a valid study\nValid studies: ",
-                    paste(validSdys, collapse=", ")))
+        stop(paste0(
+          sdyNm, " is not a valid study\nValid studies: ",
+          paste(validSdys, collapse = ", ")
+        ))
       }
     }
   }

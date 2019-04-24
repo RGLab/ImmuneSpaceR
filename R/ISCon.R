@@ -4,14 +4,23 @@
 #' @name ImmuneSpaceConnection
 #' @aliases
 #' ImmuneSpaceConnection
-#' getGEMatrix
-#' getDataset
 #' listDatasets
-#' getGEAnalysis
+#' listGEMatrices
 #' listGEAnalysis
+#' listParticipantGroups
+#' listWorkspaces
+#' listGatingSets
+#' summarizeCyto
+#' summarizeGatingSet
+#' loadGatingSet
+#' getDataset
+#' getGEMatrix
+#' getGEAnalysis
+#' getGEFiles
+#' getGEInputs
+#' getParticipantData
 #' addTreatmentt
 #' mapSampleNames
-#' plot
 #'
 #' @description
 #' A connection respresents a study or a set of studies available on ImmuneSpace.
@@ -58,7 +67,7 @@
 #'
 #' @section Methods:
 #' \describe{
-#'   \item{\code{initialize(..., config = NULL)}}{
+#'   \item{\code{initialize()}}{
 #'     Initialize \code{ImmuneSpaceConnection} class.
 #'     See \code{\link{CreateConnection}}.
 #'   }
@@ -105,7 +114,7 @@
 #'     \code{gatingSet}: A character. The name of the gating set to summarize.
 #'   }
 #'   \item{\code{loadGatingSet(gatingSet)}}{
-#'     Loads a gating set via \code{\link[flowWorkspace]{load_gs}} to the
+#'     Loads a gating set via \code{flowWorkspace::load_gs} to the
 #'     current environment. Note that this method currently works only in the
 #'     ImmuneSpace RStudio Docker session.
 #'
@@ -129,27 +138,31 @@
 #'     \code{...}: Extra arguments to be passed to \code{labkey.selectRows}.
 #'   }
 #'   \item{\code{getGEMatrix(matrixName = NULL, cohortType = NULL,
-#'   outputType = "summary", annotation = "latest", reload = FALSE, verbose = FALSE)}}{
-#'     Downloads a probe-level or gene-symbol summarized expression matrix from ImmuneSpace. Use experimentData() on the resulting expressionSet object to see version info for annotation.
+#'   outputType = "summary", annotation = "latest", reload = FALSE,
+#'   verbose = FALSE)}}{
+#'     Downloads a probe-level or gene-symbol summarized expression matrix from
+#'     ImmuneSpace and constructs an ExpressionSet. Use \code{experimentData()}
+#'     on the resulting ExpressionSet object to see version info for annotation.
 #'
 #'     \code{matrixName}: A character. The name of the gene expression matrix
 #'     to download.
 #'
-#'     \code{cohortType}: A character. The name of a cohortType that has an associated
-#'     gene expression matrix. Note that if this argument is not NULL, then
-#'     \code{matrixName} is ignored. CohortType is a concatenation of "cohort" and "cell type"
-#'     that allows the user to specify a matrix for the cell type subset of a cohort.
+#'     \code{cohortType}: A character. The name of a cohortType that has an
+#'     associated gene expression matrix. Note that if this argument is not
+#'     NULL, then \code{matrixName} is ignored. CohortType is a concatenation of
+#'     "cohort" and "cell type" that allows the user to specify a matrix for the
+#'     cell type subset of a cohort.
 #'
-#'     \code{outputType}: one of 'raw', 'normalized' or 'summary'. If 'raw'
-#'     then returns an expression matrix of non-normalized values by probe.
+#'     \code{outputType}: A character. one of 'raw', 'normalized' or 'summary'.
+#'     If 'raw', returns an expression matrix of non-normalized values by probe.
 #'     'normalized' returns normalized values by probe. 'summary' returns
 #'     normalized values averaged by gene symbol.
 #'
-#'     \code{annotation}: one of 'default', 'latest', or 'ImmSig'. Determines
-#'     which feature annotation set is used.  'default' uses the fas from when
-#'     the matrix was generated. latest' uses a recently updated fas based on
-#'     the original.'ImmSig' is specific to studies involved in the
-#'     ImmuneSignatures project and uses the annotation from when the
+#'     \code{annotation}: A character. one of 'default', 'latest', or 'ImmSig'.
+#'     Determines which feature annotation set (FAS) is used. 'default' uses the
+#'     FAS from when the matrix was generated. latest' uses a recently updated
+#'     FAS based on the original. 'ImmSig' is specific to studies involved in
+#'     the ImmuneSignatures project and uses the annotation from when the
 #'     meta-study's manuscript was created.
 #'
 #'     \code{reload}: A logical. If set to TRUE, the matrix will be downloaded
@@ -178,13 +191,14 @@
 #'   }
 #'   \item{\code{getParticipantData(group, dataType, original_view = FALSE,
 #'   ...)}}{
-#'     Returns a dataframe with ImmuneSpace data subset by groupId.
+#'     Returns a data.table with data subset by participant group.
 #'
-#'     \code{group}: Use con$listParticipantGroups() to find Participant groupId
-#'     or groupName.
+#'     \code{group}: A character or integer.
+#'     Call \code{con$listParticipantGroups()} to see available participants
+#'     groups. Use group_id or group_name as input.
 #'
-#'     \code{dataType}: Use \code{con$listDatasets('datasets')} to see possible
-#'     dataType inputs.
+#'     \code{dataType}: A character. Use \code{con$availableDatasets} to see
+#'     available dataset names.
 #'   }
 #'   \item{\code{addTreatment(matrixName = NULL)}}{
 #'     Adds treatment information to the phenoData of an expression matrix
@@ -238,8 +252,7 @@
 #'     color = 'Race'.
 #'   }
 #'   \item{\code{clearCache()}}{
-#'     Clears the cache. Removes downloaded datasets and expression
-#'     matrices.
+#'     Clears the cache. Removes downloaded datasets and expression matrices.
 #'   }
 #' }
 #'
@@ -266,9 +279,8 @@
 #' sdy <- try(CreateConnection("SDY269"))
 #' if (inherits(sdy, "try-error")) {
 #'   warning("Read the Introduction vignette for more information on how to set
-#'   up a .netrc file.")
+#' up a .netrc file.")
 #' }
-#'
 #' @docType class
 ISCon <- R6Class(
   classname = "ImmuneSpaceConnection",
@@ -288,27 +300,46 @@ ISCon <- R6Class(
 ISCon$set(
   which = "public",
   name = "initialize",
-  value = function(..., config = NULL) {
-    # invoke the default init routine in case it needs to be invoked
-    # (e.g. when using $new(object) to construct the new object based on the existing object)
-    # callSuper(...) # THIS MIIGHT NOT APPLICABLE IN R6
+  value = function(study = NULL,
+                     login = NULL,
+                     password = NULL,
+                     verbose = FALSE,
+                     onTest = FALSE) {
+    if (length(study) > 1) {
+      stop("For multiple studies, use an empty string and filter the connection.")
+    }
+    .check_internet()
+    .check_portal(onTest)
 
+    # fetch config variables
+    labkey.url.base <- .get_url_base(onTest)
+    labkey.user.email <- .get_user_email()
+    labkey.url.path <- .get_url_path(study)
+    curlOptions <- .set_curl_options(login, password)
+
+    # set fields
+    self$config <- list(
+      labkey.url.base = labkey.url.base,
+      labkey.url.path = labkey.url.path,
+      labkey.user.email = labkey.user.email,
+      curlOptions = curlOptions,
+      verbose = verbose
+    )
+    self$study <- basename(self$config$labkey.url.path)
     private$.constants <- list(
       matrices = "GE_matrices",
       matrix_inputs = "GE_inputs"
     )
 
-    if (!is.null(config)) {
-      self$config <- config
-    }
-
-    self$study <- basename(config$labkey.url.path)
-
+    # validate connection
+    .check_credential(labkey.url.base, verbose)
     private$.checkStudy(self$config$verbose)
 
-    self$availableDatasets <- private$.setAvailableDatasets()
+    # fetch available datasets and expression matrices
+    private$.setAvailableDatasets()
+    self$listGEMatrices()
 
-    gematrices_success <- self$listGEMatrices()
+    self
   }
 )
 
@@ -319,3 +350,160 @@ ISCon$set(
 
 
 # HELPER -----------------------------------------------------------------------
+
+# check internet connection
+.check_internet <- function() {
+  if (!has_internet()) {
+    stop("No internet connection. Please connect to internet and try again.")
+  }
+}
+
+
+.get_host <- function(onTest = FALSE) {
+  ifelse(onTest, "test.immunespace.org", "www.immunespace.org")
+}
+
+
+# check if the portal is up
+.check_portal <- function(onTest = FALSE) {
+  host <- .get_host(onTest)
+  if (is.null(nslookup(host, error = FALSE))) {
+    stop("The portal is currently down. Try again later.")
+  }
+}
+
+
+# Try to parse labkey options from global environment
+# which really should have been done through option()/getOption() mechanism
+# Here we do this to be compatible to labkey online report system
+# that automatically assigns these variables in global environment
+.get_url_base <- function(onTest = FALSE) {
+  labkey.url.base <- try(get("labkey.url.base", .GlobalEnv), silent = TRUE)
+  if (inherits(labkey.url.base, "try-error")) {
+    labkey.url.base <- paste0("https://", .get_host(onTest))
+  }
+
+  if (!is.null(getOption("labkey.baseUrl"))) {
+    labkey.url.base <- getOption("labkey.baseUrl")
+  }
+
+  labkey.url.base <- gsub("http:", "https:", labkey.url.base)
+  if (length(grep("^https://", labkey.url.base)) == 0) {
+    labkey.url.base <- paste0("https://", labkey.url.base)
+  }
+
+  labkey.url.base
+}
+
+
+.get_user_email <- function() {
+  labkey.user.email <- try(get("labkey.user.email", .GlobalEnv), silent = TRUE)
+  if (inherits(labkey.user.email, "try-error")) {
+    labkey.user.email <- "unknown_user at not_a_domain.com"
+  }
+
+  if (!is.null(getOption("labkey.user.email"))) {
+    labkey.user.email <- getOption("labkey.user.email")
+  }
+
+  labkey.user.email
+}
+
+
+.get_url_path <- function(study) {
+  labkey.url.path <- try(
+    get("labkey.url.path", .GlobalEnv),
+    silent = TRUE
+  )
+
+  if (inherits(labkey.url.path, "try-error")) {
+    if (is.null(study)) {
+      stop("study cannot be NULL")
+    }
+    pathStr <- ifelse(
+      grepl("^IS\\d{1,3}$", study),
+      "/HIPC/",
+      "/Studies/"
+    )
+    labkey.url.path <- paste0(pathStr, study)
+  } else if (!is.null(study)) {
+    labkey.url.path <- file.path(dirname(labkey.url.path), study)
+  }
+
+  labkey.url.path
+}
+
+
+# set curoption for Rlabkey package
+# Rlabkey stores the Curl options in its package environment through
+# labkey.setCurlOptions call, so in theory we need to reset it prior to each
+# Rlabkey query because  multiple connections created by user individually may
+# have different urls and ssl settings. Ideally labkey.selectRows should
+# optionally parse the options from its argument besides package environment.
+# For now, we assume they all share the same setting and init it only once here
+.set_curl_options <- function(login = NULL, password = NULL) {
+  if (!is.null(login) & is.null(password)) {
+    stop(
+      "login = ",
+      login,
+      " given without password. Please try again with password"
+    )
+  } else if (!is.null(login) & !is.null(password)) {
+    nf <- write_netrc(login, password)
+  } else {
+    nf <- try(get("labkey.netrc.file", .GlobalEnv), silent = TRUE)
+  }
+
+  useragent <- paste0(
+    "R/", R.version$major, ".", R.version$minor,
+    " (", Sys.info()["sysname"], " ", Sys.info()["machine"], ")",
+    " Rlabkey/", packageVersion("Rlabkey"),
+    " ImmuneSpaceR/", packageVersion("ImmuneSpaceR")
+  )
+
+  if (!inherits(nf, "try-error") && !is.null(nf)) {
+    curlOptions <- labkey.setCurlOptions(
+      ssl_verifyhost = 2,
+      sslversion = 1,
+      netrc_file = nf,
+      useragent = useragent
+    )
+  } else {
+    curlOptions <- labkey.setCurlOptions(
+      ssl_verifyhost = 2,
+      sslversion = 1,
+      useragent = useragent
+    )
+  }
+
+  curlOptions
+}
+
+
+# check credential
+.check_credential <- function(labkey.url.base, verbose = FALSE) {
+  if (verbose) message("Checking credential...")
+
+  res <- GET(
+    url = paste0(labkey.url.base, "/login-whoami.view"),
+    config = Rlabkey:::labkey.getRequestOptions()
+  )
+
+  if (res$status_code == 200) {
+    if (grepl("json", res$headers$`content-type`)) {
+      parsed <- httr::content(res)
+
+      if (parsed$displayName == "guest") {
+        stop("Invalid credential or deactivated account. Check your account in the portal.")
+      }
+    } else {
+      stop("Something went wrong. Check the portal and try again.")
+    }
+  } else if (res$status_code == 401) {
+    stop("Invalid credential or deactivated account. Check your account in the portal.")
+  } else if (res$status_code == 403) {
+    stop("The portal is in admin-only mode. Please try again later.")
+  } else {
+    stop("Something went wrong. Check the portal and try again.")
+  }
+}

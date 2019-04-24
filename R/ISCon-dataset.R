@@ -41,7 +41,7 @@ ISCon$set(
   which = "public",
   name = "getDataset",
   value = function(x, original_view = FALSE, reload = FALSE, colFilter = NULL, transformMethod = "none", ...) {
-    if (nrow(self$availableDatasets[Name%in%x]) == 0) {
+    if (nrow(self$availableDatasets[Name %in% x]) == 0) {
       wstring <- paste0(
         "Empty data.table was returned.",
         " `", x, "` is not a valid dataset for ", self$study
@@ -69,10 +69,8 @@ ISCon$set(
 
     # retrieve dataset from cache if arguments match
     digestedArgs <- digest(args)
-    if (digestedArgs %in% names(self$cache)) {
-      if (!reload) {
-        return(self$cache[[digestedArgs]]$data)
-      }
+    if (digestedArgs %in% names(self$cache) && !reload) {
+      return(self$cache[[digestedArgs]]$data)
     }
 
     viewName <- NULL
@@ -121,7 +119,7 @@ ISCon$set(
   name = ".setAvailableDatasets",
   value = function() {
     if (length(self$availableDatasets) == 0) {
-      .getLKtbl(
+      self$availableDatasets <- .getLKtbl(
         con = self,
         schema = "study",
         query = "ISC_study_datasets"
@@ -158,8 +156,8 @@ ISCon$set(
   value = function(colFilter, schema, query, view = "") {
     stopifnot(is.matrix(colFilter))
 
-    if (nrow(colFilter) == 1 &&
-        grepl("ParticipantId/(\\S+)~eq=\\1$", colFilter[1, 1])) {
+    holdsGroupFilter <- grepl("ParticipantId/(\\S+)~eq=\\1$", colFilter[1, 1])
+    if (nrow(colFilter) == 1 && holdsGroupFilter) {
       return(colFilter)
     }
 
@@ -218,7 +216,7 @@ ISCon$set(
 
 
 # Transform data
-.transformData <- function(data, dataType, transformMethod) {
+.transformData <- function(data, dataType, transformMethod = "auto") {
   if (transformMethod == "none") {
     return(data)
   }
@@ -259,14 +257,14 @@ ISCon$set(
   # retrieve column name
   column <- datasets[[dataType]][["column"]]
 
-  if (dataType == "fcs_analyzed_result") {
-    data[, population_cell_number := as.numeric(population_cell_number)]
-  }
-
   message(
     "Transformed '", column, "' column of '", dataType, "' dataset with ",
     "'", transformMethod, "' transformation function."
   )
+  if (dataType == "fcs_analyzed_result") {
+    data[, population_cell_number := as.numeric(population_cell_number)]
+  }
   data[, (column) := lapply(.SD, function(x) transformFunction(x)),
-       .SDcols = grep(column, colnames(data))][]
+    .SDcols = grep(column, colnames(data))
+  ][]
 }

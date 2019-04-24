@@ -1,11 +1,20 @@
 # R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
 
 language: r
-r:
-- bioc-devel
-- bioc-release
 cache: packages
 sudo: false
+
+r:
+  - bioc-devel
+  - bioc-release
+os:
+  - linux
+  - osx
+
+matrix:
+  exclude:
+  - os: osx
+    r: bioc-devel
 
 r_github_packages:
   - jimhester/covr
@@ -16,9 +25,9 @@ script:
   - travis_wait 40 ./.pkg-build.sh
 
 after_success:
-  - ls -lah
   - FILE=$(ls -1t *.tar.gz | head -n 1)
-  - Rscript -e "library(BiocCheck); BiocCheck(\"${FILE}\")"
+  - Rscript -e "BiocCheck::BiocCheck('${FILE}')"
+  - travis_wait 15 Rscript -e "covr::codecov()"
 
 notifications:
   email: false

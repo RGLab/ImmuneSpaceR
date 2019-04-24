@@ -33,14 +33,15 @@ This package simplifies access to the [HIPC](https://www.immuneprofiling.org/) I
 Install from [Bioconductor](http://bioconductor.org/packages/release/bioc/html/ImmuneSpaceR.html):
 
 ```{r eval=FALSE}
-source("https://bioconductor.org/biocLite.R")
-biocLite("ImmuneSpaceR")
+install.packages("BiocManager")
+BiocManager::install("ImmuneSpaceR")
 ```
 
-Or install the latest development version via [`devtools`](https://cran.r-project.org/web/packages/devtools/index.html):
+Or install the latest development version via [`remotes`](https://cran.r-project.org/web/packages/remotes/index.html):
 
 ```{r eval=FALSE}
-devtools::install_github("RGLab/ImmuneSpaceR")
+install.packages("remotes")
+remotes::install_github("RGLab/ImmuneSpaceR")
 ```
 
 The database is accessed with the user's credentials. A `.netrc` file storing login and password information is required.

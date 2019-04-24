@@ -16,7 +16,8 @@ ISCon$set(
           schemaName = "study",
           queryName = "flow_workspace",
           colNameOpt = "fieldname"
-        )))
+        ))
+      )
     }
 
     self$cache$cyto$listWorkspaces
