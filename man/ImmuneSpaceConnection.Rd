@@ -210,11 +210,10 @@ study.
     \code{dataType}: A character. Use \code{con$availableDatasets} to see
     available dataset names.
   }
-  \item{\code{addTreatment(matrixName = NULL)}}{
-    Adds treatment information to the phenoData of an expression matrix
-    available in the connection object.
+  \item{\code{addTreatment(expressionSet)}}{
+    Adds treatment information to the phenoData of an ExpressionSet.
 
-    \code{matrixName}: A character. The name of a expression matrix that has
+    \code{expressionSet}: An ExpressionSet. The ExpressionSet object that has
     been downloaded from the connection.
   }
   \item{\code{mapSampleNames(EM = NULL, colType = "participant_id")}}{

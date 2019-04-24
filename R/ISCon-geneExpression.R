@@ -272,21 +272,18 @@ ISCon$set(
 )
 
 
-# Add treatment information to the phenoData of an expression matrix available
-# in the connection object.
+# Add treatment information to the phenoData of an ExpressionSet
 ISCon$set(
   which = "public",
   name = "addTreatment",
-  value = function(matrixName = NULL) {
-    if (is.null(matrixName) || !matrixName %in% names(self$cache)) {
-      stop(paste(matrixName, "is not a valid expression matrix."))
-    }
+  value = function(expressionSet) {
+    stopifnot(is(expressionSet, "ExpressionSet"))
 
     bsFilter <- makeFilter(
       c(
         "biosample_accession",
         "IN",
-        paste(pData(self$cache[[x]])$biosample_accession, collapse = ";")
+        paste(pData(expressionSet)$biosample_accession, collapse = ";")
       )
     )
 
@@ -333,12 +330,15 @@ ISCon$set(
     bs2trt <- merge(bs2es, es2trt, by = "expsample_accession")
     bs2trt <- merge(bs2trt, trt, by = "treatment_accession")
 
-    pData(self$cache[[x]])$treatment <- bs2trt[match(
-      pData(self$cache[[x]])$biosample_accession,
-      biosample_accession
-    ), name]
+    pData(expressionSet)$treatment <- bs2trt[
+      match(
+        pData(expressionSet)$biosample_accession,
+        biosample_accession
+      ),
+      name
+    ]
 
-    self$cache[[x]]
+    expressionSet
   }
 )
 
