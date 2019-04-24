@@ -260,7 +260,7 @@ ISCon$set(
       links,
       function(x) {
         download.file(
-          url = links[1],
+          url = x,
           destfile = file.path(destdir, basename(x)),
           method = "curl",
           extra = "-n",
