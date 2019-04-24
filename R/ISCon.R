@@ -4,14 +4,23 @@
 #' @name ImmuneSpaceConnection
 #' @aliases
 #' ImmuneSpaceConnection
-#' getGEMatrix
-#' getDataset
 #' listDatasets
-#' getGEAnalysis
+#' listGEMatrices
 #' listGEAnalysis
+#' listParticipantGroups
+#' listWorkspaces
+#' listGatingSets
+#' summarizeCyto
+#' summarizeGatingSet
+#' loadGatingSet
+#' getDataset
+#' getGEMatrix
+#' getGEAnalysis
+#' getGEFiles
+#' getGEInputs
+#' getParticipantData
 #' addTreatmentt
 #' mapSampleNames
-#' plot
 #'
 #' @description
 #' A connection respresents a study or a set of studies available on ImmuneSpace.
@@ -58,7 +67,7 @@
 #'
 #' @section Methods:
 #' \describe{
-#'   \item{\code{initialize(..., config = NULL)}}{
+#'   \item{\code{initialize()}}{
 #'     Initialize \code{ImmuneSpaceConnection} class.
 #'     See \code{\link{CreateConnection}}.
 #'   }
@@ -105,7 +114,7 @@
 #'     \code{gatingSet}: A character. The name of the gating set to summarize.
 #'   }
 #'   \item{\code{loadGatingSet(gatingSet)}}{
-#'     Loads a gating set via \code{\link[flowWorkspace]{load_gs}} to the
+#'     Loads a gating set via \code{flowWorkspace::load_gs} to the
 #'     current environment. Note that this method currently works only in the
 #'     ImmuneSpace RStudio Docker session.
 #'
@@ -129,27 +138,31 @@
 #'     \code{...}: Extra arguments to be passed to \code{labkey.selectRows}.
 #'   }
 #'   \item{\code{getGEMatrix(matrixName = NULL, cohortType = NULL,
-#'   outputType = "summary", annotation = "latest", reload = FALSE, verbose = FALSE)}}{
-#'     Downloads a probe-level or gene-symbol summarized expression matrix from ImmuneSpace. Use experimentData() on the resulting expressionSet object to see version info for annotation.
+#'   outputType = "summary", annotation = "latest", reload = FALSE,
+#'   verbose = FALSE)}}{
+#'     Downloads a probe-level or gene-symbol summarized expression matrix from
+#'     ImmuneSpace and constructs an ExpressionSet. Use \code{experimentData()}
+#'     on the resulting ExpressionSet object to see version info for annotation.
 #'
 #'     \code{matrixName}: A character. The name of the gene expression matrix
 #'     to download.
 #'
-#'     \code{cohortType}: A character. The name of a cohortType that has an associated
-#'     gene expression matrix. Note that if this argument is not NULL, then
-#'     \code{matrixName} is ignored. CohortType is a concatenation of "cohort" and "cell type"
-#'     that allows the user to specify a matrix for the cell type subset of a cohort.
+#'     \code{cohortType}: A character. The name of a cohortType that has an
+#'     associated gene expression matrix. Note that if this argument is not
+#'     NULL, then \code{matrixName} is ignored. CohortType is a concatenation of
+#'     "cohort" and "cell type" that allows the user to specify a matrix for the
+#'     cell type subset of a cohort.
 #'
-#'     \code{outputType}: one of 'raw', 'normalized' or 'summary'. If 'raw'
-#'     then returns an expression matrix of non-normalized values by probe.
+#'     \code{outputType}: A character. one of 'raw', 'normalized' or 'summary'.
+#'     If 'raw', returns an expression matrix of non-normalized values by probe.
 #'     'normalized' returns normalized values by probe. 'summary' returns
 #'     normalized values averaged by gene symbol.
 #'
-#'     \code{annotation}: one of 'default', 'latest', or 'ImmSig'. Determines
-#'     which feature annotation set is used.  'default' uses the fas from when
-#'     the matrix was generated. latest' uses a recently updated fas based on
-#'     the original.'ImmSig' is specific to studies involved in the
-#'     ImmuneSignatures project and uses the annotation from when the
+#'     \code{annotation}: A character. one of 'default', 'latest', or 'ImmSig'.
+#'     Determines which feature annotation set (FAS) is used. 'default' uses the
+#'     FAS from when the matrix was generated. latest' uses a recently updated
+#'     FAS based on the original. 'ImmSig' is specific to studies involved in
+#'     the ImmuneSignatures project and uses the annotation from when the
 #'     meta-study's manuscript was created.
 #'
 #'     \code{reload}: A logical. If set to TRUE, the matrix will be downloaded
@@ -178,13 +191,14 @@
 #'   }
 #'   \item{\code{getParticipantData(group, dataType, original_view = FALSE,
 #'   ...)}}{
-#'     Returns a dataframe with ImmuneSpace data subset by groupId.
+#'     Returns a data.table with data subset by participant group.
 #'
-#'     \code{group}: Use con$listParticipantGroups() to find Participant groupId
-#'     or groupName.
+#'     \code{group}: A character or integer.
+#'     Call \code{con$listParticipantGroups()} to see available participants
+#'     groups. Use group_id or group_name as input.
 #'
-#'     \code{dataType}: Use \code{con$listDatasets('datasets')} to see possible
-#'     dataType inputs.
+#'     \code{dataType}: A character. Use \code{con$availableDatasets} to see
+#'     available dataset names.
 #'   }
 #'   \item{\code{addTreatment(matrixName = NULL)}}{
 #'     Adds treatment information to the phenoData of an expression matrix
@@ -238,8 +252,7 @@
 #'     color = 'Race'.
 #'   }
 #'   \item{\code{clearCache()}}{
-#'     Clears the cache. Removes downloaded datasets and expression
-#'     matrices.
+#'     Clears the cache. Removes downloaded datasets and expression matrices.
 #'   }
 #' }
 #'
@@ -249,20 +262,20 @@
 #' \dontrun{
 #' # Create a connection (Initiate a ImmuneSpaceConnection object)
 #' sdy269 <- CreateConnection("SDY269")
-#' 
+#'
 #' # Print the connection object
 #' sdy269
-#' 
+#'
 #' # Retrieve the HAI dataset
 #' HAI <- sdy269$getDataset("hai")
-#' 
+#'
 #' # Fetch a summarized gene expresssion matrix with latest annotation
 #' LAIV <- sdy269$getGEMatrix("LAIV_2008")
-#' 
+#'
 #' # Visualize the ELISA dataset
 #' sdy269$plot("elisa")
 #' }
-#' 
+#'
 #' sdy <- try(CreateConnection("SDY269"))
 #' if (inherits(sdy, "try-error")) {
 #'   warning("Read the Introduction vignette for more information on how to set
