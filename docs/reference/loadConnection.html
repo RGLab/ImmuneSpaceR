@@ -77,7 +77,7 @@ it can be useful to save the connection for later work or even offline use." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ImmuneSpaceR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.11.5</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.11.6</span>
       </span>
     </div>
 
@@ -195,14 +195,14 @@ To be loaded later using <code>loadConnection</code>.</p></td>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='co'>#Sample saved connection with pre-downloaded expression matrices and datasets</span>
+    <pre class="examples"><div class='input'><span class='co'># Sample saved connection with pre-downloaded expression matrices and datasets</span>
 <span class='no'>saved</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/system.file'>system.file</a></span>(<span class='st'>"extdata/saved_con.rds"</span>, <span class='kw'>package</span> <span class='kw'>=</span> <span class='st'>"ImmuneSpaceR"</span>)
 <span class='no'>new_con</span> <span class='kw'>&lt;-</span> <span class='fu'>loadConnection</span>(<span class='no'>saved</span>)
 <span class='no'>new_con</span></div><div class='output co'>#&gt; An object of class "ImmuneSpaceConnection"
 #&gt; &lt;S4 Type Object&gt;
 #&gt; attr(,".xData")
-#&gt; &lt;environment: 0x562d1af881d8&gt;</div><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/names'>names</a></span>(<span class='no'>new_con</span>$<span class='no'>cache</span>)</div><div class='output co'>#&gt; NULL</div><span class='co'># NOT RUN {</span>
-  <span class='fu'>saveConnection</span>(<span class='no'>new_con</span>, <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/tempfile'>tempfile</a></span>())
+#&gt; &lt;environment: 0x7fdb331dff08&gt;</div><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/names'>names</a></span>(<span class='no'>new_con</span>$<span class='no'>cache</span>)</div><div class='output co'>#&gt; NULL</div><span class='co'># NOT RUN {</span>
+<span class='fu'>saveConnection</span>(<span class='no'>new_con</span>, <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/tempfile'>tempfile</a></span>())
 <span class='co'># }</span><div class='input'>
 </div></pre>
   </div>
@@ -221,7 +221,7 @@ To be loaded later using <code>loadConnection</code>.</p></td>
 
       <footer>
       <div class="copyright">
-  <p>Developed by Greg Finak, Renan Sauteraud, Mike Jiang, Gil Guday, Leo Dashevskiy, Evan Henrich, Ju Yeong Kim, Lauren Wolfe, Raphael Gottardo, ImmuneSpace Package Maintainer.</p>
+  <p>Developed by Greg Finak, Renan Sauteraud, Mike Jiang, Gil Guday, Leo Dashevskiy, Evan Henrich, Ju Yeong Kim, Lauren Wolfe, Helen Miller, Raphael Gottardo, ImmuneSpace Package Maintainer.</p>
 </div>
 
 <div class="pkgdown">

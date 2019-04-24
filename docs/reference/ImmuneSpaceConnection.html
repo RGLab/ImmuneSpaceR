@@ -76,7 +76,7 @@ It provides function to download and display the data within these studies." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ImmuneSpaceR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.11.5</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.11.6</span>
       </span>
     </div>
 
@@ -216,7 +216,7 @@ study.</p>
 
     
     <dl class='dl-horizontal'>
-  <dt><code>initialize(..., config = NULL)</code></dt><dd><p>Initialize <code>ImmuneSpaceConnection</code> class.
+  <dt><code>initialize()</code></dt><dd><p>Initialize <code>ImmuneSpaceConnection</code> class.
     See <code><a href='CreateConnection.html'>CreateConnection</a></code>.</p></dd>
   <dt><code><a href='https://www.rdocumentation.org/packages/base/topics/print'>print()</a></code></dt><dd><p>Print <code>ImmuneSpaceConnection</code> class.</p></dd>
   <dt><code>listDatasets(output = c("datasets", "expression"))</code></dt><dd><p>Lists the datasets available in the study or studies of the connection.</p></dd>
@@ -237,7 +237,7 @@ study.</p>
   <dt><code>summarizeGatingSet(gatingSet)</code></dt><dd><p>Prints a summary of a gating set. Note that this method currently works
     only in the ImmuneSpace RStudio session.
     <code>gatingSet</code>: A character. The name of the gating set to summarize.</p></dd>
-  <dt><code>loadGatingSet(gatingSet)</code></dt><dd><p>Loads a gating set via <code><a href='https://www.rdocumentation.org/packages/flowWorkspace/topics/save_gs'>load_gs</a></code> to the
+  <dt><code>loadGatingSet(gatingSet)</code></dt><dd><p>Loads a gating set via <code><a href='https://www.rdocumentation.org/packages/flowWorkspace/topics/save_gs'>flowWorkspace::load_gs</a></code> to the
     current environment. Note that this method currently works only in the
     ImmuneSpace RStudio Docker session.
     <code>gatingSet</code>: A character. The name of the gating set to load.</p></dd>
@@ -252,22 +252,26 @@ study.</p>
     <code>makeFilter</code> function.
     <code>...</code>: Extra arguments to be passed to <code>labkey.selectRows</code>.</p></dd>
   <dt><code>getGEMatrix(matrixName = NULL, cohortType = NULL,
-  outputType = "summary", annotation = "latest", reload = FALSE, verbose = FALSE)</code></dt><dd><p>Downloads a probe-level or gene-symbol summarized expression matrix from ImmuneSpace. Use experimentData() on the resulting expressionSet object to see version info for annotation.
+  outputType = "summary", annotation = "latest", reload = FALSE,
+  verbose = FALSE)</code></dt><dd><p>Downloads a probe-level or gene-symbol summarized expression matrix from
+    ImmuneSpace and constructs an ExpressionSet. Use <code>experimentData()</code>
+    on the resulting ExpressionSet object to see version info for annotation.
     <code>matrixName</code>: A character. The name of the gene expression matrix
     to download.
-    <code>cohortType</code>: A character. The name of a cohortType that has an associated
-    gene expression matrix. Note that if this argument is not NULL, then
-    <code>matrixName</code> is ignored. CohortType is a concatenation of "cohort" and "cell type"
-    that allows the user to specify a matrix for the cell type subset of a cohort.
-    <code>outputType</code>: one of 'raw', 'normalized' or 'summary'. If 'raw'
-    then returns an expression matrix of non-normalized values by probe.
+    <code>cohortType</code>: A character. The name of a cohortType that has an
+    associated gene expression matrix. Note that if this argument is not
+    NULL, then <code>matrixName</code> is ignored. CohortType is a concatenation of
+    "cohort" and "cell type" that allows the user to specify a matrix for the
+    cell type subset of a cohort.
+    <code>outputType</code>: A character. one of 'raw', 'normalized' or 'summary'.
+    If 'raw', returns an expression matrix of non-normalized values by probe.
     'normalized' returns normalized values by probe. 'summary' returns
     normalized values averaged by gene symbol.
-    <code>annotation</code>: one of 'default', 'latest', or 'ImmSig'. Determines
-    which feature annotation set is used.  'default' uses the fas from when
-    the matrix was generated. latest' uses a recently updated fas based on
-    the original.'ImmSig' is specific to studies involved in the
-    ImmuneSignatures project and uses the annotation from when the
+    <code>annotation</code>: A character. one of 'default', 'latest', or 'ImmSig'.
+    Determines which feature annotation set (FAS) is used. 'default' uses the
+    FAS from when the matrix was generated. latest' uses a recently updated
+    FAS based on the original. 'ImmSig' is specific to studies involved in
+    the ImmuneSignatures project and uses the annotation from when the
     meta-study's manuscript was created.
     <code>reload</code>: A logical. If set to TRUE, the matrix will be downloaded
     again, even if a cached cop exist in the ImmuneSpaceConnection object.
@@ -283,11 +287,12 @@ study.</p>
     files.</p></dd>
   <dt><code>getGEInputs()</code></dt><dd><p>Downloads data from the gene expression input samples table.</p></dd>
   <dt><code>getParticipantData(group, dataType, original_view = FALSE,
-  ...)</code></dt><dd><p>Returns a dataframe with ImmuneSpace data subset by groupId.
-    <code>group</code>: Use con$listParticipantGroups() to find Participant groupId
-    or groupName.
-    <code>dataType</code>: Use <code>con$listDatasets('datasets')</code> to see possible
-    dataType inputs.</p></dd>
+  ...)</code></dt><dd><p>Returns a data.table with data subset by participant group.
+    <code>group</code>: A character or integer.
+    Call <code>con$listParticipantGroups()</code> to see available participants
+    groups. Use group_id or group_name as input.
+    <code>dataType</code>: A character. Use <code>con$availableDatasets</code> to see
+    available dataset names.</p></dd>
   <dt><code>addTreatment(matrixName = NULL)</code></dt><dd><p>Adds treatment information to the phenoData of an expression matrix
     available in the connection object.
     <code>matrixName</code>: A character. The name of a expression matrix that has
@@ -297,7 +302,7 @@ study.</p>
     <code>EM</code>: An ExpressionSet, as returned by <code>getGEMatrix</code>.
     <code>colType</code>: A character. The type of column names. Valid options are
     'expsample_accession' and 'participant_id'.</p></dd>
-  <dt><code>plot(...)</code></dt><dd><p>Visualizes a selected dataset. This method is used by the DataExplorer
+  <dt><code><a href='https://www.rdocumentation.org/packages/graphics/topics/plot'>plot(...)</a></code></dt><dd><p>Visualizes a selected dataset. This method is used by the DataExplorer
     module on the ImmuneSpace portal.
     <code>dataset</code>: A character. The name of the dataset to plot, as
     displayed by the listDataset method.
@@ -320,8 +325,7 @@ study.</p>
     created. The default is FALSE.
     <code>...</code>: Extra argument to be passed to ggplot. e.g: shape = 'Age',
     color = 'Race'.</p></dd>
-  <dt><code>clearCache()</code></dt><dd><p>Clears the cache. Removes downloaded datasets and expression
-    matrices.</p></dd>
+  <dt><code>clearCache()</code></dt><dd><p>Clears the cache. Removes downloaded datasets and expression matrices.</p></dd>
 </dl>
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
@@ -344,12 +348,12 @@ study.</p>
 <span class='no'>LAIV</span> <span class='kw'>&lt;-</span> <span class='no'>sdy269</span>$<span class='fu'>getGEMatrix</span>(<span class='st'>"LAIV_2008"</span>)
 
 <span class='co'># Visualize the ELISA dataset</span>
-<span class='no'>sdy269</span>$<span class='fu'>plot</span>(<span class='st'>"elisa"</span>)
+<span class='no'>sdy269</span>$<span class='fu'><a href='https://www.rdocumentation.org/packages/graphics/topics/plot'>plot</a></span>(<span class='st'>"elisa"</span>)
 <span class='co'># }</span><div class='input'>
 <span class='no'>sdy</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/try'>try</a></span>(<span class='fu'><a href='CreateConnection.html'>CreateConnection</a></span>(<span class='st'>"SDY269"</span>))
 <span class='kw'>if</span> (<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/class'>inherits</a></span>(<span class='no'>sdy</span>, <span class='st'>"try-error"</span>)) {
   <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/warning'>warning</a></span>(<span class='st'>"Read the Introduction vignette for more information on how to set
-  up a .netrc file."</span>)
+up a .netrc file."</span>)
 }</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
@@ -378,7 +382,7 @@ study.</p>
 
       <footer>
       <div class="copyright">
-  <p>Developed by Greg Finak, Renan Sauteraud, Mike Jiang, Gil Guday, Leo Dashevskiy, Evan Henrich, Ju Yeong Kim, Lauren Wolfe, Raphael Gottardo, ImmuneSpace Package Maintainer.</p>
+  <p>Developed by Greg Finak, Renan Sauteraud, Mike Jiang, Gil Guday, Leo Dashevskiy, Evan Henrich, Ju Yeong Kim, Lauren Wolfe, Helen Miller, Raphael Gottardo, ImmuneSpace Package Maintainer.</p>
 </div>
 
 <div class="pkgdown">
