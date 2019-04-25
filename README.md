@@ -111,7 +111,7 @@ matrices.
 
 ### Retrieve datasets
 
-Gene expression matrices or datasets can be retreived by:
+Gene expression matrices or datasets can be retrieved by:
 
 ``` r
 LAIV2008 <- study$getGEMatrix("SDY269_PBMC_LAIV_Geo")
