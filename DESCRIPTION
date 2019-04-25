@@ -48,7 +48,6 @@ Imports:
     rjson,
     rmarkdown,
     preprocessCore,
-    parallel,
     flowCore,
     flowWorkspace,
     digest

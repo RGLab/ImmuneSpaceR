@@ -5,7 +5,7 @@ NULL
 
 # PUBLIC -----------------------------------------------------------------------
 
-# List participant groups
+#' @importFrom rjson fromJSON
 ISCon$set(
   which = "public",
   name = "listParticipantGroups",
