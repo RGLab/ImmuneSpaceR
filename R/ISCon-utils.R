@@ -142,6 +142,28 @@ ISCon$set(
 )
 
 
+# Get names of files in a single folder from webdav link
+ISCon$set(
+  which = "private",
+  name = ".listISFiles",
+  value = function(link) {
+    response <- NULL
+    res <- tryCatch(
+      Rlabkey:::labkey.get(link),
+      warning = function(w) return(w),
+      error = function(e) return(NULL)
+    )
+    if (!is.null(res)) {
+      tmp <- rjson::fromJSON(res)
+      response <- sapply(tmp$files, function(x) {
+        return(x$text)
+      }) # basename only
+    }
+    response
+  }
+)
+
+
 
 # HELPER -----------------------------------------------------------------------
 
