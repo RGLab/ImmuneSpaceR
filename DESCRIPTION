@@ -59,7 +59,6 @@ Collate:
     'ISCon-cytometry.R'
     'ISCon-dataset.R'
     'ISCon-geneExpression.R'
-    'ISCon-maintenance.R'
     'ISCon-participantGroup.R'
     'ISCon-plot.R'
     'ISCon-utils.R'
