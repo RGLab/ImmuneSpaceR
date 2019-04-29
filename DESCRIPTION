@@ -45,7 +45,7 @@ Imports:
     reshape2,
     plotly,
     heatmaply (>= 0.7.0), 
-    rjson,
+    jsonlite,
     rmarkdown,
     preprocessCore,
     flowCore,

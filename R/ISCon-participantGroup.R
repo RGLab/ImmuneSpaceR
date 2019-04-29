@@ -5,7 +5,7 @@ NULL
 
 # PUBLIC -----------------------------------------------------------------------
 
-#' @importFrom rjson fromJSON
+#' @importFrom jsonlite fromJSON
 ISCon$set(
   which = "public",
   name = "listParticipantGroups",
@@ -25,8 +25,8 @@ ISCon$set(
     # execute via Rlabkey's standard GET function
     response <- Rlabkey:::labkey.get(participantGroupApi)
 
-    # parse JSON response via rjson's fromJSON parsing function
-    parsed <- fromJSON(response)
+    # parse JSON response via jsonlite's fromJSON parsing function
+    parsed <- fromJSON(response, simplifyDataFrame = FALSE)
 
     # construct a data.table for each group
     groupsList <- lapply(parsed$groups, function(group) {

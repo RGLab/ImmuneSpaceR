@@ -154,7 +154,7 @@ ISCon$set(
       error = function(e) return(NULL)
     )
     if (!is.null(res)) {
-      tmp <- rjson::fromJSON(res)
+      tmp <- fromJSON(res, simplifyDataFrame = FALSE)
       response <- sapply(tmp$files, function(x) {
         return(x$text)
       }) # basename only
