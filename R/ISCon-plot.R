@@ -159,7 +159,6 @@ ISCon$set(
 
 # Visualize a dataset in heatmap
 #' @importFrom pheatmap pheatmap
-#' @importFrom reshape2 acast
 #' @importFrom stats formula
 #' @importFrom heatmaply heatmaply
 .qpHeatmap2 <- function(dt,
@@ -170,11 +169,15 @@ ISCon$set(
   palette <- ISpalette(20)
 
   dt <- dt[, ID := paste(cohort, time_str, participant_id, sep = "_")]
-  mat <- acast(
+  mat <- dcast(
     data = dt,
     formula = formula("analyte ~ ID"),
     value.var = "response"
   )
+  analyte <- mat$analyte
+  mat[, analyte := NULL]
+  mat <- as.matrix(mat)
+  rownames(mat) <- analyte
 
   if (ncol(mat) > 2 & nrow(mat) > 1) {
     mat <- mat[rowSums(apply(mat, 2, is.na)) < ncol(mat), , drop = FALSE]
