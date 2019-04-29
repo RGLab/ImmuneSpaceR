@@ -54,7 +54,6 @@ ISCon$set(
 # PRIVATE ----------------------------------------------------------------------
 
 # Check if study is valid
-#' @importFrom gtools mixedsort
 ISCon$set(
   which = "private",
   name = ".checkStudy",
@@ -71,7 +70,7 @@ ISCon$set(
 
     folders <- labkey.getFolders(self$config$labkey.url.base, dirNm)
     subdirs <- gsub(paste0(dirNm, "/"), "", folders$folderPath)
-    validSdys <- mixedsort(subdirs[grep(gTerm, subdirs)])
+    validSdys <- .mixedsort(subdirs[grep(gTerm, subdirs)])
 
     if (!(sdyNm %in% c("", validSdys))) {
       if (verbose == FALSE) {
@@ -180,4 +179,9 @@ ISCon$set(
     ),
     stringsAsFactors = FALSE
   )
+}
+
+
+.mixedsort <- function(x) {
+  x[order(as.integer(gsub("[A-z]+", "", x)))]
 }
