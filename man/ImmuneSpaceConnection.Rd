@@ -187,15 +187,6 @@ study.
 
     \code{...}: A list of arguments to be passed to \code{labkey.selectRows}.
   }
-  \item{\code{getGEFiles(files, destdir = ".", quiet = FALSE)}}{
-    Downloads gene expression raw data files.
-
-    \code{files}: A character. Filenames as shown on the
-    gene_expression_files dataset.
-
-    \code{destdir}: A character. The local path to store the downloaded
-    files.
-  }
   \item{\code{getGEInputs()}}{
     Downloads data from the gene expression input samples table.
   }
@@ -209,6 +200,15 @@ study.
 
     \code{dataType}: A character. Use \code{con$availableDatasets} to see
     available dataset names.
+  }
+  \item{\code{downloadGEFiles(files, destdir = ".")}}{
+    Downloads gene expression raw data files.
+
+    \code{files}: A character. Filenames as shown on the
+    gene_expression_files dataset.
+
+    \code{destdir}: A character. The local path to store the downloaded
+    files.
   }
   \item{\code{addTreatment(expressionSet)}}{
     Adds treatment information to the phenoData of an ExpressionSet.

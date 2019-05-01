@@ -1,4 +1,4 @@
-context("ISCon$getGEFiles()")
+context("ISCon$downloadGEFiles()")
 
 # Connections --------------------------------------------------
 sdy269 <- CreateConnection("SDY269", verbose = TRUE)
@@ -19,7 +19,7 @@ getFileList <- function(con) {
 try_ggef <- function(con) {
   files <- getFileList(con)
   tryCatch(
-    capture.output(con$getGEFiles(files = files[1:5]), destdir = destdir),
+    capture.output(con$downloadGEFiles(files = files[1:5]), destdir = destdir),
     warning = function(w) return(w),
     error = function(e) return(e)
   )

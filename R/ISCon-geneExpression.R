@@ -243,30 +243,73 @@ ISCon$set(
 )
 
 
-# Downloads the raw gene expression files to the local machine
+# DEPRECATED
 ISCon$set(
   which = "public",
   name = "getGEFiles",
   value = function(files, destdir = ".", quiet = FALSE) {
-    links <- paste0(
-      self$config$labkey.url.base,
-      "/_webdav/",
-      self$config$labkey.url.path,
-      "/%40files/rawdata/gene_expression/",
-      files
-    )
+    .Deprecated("downloadGEFiles", old = "getGEFiles")
+    self$downloadGEFiles(files, destdir)
+  }
+)
 
-    sapply(
-      links,
-      function(x) {
-        download.file(
-          url = x,
-          destfile = file.path(destdir, basename(x)),
-          method = "curl",
-          extra = "-n",
-          quiet = quiet
+
+# Downloads the raw gene expression files to the local machine
+#' @importFrom httr HEAD
+ISCon$set(
+  which = "public",
+  name = "downloadGEFiles",
+  value = function(files, destdir = ".") {
+    stopifnot(file.exists(destdir))
+
+    gef <- copy(con$getDataset(
+      "gene_expression_files",
+      colSelect = c("participantid", "file_info_name")
+    ))
+    gef[, study_accession := paste0("SDY",gsub("SUB\\d+.", "", participant_id))]
+    gef[, participant_id := NULL]
+    gef <- unique(gef[!is.na(file_info_name) & file_info_name %in% files])
+
+    vapply(
+      files,
+      function(file) {
+        if (!file %in% gef$file_info_name) {
+          warning(
+            file, " is not a valid file name. Skipping downloading this file..",
+            call. = FALSE, immediate. = TRUE
+          )
+          return(FALSE)
+        }
+
+        link <- paste0(
+          self$config$labkey.url.base,
+          "/_webdav/Studies/",
+          gef[file == file_info_name]$study_accession[1],
+          "/%40files/rawdata/gene_expression/",
+          gef[file == file_info_name]$file_info_name[1]
         )
-      }
+
+        # check if file exists
+        head <- HEAD(link, Rlabkey:::labkey.getRequestOptions())
+        if (grepl("json", head$headers$`content-type`)) {
+          warning(
+            file, "does not exist. ",
+            "Please contanct the ImmuneSpace team at immunespace@gmail.com",
+            call. = FALSE, immediate. = TRUE
+          )
+          return(FALSE)
+        }
+
+        message("Downloading ", file, "..")
+        GET(
+          url = link,
+          Rlabkey:::labkey.getRequestOptions(),
+          write_disk(file.path(destdir, file), overwrite = TRUE)
+        )
+
+        TRUE
+      },
+      FUN.VALUE = logical(1)
     )
   }
 )
