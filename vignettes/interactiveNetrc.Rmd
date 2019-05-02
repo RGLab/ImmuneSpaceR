@@ -1,5 +1,5 @@
 ---
-title: "`interactive_netrc()` Walkthrough"
+title: "interactive_netrc() Function Walkthrough"
 author: "Lauren Wolfe"
 date: "`r Sys.Date()`"
 output:
@@ -8,7 +8,7 @@ output:
     number_sections: true
 vignette: >
   %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteIndexEntry{interactive_netrc() Walkthrough}
+  %\VignetteIndexEntry{interactive_netrc() Function Walkthrough}
 ---
 
 ```{r knitr, echo=FALSE, cache = FALSE}
@@ -40,10 +40,10 @@ password supersecretpassword
 
 There are two options when it comes to writing a netrc:
 
-* If you're familiar with the command line, see the `Intro to ImmuneSpace` vignette.
+* If you're familiar with the command-line interface, see [the introductory vignette](https://rglab.github.io/ImmuneSpaceR/articles/Intro_to_ImmuneSpaceR.html).
 * For those less comfortable with the command line, there is the `interactive_netrc` function.
 
-## `interactive_netrc()`
+## interactive_netrc()
 
 The `interactive_netrc` function will:
 
