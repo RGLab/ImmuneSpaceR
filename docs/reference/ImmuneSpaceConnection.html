@@ -76,7 +76,7 @@ It provides function to download and display the data within these studies." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ImmuneSpaceR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.11.6</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.11.7</span>
       </span>
     </div>
 
@@ -108,7 +108,7 @@ It provides function to download and display the data within these studies." />
       <a href="../articles/getGEMatrix.html">Handling Expression Matrices with ImmuneSpaceR</a>
     </li>
     <li>
-      <a href="../articles/interactiveNetrc.html">`interactive_netrc()` Walkthrough</a>
+      <a href="../articles/interactiveNetrc.html">interactive_netrc() Function Walkthrough</a>
     </li>
     <li>
       <a href="../articles/report_SDY144.html">SDY144: Correlation of HAI/Virus Neutralizition Titer and Cell Counts</a>
@@ -280,11 +280,6 @@ study.</p>
     feature_annotation_set, and alias2symbol mapping version of org.Hs.eg.db.</p></dd>
   <dt><code>getGEAnalysis(...)</code></dt><dd><p>Downloads data from the gene expression analysis results table.
     <code>...</code>: A list of arguments to be passed to <code>labkey.selectRows</code>.</p></dd>
-  <dt><code>getGEFiles(files, destdir = ".", quiet = FALSE)</code></dt><dd><p>Downloads gene expression raw data files.
-    <code>files</code>: A character. Filenames as shown on the
-    gene_expression_files dataset.
-    <code>destdir</code>: A character. The local path to store the downloaded
-    files.</p></dd>
   <dt><code>getGEInputs()</code></dt><dd><p>Downloads data from the gene expression input samples table.</p></dd>
   <dt><code>getParticipantData(group, dataType, original_view = FALSE,
   ...)</code></dt><dd><p>Returns a data.table with data subset by participant group.
@@ -293,9 +288,13 @@ study.</p>
     groups. Use group_id or group_name as input.
     <code>dataType</code>: A character. Use <code>con$availableDatasets</code> to see
     available dataset names.</p></dd>
-  <dt><code>addTreatment(matrixName = NULL)</code></dt><dd><p>Adds treatment information to the phenoData of an expression matrix
-    available in the connection object.
-    <code>matrixName</code>: A character. The name of a expression matrix that has
+  <dt><code>downloadGEFiles(files, destdir = ".")</code></dt><dd><p>Downloads gene expression raw data files.
+    <code>files</code>: A character. Filenames as shown on the
+    gene_expression_files dataset.
+    <code>destdir</code>: A character. The local path to store the downloaded
+    files.</p></dd>
+  <dt><code>addTreatment(expressionSet)</code></dt><dd><p>Adds treatment information to the phenoData of an ExpressionSet.
+    <code>expressionSet</code>: An ExpressionSet. The ExpressionSet object that has
     been downloaded from the connection.</p></dd>
   <dt><code>mapSampleNames(EM = NULL, colType = "participant_id")</code></dt><dd><p>Changes the sampleNames of an ExpressionSet fetched by <code>getGEMatrix</code>
     using the information in the phenodData slot.

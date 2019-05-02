@@ -14,7 +14,7 @@ vignette: >
 ```{r knitr-opts, echo = FALSE, message = FALSE, cache = FALSE}
 library(knitr)
 opts_chunk$set(cache = FALSE, echo = TRUE, message = FALSE, warning = FALSE,
-               fig.width = 10, fig.height = 14, dpi = 100, fig.align = "center")
+               fig.width = 7, fig.height = 9, dpi = 100, fig.align = "center")
 ```
 
 ```{r netrc_req, echo = FALSE}
@@ -73,7 +73,7 @@ dt_fcs19 <- dt_fcs19[, cohort := gsub("Study g", "G", cohort), ]
 
 ```{r data-summary}
 dt_fcs19_median <- dt_fcs19[, .(median_cell_reported = median(as.double(population_cell_number) + 1,
-                   na.rm = TRUE)), by = .(cohort,study_time_collected,population_name_reported)]
+                   na.rm = TRUE)), by = .(cohort,study_time_collected, population_name_reported)]
 ```
 
 

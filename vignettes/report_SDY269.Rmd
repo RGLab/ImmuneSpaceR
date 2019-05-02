@@ -14,7 +14,7 @@ vignette: >
 ```{r knitr-opts, echo = FALSE, message = FALSE, cache = FALSE}
 library(knitr)
 opts_chunk$set(cache = FALSE, echo = TRUE, message = FALSE, warning = FALSE,
-               fig.width = 8, fig.height = 4, dpi = 100, fig.align = "center")
+               fig.width = 7, fig.height = 4, dpi = 100, fig.align = "center")
 ```
 
 ```{r netrc_req, echo = FALSE}
@@ -93,7 +93,7 @@ ggplot(dt_all, aes(x = as.double(fcs_response), y = elispot_response, color = co
   geom_point() + 
   scale_y_log10() + 
   scale_x_log10() + 
-  geom_smooth(method="lm") +
+  geom_smooth(method = "lm") +
   xlab("Total plasmablasts (%)") + 
   ylab("Influenza specific cells\n (per 10^6 PBMCs)") +
   theme_IS()

@@ -54,7 +54,6 @@ ISCon$set(
 # PRIVATE ----------------------------------------------------------------------
 
 # Check if study is valid
-#' @importFrom gtools mixedsort
 ISCon$set(
   which = "private",
   name = ".checkStudy",
@@ -71,7 +70,7 @@ ISCon$set(
 
     folders <- labkey.getFolders(self$config$labkey.url.base, dirNm)
     subdirs <- gsub(paste0(dirNm, "/"), "", folders$folderPath)
-    validSdys <- mixedsort(subdirs[grep(gTerm, subdirs)])
+    validSdys <- .mixedsort(subdirs[grep(gTerm, subdirs)])
 
     if (!(sdyNm %in% c("", validSdys))) {
       if (verbose == FALSE) {
@@ -142,6 +141,28 @@ ISCon$set(
 )
 
 
+# Get names of files in a single folder from webdav link
+ISCon$set(
+  which = "private",
+  name = ".listISFiles",
+  value = function(link) {
+    response <- NULL
+    res <- tryCatch(
+      Rlabkey:::labkey.get(link),
+      warning = function(w) return(w),
+      error = function(e) return(NULL)
+    )
+    if (!is.null(res)) {
+      tmp <- fromJSON(res, simplifyDataFrame = FALSE)
+      response <- sapply(tmp$files, function(x) {
+        return(x$text)
+      }) # basename only
+    }
+    response
+  }
+)
+
+
 
 # HELPER -----------------------------------------------------------------------
 
@@ -158,4 +179,9 @@ ISCon$set(
     ),
     stringsAsFactors = FALSE
   )
+}
+
+
+.mixedsort <- function(x) {
+  x[order(as.integer(gsub("[A-z]+", "", x)))]
 }

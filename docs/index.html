@@ -40,7 +40,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">ImmuneSpaceR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.11.6</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.11.7</span>
       </span>
     </div>
 
@@ -72,7 +72,7 @@
       <a href="articles/getGEMatrix.html">Handling Expression Matrices with ImmuneSpaceR</a>
     </li>
     <li>
-      <a href="articles/interactiveNetrc.html">`interactive_netrc()` Walkthrough</a>
+      <a href="articles/interactiveNetrc.html">interactive_netrc() Function Walkthrough</a>
     </li>
     <li>
       <a href="articles/report_SDY144.html">SDY144: Correlation of HAI/Virus Neutralizition Titer and Cell Counts</a>
@@ -129,7 +129,7 @@
 <a href="#immunespacer" class="anchor"></a>ImmuneSpaceR <img src="reference/figures/logo.png" align="right">
 </h1></div>
 
-<p>A thin wrapper around Rlabkey to access the <a href="%22https://www.immunespace.org%22">ImmuneSpace</a> database from R.</p>
+<p>A thin wrapper around Rlabkey to access the <a href="https://www.immunespace.org">ImmuneSpace</a> database from R.</p>
 <p>This package simplifies access to the <a href="https://www.immuneprofiling.org/">HIPC</a> ImmuneSpace database for R programmers. It takes advantage of the standardization of the database to hide all the <a href="https://cran.r-project.org/web/packages/Rlabkey/index.html"><code>Rlabkey</code></a> specific code away from the user. The study-specific datasets can be accessed via an object-oriented paradigm.</p>
 <div id="installation" class="section level2">
 <h2 class="hasAnchor">
@@ -140,23 +140,18 @@ BiocManager<span class="op">::</span><span class="kw"><a href="https://www.rdocu
 <p>Or install the latest development version via <a href="https://cran.r-project.org/web/packages/remotes/index.html"><code>remotes</code></a>:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/install.packages">install.packages</a></span>(<span class="st">"remotes"</span>)
 remotes<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/remotes/topics/install_github">install_github</a></span>(<span class="st">"RGLab/ImmuneSpaceR"</span>)</code></pre></div>
-<p>The database is accessed with the user’s credentials. A <code>.netrc</code> file storing login and password information is required.</p>
-<p>Create netrc file in the computer running R:</p>
-<ul>
-<li>On a <strong>UNIX</strong> system, this file should be named <code>.netrc</code>
-</li>
-<li>On <strong>Windows</strong>, it sould be named <code>_netrc</code>
-</li>
-<li>The file should be located in the user’s <strong>home</strong> directory</li>
-<li>To determine home directory, run <code><a href="https://www.rdocumentation.org/packages/base/topics/Sys.getenv">Sys.getenv("HOME")</a></code> in R</li>
-<li>The permissions on this file should be unreadable for everybody except the owner</li>
-</ul>
-<p>The following three lines must be included in the <code>.netrc</code> or <code>_netrc</code> file either separated by white space (spaces, tabs, or newlines) or commas.</p>
-<pre><code>machine www.immunespace.org
-login myUser@mySite.com
-password superSecretPassword</code></pre>
-<p>Multiple such blocks can exist in one file. Please ensure that the machine name in the netrc file contains the “www” prefix as that is how the package connects to immunespace by default. A mismatch will lead to connection failures.</p>
-<p>See <a href="https://www.labkey.org/Documentation/wiki-page.view?name=netrc">the official documentation</a> from LabKey and the introductory vignette for an ImmuneSpace specific setup.</p>
+</div>
+<div id="configuration" class="section level2">
+<h2 class="hasAnchor">
+<a href="#configuration" class="anchor"></a>Configuration</h2>
+<p>The ImmuneSpace Portal can be accessed via <code>ImmuneSpaceR</code> with the user’s credentials. A <code>.netrc</code> file storing login and password information is required.</p>
+<ol style="list-style-type: decimal">
+<li><a href="https://www.immunespace.org/login/home/register.view?">Register</a></li>
+<li>Create a netrc file with your ImmuneSpace credetntials using <code><a href="reference/interactive_netrc.html">interactive_netrc()</a></code> function in R:</li>
+</ol>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(ImmuneSpaceR)
+<span class="kw"><a href="reference/interactive_netrc.html">interactive_netrc</a></span>()</code></pre></div>
+<p>If you’re familiar with the command-line interface, see <a href="https://rglab.github.io/ImmuneSpaceR/articles/Intro_to_ImmuneSpaceR.html">the introductory vignette</a>.</p>
 </div>
 <div id="usage" class="section level2">
 <h2 class="hasAnchor">
@@ -167,14 +162,14 @@ password superSecretPassword</code></pre>
 <p>The general idea is that the user creates an instance of an <code>ImmuneSpaceConnection</code> class. The instance configures itself to connect to a specific study, and datasets and gene expression matrices can be retrieved by name.</p>
 <p>For example:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(ImmuneSpaceR)
-study &lt;-<span class="st"> </span><span class="kw"><a href="reference/CreateConnection.html">CreateConnection</a></span>(<span class="st">"SDY269"</span>)</code></pre></div>
+con &lt;-<span class="st"> </span><span class="kw"><a href="reference/CreateConnection.html">CreateConnection</a></span>(<span class="st">"SDY269"</span>)</code></pre></div>
 <p>will create an instance of SDY269.</p>
 </div>
 <div id="list-datasets" class="section level3">
 <h3 class="hasAnchor">
 <a href="#list-datasets" class="anchor"></a>List datasets</h3>
 <p>Datasets can be listed by:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">study<span class="op">$</span><span class="kw"><a href="reference/ImmuneSpaceConnection.html">listDatasets</a></span>()
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">con<span class="op">$</span><span class="kw"><a href="reference/ImmuneSpaceConnection.html">listDatasets</a></span>()
 <span class="co">#&gt; datasets</span>
 <span class="co">#&gt;  gene_expression_files</span>
 <span class="co">#&gt;  fcs_sample_files</span>
@@ -194,24 +189,24 @@ study &lt;-<span class="st"> </span><span class="kw"><a href="reference/CreateCo
 <h3 class="hasAnchor">
 <a href="#retrieve-datasets" class="anchor"></a>Retrieve datasets</h3>
 <p>Gene expression matrices or datasets can be retreived by:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">LAIV2008 &lt;-<span class="st"> </span>study<span class="op">$</span><span class="kw"><a href="reference/ImmuneSpaceConnection.html">getGEMatrix</a></span>(<span class="st">"SDY269_PBMC_LAIV_Geo"</span>)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">LAIV2008 &lt;-<span class="st"> </span>con<span class="op">$</span><span class="kw"><a href="reference/ImmuneSpaceConnection.html">getGEMatrix</a></span>(<span class="st">"SDY269_PBMC_LAIV_Geo"</span>)
 <span class="co">#&gt; Downloading matrix..</span>
 <span class="co">#&gt; Constructing ExpressionSet</span>
-elisa &lt;-<span class="st"> </span>study<span class="op">$</span><span class="kw"><a href="reference/ImmuneSpaceConnection.html">getDataset</a></span>(<span class="st">"elisa"</span>)</code></pre></div>
-<p>The study object <em>caches</em> data, so once it is retrieved, the next time you access it, it will use the local cached copy. The package uses a <a href="https://cran.r-project.org/web/packages/R6/index.html">R6</a> class system to represent the connection to a study and get around some of R’s copy-on-change behaviour.</p>
+elisa &lt;-<span class="st"> </span>con<span class="op">$</span><span class="kw"><a href="reference/ImmuneSpaceConnection.html">getDataset</a></span>(<span class="st">"elisa"</span>)</code></pre></div>
+<p>The connection object <em>caches</em> data, so once it is retrieved, the next time you access it, it will use the local cached copy. The package uses a <a href="https://cran.r-project.org/web/packages/R6/index.html">R6</a> class system to represent the connection to a study and get around some of R’s copy-on-change behaviour.</p>
 </div>
 <div id="visualize" class="section level3">
 <h3 class="hasAnchor">
 <a href="#visualize" class="anchor"></a>Visualize</h3>
 <p>The <code>plot</code> method uses <a href="https://cran.r-project.org/web/packages/ggplot2/index.html"><code>ggplot2</code></a> functions to generate visualizations of datasets, leveraging the standardized dataset tables.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">study<span class="op">$</span><span class="kw"><a href="https://www.rdocumentation.org/packages/ImmuneSpaceR/topics/ImmuneSpaceConnection">plot</a></span>(<span class="st">"hai"</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">con<span class="op">$</span><span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/plot">plot</a></span>(<span class="st">"hai"</span>)</code></pre></div>
 <p><img src="reference/figures/README-plot-1.png" width="100%"></p>
 </div>
 </div>
 <div id="examples-documentation" class="section level2">
 <h2 class="hasAnchor">
 <a href="#examples-documentation" class="anchor"></a>Examples &amp; Documentation</h2>
-<p>For more advanced examples and detailed documentation, see the package vignettes and the reports available on <a href="https://www.immunespace.org/">ImmuneSpace</a>.</p>
+<p>For more advanced examples and detailed documentation, see <a href="http://rglab.github.io/ImmuneSpaceR/articles/">the package vignettes</a> and the reports available on <a href="https://www.immunespace.org/">ImmuneSpace</a>.</p>
 </div>
 <div id="contributing" class="section level2">
 <h2 class="hasAnchor">
