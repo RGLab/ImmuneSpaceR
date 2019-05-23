@@ -34,7 +34,7 @@ ISCon$set(
         data.table(suppressWarnings(labkey.selectRows(
           baseUrl = self$config$labkey.url.base,
           folderPath = self$config$labkey.url.path,
-          schemaName = "assay.General.gatingset",
+          schemaName = "cytometry_processing",
           queryName = "SelectedData",
           colNameOpt = "fieldname"
         ))),
