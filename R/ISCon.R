@@ -386,9 +386,12 @@ ISCon$set(
     labkey.url.base <- getOption("labkey.baseUrl")
   }
 
-  labkey.url.base <- gsub("http:", "https:", labkey.url.base)
-  if (length(grep("^https://", labkey.url.base)) == 0) {
-    labkey.url.base <- paste0("https://", labkey.url.base)
+  # Allow http (no SSL) for local
+  if (!grepl("8080", labkey.url.base)) {
+    labkey.url.base <- gsub("http:", "https:", labkey.url.base)
+    if (length(grep("^https://", labkey.url.base)) == 0) {
+      labkey.url.base <- paste0("https://", labkey.url.base)
+    }
   }
 
   labkey.url.base
@@ -492,7 +495,7 @@ ISCon$set(
     if (grepl("json", res$headers$`content-type`)) {
       parsed <- httr::content(res)
 
-      if (parsed$displayName == "guest") {
+      if (parsed$displayName == "guest" & !grepl("8080", labkey.url.base)) {
         stop("Invalid credential or deactivated account. Check your account in the portal.")
       }
     } else {
