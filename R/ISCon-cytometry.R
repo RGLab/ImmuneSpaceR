@@ -125,7 +125,7 @@ ISCon$set(
 
     # load gating set (RDS only) and merge metadata
     gs <- readRDS(
-      paste0(.buildGSPath(study, wsId, gatingSet), "/", gatingSet, ".rds")
+      paste0(.buildGSPath(study, wsid, gatingSet), "/", gatingSet, ".rds")
     )
     gs <- private$.mergePD(gs, study)
 
@@ -154,7 +154,7 @@ ISCon$set(
 
     gsList <- self$listGatingSets()
     study <- gsList[gatingSet == gating_set, study][1]
-    wsId <- gsList[gatingSet == gating_set, wsId][1]
+    wsId <- gsList[gatingSet == gating_set, wsid][1]
     if (!gatingSet %in% gsList$gating_set) {
       stop("'", gatingSet, "' is not a valid gating set name.")
     }
