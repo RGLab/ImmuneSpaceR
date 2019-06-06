@@ -33,7 +33,7 @@
 #' # Cross study
 #' con <- CreateConnection("")
 #' }
-#' 
+#'
 #' sdy <- try(CreateConnection("SDY269"))
 #' if (inherits(sdy, "try-error")) {
 #'   warning("Read the Introduction vignette for more information on how to set

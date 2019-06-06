@@ -266,7 +266,7 @@ ISCon$set(
       "gene_expression_files",
       colSelect = c("participantid", "file_info_name")
     ))
-    gef[, study_accession := paste0("SDY",gsub("SUB\\d+.", "", participant_id))]
+    gef[, study_accession := paste0("SDY", gsub("SUB\\d+.", "", participant_id))]
     gef[, participant_id := NULL]
     gef <- unique(gef[!is.na(file_info_name) & file_info_name %in% files])
 
@@ -541,11 +541,7 @@ ISCon$set(
 
     link <- URLdecode(
       file.path(
-        gsub(
-          "http:",
-          "https:",
-          gsub("/$", "", self$config$labkey.url.base)
-        ),
+        gsub("/$", "", self$config$labkey.url.base),
         "_webdav",
         path,
         "@files/analysis/exprs_matrices",
@@ -553,7 +549,7 @@ ISCon$set(
       )
     )
 
-    localpath <- private$.localStudyPath(link)
+    localpath <- private$.localStudyPath(urlPath = link)
     if (private$.isRunningLocally(localpath)) {
       message("Reading local matrix")
       self$cache[[cache_name]] <- read.table(

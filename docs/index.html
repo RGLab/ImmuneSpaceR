@@ -40,7 +40,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">ImmuneSpaceR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.11.7</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.13.1</span>
       </span>
     </div>
 
@@ -135,11 +135,11 @@
 <h2 class="hasAnchor">
 <a href="#installation" class="anchor"></a>Installation</h2>
 <p>Install from <a href="http://bioconductor.org/packages/release/bioc/html/ImmuneSpaceR.html">Bioconductor</a>:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/install.packages">install.packages</a></span>(<span class="st">"BiocManager"</span>)
-BiocManager<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/BiocManager/topics/install">install</a></span>(<span class="st">"ImmuneSpaceR"</span>)</code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/install.packages">install.packages</a></span>(<span class="st">"BiocManager"</span>)</a>
+<a class="sourceLine" id="cb1-2" data-line-number="2">BiocManager<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/BiocManager/topics/install">install</a></span>(<span class="st">"ImmuneSpaceR"</span>)</a></code></pre></div>
 <p>Or install the latest development version via <a href="https://cran.r-project.org/web/packages/remotes/index.html"><code>remotes</code></a>:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/install.packages">install.packages</a></span>(<span class="st">"remotes"</span>)
-remotes<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/remotes/topics/install_github">install_github</a></span>(<span class="st">"RGLab/ImmuneSpaceR"</span>)</code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/install.packages">install.packages</a></span>(<span class="st">"remotes"</span>)</a>
+<a class="sourceLine" id="cb2-2" data-line-number="2">remotes<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/remotes/topics/install_github">install_github</a></span>(<span class="st">"RGLab/ImmuneSpaceR"</span>)</a></code></pre></div>
 </div>
 <div id="configuration" class="section level2">
 <h2 class="hasAnchor">
@@ -149,8 +149,8 @@ remotes<span class="op">::</span><span class="kw"><a href="https://www.rdocument
 <li><a href="https://www.immunespace.org/login/home/register.view?">Register</a></li>
 <li>Create a netrc file with your ImmuneSpace credetntials using <code><a href="reference/interactive_netrc.html">interactive_netrc()</a></code> function in R:</li>
 </ol>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(ImmuneSpaceR)
-<span class="kw"><a href="reference/interactive_netrc.html">interactive_netrc</a></span>()</code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(ImmuneSpaceR)</a>
+<a class="sourceLine" id="cb3-2" data-line-number="2"><span class="kw"><a href="reference/interactive_netrc.html">interactive_netrc</a></span>()</a></code></pre></div>
 <p>If you’re familiar with the command-line interface, see <a href="https://rglab.github.io/ImmuneSpaceR/articles/Intro_to_ImmuneSpaceR.html">the introductory vignette</a>.</p>
 </div>
 <div id="usage" class="section level2">
@@ -161,45 +161,53 @@ remotes<span class="op">::</span><span class="kw"><a href="https://www.rdocument
 <a href="#create-a-connection" class="anchor"></a>Create a connection</h3>
 <p>The general idea is that the user creates an instance of an <code>ImmuneSpaceConnection</code> class. The instance configures itself to connect to a specific study, and datasets and gene expression matrices can be retrieved by name.</p>
 <p>For example:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(ImmuneSpaceR)
-con &lt;-<span class="st"> </span><span class="kw"><a href="reference/CreateConnection.html">CreateConnection</a></span>(<span class="st">"SDY269"</span>)</code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(ImmuneSpaceR)</a>
+<a class="sourceLine" id="cb4-2" data-line-number="2"><span class="co">#&gt; Registered S3 methods overwritten by 'ggplot2':</span></a>
+<a class="sourceLine" id="cb4-3" data-line-number="3"><span class="co">#&gt;   method         from </span></a>
+<a class="sourceLine" id="cb4-4" data-line-number="4"><span class="co">#&gt;   [.quosures     rlang</span></a>
+<a class="sourceLine" id="cb4-5" data-line-number="5"><span class="co">#&gt;   c.quosures     rlang</span></a>
+<a class="sourceLine" id="cb4-6" data-line-number="6"><span class="co">#&gt;   print.quosures rlang</span></a>
+<a class="sourceLine" id="cb4-7" data-line-number="7"><span class="co">#&gt; Registered S3 method overwritten by 'seriation':</span></a>
+<a class="sourceLine" id="cb4-8" data-line-number="8"><span class="co">#&gt;   method         from </span></a>
+<a class="sourceLine" id="cb4-9" data-line-number="9"><span class="co">#&gt;   reorder.hclust gclus</span></a>
+<a class="sourceLine" id="cb4-10" data-line-number="10">con &lt;-<span class="st"> </span><span class="kw"><a href="reference/CreateConnection.html">CreateConnection</a></span>(<span class="st">"SDY269"</span>)</a></code></pre></div>
 <p>will create an instance of SDY269.</p>
 </div>
 <div id="list-datasets" class="section level3">
 <h3 class="hasAnchor">
 <a href="#list-datasets" class="anchor"></a>List datasets</h3>
 <p>Datasets can be listed by:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">con<span class="op">$</span><span class="kw"><a href="reference/ImmuneSpaceConnection.html">listDatasets</a></span>()
-<span class="co">#&gt; datasets</span>
-<span class="co">#&gt;  gene_expression_files</span>
-<span class="co">#&gt;  fcs_sample_files</span>
-<span class="co">#&gt;  demographics</span>
-<span class="co">#&gt;  elispot</span>
-<span class="co">#&gt;  hai</span>
-<span class="co">#&gt;  elisa</span>
-<span class="co">#&gt;  pcr</span>
-<span class="co">#&gt;  cohort_membership</span>
-<span class="co">#&gt;  fcs_analyzed_result</span>
-<span class="co">#&gt; Expression Matrices</span>
-<span class="co">#&gt;  SDY269_PBMC_TIV_Geo</span>
-<span class="co">#&gt;  SDY269_PBMC_LAIV_Geo</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1">con<span class="op">$</span><span class="kw"><a href="reference/ImmuneSpaceConnection.html">listDatasets</a></span>()</a>
+<a class="sourceLine" id="cb5-2" data-line-number="2"><span class="co">#&gt; datasets</span></a>
+<a class="sourceLine" id="cb5-3" data-line-number="3"><span class="co">#&gt;  cohort_membership</span></a>
+<a class="sourceLine" id="cb5-4" data-line-number="4"><span class="co">#&gt;  demographics</span></a>
+<a class="sourceLine" id="cb5-5" data-line-number="5"><span class="co">#&gt;  elisa</span></a>
+<a class="sourceLine" id="cb5-6" data-line-number="6"><span class="co">#&gt;  elispot</span></a>
+<a class="sourceLine" id="cb5-7" data-line-number="7"><span class="co">#&gt;  fcs_analyzed_result</span></a>
+<a class="sourceLine" id="cb5-8" data-line-number="8"><span class="co">#&gt;  fcs_sample_files</span></a>
+<a class="sourceLine" id="cb5-9" data-line-number="9"><span class="co">#&gt;  gene_expression_files</span></a>
+<a class="sourceLine" id="cb5-10" data-line-number="10"><span class="co">#&gt;  hai</span></a>
+<a class="sourceLine" id="cb5-11" data-line-number="11"><span class="co">#&gt;  pcr</span></a>
+<a class="sourceLine" id="cb5-12" data-line-number="12"><span class="co">#&gt; Expression Matrices</span></a>
+<a class="sourceLine" id="cb5-13" data-line-number="13"><span class="co">#&gt;  SDY269_PBMC_TIV_Geo</span></a>
+<a class="sourceLine" id="cb5-14" data-line-number="14"><span class="co">#&gt;  SDY269_PBMC_LAIV_Geo</span></a></code></pre></div>
 <p>which will print names of available datasets and gene expression matrices.</p>
 </div>
 <div id="retrieve-datasets" class="section level3">
 <h3 class="hasAnchor">
 <a href="#retrieve-datasets" class="anchor"></a>Retrieve datasets</h3>
 <p>Gene expression matrices or datasets can be retreived by:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">LAIV2008 &lt;-<span class="st"> </span>con<span class="op">$</span><span class="kw"><a href="reference/ImmuneSpaceConnection.html">getGEMatrix</a></span>(<span class="st">"SDY269_PBMC_LAIV_Geo"</span>)
-<span class="co">#&gt; Downloading matrix..</span>
-<span class="co">#&gt; Constructing ExpressionSet</span>
-elisa &lt;-<span class="st"> </span>con<span class="op">$</span><span class="kw"><a href="reference/ImmuneSpaceConnection.html">getDataset</a></span>(<span class="st">"elisa"</span>)</code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1">LAIV2008 &lt;-<span class="st"> </span>con<span class="op">$</span><span class="kw"><a href="reference/ImmuneSpaceConnection.html">getGEMatrix</a></span>(<span class="st">"SDY269_PBMC_LAIV_Geo"</span>)</a>
+<a class="sourceLine" id="cb6-2" data-line-number="2"><span class="co">#&gt; Downloading matrix..</span></a>
+<a class="sourceLine" id="cb6-3" data-line-number="3"><span class="co">#&gt; Constructing ExpressionSet</span></a>
+<a class="sourceLine" id="cb6-4" data-line-number="4">elisa &lt;-<span class="st"> </span>con<span class="op">$</span><span class="kw"><a href="reference/ImmuneSpaceConnection.html">getDataset</a></span>(<span class="st">"elisa"</span>)</a></code></pre></div>
 <p>The connection object <em>caches</em> data, so once it is retrieved, the next time you access it, it will use the local cached copy. The package uses a <a href="https://cran.r-project.org/web/packages/R6/index.html">R6</a> class system to represent the connection to a study and get around some of R’s copy-on-change behaviour.</p>
 </div>
 <div id="visualize" class="section level3">
 <h3 class="hasAnchor">
 <a href="#visualize" class="anchor"></a>Visualize</h3>
 <p>The <code>plot</code> method uses <a href="https://cran.r-project.org/web/packages/ggplot2/index.html"><code>ggplot2</code></a> functions to generate visualizations of datasets, leveraging the standardized dataset tables.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">con<span class="op">$</span><span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/plot">plot</a></span>(<span class="st">"hai"</span>)</code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1">con<span class="op">$</span><span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/plot">plot</a></span>(<span class="st">"hai"</span>)</a></code></pre></div>
 <p><img src="reference/figures/README-plot-1.png" width="100%"></p>
 </div>
 </div>

@@ -37,7 +37,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ImmuneSpaceR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.11.7</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.13.1</span>
       </span>
     </div>
 
@@ -120,7 +120,7 @@
       <h1>Handling Expression Matrices with ImmuneSpaceR</h1>
                         <h4 class="author">Renan Sauteraud</h4>
             
-            <h4 class="date">2019-05-01</h4>
+            <h4 class="date">2019-06-06</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/RGLab/ImmuneSpaceR/blob/master/vignettes/getGEMatrix.Rmd"><code>vignettes/getGEMatrix.Rmd</code></a></small>
       <div class="hidden name"><code>getGEMatrix.Rmd</code></div>
@@ -134,9 +134,9 @@
 <h1 class="hasAnchor">
 <a href="#create-connections" class="anchor"></a>Create connections</h1>
 <p>As explained into the introductory vignette, datasets must be downloaded from <code>ImmuneSpaceConnection</code> objects. We must first instantiate a connection to the study or studies of interest. Throughout this vignette, we will use two connections, one to a single study, and one to to all available data.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(ImmuneSpaceR)
-sdy269 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/CreateConnection.html">CreateConnection</a></span>(<span class="st">"SDY269"</span>)
-all &lt;-<span class="st"> </span><span class="kw"><a href="../reference/CreateConnection.html">CreateConnection</a></span>(<span class="st">""</span>)</code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(ImmuneSpaceR)</a>
+<a class="sourceLine" id="cb1-2" data-line-number="2">sdy269 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/CreateConnection.html">CreateConnection</a></span>(<span class="st">"SDY269"</span>)</a>
+<a class="sourceLine" id="cb1-3" data-line-number="3">all &lt;-<span class="st"> </span><span class="kw"><a href="../reference/CreateConnection.html">CreateConnection</a></span>(<span class="st">""</span>)</a></code></pre></div>
 </div>
 <div id="list-the-expression-matrices" class="section level1">
 <h1 class="hasAnchor">
@@ -144,22 +144,22 @@ all &lt;-<span class="st"> </span><span class="kw"><a href="../reference/CreateC
 <p>Now that the connections have been instantiated, we can start downloading from them. But we need to figure out which processed matrices are available within our chosen studies.</p>
 <p>On the ImmuneSpace portal, in the study of interest or at the project level, the <strong>Gene expression matrices</strong> table will show the available runs.</p>
 <p>Printing the connections will, among other information, list the datasets availables. The <code>listDatasets</code> method will only display the downloadable data. looking for. With <code>output = "expression"</code>, the datasets wont be printed.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sdy269<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">listDatasets</a></span>()</code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1">sdy269<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">listDatasets</a></span>()</a></code></pre></div>
 <pre><code>## datasets
-##  gene_expression_files
-##  fcs_sample_files
-##  demographics
-##  elispot
-##  hai
-##  elisa
-##  pcr
 ##  cohort_membership
+##  demographics
+##  elisa
+##  elispot
 ##  fcs_analyzed_result
+##  fcs_sample_files
+##  gene_expression_files
+##  hai
+##  pcr
 ## Expression Matrices
 ##  SDY269_PBMC_TIV_Geo
 ##  SDY269_PBMC_LAIV_Geo</code></pre>
 <p>Using <code>output = "expression"</code>, we can remove the datasets from the output.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">all<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">listDatasets</a></span>(<span class="dt">output =</span> <span class="st">"expression"</span>)</code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1">all<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">listDatasets</a></span>(<span class="dt">output =</span> <span class="st">"expression"</span>)</a></code></pre></div>
 <pre><code>## Expression Matrices
 ##  SDY1325_WholeBlood_LowIntraMuscularPS_geo
 ##  SDY1294_PBMC_ChineseCohort_Geo
@@ -276,14 +276,14 @@ all &lt;-<span class="st"> </span><span class="kw"><a href="../reference/CreateC
 <h2 class="hasAnchor">
 <a href="#by-run-name" class="anchor"></a>By run name</h2>
 <p>The <code>getGEMatrix</code> method will accept any of the run names listed in the connection.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">TIV_<span class="dv">2008</span> &lt;-<span class="st"> </span>sdy269<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getGEMatrix</a></span>(<span class="st">"SDY269_PBMC_TIV_Geo"</span>)</code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1">TIV_<span class="dv">2008</span> &lt;-<span class="st"> </span>sdy269<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getGEMatrix</a></span>(<span class="st">"SDY269_PBMC_TIV_Geo"</span>)</a></code></pre></div>
 <pre><code>## Downloading matrix..</code></pre>
 <pre><code>## Constructing ExpressionSet</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">TIV_<span class="dv">2011</span> &lt;-<span class="st"> </span>all<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getGEMatrix</a></span>(<span class="dt">matrixName =</span> <span class="st">"SDY144_Other_TIV_Geo"</span>)</code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" data-line-number="1">TIV_<span class="dv">2011</span> &lt;-<span class="st"> </span>all<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getGEMatrix</a></span>(<span class="dt">matrixName =</span> <span class="st">"SDY144_Other_TIV_Geo"</span>)</a></code></pre></div>
 <pre><code>## Downloading matrix..
 ## Constructing ExpressionSet</code></pre>
 <p>The matrices are returned as <code>ExpressionSet</code> where the phenoData slot contains basic demographic information and the featureData slot shows a mapping of probe to official gene symbols.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">TIV_<span class="dv">2008</span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" data-line-number="1">TIV_<span class="dv">2008</span></a></code></pre></div>
 <pre><code>## ExpressionSet (storageMode: lockedEnvironment)
 ## assayData: 16442 features, 80 samples 
 ##   element names: exprs 
@@ -304,7 +304,7 @@ all &lt;-<span class="st"> </span><span class="kw"><a href="../reference/CreateC
 <h2 class="hasAnchor">
 <a href="#by-cohorttype" class="anchor"></a>By cohortType</h2>
 <p>The <code>cohortType</code> argument can be used in place of the run name (<code>x</code>). It is a concatenation of “cohort” and “cell type” so that you may use matrices for analysis that have been normalized within cell-type. Likewise, the list of valid cohortTypes can be found in the Gene expression matrices table.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">LAIV_<span class="dv">2008</span> &lt;-<span class="st"> </span>sdy269<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getGEMatrix</a></span>(<span class="dt">cohortType =</span> <span class="st">"LAIV group 2008_PBMC"</span>)</code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" data-line-number="1">LAIV_<span class="dv">2008</span> &lt;-<span class="st"> </span>sdy269<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getGEMatrix</a></span>(<span class="dt">cohortType =</span> <span class="st">"LAIV group 2008_PBMC"</span>)</a></code></pre></div>
 <pre><code>## Downloading matrix..</code></pre>
 <pre><code>## Constructing ExpressionSet</code></pre>
 <p>Note that when cohort is used, <code>x</code> is ignored.</p>
@@ -314,10 +314,10 @@ all &lt;-<span class="st"> </span><span class="kw"><a href="../reference/CreateC
 <h1 class="hasAnchor">
 <a href="#summarized-matrices" class="anchor"></a>Summarized matrices</h1>
 <p>By default, the returned <code>ExpressionSet</code>s have probe names as features (or rows). However, multiple probes often match the same gene and merging experiments from different arrays is impossible at feature level. When they are available, the <code>summary</code> argument allows to return the matrices with gene symbols instead of probes. You should use <code>currAnno</code> set to <code>TRUE</code> to use the latest official gene symbols mapped for each probe, but you can also set this to <code>FALSE</code> to retrieve the original mappings from when the matrix was created.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">TIV_2008_sum &lt;-<span class="st"> </span>sdy269<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getGEMatrix</a></span>(<span class="st">"SDY269_PBMC_TIV_Geo"</span>, <span class="dt">outputType =</span> <span class="st">"summary"</span>, <span class="dt">annotation =</span> <span class="st">"latest"</span>)</code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" data-line-number="1">TIV_<span class="dv">2008</span>_sum &lt;-<span class="st"> </span>sdy269<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getGEMatrix</a></span>(<span class="st">"SDY269_PBMC_TIV_Geo"</span>, <span class="dt">outputType =</span> <span class="st">"summary"</span>, <span class="dt">annotation =</span> <span class="st">"latest"</span>)</a></code></pre></div>
 <pre><code>## returning SDY269_PBMC_TIV_Geo_sum_eset from cache</code></pre>
 <p>Probes that do not map to a unique gene are removed and expression is averaged by gene.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">TIV_2008_sum</code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" data-line-number="1">TIV_<span class="dv">2008</span>_sum</a></code></pre></div>
 <pre><code>## ExpressionSet (storageMode: lockedEnvironment)
 ## assayData: 16442 features, 80 samples 
 ##   element names: exprs 
@@ -339,8 +339,8 @@ all &lt;-<span class="st"> </span><span class="kw"><a href="../reference/CreateC
 <a href="#combining-matrices" class="anchor"></a>Combining matrices</h1>
 <p>In order to faciliate analysis across experiments and studies, when multiple runs or cohorts are specified, <code>getGEMatrix</code> will attempt to combine the selected expression matrices into a single <code>ExpressionSet</code>.</p>
 <p>To avoid returning an empty object, it is usually recommended to use the summarized version of the matrices, thus combining by genes. This is almost always necessary when combining data from multiple studies.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Within a study</span>
-em269 &lt;-<span class="st"> </span>sdy269<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getGEMatrix</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"SDY269_PBMC_TIV_Geo"</span>, <span class="st">"SDY269_PBMC_LAIV_Geo"</span>))</code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb20-1" data-line-number="1"><span class="co"># Within a study</span></a>
+<a class="sourceLine" id="cb20-2" data-line-number="2">em269 &lt;-<span class="st"> </span>sdy269<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getGEMatrix</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"SDY269_PBMC_TIV_Geo"</span>, <span class="st">"SDY269_PBMC_LAIV_Geo"</span>))</a></code></pre></div>
 <pre><code>## returning summary matrix from cache
 ## returning summary matrix from cache</code></pre>
 <pre><code>## returning latest annotation from cache
@@ -348,10 +348,10 @@ em269 &lt;-<span class="st"> </span>sdy269<span class="op">$</span><span class="
 <pre><code>## Constructing ExpressionSet
 ## Constructing ExpressionSet</code></pre>
 <pre><code>## Combining ExpressionSets</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Combining across studies</span>
-TIV_seasons &lt;-<span class="st"> </span>all<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getGEMatrix</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"SDY269_PBMC_TIV_Geo"</span>, <span class="st">"SDY144_Other_TIV_Geo"</span>),
-                               <span class="dt">outputType =</span> <span class="st">"summary"</span>,
-                               <span class="dt">annotation =</span> <span class="st">"latest"</span>)</code></pre></div>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb25-1" data-line-number="1"><span class="co"># Combining across studies</span></a>
+<a class="sourceLine" id="cb25-2" data-line-number="2">TIV_seasons &lt;-<span class="st"> </span>all<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getGEMatrix</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"SDY269_PBMC_TIV_Geo"</span>, <span class="st">"SDY144_Other_TIV_Geo"</span>),</a>
+<a class="sourceLine" id="cb25-3" data-line-number="3">                               <span class="dt">outputType =</span> <span class="st">"summary"</span>,</a>
+<a class="sourceLine" id="cb25-4" data-line-number="4">                               <span class="dt">annotation =</span> <span class="st">"latest"</span>)</a></code></pre></div>
 <pre><code>## Downloading matrix..</code></pre>
 <pre><code>## returning summary matrix from cache</code></pre>
 <pre><code>## returning latest annotation from cache</code></pre>
@@ -365,76 +365,77 @@ TIV_seasons &lt;-<span class="st"> </span>all<span class="op">$</span><span clas
 <p>As explained in the introductory, the <code>ImmuneSpaceConnection</code> class is a <a href="https://cran.r-project.org/web/packages/R6/index.html"><code>R6</code></a> class. It means its objects have fields accessed by reference. As a consequence, they can be modified without making a copy of the entire object. ImmuneSpaceR uses this feature to store downloaded datasets and expression matrices. Subsequent calls to <code>getGEMatrix</code> with the same input will be faster.</p>
 <p>See <code><a href="https://www.rdocumentation.org/packages/R6/topics/R6Class">?R6::R6Class</a></code> for more information about R6 class system.</p>
 <p>We can see a list of already downloaded runs and feature sets the <code>cache</code> field. This is not intended to be used for data manipulation and only displayed here to explain what gets cached.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/names">names</a></span>(sdy269<span class="op">$</span>cache)</code></pre></div>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb31-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/names">names</a></span>(sdy269<span class="op">$</span>cache)</a></code></pre></div>
 <pre><code>## [1] "GE_matrices"                   "SDY269_PBMC_TIV_Geo_sum"      
 ## [3] "featureset_18"                 "SDY269_PBMC_TIV_Geo_sum_eset" 
 ## [5] "SDY269_PBMC_LAIV_Geo_sum"      "SDY269_PBMC_LAIV_Geo_sum_eset"</code></pre>
 <p>If, for any reason, a specific marix needs to be redownloaded, the <code>reload</code> argument will clear the cache for that specific <code>getGEMatrix</code> call and download the file and metadata again.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">TIV_<span class="dv">2008</span> &lt;-<span class="st"> </span>sdy269<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getGEMatrix</a></span>(<span class="st">"SDY269_PBMC_TIV_Geo"</span>, <span class="dt">reload =</span> <span class="ot">TRUE</span>)</code></pre></div>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb33-1" data-line-number="1">TIV_<span class="dv">2008</span> &lt;-<span class="st"> </span>sdy269<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getGEMatrix</a></span>(<span class="st">"SDY269_PBMC_TIV_Geo"</span>, <span class="dt">reload =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
 <pre><code>## Downloading matrix..</code></pre>
 <pre><code>## Constructing ExpressionSet</code></pre>
 <p>Finally, it is possible to clear every cached expression matrix (and dataset).</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sdy269<span class="op">$</span><span class="kw">clearCache</span>()</code></pre></div>
+<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb36-1" data-line-number="1">sdy269<span class="op">$</span><span class="kw">clearCache</span>()</a></code></pre></div>
 <p>Again, the <code>cache</code> field should never be modified manually. When in doubt, simply reload the expression matrix.</p>
 </div>
 <div id="session-info" class="section level1">
 <h1 class="hasAnchor">
 <a href="#session-info" class="anchor"></a>Session info</h1>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/sessionInfo">sessionInfo</a></span>()</code></pre></div>
-<pre><code>## R version 3.5.3 (2019-03-11)
-## Platform: x86_64-apple-darwin15.6.0 (64-bit)
-## Running under: macOS Mojave 10.14.2
+<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb37-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/sessionInfo">sessionInfo</a></span>()</a></code></pre></div>
+<pre><code>## R version 3.6.0 (2019-04-26)
+## Platform: x86_64-pc-linux-gnu (64-bit)
+## Running under: Ubuntu 18.04.2 LTS
 ## 
 ## Matrix products: default
-## BLAS: /Library/Frameworks/R.framework/Versions/3.5/Resources/lib/libRblas.0.dylib
-## LAPACK: /Library/Frameworks/R.framework/Versions/3.5/Resources/lib/libRlapack.dylib
+## BLAS:   /usr/lib/x86_64-linux-gnu/blas/libblas.so.3.7.1
+## LAPACK: /usr/lib/x86_64-linux-gnu/lapack/liblapack.so.3.7.1
 ## 
 ## locale:
-## [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+##  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+##  [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+##  [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+##  [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+##  [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+## [11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
 ## 
 ## attached base packages:
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-## [1] ImmuneSpaceR_1.11.7 knitr_1.22         
+## [1] ImmuneSpaceR_1.13.1 knitr_1.23         
 ## 
 ## loaded via a namespace (and not attached):
-##   [1] ncdfFlow_2.28.1       bitops_1.0-6          matrixStats_0.54.0   
-##   [4] fs_1.2.7              webshot_0.5.1         RColorBrewer_1.1-2   
-##   [7] httr_1.4.0            rprojroot_1.3-2       prabclus_2.2-7       
-##  [10] Rgraphviz_2.26.0      tools_3.5.3           backports_1.1.4      
-##  [13] R6_2.4.0              KernSmooth_2.23-15    lazyeval_0.2.2       
-##  [16] BiocGenerics_0.28.0   colorspace_1.4-1      flowWorkspace_3.30.2 
-##  [19] trimcluster_0.1-2.1   nnet_7.3-12           tidyselect_0.2.5     
-##  [22] gridExtra_2.3         preprocessCore_1.44.0 curl_3.3             
-##  [25] compiler_3.5.3        graph_1.60.0          Biobase_2.42.0       
-##  [28] TSP_1.1-6             xml2_1.2.0            plotly_4.9.0         
-##  [31] desc_1.2.0            diptest_0.75-7        caTools_1.17.1.2     
-##  [34] scales_1.0.0          DEoptimR_1.0-8        hexbin_1.27.2        
-##  [37] mvtnorm_1.0-10        robustbase_0.93-4     pkgdown_1.3.0        
-##  [40] commonmark_1.7        stringr_1.4.0         digest_0.6.18        
-##  [43] rmarkdown_1.12        rrcov_1.4-7           pkgconfig_2.0.2      
-##  [46] htmltools_0.3.6       htmlwidgets_1.3       rlang_0.3.4          
-##  [49] rstudioapi_0.10       flowCore_1.48.1       jsonlite_1.6         
-##  [52] mclust_5.4.3          gtools_3.8.1          dendextend_1.10.0    
-##  [55] dplyr_0.8.0.1         magrittr_1.5          modeltools_0.2-22    
-##  [58] Rcpp_1.0.1            munsell_0.5.0         viridis_0.5.1        
-##  [61] stringi_1.4.3         whisker_0.3-2         yaml_2.2.0           
-##  [64] MASS_7.3-51.4         zlibbioc_1.28.0       flexmix_2.3-15       
-##  [67] gplots_3.0.1.1        plyr_1.8.4            grid_3.5.3           
-##  [70] parallel_3.5.3        gdata_2.18.0          crayon_1.3.4         
-##  [73] lattice_0.20-38       pillar_1.3.1          fpc_2.1-11.1         
-##  [76] Rlabkey_2.2.5         corpcor_1.6.9         codetools_0.2-16     
-##  [79] stats4_3.5.3          XML_3.98-1.19         glue_1.3.1           
-##  [82] gclus_1.3.2           evaluate_0.13         latticeExtra_0.6-28  
-##  [85] data.table_1.12.2     foreach_1.4.4         tidyr_0.8.3          
-##  [88] gtable_0.3.0          purrr_0.3.2           kernlab_0.9-27       
-##  [91] heatmaply_0.15.2      assertthat_0.2.1      ggplot2_3.1.1        
-##  [94] xfun_0.6              roxygen2_6.1.1        class_7.3-15         
-##  [97] IDPmisc_1.1.19        pcaPP_1.9-73          viridisLite_0.3.0    
-## [100] pheatmap_1.0.12       seriation_1.2-3       tibble_2.1.1         
-## [103] iterators_1.0.10      registry_0.5-1        memoise_1.1.0        
-## [106] flowViz_1.46.1        cluster_2.0.8</code></pre>
+##  [1] ncdfFlow_2.30.1       bitops_1.0-6          matrixStats_0.54.0   
+##  [4] fs_1.3.1              webshot_0.5.1         RColorBrewer_1.1-2   
+##  [7] httr_1.4.0            rprojroot_1.3-2       Rgraphviz_2.28.0     
+## [10] tools_3.6.0           backports_1.1.4       R6_2.4.0             
+## [13] KernSmooth_2.23-15    lazyeval_0.2.2        BiocGenerics_0.30.0  
+## [16] colorspace_1.4-1      flowWorkspace_3.32.0  tidyselect_0.2.5     
+## [19] gridExtra_2.3         preprocessCore_1.46.0 curl_3.3             
+## [22] compiler_3.6.0        graph_1.62.0          Biobase_2.44.0       
+## [25] TSP_1.1-7             xml2_1.2.0            desc_1.2.0           
+## [28] plotly_4.9.0          caTools_1.17.1.2      scales_1.0.0         
+## [31] DEoptimR_1.0-8        hexbin_1.27.3         mvtnorm_1.0-10       
+## [34] robustbase_0.93-5     pkgdown_1.3.0         commonmark_1.7       
+## [37] stringr_1.4.0         digest_0.6.19         rmarkdown_1.13       
+## [40] rrcov_1.4-7           pkgconfig_2.0.2       htmltools_0.3.6      
+## [43] htmlwidgets_1.3       rlang_0.3.4           rstudioapi_0.10      
+## [46] flowCore_1.50.0       jsonlite_1.6          gtools_3.8.1         
+## [49] dendextend_1.12.0     dplyr_0.8.1           magrittr_1.5         
+## [52] Rcpp_1.0.1            munsell_0.5.0         viridis_0.5.1        
+## [55] stringi_1.4.3         yaml_2.2.0            MASS_7.3-51.4        
+## [58] zlibbioc_1.30.0       gplots_3.0.1.1        plyr_1.8.4           
+## [61] grid_3.6.0            parallel_3.6.0        gdata_2.18.0         
+## [64] crayon_1.3.4          lattice_0.20-38       pillar_1.4.1         
+## [67] Rlabkey_2.3.0         corpcor_1.6.9         codetools_0.2-16     
+## [70] stats4_3.6.0          glue_1.3.1            gclus_1.3.2          
+## [73] evaluate_0.14         latticeExtra_0.6-28   data.table_1.12.2    
+## [76] RcppParallel_4.4.3    foreach_1.4.4         gtable_0.3.0         
+## [79] purrr_0.3.2           tidyr_0.8.3           heatmaply_0.16.0     
+## [82] assertthat_0.2.1      ggplot2_3.1.1         xfun_0.7             
+## [85] roxygen2_6.1.1        IDPmisc_1.1.19        pcaPP_1.9-73         
+## [88] viridisLite_0.3.0     seriation_1.2-3       tibble_2.1.2         
+## [91] pheatmap_1.0.12       iterators_1.0.10      registry_0.5-1       
+## [94] memoise_1.1.0         flowViz_1.48.0        cluster_2.0.8</code></pre>
 </div>
   </div>
 
