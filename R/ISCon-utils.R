@@ -58,29 +58,21 @@ ISCon$set(
   which = "private",
   name = ".checkStudy",
   value = function(verbose = FALSE) {
-    sdyNm <- basename(self$config$labkey.url.path)
-    dirNm <- dirname(self$config$labkey.url.path)
-    gTerm <- ifelse(dirNm == "/HIPC", "^IS\\d{1,3}$", "^SDY\\d{2,4}$")
+    folders <- labkey.getFolders(
+      baseUrl = self$config$labkey.url.base,
+      folderPath = "",
+      includeSubfolders = TRUE,
+      includeEffectivePermissions = TRUE
+    )
+    folders <- folders[ grepl("IS\\d{1}|SDY\\d{2,4}", folders$name), ]
+    study <- basename(self$config$labkey.url.path)
 
-    # adjust for "" connection
-    if (sdyNm == "Studies") {
-      sdyNm <- ""
-      dirNm <- "/Studies"
-    }
-
-    folders <- labkey.getFolders(self$config$labkey.url.base, dirNm)
-    subdirs <- gsub(paste0(dirNm, "/"), "", folders$folderPath)
-    validSdys <- .mixedsort(subdirs[grep(gTerm, subdirs)])
-
-    if (!(sdyNm %in% c("", validSdys))) {
-      if (verbose == FALSE) {
-        stop(paste0(sdyNm, " is not a valid study. \n Use `verbose = TRUE` to see list of valid studies."))
-      } else {
-        stop(paste0(
-          sdyNm, " is not a valid study\nValid studies: ",
-          paste(validSdys, collapse = ", ")
-        ))
-      }
+    if (!(study %in% c("Studies", folders$name))) {
+      msg <- ifelse(verbose == FALSE,
+        " is not a valid study. \n Use `verbose = TRUE` to see list of valid studies.",
+        paste0(" is not a valid study\nValid studies: ", paste(folders$name, collapse = ", "))
+      )
+      stop(paste0(study, msg))
     }
   }
 )
@@ -127,15 +119,13 @@ ISCon$set(
 ISCon$set(
   which = "private",
   name = ".localStudyPath",
-  value = function(urlpath) {
-    LOCALPATH <- "/share/files/"
-    PRODUCTION_HOST <- "www.immunespace.org"
-    TEST_HOST <- "test.immunespace.org"
-
+  value = function(urlPath) {
+    # If running on individual dev machine, must have symlink set for '/share' to
+    # ~/release19.1/build/deploy
     gsub(
-      file.path(gsub("/$", "", self$config$labkey.url.base), "_webdav"),
-      file.path(LOCALPATH),
-      urlpath
+      file.path(gsub("/$", "", self$config$labkey.url.base), "(|/)_webdav"),
+      file.path("/share/files"),
+      urlPath
     )
   }
 )

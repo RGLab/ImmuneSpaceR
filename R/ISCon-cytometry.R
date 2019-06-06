@@ -34,7 +34,7 @@ ISCon$set(
         data.table(suppressWarnings(labkey.selectRows(
           baseUrl = self$config$labkey.url.base,
           folderPath = self$config$labkey.url.path,
-          schemaName = "assay.General.gatingset",
+          schemaName = "cytometry_processing",
           queryName = "SelectedData",
           colNameOpt = "fieldname"
         ))),
@@ -118,7 +118,7 @@ ISCon$set(
 
     gsList <- self$listGatingSets()
     study <- gsList[gatingSet == gating_set, study][1]
-    wsId <- gsList[gatingSet == gating_set, wsID][1]
+    wsId <- gsList[gatingSet == gating_set, wsid][1]
     if (!gatingSet %in% gsList$gating_set) {
       stop("'", gatingSet, "' is not a valid gating set name.")
     }
@@ -154,7 +154,7 @@ ISCon$set(
 
     gsList <- self$listGatingSets()
     study <- gsList[gatingSet == gating_set, study][1]
-    wsId <- gsList[gatingSet == gating_set, wsID][1]
+    wsId <- gsList[gatingSet == gating_set, wsid][1]
     if (!gatingSet %in% gsList$gating_set) {
       stop("'", gatingSet, "' is not a valid gating set name.")
     }

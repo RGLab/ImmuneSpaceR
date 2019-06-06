@@ -15,6 +15,8 @@ matrix:
   exclude:
   - os: osx
     r: bioc-devel
+  allow_failures:
+  - r: bioc-devel
 
 r_github_packages:
   - jimhester/covr

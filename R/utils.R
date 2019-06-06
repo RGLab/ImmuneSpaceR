@@ -15,7 +15,7 @@
 #' \dontrun{
 #' saveConnection(new_con, tempfile())
 #' }
-#' 
+#'
 #' @rdname loadConnection
 #' @export
 #' @return An ImmuneSpaceConnection object
