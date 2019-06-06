@@ -37,7 +37,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ImmuneSpaceR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.11.7</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.13.1</span>
       </span>
     </div>
 
@@ -120,7 +120,7 @@
       <h1>Downloading Datasets with getDataset</h1>
                         <h4 class="author">Renan Sauteraud</h4>
             
-            <h4 class="date">2019-05-01</h4>
+            <h4 class="date">2019-06-06</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/RGLab/ImmuneSpaceR/blob/master/vignettes/getDataset.Rmd"><code>vignettes/getDataset.Rmd</code></a></small>
       <div class="hidden name"><code>getDataset.Rmd</code></div>
@@ -134,43 +134,43 @@
 <h1 class="hasAnchor">
 <a href="#create-connections" class="anchor"></a>Create connections</h1>
 <p>As explained into the introductory vignette, datasets must be downloaded from <code>ImmuneSpaceConnection</code> objects. We must first instantiate a connection to the study or studies of interest. Throughout this vignette, we will use two connections, one to a single study, and one to to all available data.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(ImmuneSpaceR)
-sdy269 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/CreateConnection.html">CreateConnection</a></span>(<span class="st">"SDY269"</span>)
-all &lt;-<span class="st"> </span><span class="kw"><a href="../reference/CreateConnection.html">CreateConnection</a></span>(<span class="st">""</span>)</code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(ImmuneSpaceR)</a>
+<a class="sourceLine" id="cb1-2" data-line-number="2">sdy269 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/CreateConnection.html">CreateConnection</a></span>(<span class="st">"SDY269"</span>)</a>
+<a class="sourceLine" id="cb1-3" data-line-number="3">all &lt;-<span class="st"> </span><span class="kw"><a href="../reference/CreateConnection.html">CreateConnection</a></span>(<span class="st">""</span>)</a></code></pre></div>
 </div>
 <div id="list-the-datasets" class="section level1">
 <h1 class="hasAnchor">
 <a href="#list-the-datasets" class="anchor"></a>List the datasets</h1>
 <p>Now that the connections have been instantiated, we can start downloading from themm but we need to figure out which datasets are available within our chosen studies. Printing the connections will, among other information, list the datasets availables. The <code>listDatasets</code> method will display only the information we are looking for.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sdy269<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">listDatasets</a></span>()</code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1">sdy269<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">listDatasets</a></span>()</a></code></pre></div>
 <pre><code>## datasets
-##  gene_expression_files
-##  fcs_sample_files
-##  demographics
-##  elispot
-##  hai
-##  elisa
-##  pcr
 ##  cohort_membership
+##  demographics
+##  elisa
+##  elispot
 ##  fcs_analyzed_result
+##  fcs_sample_files
+##  gene_expression_files
+##  hai
+##  pcr
 ## Expression Matrices
 ##  SDY269_PBMC_TIV_Geo
 ##  SDY269_PBMC_LAIV_Geo</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">all<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">listDatasets</a></span>()</code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1">all<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">listDatasets</a></span>()</a></code></pre></div>
 <pre><code>## datasets
-##  fcs_control_files
-##  hla_typing
-##  fcs_sample_files
-##  hai
-##  mbaa
-##  demographics
-##  pcr
-##  elispot
-##  gene_expression_files
 ##  cohort_membership
-##  neut_ab_titer
-##  fcs_analyzed_result
+##  demographics
 ##  elisa
+##  elispot
+##  fcs_analyzed_result
+##  fcs_control_files
+##  fcs_sample_files
+##  gene_expression_files
+##  hai
+##  hla_typing
+##  mbaa
+##  neut_ab_titer
+##  pcr
 ## Expression Matrices
 ##  SDY1325_WholeBlood_LowIntraMuscularPS_geo
 ##  SDY1294_PBMC_ChineseCohort_Geo
@@ -284,31 +284,31 @@ all &lt;-<span class="st"> </span><span class="kw"><a href="../reference/CreateC
 <h1 class="hasAnchor">
 <a href="#download" class="anchor"></a>Download</h1>
 <p>Calling <code>getDataset</code> returns a selected dataset as it is displayed on ImmuneSpace.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">hai_<span class="dv">269</span> &lt;-<span class="st"> </span>sdy269<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getDataset</a></span>(<span class="st">"hai"</span>)
-hai_all &lt;-<span class="st"> </span>all<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getDataset</a></span>(<span class="st">"hai"</span>)
-
-<span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/head">head</a></span>(hai_<span class="dv">269</span>)</code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1">hai_<span class="dv">269</span> &lt;-<span class="st"> </span>sdy269<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getDataset</a></span>(<span class="st">"hai"</span>)</a>
+<a class="sourceLine" id="cb6-2" data-line-number="2">hai_all &lt;-<span class="st"> </span>all<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getDataset</a></span>(<span class="st">"hai"</span>)</a>
+<a class="sourceLine" id="cb6-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb6-4" data-line-number="4"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/head">head</a></span>(hai_<span class="dv">269</span>)</a></code></pre></div>
 <pre><code>##    participant_id age_reported gender  race          cohort
 ## 1:  SUB112829.269           26   Male White LAIV group 2008
 ## 2:  SUB112829.269           26   Male White LAIV group 2008
-## 3:  SUB112867.269           37   Male White LAIV group 2008
-## 4:  SUB112850.269           41   Male White LAIV group 2008
-## 5:  SUB112862.269           21 Female Asian LAIV group 2008
-## 6:  SUB112870.269           33   Male White LAIV group 2008
+## 3:  SUB112829.269           26   Male White LAIV group 2008
+## 4:  SUB112829.269           26   Male White LAIV group 2008
+## 5:  SUB112829.269           26   Male White LAIV group 2008
+## 6:  SUB112829.269           26   Male White LAIV group 2008
 ##    study_time_collected study_time_collected_unit                  virus
-## 1:                   28                      Days       B/Florida/4/2006
-## 2:                   28                      Days     A/Uruguay/716/2007
-## 3:                   28                      Days       B/Florida/4/2006
-## 4:                   28                      Days     A/Uruguay/716/2007
+## 1:                    0                      Days A/South Dakota/06/2007
+## 2:                    0                      Days     A/Uruguay/716/2007
+## 3:                    0                      Days       B/Florida/4/2006
+## 4:                   28                      Days A/South Dakota/06/2007
 ## 5:                   28                      Days     A/Uruguay/716/2007
-## 6:                   28                      Days A/South Dakota/06/2007
+## 6:                   28                      Days       B/Florida/4/2006
 ##    value_preferred
 ## 1:              40
 ## 2:              40
-## 3:               5
-## 4:              10
-## 5:              20
-## 6:               5</code></pre>
+## 3:              20
+## 4:              40
+## 5:              40
+## 6:              40</code></pre>
 <p>Because some datasets such as flow cytometry results can contain a large number of rows, the method returns <code>data.table</code> objects to improve performance. This is especially important with multi-study connections.</p>
 </div>
 <div id="filters" class="section level1">
@@ -316,37 +316,35 @@ hai_all &lt;-<span class="st"> </span>all<span class="op">$</span><span class="k
 <a href="#filters" class="anchor"></a>Filters</h1>
 <p>The datasets can be filtered before download. Filters should be created using <code>Rlabkey</code>’s <code>makeFilter</code> function.</p>
 <p>Each filter is composed of three part: * A column name or column label * An operator * A value or array of values separated by a semi-colon</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(Rlabkey)</code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(Rlabkey)</a></code></pre></div>
 <pre><code>## Loading required package: httr</code></pre>
 <pre><code>## Loading required package: jsonlite</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Get participants under age of 30</span>
-young_filter &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/Rlabkey/topics/makeFilter">makeFilter</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"age_reported"</span>, <span class="st">"LESS_THAN"</span>, <span class="dv">30</span>))
-
-<span class="co"># Get a specific list of two participants</span>
-pid_filter &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/Rlabkey/topics/makeFilter">makeFilter</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"participantid"</span>, <span class="st">"IN"</span>, <span class="st">"SUB112841.269;SUB112834.269"</span>))</code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" data-line-number="1"><span class="co"># Get participants under age of 30</span></a>
+<a class="sourceLine" id="cb11-2" data-line-number="2">young_filter &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/Rlabkey/topics/makeFilter">makeFilter</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"age_reported"</span>, <span class="st">"LESS_THAN"</span>, <span class="dv">30</span>))</a>
+<a class="sourceLine" id="cb11-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb11-4" data-line-number="4"><span class="co"># Get a specific list of two participants</span></a>
+<a class="sourceLine" id="cb11-5" data-line-number="5">pid_filter &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/Rlabkey/topics/makeFilter">makeFilter</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"participantid"</span>, <span class="st">"IN"</span>, <span class="st">"SUB112841.269;SUB112834.269"</span>))</a></code></pre></div>
 <p>For a list of available operators, see <code><a href="https://www.rdocumentation.org/packages/Rlabkey/topics/makeFilter">?Rlabkey::makeFilter</a></code>.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># HAI data for participants of study SDY269 under age of 30</span>
-hai_young &lt;-<span class="st"> </span>sdy269<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getDataset</a></span>(<span class="st">"hai"</span>, <span class="dt">colFilter =</span> young_filter)
-
-<span class="co"># List of participants under age 30</span>
-demo_young &lt;-<span class="st"> </span>all<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getDataset</a></span>(<span class="st">"demographics"</span>, <span class="dt">colFilter =</span> young_filter)
-
-<span class="co"># ELISPOT assay results for two participants</span>
-mbaa_pid2 &lt;-<span class="st"> </span>all<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getDataset</a></span>(<span class="st">"elispot"</span>, <span class="dt">colFilter =</span> pid_filter)</code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" data-line-number="1"><span class="co"># HAI data for participants of study SDY269 under age of 30</span></a>
+<a class="sourceLine" id="cb12-2" data-line-number="2">hai_young &lt;-<span class="st"> </span>sdy269<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getDataset</a></span>(<span class="st">"hai"</span>, <span class="dt">colFilter =</span> young_filter)</a>
+<a class="sourceLine" id="cb12-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb12-4" data-line-number="4"><span class="co"># List of participants under age 30</span></a>
+<a class="sourceLine" id="cb12-5" data-line-number="5">demo_young &lt;-<span class="st"> </span>all<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getDataset</a></span>(<span class="st">"demographics"</span>, <span class="dt">colFilter =</span> young_filter)</a>
+<a class="sourceLine" id="cb12-6" data-line-number="6"></a>
+<a class="sourceLine" id="cb12-7" data-line-number="7"><span class="co"># ELISPOT assay results for two participants</span></a>
+<a class="sourceLine" id="cb12-8" data-line-number="8">mbaa_pid2 &lt;-<span class="st"> </span>all<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getDataset</a></span>(<span class="st">"elispot"</span>, <span class="dt">colFilter =</span> pid_filter)</a></code></pre></div>
 <p>Note that filtering is done before download. When performance is a concern, it is faster to do the filtering via the <code>colfFilter</code> argument than on the returned table.</p>
 </div>
 <div id="views" class="section level1">
 <h1 class="hasAnchor">
 <a href="#views" class="anchor"></a>Views</h1>
 <p>Any dataset grid on ImmuneSpace offers the possibility to switch views between ‘Default’ and ‘Full’. The Default view contains information that is directly relevant to the user. Sample description and results are joined with basic demographic. However, this is not the way data is organized in the database. The ‘Full’ view is a representation of the data as it is stored on <a href="http://www.immport.org/immport-open/public/home/home">ImmPort</a>. The accession columns are used under the hood for join operations. They will be useful to developers and user writing reports to be displayed in ImmuneSpace studies.</p>
-<div class="figure">
-<img src="img/getDataset-views.png" width="675">
-</div>
+<p><img src="img/getDataset-views.png" width="675"></p>
 <p>Screen capture of the button bar of a dataset grid on ImmuneSpace.</p>
 <p>The <code>original_view</code> argument decides which view is downloaded. If set to <code>TRUE</code>, the ‘Full’ view is returned.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">full_hai &lt;-<span class="st"> </span>sdy269<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getDataset</a></span>(<span class="st">"hai"</span>, <span class="dt">original_view =</span> <span class="ot">TRUE</span>)
-
-<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/colnames">colnames</a></span>(full_hai)</code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" data-line-number="1">full_hai &lt;-<span class="st"> </span>sdy269<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getDataset</a></span>(<span class="st">"hai"</span>, <span class="dt">original_view =</span> <span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb13-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb13-3" data-line-number="3"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/colnames">colnames</a></span>(full_hai)</a></code></pre></div>
 <pre><code>##  [1] "participant_id"            "arm_accession"            
 ##  [3] "biosample_accession"       "expsample_accession"      
 ##  [5] "experiment_accession"      "study_accession"          
@@ -362,84 +360,85 @@ mbaa_pid2 &lt;-<span class="st"> </span>all<span class="op">$</span><span class=
 <p>As explained in the introductory guide, the <code>ImmuneSpaceConnection</code> class is a <a href="https://cran.r-project.org/web/packages/R6/index.html"><code>R6</code></a> class. It means its objects have fields accessed by reference. As a consequence, they can be modified without making a copy of the entire object. ImmuneSpaceR uses this feature to store downloaded datasets and expression matrices. Subsequent calls to <code>getDataset</code> with the same input will be faster.</p>
 <p>See <code><a href="https://www.rdocumentation.org/packages/R6/topics/R6Class">?R6::R6Class</a></code> for more information about R6 class system.</p>
 <p>We can see the data currently cached using the <code>cache</code> field. This is not intended to be used for data manipulation and only displayed here to explain what gets cached.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">pcr &lt;-<span class="st"> </span>sdy269<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getDataset</a></span>(<span class="st">"pcr"</span>)
-<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/names">names</a></span>(sdy269<span class="op">$</span>cache)</code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" data-line-number="1">pcr &lt;-<span class="st"> </span>sdy269<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getDataset</a></span>(<span class="st">"pcr"</span>)</a>
+<a class="sourceLine" id="cb15-2" data-line-number="2"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/names">names</a></span>(sdy269<span class="op">$</span>cache)</a></code></pre></div>
 <pre><code>## [1] "GE_matrices"                      "a686d76d73f361f98814f8a71771a3b4"
 ## [3] "b1fc871b0317b0835fcd962f804ca1e8" "eca5f7a1d74ad1de545fd45b773f8f68"
 ## [5] "0518ce2a79b128c0fdf56d816576dd9c"</code></pre>
 <p>Different views are saved separately.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">pcr_ori &lt;-<span class="st"> </span>sdy269<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getDataset</a></span>(<span class="st">"pcr"</span>, <span class="dt">original_view =</span> <span class="ot">TRUE</span>)
-<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/names">names</a></span>(sdy269<span class="op">$</span>cache)</code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" data-line-number="1">pcr_ori &lt;-<span class="st"> </span>sdy269<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getDataset</a></span>(<span class="st">"pcr"</span>, <span class="dt">original_view =</span> <span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb17-2" data-line-number="2"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/names">names</a></span>(sdy269<span class="op">$</span>cache)</a></code></pre></div>
 <pre><code>## [1] "GE_matrices"                      "a686d76d73f361f98814f8a71771a3b4"
 ## [3] "b1fc871b0317b0835fcd962f804ca1e8" "eca5f7a1d74ad1de545fd45b773f8f68"
 ## [5] "0518ce2a79b128c0fdf56d816576dd9c" "ef3cb0b3940dde6bf773a36e93651cc4"</code></pre>
 <p>Because of the infinite number of filters and combinations of filters, we do not cache filtered datasets.</p>
 <p>If, for any reason, a specific dataset needs to be redownloaded, the <code>reload</code> argument will clear the cache for that specific <code>getDataset</code> call and download the table again.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">hai_<span class="dv">269</span> &lt;-<span class="st"> </span>sdy269<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getDataset</a></span>(<span class="st">"hai"</span>, <span class="dt">reload =</span> <span class="ot">TRUE</span>)</code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb19-1" data-line-number="1">hai_<span class="dv">269</span> &lt;-<span class="st"> </span>sdy269<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getDataset</a></span>(<span class="st">"hai"</span>, <span class="dt">reload =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
 <p>Finally, it is possible to clear every cached dataset (and expression matrix).</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sdy269<span class="op">$</span><span class="kw">clearCache</span>()
-<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/names">names</a></span>(sdy269<span class="op">$</span>cache)</code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb20-1" data-line-number="1">sdy269<span class="op">$</span><span class="kw">clearCache</span>()</a>
+<a class="sourceLine" id="cb20-2" data-line-number="2"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/names">names</a></span>(sdy269<span class="op">$</span>cache)</a></code></pre></div>
 <pre><code>## [1] "GE_matrices"</code></pre>
 <p>Again, the <code>cache</code> field should never be modified manually. When in doubt, simply reload the dataset.</p>
 </div>
 <div id="session-info" class="section level1">
 <h1 class="hasAnchor">
 <a href="#session-info" class="anchor"></a>Session info</h1>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/sessionInfo">sessionInfo</a></span>()</code></pre></div>
-<pre><code>## R version 3.5.3 (2019-03-11)
-## Platform: x86_64-apple-darwin15.6.0 (64-bit)
-## Running under: macOS Mojave 10.14.2
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb22-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/sessionInfo">sessionInfo</a></span>()</a></code></pre></div>
+<pre><code>## R version 3.6.0 (2019-04-26)
+## Platform: x86_64-pc-linux-gnu (64-bit)
+## Running under: Ubuntu 18.04.2 LTS
 ## 
 ## Matrix products: default
-## BLAS: /Library/Frameworks/R.framework/Versions/3.5/Resources/lib/libRblas.0.dylib
-## LAPACK: /Library/Frameworks/R.framework/Versions/3.5/Resources/lib/libRlapack.dylib
+## BLAS:   /usr/lib/x86_64-linux-gnu/blas/libblas.so.3.7.1
+## LAPACK: /usr/lib/x86_64-linux-gnu/lapack/liblapack.so.3.7.1
 ## 
 ## locale:
-## [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+##  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+##  [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+##  [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+##  [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+##  [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+## [11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
 ## 
 ## attached base packages:
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-## [1] Rlabkey_2.2.5       jsonlite_1.6        httr_1.4.0         
-## [4] ImmuneSpaceR_1.11.7 knitr_1.22         
+## [1] Rlabkey_2.3.0       jsonlite_1.6        httr_1.4.0         
+## [4] ImmuneSpaceR_1.13.1 knitr_1.23         
 ## 
 ## loaded via a namespace (and not attached):
-##   [1] ncdfFlow_2.28.1       bitops_1.0-6          matrixStats_0.54.0   
-##   [4] fs_1.2.7              webshot_0.5.1         RColorBrewer_1.1-2   
-##   [7] rprojroot_1.3-2       prabclus_2.2-7        Rgraphviz_2.26.0     
-##  [10] tools_3.5.3           backports_1.1.4       R6_2.4.0             
-##  [13] KernSmooth_2.23-15    lazyeval_0.2.2        BiocGenerics_0.28.0  
-##  [16] colorspace_1.4-1      flowWorkspace_3.30.2  trimcluster_0.1-2.1  
-##  [19] nnet_7.3-12           tidyselect_0.2.5      gridExtra_2.3        
-##  [22] preprocessCore_1.44.0 curl_3.3              compiler_3.5.3       
-##  [25] graph_1.60.0          Biobase_2.42.0        TSP_1.1-6            
-##  [28] xml2_1.2.0            plotly_4.9.0          desc_1.2.0           
-##  [31] diptest_0.75-7        caTools_1.17.1.2      scales_1.0.0         
-##  [34] DEoptimR_1.0-8        hexbin_1.27.2         mvtnorm_1.0-10       
-##  [37] robustbase_0.93-4     pkgdown_1.3.0         commonmark_1.7       
-##  [40] stringr_1.4.0         digest_0.6.18         rmarkdown_1.12       
-##  [43] rrcov_1.4-7           pkgconfig_2.0.2       htmltools_0.3.6      
-##  [46] htmlwidgets_1.3       rlang_0.3.4           rstudioapi_0.10      
-##  [49] flowCore_1.48.1       mclust_5.4.3          gtools_3.8.1         
-##  [52] dendextend_1.10.0     dplyr_0.8.0.1         magrittr_1.5         
-##  [55] modeltools_0.2-22     Rcpp_1.0.1            munsell_0.5.0        
-##  [58] viridis_0.5.1         stringi_1.4.3         whisker_0.3-2        
-##  [61] yaml_2.2.0            MASS_7.3-51.4         zlibbioc_1.28.0      
-##  [64] flexmix_2.3-15        gplots_3.0.1.1        plyr_1.8.4           
-##  [67] grid_3.5.3            parallel_3.5.3        gdata_2.18.0         
-##  [70] crayon_1.3.4          lattice_0.20-38       pillar_1.3.1         
-##  [73] fpc_2.1-11.1          corpcor_1.6.9         codetools_0.2-16     
-##  [76] stats4_3.5.3          XML_3.98-1.19         glue_1.3.1           
-##  [79] gclus_1.3.2           evaluate_0.13         latticeExtra_0.6-28  
-##  [82] data.table_1.12.2     foreach_1.4.4         tidyr_0.8.3          
-##  [85] gtable_0.3.0          purrr_0.3.2           kernlab_0.9-27       
-##  [88] heatmaply_0.15.2      assertthat_0.2.1      ggplot2_3.1.1        
-##  [91] xfun_0.6              roxygen2_6.1.1        class_7.3-15         
-##  [94] IDPmisc_1.1.19        pcaPP_1.9-73          viridisLite_0.3.0    
-##  [97] pheatmap_1.0.12       seriation_1.2-3       tibble_2.1.1         
-## [100] iterators_1.0.10      registry_0.5-1        memoise_1.1.0        
-## [103] flowViz_1.46.1        cluster_2.0.8</code></pre>
+##  [1] ncdfFlow_2.30.1       bitops_1.0-6          matrixStats_0.54.0   
+##  [4] fs_1.3.1              webshot_0.5.1         RColorBrewer_1.1-2   
+##  [7] rprojroot_1.3-2       Rgraphviz_2.28.0      tools_3.6.0          
+## [10] backports_1.1.4       R6_2.4.0              KernSmooth_2.23-15   
+## [13] lazyeval_0.2.2        BiocGenerics_0.30.0   colorspace_1.4-1     
+## [16] flowWorkspace_3.32.0  tidyselect_0.2.5      gridExtra_2.3        
+## [19] preprocessCore_1.46.0 curl_3.3              compiler_3.6.0       
+## [22] graph_1.62.0          Biobase_2.44.0        TSP_1.1-7            
+## [25] xml2_1.2.0            desc_1.2.0            plotly_4.9.0         
+## [28] caTools_1.17.1.2      scales_1.0.0          DEoptimR_1.0-8       
+## [31] hexbin_1.27.3         mvtnorm_1.0-10        robustbase_0.93-5    
+## [34] pkgdown_1.3.0         commonmark_1.7        stringr_1.4.0        
+## [37] digest_0.6.19         rmarkdown_1.13        rrcov_1.4-7          
+## [40] pkgconfig_2.0.2       htmltools_0.3.6       htmlwidgets_1.3      
+## [43] rlang_0.3.4           rstudioapi_0.10       flowCore_1.50.0      
+## [46] gtools_3.8.1          dendextend_1.12.0     dplyr_0.8.1          
+## [49] magrittr_1.5          Rcpp_1.0.1            munsell_0.5.0        
+## [52] viridis_0.5.1         stringi_1.4.3         yaml_2.2.0           
+## [55] MASS_7.3-51.4         zlibbioc_1.30.0       gplots_3.0.1.1       
+## [58] plyr_1.8.4            grid_3.6.0            parallel_3.6.0       
+## [61] gdata_2.18.0          crayon_1.3.4          lattice_0.20-38      
+## [64] pillar_1.4.1          corpcor_1.6.9         codetools_0.2-16     
+## [67] stats4_3.6.0          glue_1.3.1            gclus_1.3.2          
+## [70] evaluate_0.14         latticeExtra_0.6-28   data.table_1.12.2    
+## [73] RcppParallel_4.4.3    foreach_1.4.4         gtable_0.3.0         
+## [76] purrr_0.3.2           tidyr_0.8.3           heatmaply_0.16.0     
+## [79] assertthat_0.2.1      ggplot2_3.1.1         xfun_0.7             
+## [82] roxygen2_6.1.1        IDPmisc_1.1.19        pcaPP_1.9-73         
+## [85] viridisLite_0.3.0     seriation_1.2-3       tibble_2.1.2         
+## [88] pheatmap_1.0.12       iterators_1.0.10      registry_0.5-1       
+## [91] memoise_1.1.0         flowViz_1.48.0        cluster_2.0.8</code></pre>
 </div>
   </div>
 

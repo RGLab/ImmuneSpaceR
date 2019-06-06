@@ -77,7 +77,7 @@ package with css, theme, and template parameters disabled." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ImmuneSpaceR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.11.7</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.13.1</span>
       </span>
     </div>
 
@@ -238,22 +238,21 @@ Compared to html_document, it:</p><ul>
 #&gt; [1] "html"
 #&gt; 
 #&gt; $pandoc$from
-#&gt; [1] "markdown+autolink_bare_uris+ascii_identifiers+tex_math_single_backslash"
+#&gt; [1] "markdown+autolink_bare_uris+ascii_identifiers+tex_math_single_backslash+smart"
 #&gt; 
 #&gt; $pandoc$args
-#&gt;  [1] "--smart"                                                                                    
-#&gt;  [2] "--email-obfuscation"                                                                        
-#&gt;  [3] "none"                                                                                       
-#&gt;  [4] "--self-contained"                                                                           
-#&gt;  [5] "--standalone"                                                                               
-#&gt;  [6] "--section-divs"                                                                             
-#&gt;  [7] "--template"                                                                                 
-#&gt;  [8] "/Library/Frameworks/R.framework/Versions/3.5/Resources/library/rmarkdown/rmd/h/default.html"
-#&gt;  [9] "--no-highlight"                                                                             
-#&gt; [10] "--variable"                                                                                 
-#&gt; [11] "highlightjs=1"                                                                              
-#&gt; [12] "--css"                                                                                      
-#&gt; [13] "/Users/jkim/git/ImmuneSpaceR/inst/rmarkdown/templates/ImmuneSpace/resources/IStemplate.css" 
+#&gt;  [1] "--email-obfuscation"                                                                                      
+#&gt;  [2] "none"                                                                                                     
+#&gt;  [3] "--self-contained"                                                                                         
+#&gt;  [4] "--standalone"                                                                                             
+#&gt;  [5] "--section-divs"                                                                                           
+#&gt;  [6] "--template"                                                                                               
+#&gt;  [7] "/home/jkim2345/R/x86_64-pc-linux-gnu-library/3.6/rmarkdown/rmd/h/default.html"                            
+#&gt;  [8] "--no-highlight"                                                                                           
+#&gt;  [9] "--variable"                                                                                               
+#&gt; [10] "highlightjs=1"                                                                                            
+#&gt; [11] "--css"                                                                                                    
+#&gt; [12] "/home/jkim2345/git/ImmuneSpace/ImmuneSpaceR/inst/rmarkdown/templates/ImmuneSpace/resources/IStemplate.css"
 #&gt; 
 #&gt; $pandoc$keep_tex
 #&gt; [1] FALSE
@@ -279,24 +278,24 @@ Compared to html_document, it:</p><ul>
 #&gt; {
 #&gt;     op(base(...), overlay(...))
 #&gt; }
-#&gt; &lt;bytecode: 0x7fc7cff65250&gt;
-#&gt; &lt;environment: 0x7fc7b81c4578&gt;
+#&gt; &lt;bytecode: 0x56003727c158&gt;
+#&gt; &lt;environment: 0x560038cec158&gt;
 #&gt; 
 #&gt; $post_knit
 #&gt; function (...) 
 #&gt; {
 #&gt;     op(base(...), overlay(...))
 #&gt; }
-#&gt; &lt;bytecode: 0x7fc7cff65250&gt;
-#&gt; &lt;environment: 0x7fc7b81c4c78&gt;
+#&gt; &lt;bytecode: 0x56003727c158&gt;
+#&gt; &lt;environment: 0x560038ceba58&gt;
 #&gt; 
 #&gt; $pre_processor
 #&gt; function (...) 
 #&gt; {
 #&gt;     op(base(...), overlay(...))
 #&gt; }
-#&gt; &lt;bytecode: 0x7fc7cff65250&gt;
-#&gt; &lt;environment: 0x7fc7b81c5378&gt;
+#&gt; &lt;bytecode: 0x56003727c158&gt;
+#&gt; &lt;environment: 0x560038ceb358&gt;
 #&gt; 
 #&gt; $intermediates_generator
 #&gt; function (original_input, encoding, intermediates_dir) 
@@ -304,8 +303,8 @@ Compared to html_document, it:</p><ul>
 #&gt;     return(copy_render_intermediates(original_input, encoding, 
 #&gt;         intermediates_dir, !self_contained))
 #&gt; }
-#&gt; &lt;bytecode: 0x7fc7d19546e0&gt;
-#&gt; &lt;environment: 0x7fc7bc3e4d88&gt;
+#&gt; &lt;bytecode: 0x560037248d28&gt;
+#&gt; &lt;environment: 0x560038cf54a0&gt;
 #&gt; 
 #&gt; $post_processor
 #&gt; function (metadata, input_file, output_file, clean, verbose) 
@@ -343,8 +342,8 @@ Compared to html_document, it:</p><ul>
 #&gt;     write_utf8(output_str, output_file)
 #&gt;     output_file
 #&gt; }
-#&gt; &lt;bytecode: 0x7fc7d1958040&gt;
-#&gt; &lt;environment: 0x7fc7bc3e4d88&gt;
+#&gt; &lt;bytecode: 0x560037248778&gt;
+#&gt; &lt;environment: 0x560038cf54a0&gt;
 #&gt; 
 #&gt; $on_exit
 #&gt; function () 
@@ -354,8 +353,8 @@ Compared to html_document, it:</p><ul>
 #&gt;     if (is.function(overlay)) 
 #&gt;         overlay()
 #&gt; }
-#&gt; &lt;bytecode: 0x7fc7cff69ab0&gt;
-#&gt; &lt;environment: 0x7fc7bc3998e8&gt;
+#&gt; &lt;bytecode: 0x560037283a60&gt;
+#&gt; &lt;environment: 0x56003b8b72d8&gt;
 #&gt; 
 #&gt; attr(,"class")
 #&gt; [1] "rmarkdown_output_format"</div></pre>
