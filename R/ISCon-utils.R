@@ -58,18 +58,20 @@ ISCon$set(
   which = "private",
   name = ".checkStudy",
   value = function(verbose = FALSE) {
-    folders <- labkey.getFolders(baseUrl = self$config$labkey.url.base,
-                                 folderPath = "",
-                                 includeSubfolders = TRUE,
-                                 includeEffectivePermissions = TRUE)
+    folders <- labkey.getFolders(
+      baseUrl = self$config$labkey.url.base,
+      folderPath = "",
+      includeSubfolders = TRUE,
+      includeEffectivePermissions = TRUE
+    )
     folders <- folders[ grepl("IS\\d{1}|SDY\\d{2,4}", folders$name), ]
     study <- basename(self$config$labkey.url.path)
 
     if (!(study %in% c("Studies", folders$name))) {
       msg <- ifelse(verbose == FALSE,
-                    " is not a valid study. \n Use `verbose = TRUE` to see list of valid studies.",
-                    paste0(" is not a valid study\nValid studies: ", paste(folders$name, collapse = ", "))
-                    )
+        " is not a valid study. \n Use `verbose = TRUE` to see list of valid studies.",
+        paste0(" is not a valid study\nValid studies: ", paste(folders$name, collapse = ", "))
+      )
       stop(paste0(study, msg))
     }
   }
