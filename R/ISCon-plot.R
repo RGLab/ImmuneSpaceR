@@ -23,7 +23,7 @@ ISCon$set(
 # HELPER -----------------------------------------------------------------------
 
 # Visualize a dataset
-#' @importFrom ggplot2 facet_grid facet_wrap geom_text element_blank
+#' @importFrom ggplot2 facet_grid facet_wrap geom_text element_blank vars
 #' @importFrom Biobase pData
 .plot <- function(con,
                   dataset,
