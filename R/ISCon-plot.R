@@ -23,7 +23,7 @@ ISCon$set(
 # HELPER -----------------------------------------------------------------------
 
 # Visualize a dataset
-#' @importFrom ggplot2 facet_grid facet_wrap geom_text element_blank
+#' @importFrom ggplot2 facet_grid facet_wrap geom_text element_blank vars
 #' @importFrom Biobase pData
 .plot <- function(con,
                   dataset,
@@ -95,18 +95,20 @@ ISCon$set(
   }
 
   # Plot
-  if (facet == "grid") {
-    facet <- facet_grid(aes(analyte, cohort), scales = "free")
-  } else if (facet == "wrap") {
-    facet <- facet_wrap(~ cohort + analyte, scales = "free")
-  }
   if (type == "heatmap") {
     p <- .qpHeatmap2(dt, normalize_to_baseline, legend, text_size, interactive)
     if (interactive) p
-  } else if (type %in% c("boxplot", "violin")) {
-    .qpBoxplotViolin(dt, type, facet, ylab, text_size, extras, interactive, ...)
-  } else if (type == "line") {
-    .qpLineplot(dt, facet, ylab, text_size, extras, interactive, ...)
+  } else if (type %in% c("boxplot", "violin", "line")) {
+    if (facet == "grid") {
+      facet <- facet_grid(vars(analyte), vars(cohort), scales = "free")
+    } else if (facet == "wrap") {
+      facet <- facet_wrap(~ cohort + analyte, scales = "free")
+    }
+    if (type == "line") {
+      .qpLineplot(dt, facet, ylab, text_size, extras, interactive, ...)
+    } else {
+      .qpBoxplotViolin(dt, type, facet, ylab, text_size, extras, interactive, ...)
+    }
   } else { # } if (type == "error") {
     data <- data.frame(x = 0, y = 0, err = error_string)
     p <- ggplot(data = data) +
@@ -482,3 +484,4 @@ ISCon$set(
 
   return(lab)
 }
+
