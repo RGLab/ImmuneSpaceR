@@ -363,7 +363,7 @@ ISCon$set(
   }
 
   if (dataset == "elispot") {
-    dt <- dt[, value_preferred := (spot_number_reported) / cell_number_reported]
+    dt <- dt[, value_preferred := (spot_number_reported) / cell_number_preferred]
   } else if (dataset %in% c("hai", "neut_ab_titer")) {
     if (isTRUE(show_virus_strain)) {
       dt <- dt[, analyte := virus]
