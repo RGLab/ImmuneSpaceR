@@ -97,11 +97,11 @@ ISCon$set(
   which = "public",
   name = "getGEMatrix",
   value = function(matrixName = NULL,
-                     cohortType = NULL,
-                     outputType = "summary",
-                     annotation = "latest",
-                     reload = FALSE,
-                     verbose = FALSE) {
+                   cohortType = NULL,
+                   outputType = "summary",
+                   annotation = "latest",
+                   reload = FALSE,
+                   verbose = FALSE) {
 
     # Handle potential incorrect use of "ImmSig" annotation
     if (outputType == "summary" & annotation == "ImmSig") {
@@ -131,37 +131,12 @@ ISCon$set(
       }
     }
 
-    cache_name <- .setCacheName(matrixName, outputType)
-    esetName <- paste0(cache_name, "_eset")
 
-    # Multiple matrices
-    if (length(matrixName) > 1) {
-      lapply(matrixName, private$.downloadMatrix, outputType, annotation, reload)
-      lapply(matrixName, private$.getGEFeatures, outputType, annotation, reload)
-      lapply(matrixName, private$.constructExpressionSet, outputType, annotation)
-      ret <- .combineEMs(self$cache[esetName])
+    # Get matrix or matrices
+    esetNames <- vapply(matrixName, function(matrixName) {
+      cache_name <- .setCacheName(matrixName, outputType)
+      esetName <- paste0(cache_name, "_eset")
 
-      # Handle cases where combineEMs() results in no return object
-      if (dim(ret)[[1]] == 0) {
-        warn <- "Returned ExpressionSet has 0 rows. No feature is shared across the selected runs or cohorts."
-        if (outputType != "summary") {
-          warn <- paste(warn, "Try outputType = 'summary' to merge matrices by gene symbol.")
-        }
-        warning(warn)
-      }
-
-      if (verbose == TRUE) {
-        info <- Biobase::experimentData(ret)
-        message("\nNotes:")
-        dmp <- lapply(names(info@other), function(nm) {
-          message(paste0(nm, ": ", info@other[[nm]]))
-        })
-      }
-
-      return(ret)
-
-      # Single matrix
-    } else {
       if (esetName %in% names(self$cache) & !reload) {
         message(paste0("returning ", esetName, " from cache"))
       } else {
@@ -170,17 +145,40 @@ ISCon$set(
         private$.getGEFeatures(matrixName, outputType, annotation, reload)
         private$.constructExpressionSet(matrixName, outputType, annotation)
       }
+      return(esetName)
+    },
+    FUN.VALUE = "esetName")
 
-      if (verbose == TRUE) {
-        info <- Biobase::experimentData(self$cache[[esetName]])
-        message("\nNotes:")
-        dmp <- lapply(names(info@other), function(nm) {
-          message(paste0(nm, ": ", info@other[[nm]]))
-        })
+    # Combine if needed
+    if (length(esetNames) > 1) {
+
+      eset <- .combineEMs(self$cache[esetNames])
+      # Handle cases where combineEMs() results in no return object
+      if (dim(eset)[[1]] == 0) {
+        warn <- "Returned ExpressionSet has 0 rows. No feature is shared across the selected runs or cohorts."
+        if (outputType != "summary") {
+          warn <- paste(warn, "Try outputType = 'summary' to merge matrices by gene symbol.")
+        }
+        warning(warn)
       }
 
-      return(self$cache[[esetName]])
+    } else {
+
+      eset <- self$cache[[esetNames]]
+
     }
+
+    if (verbose == TRUE) {
+      info <- Biobase::experimentData(ret)
+      message("\nNotes:")
+      dmp <- lapply(names(info@other), function(nm) {
+        message(paste0(nm, ": ", info@other[[nm]]))
+      })
+    }
+
+    return(eset)
+
+
   }
 )
 

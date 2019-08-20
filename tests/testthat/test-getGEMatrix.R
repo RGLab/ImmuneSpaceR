@@ -69,11 +69,18 @@ test_that("get_multiple matrices summary without cache error", {
 
 test_that("get_multiple matrices summary with reload", {
   EM <- sdy$getGEMatrix(c("SDY269_PBMC_TIV_Geo", "SDY269_PBMC_LAIV_Geo"),
-    outputType = "summary",
-    annotation = "latest",
-    reload = TRUE
+                        outputType = "summary",
+                        annotation = "latest",
+                        reload = TRUE
   )
   test_EM(EM, summary = TRUE)
+})
+
+test_that("get multiple matrices summary from different studies", {
+  EM <- sdy$getGEMatrix(c("SDY269_PBMC_TIV_Geo", "SDY180_WholeBlood_Grp2Pneunomax23_Geo"), outputType = "summary", annotation = "latest")
+  test_EM(EM, summary = TRUE)
+  expect_equal(ncol(Biobase::exprs(EM)), 193)
+  expect_equal(nrow(Biobase::exprs(EM)), 15476)
 })
 
 # Use specific tests here to ensure the IS1 report will load correctly
