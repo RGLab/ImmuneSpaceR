@@ -133,17 +133,16 @@ ISCon$set(
 
 
     # Get matrix or matrices
-    esetNames <- vapply(matrixName, function(matrixName) {
-      cache_name <- .setCacheName(matrixName, outputType)
-      esetName <- paste0(cache_name, "_eset")
+    esetNames <- vapply(matrixName, function(name) {
+      esetName <- paste0(.setCacheName(name, outputType, annotation), "_eset")
 
       if (esetName %in% names(self$cache) & !reload) {
         message(paste0("returning ", esetName, " from cache"))
       } else {
         self$cache[[esetName]] <- NULL
-        private$.downloadMatrix(matrixName, outputType, annotation, reload)
-        private$.getGEFeatures(matrixName, outputType, annotation, reload)
-        private$.constructExpressionSet(matrixName, outputType, annotation)
+        private$.downloadMatrix(name, outputType, annotation, reload)
+        private$.getGEFeatures(name, outputType, annotation, reload)
+        private$.constructExpressionSet(name, outputType, annotation)
       }
       return(esetName)
     },
@@ -458,10 +457,10 @@ ISCon$set(
   which = "private",
   name = ".downloadMatrix",
   value = function(matrixName,
-                     outputType = "summary",
-                     annotation = "latest",
-                     reload = FALSE) {
-    cache_name <- .setCacheName(matrixName, outputType)
+                   outputType = "summary",
+                   annotation = "latest",
+                   reload = FALSE) {
+    cache_name <- .setCacheName(matrixName, outputType, annotation)
 
     # check if study has matrices
     if (nrow(subset(
@@ -595,10 +594,10 @@ ISCon$set(
   which = "private",
   name = ".getGEFeatures",
   value = function(matrixName,
-                     outputType = "summary",
-                     annotation = "latest",
-                     reload = FALSE) {
-    cache_name <- .setCacheName(matrixName, outputType)
+                   outputType = "summary",
+                   annotation = "latest",
+                   reload = FALSE) {
+    cache_name <- .setCacheName(matrixName, outputType, annotation)
 
     if (!(matrixName %in% self$cache[[private$.constants$matrices]]$name)) {
       stop("Invalid gene expression matrix name")
@@ -694,7 +693,7 @@ ISCon$set(
   which = "private",
   name = ".constructExpressionSet",
   value = function(matrixName, outputType, annotation) {
-    cache_name <- .setCacheName(matrixName, outputType)
+    cache_name <- .setCacheName(matrixName, outputType, annotation)
     esetName <- paste0(cache_name, "_eset")
 
     # expression matrix
@@ -881,15 +880,21 @@ ISCon$set(
 # HELPER -----------------------------------------------------------------------
 
 # Set the cache name of expression matrix by output type
-.setCacheName <- function(matrixName, outputType) {
+.setCacheName <- function(matrixName, outputType, annotation) {
   outputSuffix <- switch(
     outputType,
     "summary" = "_sum",
     "normalized" = "_norm",
     "raw" = "_raw"
   )
+  annotationSuffix <- switch(
+    annotation,
+    "latest" = "_latest",
+    "default" = "_default",
+    "ImmSig" = "_immsig"
+  )
 
-  paste0(matrixName, outputSuffix)
+  paste0(matrixName, outputSuffix, annotationSuffix)
 }
 
 
@@ -913,3 +918,4 @@ ISCon$set(
 
   Reduce(f = combine, EMlist)
 }
+
