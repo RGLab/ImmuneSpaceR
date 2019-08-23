@@ -39,7 +39,6 @@ ISCon$set(
         self$cache[[private$.constants$matrices]] <- NULL
       } else {
         # adding cols to allow for getGEMatrix() to update
-        ge[, annotation := ""][, outputType := ""][] # see data.table #869
         ge[, cacheinfo := ""][]
         setnames(ge, private$.munge(colnames(ge)))
 
@@ -138,7 +137,7 @@ ISCon$set(
       esetName <- .getEsetName(name, outputType, annotation)
 
       if (esetName %in% names(self$cache) & !reload) {
-        message(paste0("returning ", esetName, " from cache"))
+        message(paste0("Returning ", esetName, " from cache"))
       } else {
         self$cache[[esetName]] <- NULL
         private$.downloadMatrix(name, outputType, annotation, reload)
@@ -491,12 +490,12 @@ ISCon$set(
     if (!reload) {
 
       if (grepl(cacheinfo, self$cache$GE_matrices$cacheinfo[self$cache$GE_matrices$name == matrixName]) ) {
-        message(paste0("returning ", outputType, " matrix from cache"))
+        message(paste0("Returning ", outputType, " matrix from cache"))
         return()
       }
       if (outputType != "summary") {
         if (grepl(outputType, self$cache$GE_matrices$cacheinfo[self$cache$GE_matrices$name == matrixName])) {
-          message(paste0("returning ", outputType, " matrix from cache"))
+          message(paste0("Returning ", outputType, " matrix from cache"))
           return()
         }
       }
@@ -629,9 +628,18 @@ ISCon$set(
     }
 
     cacheinfo_status <- self$cache$GE_matrices$cacheinfo[self$cache$GE_matrices$name == matrixName]
-    if (grepl(cacheinfo, cacheinfo_status) & !reload) {
-      message(paste0("returning ", annotation, " annotation from cache"))
-      return()
+    # For raw or normalized, can reuse cached annotation
+    if ( !reload ) {
+      if (grepl(cacheinfo, cacheinfo_status)) {
+        message(paste0("Returning ", annotation, " annotation from cache"))
+        return()
+      }
+      if (outputType != "summary") {
+        if (grepl(paste0("(raw_", annotation, ")|(normalized_", annotation, ")"), cacheinfo_status)) {
+          message(paste0("Returning ", annotation, " annotation from cache"))
+          return()
+        }
+      }
     }
 
     # ---- queries ------
@@ -677,6 +685,10 @@ ISCon$set(
     }
 
     if (outputType != "summary") {
+      if (paste0("featureset_", annoSetId) %in% names(self$cache)){
+        message(paste0("Returning ", annotation, " annotation from cache"))
+      }
+
       message("Downloading Features..")
       featureAnnotationSetQuery <- sprintf(
         "SELECT * from FeatureAnnotation where FeatureAnnotationSetId='%s';",
@@ -690,6 +702,12 @@ ISCon$set(
         colNameOpt = "fieldname"
       )
       setnames(features, "GeneSymbol", "gene_symbol")
+
+      # update cache$gematrices with correct fasId
+      self$cache$GE_matrices$featureset[self$cache$GE_matrices$name == matrixName] <- annoSetId
+
+      # push features to cache
+      self$cache[[paste0("featureset_", annoSetId)]] <- features
     } else {
       # Get annotation from flat file b/c otherwise don't know order
       # NOTE: For ImmSig studies, this means that summaries use the latest
@@ -700,12 +718,7 @@ ISCon$set(
       )
     }
 
-    # update cache$gematrices with correct fasId
-    self$cache$GE_matrices$featureset[self$cache$GE_matrices$name == matrixName] <- annoSetId
 
-
-    # push features to cache
-    self$cache[[paste0("featureset_", annoSetId)]] <- features
   }
 )
 
@@ -901,7 +914,7 @@ ISCon$set(
 
 # HELPER -----------------------------------------------------------------------
 
-# Set the cache name of expression matrix by output type
+# Get the cache name of expression matrix by output type and annotation
 .getMatrixCacheName <- function(matrixName, outputType, annotation) {
 
   outputSuffix <- switch(
@@ -927,11 +940,13 @@ ISCon$set(
 
 }
 
+# Get the cache name for eset by output type and annotation
 .getEsetName <- function(matrixName, outputType, annotation) {
   esetName <- paste0(matrixName, "_", outputType, "_", annotation, "_eset")
   return(esetName)
 }
 
+# Get cacheinfo string from output type and annotation
 .getcacheinfo <- function(outputType, annotation) {
   cacheinfo <- paste0(outputType, "_", annotation)
   return(cacheinfo)

@@ -1,6 +1,7 @@
 context("ISCon$getGEMatrix()")
 
 # CreateConnection ------------------------------------------
+
 sdy <- CreateConnection("")
 IS1 <- CreateConnection("IS1")
 
@@ -87,13 +88,16 @@ test_that("loading from cache works correctly", {
                "(cache)|(Combining ExpressionSets)", all = TRUE)
   # summary with a different annotation should download a new matrix
   expect_message(sdy$getGEMatrix("SDY180_WholeBlood_Grp2Pneunomax23_Geo", outputType = "summary", annotation = "default"),
-                 "(Reading|Downloading)|Constructing", all = TRUE)
+                 "(Reading|Downloading)|(Constructing)", all = TRUE)
   # Should load eset from cache
-  expect_message(sdy$getGEMatrix("SDY269_PBMC_TIV_Geo", outputType = "normalized"),
-                 "returning SDY269_PBMC_TIV_Geo_normalized_latest_eset from cache")
+  expect_message(sdy$getGEMatrix("SDY269_PBMC_TIV_Geo", outputType = "normalized", annotation = "latest"),
+                 "Returning SDY269_PBMC_TIV_Geo_normalized_latest_eset from cache")
   # Should load matrix from cache and construct a new expressionset
   expect_message(sdy$getGEMatrix("SDY269_PBMC_TIV_Geo", outputType = "normalized", annotation = "default"),
-                 "(returning normalized matrix from cache)|(Downloading Features)|(Constructing ExpressionSet)", all = TRUE)
+                 "(Returning normalized matrix from cache)|(Downloading Features)|(Constructing ExpressionSet)", all = TRUE)
+  # Should download a new matrix, load annotation from cache, and construct a new expressionset
+  expect_message(sdy$getGEMatrix("SDY56_PBMC_Young", outputType = "normalized"),
+                 "(Reading|Downloading)|(Returning latest annotation from cache)|(Constructing ExpressionSet)", all = TRUE)
 })
 
 # Use specific tests here to ensure the IS1 report will load correctly
