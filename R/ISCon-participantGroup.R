@@ -99,14 +99,52 @@ ISCon$set(
       )
     )
 
-    self$getDataset(
-      dataType,
-      original_view = original_view,
-      reload = reload,
-      colFilter = colFilter,
-      transformMethod = transformMethod,
-      ...
+      return (self$getDataset(
+        dataType,
+        original_view = original_view,
+        reload = reload,
+        colFilter = colFilter,
+        transformMethod = transformMethod,
+        ...
+      ))
+
+
+
+  }
+)
+
+ISCon$set(
+  which = "public",
+  name = "getParticipantGEMatrix",
+  value = function(group, outputType = "summary", annotation = "latest", reload = FALSE) {
+    private$.assertAllStudyConnection()
+
+
+    cohort_membership <- self$getParticipantData(group,
+                                                 "cohort_membership",
+                                                 colSelect = c("name", "study_accession", "ParticipantId"))
+
+    # Get gem names for those cohorts
+    folderFilter <- makeFilter(
+      c("Folder/Name", "IN", paste0(unique(cohort_membership$study_accession), collapse = ";") )
     )
+    runs <- labkey.selectRows(self$config$labkey.url.base,
+                              "Studies",
+                              "assay.ExpressionMatrix.matrix",
+                              "Runs",
+                              colFilter = folderFilter)
+    all <- merge(runs, unique(cohort_membership[, .(study_accession, name)]),
+                 by.x = c("Cohort", "Study"), by.y = c("name", "study_accession"),
+                 all.x = FALSE,
+                 all.y = FALSE)
+    mats <- unique(all$Name)
+    message(paste0(length(mats), " matrices found for ", group))
+    mat <- self$getGEMatrix(mats,
+                            outputType = outputType,
+                            annotation = annotation,
+                            reload = reload)
+    return(mat)
+
   }
 )
 

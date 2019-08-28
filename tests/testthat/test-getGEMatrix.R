@@ -2,7 +2,7 @@ context("ISCon$getGEMatrix()")
 
 # CreateConnection ------------------------------------------
 
-sdy <- CreateConnection("")
+sdy <- CONNECTIONS$ALL
 IS1 <- CreateConnection("IS1")
 
 

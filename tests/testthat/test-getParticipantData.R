@@ -27,3 +27,18 @@ test_getParticipantData("hai")
 test_getParticipantData("hla_typing")
 test_getParticipantData("elispot")
 test_getParticipantData("cohort_membership")
+
+# Test getParticipantGEMatrix()
+test_that("getParticipantGEMatrix() works correctly", {
+  skip_if_not(Sys.getenv("ISR_login") == "readonly@rglab.org")
+
+  expect_message({EM <- CONNECTIONS$ALL$getParticipantGEMatrix("gem_test")},
+                 "4 matrices found for gem_test")
+  expect_is(EM, "ExpressionSet")
+  expect_is(EM, "ExpressionSet")
+  expect_gt(ncol(Biobase::exprs(EM)), 0)
+  expect_gt(nrow(Biobase::exprs(EM)), 0)
+  # In summary, no gene is NA
+  expect_false(any(is.na(fData(EM)$gene_symbol)))
+})
+
