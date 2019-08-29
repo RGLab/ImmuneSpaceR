@@ -4,6 +4,7 @@ context("ISCon$getParticipantData()")
 # Test helpers -----------
 # Test getParticipantIdsFromGroup()
 test_that("getParticipantIdsFromGroup() works correctly", {
+  skip_if_not(Sys.getenv("ISR_login") == "readonly@rglab.org")
   ids <- CONNECTIONS$ALL$.__enclos_env__$private$.getParticipantIdsFromGroup("travis_test")
   expect_is(ids, "character")
   expect_gt(length(ids), 0)
@@ -50,7 +51,8 @@ test_getParticipantData("cohort_membership")
 
 
 test_that("listParticipantGEMatrices() works correctly", {
-  matrices <- CONNECTIONS$ALL$listParticipantGEMatrices("travis_test")
+  skip_if_not(Sys.getenv("ISR_login") == "readonly@rglab.org")
+  matrices <- CONNECTIONS$ALL$listParticipantGEMatrices("auto_test")
   expect_is(matrices, "data.table")
   expect_gt(nrow(matrices), 0)
   expect_lt(nrow(matrices), 100)
@@ -80,6 +82,6 @@ test_that("getParticipantGEMatrix() works correctly", {
   expect_lte(length(unique(EM$participant_id)), length(ids))
 
   # In summary, no gene is NA
-  expect_false(any(is.na(fData(EM)$gene_symbol)))
+  expect_false(any(is.na(Biobase::fData(EM)$gene_symbol)))
 })
 

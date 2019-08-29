@@ -67,25 +67,18 @@ ISCon$set(
       # Get matrices from participantIDs
       # Use assay.ExpressionMatrix.inputSamples in executeSQL to get distinct matrices
 
+      sql <- paste0("SELECT DISTINCT Run.Name
+                     FROM InputSamples
+                     WHERE Biosample.participantId IN ('", paste0(participantIds, collapse = "','"), "')"
+      )
+
       matrixNames <- Rlabkey::labkey.executeSql(self$config$labkey.url.base,
-                                 folderPath = self$config$labkey.url.path,
-                                 schemaName = "assay.ExpressionMatrix.matrix",
-                                 sql = paste0("
-                                   SELECT DISTINCT matrix
-                                   FROM InputSamples
-                                     LEFT OUTER JOIN (
-                                        SELECT RowId, Name as matrix FROM assay.ExpressionMatrix.matrix.Runs
-                                     ) R
-                                     ON InputSamples.Run = R.RowId
-                                     LEFT OUTER JOIN (
-                                        SELECT biosample_accession, subject_accession || '.' || regexp_replace(study_accession, 'SDY', '') as participant_id from immport.biosample
-                                     ) B
-                                     ON InputSamples.Biosample = B.biosample_accession
-                                   WHERE participant_id IN ('", paste0(participantIds, collapse = "','"), "')
-                                   "
-                                 ),
-                                 containerFilter = "CurrentAndSubfolders",
-                                 colNameOpt = "fieldname")
+                                                folderPath = self$config$labkey.url.path,
+                                                schemaName = "assay.ExpressionMatrix.matrix",
+                                                sql = sql,
+                                                containerFilter = "CurrentAndSubfolders",
+                                                colNameOpt = "fieldname")
+
       return(self$cache[[private$.constants$matrices]][name %in% matrixNames$matrix])
     }
   }
