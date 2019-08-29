@@ -9,7 +9,7 @@ NULL
 ISCon$set(
   which = "public",
   name = "listGEMatrices",
-  value = function(verbose = FALSE, reload = FALSE) {
+  value = function(verbose = FALSE, reload = FALSE, participantIds = NULL) {
     ## HELPERS
     ..getData <- function() {
       try(
@@ -61,8 +61,33 @@ ISCon$set(
         self$cache[[private$.constants$matrices]] <- ge
       }
     }
+    if ( is.null(participantIds) ) {
+      return(self$cache[[private$.constants$matrices]])
+    } else {
+      # Get matrices from participantIDs
+      # Use assay.ExpressionMatrix.inputSamples in executeSQL to get distinct matrices
 
-    self$cache[[private$.constants$matrices]]
+      matrixNames <- Rlabkey::labkey.executeSql(self$config$labkey.url.base,
+                                 folderPath = self$config$labkey.url.path,
+                                 schemaName = "assay.ExpressionMatrix.matrix",
+                                 sql = paste0("
+                                   SELECT DISTINCT matrix
+                                   FROM InputSamples
+                                     LEFT OUTER JOIN (
+                                        SELECT RowId, Name as matrix FROM assay.ExpressionMatrix.matrix.Runs
+                                     ) R
+                                     ON InputSamples.Run = R.RowId
+                                     LEFT OUTER JOIN (
+                                        SELECT biosample_accession, subject_accession || '.' || regexp_replace(study_accession, 'SDY', '') as participant_id from immport.biosample
+                                     ) B
+                                     ON InputSamples.Biosample = B.biosample_accession
+                                   WHERE participant_id IN ('", paste0(participantIds, collapse = "','"), "')
+                                   "
+                                 ),
+                                 containerFilter = "CurrentAndSubfolders",
+                                 colNameOpt = "fieldname")
+      return(self$cache[[private$.constants$matrices]][name %in% matrixNames$matrix])
+    }
   }
 )
 
