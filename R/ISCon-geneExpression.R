@@ -79,7 +79,7 @@ ISCon$set(
                                                 containerFilter = "CurrentAndSubfolders",
                                                 colNameOpt = "fieldname")
 
-      return(self$cache[[private$.constants$matrices]][name %in% matrixNames$matrix])
+      return(self$cache[[private$.constants$matrices]][name %in% matrixNames$Name])
     }
   }
 )
