@@ -4,6 +4,7 @@ context("ISCon$getGEMatrix()")
 
 sdy <- CONNECTIONS$ALL
 IS1 <- CreateConnection("IS1")
+sdy269 <- CreateConnection("SDY269")
 
 
 # Helper Function -------------------------------------------
@@ -31,6 +32,11 @@ test_PD <- function(PD, phenoCols) {
 
 
 # Main Tests ------------------------------------------------
+test_that("gets combined summary eset by default if at study level", {
+  EM <- sdy269$getGEMatrix()
+  test_EM(EM, summary = TRUE)
+})
+
 test_that("gets TIV_2008 eSet non-summary", {
   EM <- sdy$getGEMatrix("SDY269_PBMC_TIV_Geo", outputType = "normalized")
   test_EM(EM, summary = FALSE)

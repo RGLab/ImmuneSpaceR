@@ -150,6 +150,10 @@ ISCon$set(
       }
     }
 
+    # Return a combined eSet of all matrices by default
+    if (is.null(matrixName)) {
+      matrixName <- self$cache$GE_matrices$name
+    }
 
     # Get matrix or matrices
     esetNames <- vapply(matrixName, function(name) {
@@ -556,11 +560,13 @@ ISCon$set(
       runDirs <- grep("Run", runDirs, value = TRUE)
 
       # Map run sub-directories to the matrixNames passed to downloadMatrix
-      id2MxNm <- sapply(runDirs, function(x) {
+      id2MxNm <- vapply(runDirs, function(x) {
         run_folder <- gsub("exprs_matrices", paste0("exprs_matrices/", x), folder_link)
         fls <- unlist(lapply(run_folder, private$.listISFiles))
         newNm <- gsub("\\.tsv*", "", grep("tsv", fls, value = TRUE)[[1]])
-      })
+      },
+      FUN.VALUE = "newNm"
+      )
 
       # Generate correct filepath in /HIPC/IS1/@files/analysis/exprs_matrices/
       runId <- names(id2MxNm)[ match(matrixName, id2MxNm) ]
@@ -584,39 +590,27 @@ ISCon$set(
     )
 
     localpath <- private$.localStudyPath(urlPath = link)
-    if (private$.isRunningLocally(localpath)) {
+    runningLocally <- private$.isRunningLocally(localpath)
+    if (runningLocally) {
       message("Reading local matrix")
-      self$cache[[cache_name]] <- read.table(
-        localpath,
-        header = TRUE,
-        sep = "\t",
-        quote = "\"",
-        stringsAsFactors = FALSE
-      )
+      fl <- localpath
     } else {
+      message("Downloading matrix..")
       opts <- self$config$curlOptions
       opts$options$netrc <- 1L
-
-      message("Downloading matrix..")
       fl <- tempfile()
       GET(url = link, config = opts, write_disk(fl))
+    }
 
-      # fread does not read correctly
-      # SDY1289 has gene symbols in original version with single quote, therefore need
-      # to change 'quote' so that only looks for double-quote
-      EM <- read.table(
-        fl,
-        header = TRUE,
-        sep = "\t",
-        quote = "\"",
-        stringsAsFactors = FALSE
-      )
+    EM <- data.table::fread(fl, sep = "\t", header = TRUE)
 
-      if (nrow(EM) == 0) {
-        stop("The downloaded matrix has 0 rows. Something went wrong.")
-      }
+    if (nrow(EM) == 0) {
+      stop("The downloaded matrix has 0 rows. Something went wrong.")
+    }
 
-      self$cache[[cache_name]] <- EM
+    self$cache[[cache_name]] <- EM
+
+    if (!runningLocally) {
       file.remove(fl)
     }
   }
