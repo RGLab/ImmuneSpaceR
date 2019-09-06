@@ -73,15 +73,14 @@ ISCon$set(
       )
     )
 
-      return (self$getDataset(
-        dataType,
-        original_view = original_view,
-        reload = reload,
-        colFilter = colFilter,
-        transformMethod = transformMethod,
-        ...
-      ))
-
+    return(self$getDataset(
+      dataType,
+      original_view = original_view,
+      reload = reload,
+      colFilter = colFilter,
+      transformMethod = transformMethod,
+      ...
+    ))
   }
 )
 
@@ -96,8 +95,8 @@ ISCon$set(
     matrices <- self$listGEMatrices(verbose = verbose, participantIds = participantIds)
 
     return(matrices)
-
-  })
+  }
+)
 
 
 ISCon$set(
@@ -113,12 +112,12 @@ ISCon$set(
     message(paste0(length(matNames), " matrices found for ", groupName))
 
     mat <- self$getGEMatrix(matNames,
-                            outputType = outputType,
-                            annotation = annotation,
-                            reload = reload)
+      outputType = outputType,
+      annotation = annotation,
+      reload = reload
+    )
 
     return(mat[, mat$participant_id %in% ids])
-
   }
 )
 
@@ -238,7 +237,6 @@ ISCon$set(
     # ---- Return participantIds ----
 
     return(validGroups[group_name == groupName, subjects][[1]])
-
   }
 )
 

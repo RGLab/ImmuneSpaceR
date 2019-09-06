@@ -70,17 +70,18 @@ test_that("get_multiple matrices summary without cache error", {
 
 test_that("get_multiple matrices summary with reload", {
   EM <- sdy$getGEMatrix(c("SDY269_PBMC_TIV_Geo", "SDY269_PBMC_LAIV_Geo"),
-                        outputType = "summary",
-                        annotation = "latest",
-                        reload = TRUE
+    outputType = "summary",
+    annotation = "latest",
+    reload = TRUE
   )
   test_EM(EM, summary = TRUE)
 })
 
 test_that("get multiple matrices summary from different studies", {
   EM <- sdy$getGEMatrix(c("SDY269_PBMC_TIV_Geo", "SDY180_WholeBlood_Grp2Pneunomax23_Geo"),
-                        outputType = "summary",
-                        annotation = "latest")
+    outputType = "summary",
+    annotation = "latest"
+  )
   test_EM(EM, summary = TRUE)
 })
 
@@ -88,23 +89,33 @@ test_that("loading from cache works correctly", {
 
   # Should load both matrices from cache
   expect_message(sdy$getGEMatrix(c("SDY269_PBMC_TIV_Geo", "SDY180_WholeBlood_Grp2Pneunomax23_Geo"), outputType = "summary", annotation = "latest"),
-               "(cache)|(Combining ExpressionSets)", all = TRUE)
+    "(cache)|(Combining ExpressionSets)",
+    all = TRUE
+  )
 
   # summary with a different annotation should download a new matrix
   expect_message(sdy$getGEMatrix("SDY180_WholeBlood_Grp2Pneunomax23_Geo", outputType = "summary", annotation = "default"),
-                 "(Reading|Downloading)|(Constructing)", all = TRUE)
+    "(Reading|Downloading)|(Constructing)",
+    all = TRUE
+  )
 
   # Should load eset from cache
-  expect_message(sdy$getGEMatrix("SDY269_PBMC_TIV_Geo", outputType = "normalized", annotation = "latest"),
-                 "Returning SDY269_PBMC_TIV_Geo_normalized_latest_eset from cache")
+  expect_message(
+    sdy$getGEMatrix("SDY269_PBMC_TIV_Geo", outputType = "normalized", annotation = "latest"),
+    "Returning SDY269_PBMC_TIV_Geo_normalized_latest_eset from cache"
+  )
 
   # Should load matrix from cache and construct a new expressionset
   expect_message(sdy$getGEMatrix("SDY269_PBMC_TIV_Geo", outputType = "normalized", annotation = "default"),
-                 "(Returning normalized matrix from cache)|(Downloading Features)|(Constructing ExpressionSet)", all = TRUE)
+    "(Returning normalized matrix from cache)|(Downloading Features)|(Constructing ExpressionSet)",
+    all = TRUE
+  )
 
   # Should download a new matrix, load annotation from cache, and construct a new expressionset
   expect_message(sdy$getGEMatrix("SDY56_PBMC_Young", outputType = "normalized"),
-                 "(Reading|Downloading)|(Returning latest annotation from cache)|(Constructing ExpressionSet)", all = TRUE)
+    "(Reading|Downloading)|(Returning latest annotation from cache)|(Constructing ExpressionSet)",
+    all = TRUE
+  )
 })
 
 # Use specific tests here to ensure the IS1 report will load correctly

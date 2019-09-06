@@ -12,4 +12,3 @@ test_getParticipantData <- function(dataset, original_view = FALSE) {
     expect_named(data, columns)
   })
 }
-

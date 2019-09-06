@@ -61,7 +61,7 @@ ISCon$set(
         self$cache[[private$.constants$matrices]] <- ge
       }
     }
-    if ( is.null(participantIds) ) {
+    if (is.null(participantIds)) {
       return(self$cache[[private$.constants$matrices]])
     } else {
       # Get matrices from participantIDs
@@ -69,15 +69,16 @@ ISCon$set(
 
       sql <- paste0("SELECT DISTINCT Run.Name
                      FROM InputSamples
-                     WHERE Biosample.participantId IN ('", paste0(participantIds, collapse = "','"), "')"
-      )
+                     WHERE Biosample.participantId IN ('", paste0(participantIds, collapse = "','"), "')")
 
-      matrixNames <- Rlabkey::labkey.executeSql(self$config$labkey.url.base,
-                                                folderPath = self$config$labkey.url.path,
-                                                schemaName = "assay.ExpressionMatrix.matrix",
-                                                sql = sql,
-                                                containerFilter = "CurrentAndSubfolders",
-                                                colNameOpt = "fieldname")
+      matrixNames <- Rlabkey::labkey.executeSql(
+        baseUrl = self$config$labkey.url.base,
+        folderPath = self$config$labkey.url.path,
+        schemaName = "assay.ExpressionMatrix.matrix",
+        sql = sql,
+        containerFilter = "CurrentAndSubfolders",
+        colNameOpt = "fieldname"
+      )
 
       return(self$cache[[private$.constants$matrices]][name %in% matrixNames$Name])
     }
@@ -115,11 +116,11 @@ ISCon$set(
   which = "public",
   name = "getGEMatrix",
   value = function(matrixName = NULL,
-                   cohortType = NULL,
-                   outputType = "summary",
-                   annotation = "latest",
-                   reload = FALSE,
-                   verbose = FALSE) {
+                     cohortType = NULL,
+                     outputType = "summary",
+                     annotation = "latest",
+                     reload = FALSE,
+                     verbose = FALSE) {
 
     # Handle potential incorrect use of "ImmSig" annotation
     if (outputType == "summary" & annotation == "ImmSig") {
@@ -167,17 +168,19 @@ ISCon$set(
         cacheinfo <- .getcacheinfo(outputType, annotation)
         if (!grepl(cacheinfo, cacheinfo_status)) {
           self$cache$GE_matrices$cacheinfo[self$cache$GE_matrices$name == name] <-
-            paste0(cacheinfo_status,
-                   cacheinfo, ";")
+            paste0(
+              cacheinfo_status,
+              cacheinfo, ";"
+            )
         }
       }
       return(esetName)
     },
-    FUN.VALUE = "esetName")
+    FUN.VALUE = "esetName"
+    )
 
     # Combine if needed
     if (length(esetNames) > 1) {
-
       eset <- .combineEMs(self$cache[esetNames])
       # Handle cases where combineEMs() results in no return object
       if (dim(eset)[[1]] == 0) {
@@ -187,11 +190,8 @@ ISCon$set(
         }
         warning(warn)
       }
-
     } else {
-
       eset <- self$cache[[esetNames]]
-
     }
 
     if (verbose == TRUE) {
@@ -203,8 +203,6 @@ ISCon$set(
     }
 
     return(eset)
-
-
   }
 )
 
@@ -403,7 +401,7 @@ ISCon$set(
         biosample_accession
       ),
       name
-      ]
+    ]
 
     expressionSet
   }
@@ -454,7 +452,7 @@ ISCon$set(
         pd[
           match(sampleNames(EM), pd$biosample_accession),
           expsample_accession
-          ]
+        ]
     } else if (colType %in% c("participant", "subject")) {
       pd[, nID := paste0(
         participant_id,
@@ -484,10 +482,9 @@ ISCon$set(
   which = "private",
   name = ".downloadMatrix",
   value = function(matrixName,
-                   outputType = "summary",
-                   annotation = "latest",
-                   reload = FALSE) {
-
+                     outputType = "summary",
+                     annotation = "latest",
+                     reload = FALSE) {
     cache_name <- .getMatrixCacheName(matrixName, outputType, annotation)
     cacheinfo <- .getcacheinfo(outputType, annotation)
 
@@ -506,8 +503,7 @@ ISCon$set(
     #   b. outputType matches cache and is not summary
     # Otherwise, load a new matrix
     if (!reload) {
-
-      if (grepl(cacheinfo, self$cache$GE_matrices$cacheinfo[self$cache$GE_matrices$name == matrixName]) ) {
+      if (grepl(cacheinfo, self$cache$GE_matrices$cacheinfo[self$cache$GE_matrices$name == matrixName])) {
         message(paste0("Returning ", outputType, " matrix from cache"))
         return()
       }
@@ -517,7 +513,6 @@ ISCon$set(
           return()
         }
       }
-
     }
 
     if (annotation == "ImmSig") {
@@ -624,7 +619,6 @@ ISCon$set(
       self$cache[[cache_name]] <- EM
       file.remove(fl)
     }
-
   }
 )
 
@@ -634,10 +628,9 @@ ISCon$set(
   which = "private",
   name = ".getGEFeatures",
   value = function(matrixName,
-                   outputType = "summary",
-                   annotation = "latest",
-                   reload = FALSE) {
-
+                     outputType = "summary",
+                     annotation = "latest",
+                     reload = FALSE) {
     cacheinfo <- .getcacheinfo(outputType, annotation)
     cache_name <- paste0(matrixName, cacheinfo)
 
@@ -647,7 +640,7 @@ ISCon$set(
 
     cacheinfo_status <- self$cache$GE_matrices$cacheinfo[self$cache$GE_matrices$name == matrixName]
     # For raw or normalized, can reuse cached annotation
-    if ( !reload ) {
+    if (!reload) {
       if (grepl(cacheinfo, cacheinfo_status)) {
         message(paste0("Returning ", annotation, " annotation from cache"))
         return()
@@ -703,7 +696,7 @@ ISCon$set(
     }
 
     if (outputType != "summary") {
-      if (paste0("featureset_", annoSetId) %in% names(self$cache)){
+      if (paste0("featureset_", annoSetId) %in% names(self$cache)) {
         message(paste0("Returning ", annotation, " annotation from cache"))
       }
 
@@ -735,8 +728,6 @@ ISCon$set(
         gene_symbol = self$cache[[cache_name]]$gene_symbol
       )
     }
-
-
   }
 )
 
@@ -746,7 +737,6 @@ ISCon$set(
   which = "private",
   name = ".constructExpressionSet",
   value = function(matrixName, outputType, annotation) {
-
     cache_name <- .getMatrixCacheName(matrixName, outputType, annotation)
     esetName <- .getEsetName(matrixName, outputType, annotation)
 
@@ -934,7 +924,6 @@ ISCon$set(
 
 # Get the cache name of expression matrix by output type and annotation
 .getMatrixCacheName <- function(matrixName, outputType, annotation) {
-
   outputSuffix <- switch(
     outputType,
     "summary" = "_sum",
@@ -955,7 +944,6 @@ ISCon$set(
     matrixName <- paste0(matrixName, outputSuffix)
   }
   return(matrixName)
-
 }
 
 # Get the cache name for eset by output type and annotation
@@ -990,4 +978,3 @@ ISCon$set(
 
   Reduce(f = combine, EMlist)
 }
-

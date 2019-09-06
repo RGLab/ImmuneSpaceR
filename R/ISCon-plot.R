@@ -484,4 +484,3 @@ ISCon$set(
 
   return(lab)
 }
-
