@@ -198,6 +198,7 @@ ISCon$set(
       dmp <- lapply(names(info@other), function(nm) {
         message(paste0(nm, ": ", info@other[[nm]]))
       })
+      message("\n")
     }
 
     return(eset)
@@ -627,6 +628,7 @@ ISCon$set(
     }
 
     cacheinfo_status <- self$cache$GE_matrices$cacheinfo[self$cache$GE_matrices$name == matrixName]
+
     # For raw or normalized, can reuse cached annotation
     if (!reload) {
       if (grepl(cacheinfo, cacheinfo_status)) {
@@ -782,26 +784,17 @@ ISCon$set(
     # ensure same order as GEM rownames
     rownames(pheno) <- pheno$biosample_accession
     order <- names(self$cache[[cache_name]])
-    order <- order[-grep("feature_id|gene_symbol|X|V1", order)]
+    order <- order[-grep("feature_id|gene_symbol|X|V1", order)] # X|V1 kept for IS1 raw
     order <- order[ order != "BS694717.1" ] # rm SDY212 dup for the moment
     pheno <- pheno[match(order, row.names(pheno)), ]
 
     # handling multiple experiment samples per biosample (e.g. technical replicates)
     dups <- colnames(matrix)[duplicated(colnames(matrix))]
     if (length(dups) > 0) {
-      matrix <- data.table(matrix)
       for (dup in dups) {
         dupIdx <- grep(dup, colnames(matrix))
-        newNames <- paste0(dup, seq_len(length(dupIdx)))
-        setnames(matrix, dupIdx, newNames)
-        eval(substitute(
-          matrix[, `:=`(
-            dup,
-            rowMeans(matrix[, dupIdx, with = FALSE])
-          )],
-          list(dup = dup)
-        ))
-        eval(substitute(matrix[, `:=`(newNames, NULL)], list(newNames = newNames)))
+        matrix[ , dupIdx[[1]] ] <- rowMeans(matrix[, dupIdx, with = FALSE])
+        matrix[ , (dupIdx[2:length(dupIdx)]) := NULL]
       }
       if (verbose) {
         warning(
