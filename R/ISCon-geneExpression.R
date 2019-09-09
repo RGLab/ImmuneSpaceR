@@ -165,7 +165,7 @@ ISCon$set(
         self$cache[[esetName]] <- NULL
         private$.downloadMatrix(name, outputType, annotation, reload)
         private$.getGEFeatures(name, outputType, annotation, reload)
-        private$.constructExpressionSet(name, outputType, annotation)
+        private$.constructExpressionSet(name, outputType, annotation, verbose)
 
         # Add to cacheinfo
         cacheinfo_status <- self$cache$GE_matrices$cacheinfo[self$cache$GE_matrices$name == name]
@@ -199,7 +199,7 @@ ISCon$set(
     }
 
     if (verbose == TRUE) {
-      info <- Biobase::experimentData(ret)
+      info <- Biobase::experimentData(eset)
       message("\nNotes:")
       dmp <- lapply(names(info@other), function(nm) {
         message(paste0(nm, ": ", info@other[[nm]]))
@@ -730,7 +730,10 @@ ISCon$set(
 ISCon$set(
   which = "private",
   name = ".constructExpressionSet",
-  value = function(matrixName, outputType, annotation) {
+  value = function(matrixName,
+                   outputType,
+                   annotation,
+                   verbose) {
     cache_name <- .getMatrixCacheName(matrixName, outputType, annotation)
     esetName <- .getEsetName(matrixName, outputType, annotation)
 
@@ -789,7 +792,7 @@ ISCon$set(
     order <- order[ order != "BS694717.1" ] # rm SDY212 dup for the moment
     pheno <- pheno[match(order, row.names(pheno)), ]
 
-    # handling multiple timepoints per subject
+    # handling multiple experiment samples per biosample (e.g. technical replicates)
     dups <- colnames(matrix)[duplicated(colnames(matrix))]
     if (length(dups) > 0) {
       matrix <- data.table(matrix)
@@ -806,10 +809,10 @@ ISCon$set(
         ))
         eval(substitute(matrix[, `:=`(newNames, NULL)], list(newNames = newNames)))
       }
-      if (self$config$verbose) {
+      if (verbose) {
         warning(
           "The matrix contains subjects with multiple measures per timepoint. ",
-          "Averaging the expression values.."
+          "Averaging the expression values ..."
         )
       }
     }
