@@ -407,7 +407,8 @@ ISCon$set(
 )
 
 
-# Map the expression set by the sample names
+# Map the biosample ids in expressionSet object to Immunespace subject IDs
+# concatenated with study time collected or experiment sample IDs
 ISCon$set(
   which = "public",
   name = "mapSampleNames",
@@ -452,16 +453,16 @@ ISCon$set(
           match(sampleNames(EM), pd$biosample_accession),
           expsample_accession
         ]
-    } else if (colType %in% c("participant", "subject")) {
+    } else if (colType == "participant") {
       pd[, nID := paste0(
         participant_id,
         "_",
         tolower(substr(study_time_collected_unit, 1, 1)),
-        study_time_collected
-      )         ]
+        study_time_collected)
+        ]
       sampleNames(EM) <- pd[match(sampleNames(EM), pd$biosample_accession), nID]
     } else if (colType == "biosample") {
-      warning("Nothing done, the column names should already be biosample_accession numbers.")
+      warning("Nothing done, the column names are already be biosample_accession numbers.")
     } else {
       stop("colType should be one of 'expsample_accession', 'biosample_accession', 'participant_id'.")
     }
@@ -484,6 +485,7 @@ ISCon$set(
                      outputType = "summary",
                      annotation = "latest",
                      reload = FALSE) {
+
     cache_name <- .getMatrixCacheName(matrixName, outputType, annotation)
     cacheinfo <- .getcacheinfo(outputType, annotation)
 
@@ -568,11 +570,9 @@ ISCon$set(
       mxName <- paste0(runId, "/", mxName)
     }
 
-    if (self$config$labkey.url.path == "/Studies/") {
-      path <- paste0("/Studies/", self$cache$GE_matrices[name == matrixName, folder], "/")
-    } else {
-      path <- gsub("^/", "", self$config$labkey.url.path)
-    }
+    path <- ifelse(self$config$labkey.url.path == "/Studies/",
+                   paste0("/Studies/", self$cache$GE_matrices[name == matrixName, folder], "/"),
+                   gsub("^/", "", self$config$labkey.url.path))
 
     link <- URLdecode(
       file.path(
@@ -722,7 +722,8 @@ ISCon$set(
 )
 
 
-# Constructs a expression set by matrix
+# Constructs an expressionSet object with expression matrix (exprs),
+# feature annotation data (fData), and subject metadata (pData)
 ISCon$set(
   which = "private",
   name = ".constructExpressionSet",
@@ -730,6 +731,7 @@ ISCon$set(
                    outputType,
                    annotation,
                    verbose) {
+
     cache_name <- .getMatrixCacheName(matrixName, outputType, annotation)
     esetName <- .getEsetName(matrixName, outputType, annotation)
 
@@ -769,7 +771,7 @@ ISCon$set(
     pheno <- data.frame(pheno, stringsAsFactors = FALSE)
 
     # Need cohort for updateGEAR() mapping to arm_accession
-    # Need cohortType for modules
+    # Need cohort_type for modules
     pheno <- pheno[, colnames(pheno) %in% c(
       "biosample_accession",
       "participant_id",
@@ -794,7 +796,7 @@ ISCon$set(
       for (dup in dups) {
         dupIdx <- grep(dup, colnames(matrix))
         matrix[ , dupIdx[[1]] ] <- rowMeans(matrix[, dupIdx, with = FALSE])
-        matrix[ , (dupIdx[2:length(dupIdx)]) := NULL]
+        matrix[ , (dupIdx[2:length(dupIdx)]) := NULL ]
       }
       if (verbose) {
         warning(
@@ -921,11 +923,9 @@ ISCon$set(
     "ImmSig" = "_immsig"
   )
 
-
+  matrixName <- paste0(matrixName, outputSuffix)
   if (annotation == "ImmSig" || outputType == "summary") {
-    matrixName <- paste0(matrixName, outputSuffix, annotationSuffix)
-  } else {
-    matrixName <- paste0(matrixName, outputSuffix)
+    matrixName <- paste0(matrixName, annotationSuffix)
   }
   return(matrixName)
 }
