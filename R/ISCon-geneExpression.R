@@ -135,12 +135,6 @@ ISCon$set(
       ct_name <- cohortType # can't use cohort = cohort in d.t
       if (all(ct_name %in% self$cache$GE_matrices$cohort_type)) {
         matrixName <- self$cache$GE_matrices[cohort_type %in% ct_name, name]
-        # SDY67 is special case. "Batch2" matrix is only day 0 and has overlapping
-        # biosamples with full matrix "SDY67_HealthyAdults".  This causes
-        # full matrix for cohort.
-        if (grepl("SDY67", matrixName[[1]])) {
-          matrixName <- matrixName[ grep("Batch2", matrixName, invert = T) ]
-        }
       } else {
         validCohorts <- self$cache$GE_matrices[, cohort_type]
         stop(paste(
