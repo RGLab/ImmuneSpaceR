@@ -6,7 +6,8 @@ suppressPackageStartupMessages(library(data.table))
 # Declare global test variables ------------------------------------------------
 if (!any(file.exists("~/.netrc", "~/_netrc"))) {
   assign("labkey.netrc.file", ImmuneSpaceR:::.get_env_netrc(), .GlobalEnv)
-  assign("labkey.url.base", ImmuneSpaceR:::.get_env_url(), .GlobalEnv)
+  # assign("labkey.url.base", ImmuneSpaceR:::.get_env_url(), .GlobalEnv)
+  assign("labkey.url.base", Sys.getenv("DEV_HOST"), .GlobalEnv)
 }
 
 CONNECTIONS <- list(

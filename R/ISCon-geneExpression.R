@@ -65,22 +65,20 @@ ISCon$set(
       return(self$cache[[private$.constants$matrices]])
     } else {
       # Get matrices from participantIDs
-      # Use assay.ExpressionMatrix.inputSamples in executeSQL to get distinct matrices
 
-      sql <- paste0("SELECT DISTINCT Run.Name
-                     FROM InputSamples
-                     WHERE Biosample.participantId IN ('", paste0(participantIds, collapse = "','"), "')")
-
-      matrixNames <- Rlabkey::labkey.executeSql(
-        baseUrl = self$config$labkey.url.base,
-        folderPath = self$config$labkey.url.path,
-        schemaName = "assay.ExpressionMatrix.matrix",
-        sql = sql,
-        containerFilter = "CurrentAndSubfolders",
-        colNameOpt = "fieldname"
+      sql <- paste0("SELECT DISTINCT Run.Name run_name
+                     FROM assay.ExpressionMatrix.matrix.InputSamples_computed
+                     WHERE Biosample.participantId IN ('", paste0(participantIds, collapse = "','"), "')"
       )
 
-      return(self$cache[[private$.constants$matrices]][name %in% matrixNames$Name])
+      matrixNames <- Rlabkey::labkey.executeSql(self$config$labkey.url.base,
+                                                folderPath = self$config$labkey.url.path,
+                                                schemaName = "assay.ExpressionMatrix.matrix",
+                                                sql = sql,
+                                                containerFilter = "CurrentAndSubfolders",
+                                                colNameOpt = "fieldname")
+
+      return(self$cache[[private$.constants$matrices]][name %in% matrixNames$run_name])
     }
   }
 )
@@ -247,8 +245,8 @@ ISCon$set(
         .getLKtbl(
           con = self,
           schema = "assay.Expressionmatrix.matrix",
-          query = "InputSamples",
-          viewName = "gene_expression_matrices",
+          query = "InputSamples_computed",
+            viewName = "gene_expression_matrices",
           colNameOpt = "fieldname"
         ),
         error = function(e) return(e)
