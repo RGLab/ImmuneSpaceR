@@ -739,7 +739,7 @@ ISCon$set(
 
     pheno <- unique(
       .getLKtbl(
-        con <- self,
+        con = self,
         schema = "study",
         query = "HM_inputSmplsPlusImmEx",
         containerFilter = "CurrentAndSubfolders",
@@ -836,7 +836,7 @@ ISCon$set(
 
     # add processing information for user
     fasInfo <- .getLKtbl(
-      con <- self,
+      con = self,
       schema = "Microarray",
       query = "FeatureAnnotationSet"
     )
