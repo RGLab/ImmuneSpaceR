@@ -115,17 +115,17 @@ ISCon$set(
 )
 
 
-# Replace url path to a local path
+# Replace url with webdav to a local path on server or dev machine
 ISCon$set(
   which = "private",
   name = ".localStudyPath",
-  value = function(urlPath) {
+  value = function(url) {
     # If running on individual dev machine, must have symlink set for '/share' to
-    # ~/release19.1/build/deploy
+    # ~/release<ver>/build/deploy
     gsub(
       file.path(gsub("/$", "", self$config$labkey.url.base), "(|/)_webdav"),
       file.path("/share/files"),
-      urlPath
+      url
     )
   }
 )
@@ -152,12 +152,66 @@ ISCon$set(
   }
 )
 
+# webdav url formation function for download.
+# Allow changeable folderPath for downloading files from study folder
+# while in a global connection.
+ISCon$set(
+  which = "private",
+  name = ".makeWebdavLink",
+  value = function(fileName, subDir, folderPath = NULL) {
+    folderPath <- ifelse(is.null(folderPath),
+                         self$config$labkey.url.path,
+                         folderPath)
+    link <- URLdecode(
+      file.path(
+        gsub("/$", "", self$config$labkey.url.base),
+        "_webdav",
+        folderPath,
+        "@files",
+        subDir,
+        fileName
+      ))
+  }
+)
+
+# Check if file exists on server given webdav url
+ISCon$set(
+  which = "private",
+  name = ".checkWebdavFileExists",
+  value = function(link) {
+    head <- HEAD(url = link, config = self$config$curlOptions)
+    if (grepl("json", head$headers$`content-type`)) {
+      warning(
+        file, "does not exist. ",
+        "Please contact the ImmuneSpace team at immunespace@gmail.com",
+        call. = FALSE, immediate. = TRUE # use immediate in case of looping
+      )
+      return(FALSE)
+    }
+    return(TRUE)
+  }
+)
+
+
+# Standardized file retrieval allows for method change in future
+ISCon$set(
+  which = "private",
+  name = ".downloadFileFromWebdav",
+  value = function(link, destinationPath, overwrite = TRUE) {
+    GET(
+      url = link,
+      config = self$config$curlOptions,
+      write_disk(destinationPath, overwrite = overwrite)
+    )
+  }
+)
 
 
 # HELPER -----------------------------------------------------------------------
 
 # less verbose wrapper for labkey.selectRows function
-.getLKtbl <- function(con, schema, query, showHidden = TRUE, ...) {
+.getLKtbl <- function(schema, query, showHidden = TRUE, con = NULL,...) {
+  con <- ifelse(is.null(con), self, con)
   data.table(
     labkey.selectRows(
       baseUrl = con$config$labkey.url.base,
