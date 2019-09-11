@@ -14,6 +14,7 @@ ISCon$set(
     ..getData <- function() {
       try(
         .getLKtbl(
+          con = self,
           schema = "assay.ExpressionMatrix.matrix",
           query = "SelectedRuns",
           colNameOpt = "fieldname",
@@ -70,7 +71,7 @@ ISCon$set(
                      FROM InputSamples
                      WHERE Biosample.participantId IN ('", paste0(participantIds, collapse = "','"), "')")
 
-      matrixNames <- Rlabkey::labkey.executeSql(
+      matrixNames <- labkey.executeSql(
         baseUrl = self$config$labkey.url.base,
         folderPath = self$config$labkey.url.path,
         schemaName = "assay.ExpressionMatrix.matrix",
@@ -92,6 +93,7 @@ ISCon$set(
   value = function() {
     GEA <- tryCatch(
       .getLKtbl(
+        con = self,
         schema = "gene_expression",
         query = "gene_expression_analysis",
         showHidden = FALSE,
@@ -161,7 +163,7 @@ ISCon$set(
 
         # Add to cacheinfo
         cacheinfo_status <- self$cache$GE_matrices$cacheinfo[self$cache$GE_matrices$name == name]
-        cacheinfo <- .getcacheinfo(outputType, annotation)
+        cacheinfo <- .getCacheInfo(outputType, annotation)
         if (!grepl(cacheinfo, cacheinfo_status)) {
           self$cache$GE_matrices$cacheinfo[self$cache$GE_matrices$name == name] <-
             paste0(
@@ -211,6 +213,7 @@ ISCon$set(
   value = function(...) {
     GEAR <- tryCatch(
       .getLKtbl(
+        con = self,
         schema = "gene_expression",
         query = "DGEA_filteredGEAR",
         viewName = "DGEAR",
@@ -241,6 +244,7 @@ ISCon$set(
     } else {
       ge <- tryCatch(
         .getLKtbl(
+          con = self,
           schema = "assay.Expressionmatrix.matrix",
           query = "InputSamples",
           viewName = "gene_expression_matrices",
@@ -292,44 +296,25 @@ ISCon$set(
           return(FALSE)
         }
 
-        # link <- paste0(
-        #   self$config$labkey.url.base,
-        #   "/_webdav/Studies/",
-        #   gef[file == file_info_name]$study_accession[1],
-        #   "/%40files/rawdata/gene_expression/",
-        #   gef[file == file_info_name]$file_info_name[1]
-        # )
-        link <- private$.makeWebdavLink(
-          fileName = gef[file == file_info_name]$file_info_name[1],
-          subDir = "rawdata/gene_expression",
-          folderPath = file.path("Studies", gef[file == file_info_name]$study_accession[1])
-        )
+        folderPath <- file.path("Studies", gef[file == file_info_name]$study_accession[1])
+        remoteFilePath <- gef[file == file_info_name]$file_info_name[1]
 
-        # check if file exists
-        # head <- HEAD(link, Rlabkey:::labkey.getRequestOptions())
-        # if (grepl("json", head$headers$`content-type`)) {
-        #   warning(
-        #     file, "does not exist. ",
-        #     "Please contact the ImmuneSpace team at immunespace@gmail.com",
-        #     call. = FALSE, immediate. = TRUE
-        #   )
-        #   return(FALSE)
-        # }
-        if (!private$.checkWebdavFileExists(link)){
+        linkExists <- labkey.webdav.pathExists(
+          baseUrl = self$config$labkey.url.base,
+          folderPath = folderPath,
+          remoteFilePath = remoteFilePath
+        )
+        if (!linkExists) {
           stop()
         }
 
         message("Downloading ", file, "..")
 
-        # GET(
-        #   url = link,
-        #   Rlabkey:::labkey.getRequestOptions(),
-        #   write_disk(file.path(destdir, file), overwrite = TRUE)
-        # )
-
-        private$.getFileFromWebdavUrl(
-          url = url,
-          destinationPath = file.path(destdir, file)
+        labkey.webdav.get(
+          baseUrl = self$config$labkey.url.base,
+          folderPath = folderPath,
+          remoteFilePath = remoteFilePath,
+          localFilePath = file.path(destdir, file)
         )
 
         TRUE
@@ -356,6 +341,7 @@ ISCon$set(
     )
 
     bs2es <- .getLKtbl(
+      con = self,
       schema = "immport",
       query = "expsample_2_biosample",
       colFilter = bsFilter,
@@ -371,6 +357,7 @@ ISCon$set(
     )
 
     es2trt <- .getLKtbl(
+      con = self,
       schema = "immport",
       query = "expsample_2_treatment",
       colFilter = esFilter,
@@ -386,6 +373,7 @@ ISCon$set(
     )
 
     trt <- .getLKtbl(
+      con = self,
       schema = "immport",
       query = "treatment",
       colFilter = trtFilter,
@@ -435,6 +423,7 @@ ISCon$set(
       )
 
       bs2es <- .getLKtbl(
+        con = self,
         schema = "immport",
         query = "expsample_2_biosample",
         colFilter = bsFilter,
@@ -458,8 +447,8 @@ ISCon$set(
         participant_id,
         "_",
         tolower(substr(study_time_collected_unit, 1, 1)),
-        study_time_collected)
-        ]
+        study_time_collected
+      )        ]
       sampleNames(EM) <- pd[match(sampleNames(EM), pd$biosample_accession), nID]
     } else if (colType == "biosample") {
       warning("Nothing done, the column names are already be biosample_accession numbers.")
@@ -485,9 +474,8 @@ ISCon$set(
                      outputType = "summary",
                      annotation = "latest",
                      reload = FALSE) {
-
     cache_name <- .getMatrixCacheName(matrixName, outputType, annotation)
-    cacheinfo <- .getcacheinfo(outputType, annotation)
+    cacheinfo <- .getCacheInfo(outputType, annotation)
 
     # check if study has matrices
     if (nrow(subset(
@@ -503,16 +491,11 @@ ISCon$set(
     #   a. outputType and annotation match cache OR
     #   b. outputType matches cache and is not summary
     # Otherwise, load a new matrix
+    currCache <- self$cache$GE_matrices$cacheinfo[self$cache$GE_matrices$name == matrixName]
     if (!reload) {
-      if (grepl(cacheinfo, self$cache$GE_matrices$cacheinfo[self$cache$GE_matrices$name == matrixName])) {
+      if (grepl(cacheinfo, currCache) || (outputType != "summary" && grepl(outputType, currCache))) {
         message(paste0("Returning ", outputType, " matrix from cache"))
         return()
-      }
-      if (outputType != "summary") {
-        if (grepl(outputType, self$cache$GE_matrices$cacheinfo[self$cache$GE_matrices$name == matrixName])) {
-          message(paste0("Returning ", outputType, " matrix from cache"))
-          return()
-        }
       }
     }
 
@@ -548,20 +531,24 @@ ISCon$set(
         regexpr("IS\\d{1}", self$config$labkey.url.path)
       )
 
-      folder_link <- paste0(
-        self$config$labkey.url.base,
-        "/_webdav/HIPC/",
-        sdy,
-        "/%40files/analysis/exprs_matrices?method=JSON"
+      runDirs <- labkey.webdav.listDir(
+        baseUrl = self$config$labkey.url.base,
+        folderPath = file.path("HIPC", sdy),
+        remoteFilePath = "analysis/exprs_matrices"
       )
-
-      runDirs <- unlist(lapply(folder_link, private$.listISFiles))
-      runDirs <- grep("Run", runDirs, value = TRUE)
+      runDirs <- sapply(runDirs$files, "[[", "id")
+      runDirs <- sapply(runDirs, basename)
+      runDirs <- unname(grep("Run", runDirs, value = TRUE))
 
       # Map run sub-directories to the matrixNames passed to downloadMatrix
       id2MxNm <- vapply(runDirs, function(x) {
-        run_folder <- gsub("exprs_matrices", paste0("exprs_matrices/", x), folder_link)
-        fls <- unlist(lapply(run_folder, private$.listISFiles))
+        fls <- labkey.webdav.listDir(
+          baseUrl = self$config$labkey.url.base,
+          folderPath = file.path("HIPC", sdy),
+          remoteFilePath = file.path("analysis/exprs_matrices", x)
+        )
+        fls <- sapply(fls$files, "[[", "id")
+        fls <- sapply(fls, basename)
         newNm <- gsub("\\.tsv*", "", grep("tsv", fls, value = TRUE)[[1]])
       },
       FUN.VALUE = "newNm"
@@ -573,26 +560,21 @@ ISCon$set(
     }
 
     folderPath <- ifelse(self$config$labkey.url.path == "/Studies/",
-                   paste0("/Studies/", self$cache$GE_matrices[name == matrixName, folder], "/"),
-                   gsub("^/", "", self$config$labkey.url.path))
-
-    # link <- URLdecode(
-    #   file.path(
-    #     gsub("/$", "", self$config$labkey.url.base),
-    #     "_webdav",
-    #     path,
-    #     "@files/analysis/exprs_matrices",
-    #     mxName
-    #   )
-    # )
-
-    link <- private$.makeWebdavLink(
-      fileName = mxName,
-      subDir = "/analysis/exprs_matrices",
-      folderPath = folderPath
+      paste0("/Studies/", self$cache$GE_matrices[name == matrixName, folder], "/"),
+      gsub("^/", "", self$config$labkey.url.path)
     )
 
-    localpath <- private$.localStudyPath(urlPath = link)
+    link <- URLdecode(
+      file.path(
+        gsub("/$", "", self$config$labkey.url.base),
+        "_webdav",
+        folderPath,
+        "@files/analysis/exprs_matrices",
+        mxName
+      )
+    )
+
+    localpath <- private$.localStudyPath(link = link)
     runningLocally <- private$.isRunningLocally(localpath)
     if (runningLocally) {
       message("Reading local matrix")
@@ -600,9 +582,11 @@ ISCon$set(
     } else {
       message("Downloading matrix..")
       fl <- tempfile()
-      private$.downloadFileFromWebdav(
-        link = link,
-        destinationPath = fl
+      labkey.webdav.get(
+        baseUrl = self$config$labkey.url.base,
+        folderPath = folderPath,
+        remoteFilePath = file.path("analysis/exprs_matrices", mxName),
+        localFilePath = fl
       )
     }
 
@@ -629,8 +613,7 @@ ISCon$set(
                      outputType = "summary",
                      annotation = "latest",
                      reload = FALSE) {
-
-    cacheinfo <- .getcacheinfo(outputType, annotation)
+    cacheinfo <- .getCacheInfo(outputType, annotation)
     cache_name <- paste0(matrixName, cacheinfo)
 
     if (!(matrixName %in% self$cache[[private$.constants$matrices]]$name)) {
@@ -643,45 +626,30 @@ ISCon$set(
     # For raw or normalized, can reuse cached annotation
     correctAnno <- grepl(paste0("(raw_|normalized_)", annotation), cacheinfo_status)
     if (!reload) {
-      if (grepl(cacheinfo, cacheinfo_status) || (outputType != "summary" && correctAnno) ) {
+      if (grepl(cacheinfo, cacheinfo_status) || (outputType != "summary" && correctAnno)) {
         message(paste0("Returning ", annotation, " annotation from cache"))
         return()
       }
     }
 
     # ---- queries ------
-    # runs <- labkey.selectRows(
-    #   baseUrl = self$config$labkey.url.base,
-    #   folderPath = self$config$labkey.url.path,
-    #   schemaName = "Assay.ExpressionMatrix.Matrix",
-    #   queryName = "Runs",
-    #   showHidden = TRUE
-    # )
+    runs <- .getLKtbl(
+      con = self,
+      schema = "Assay.ExpressionMatrix.Matrix",
+      query = "Runs"
+    )
 
-    runs <- .getLKtbl(schema = "Assay.ExpressionMatrix.Matrix",
-                      query = "Runs")
+    faSets <- .getLKtbl(
+      con = self,
+      schema = "Microarray",
+      query = "FeatureAnnotationSet"
+    )
 
-    # faSets <- labkey.selectRows(
-    #   baseUrl = self$config$labkey.url.base,
-    #   folderPath = self$config$labkey.url.path,
-    #   schemaName = "Microarray",
-    #   queryName = "FeatureAnnotationSet",
-    #   showHidden = TRUE
-    # )
-
-    faSets <- .getLKtbl(schema = "Microarray",
-                      query = "FeatureAnnotationSet")
-
-    # fasMap <- labkey.selectRows(
-    #   baseUrl = self$config$labkey.url.base,
-    #   folderPath = self$config$labkey.url.path,
-    #   schemaName = "Microarray",
-    #   queryName = "FasMap",
-    #   showHidden = TRUE
-    # )
-
-    fasMap <- .getLKtbl(schema = "Microarray",
-                        query = "FasMap")
+    fasMap <- .getLKtbl(
+      con = self,
+      schema = "Microarray",
+      query = "FasMap"
+    )
 
     #--------------------
 
@@ -697,7 +665,7 @@ ISCon$set(
       fasIdAtCreation <- runs$`Feature Annotation Set`[ runs$Name == matrixName ]
       idCol <- ifelse(annotation == "default", "Orig Id", "Curr Id")
       annoAlias <- gsub("_orig", "", faSets$Name[ faSets$`Row Id` == fasIdAtCreation ])
-      annoSetId <- fasMap[ fasMap$Name == annoAlias, idCol ]
+      annoSetId <- fasMap[ fasMap$Name == annoAlias, get(idCol) ]
     }
 
     if (outputType != "summary") {
@@ -743,10 +711,9 @@ ISCon$set(
   which = "private",
   name = ".constructExpressionSet",
   value = function(matrixName,
-                   outputType,
-                   annotation,
-                   verbose) {
-
+                     outputType,
+                     annotation,
+                     verbose) {
     cache_name <- .getMatrixCacheName(matrixName, outputType, annotation)
     esetName <- .getEsetName(matrixName, outputType, annotation)
 
@@ -772,6 +739,7 @@ ISCon$set(
 
     pheno <- unique(
       .getLKtbl(
+        con <- self,
         schema = "study",
         query = "HM_inputSmplsPlusImmEx",
         containerFilter = "CurrentAndSubfolders",
@@ -809,8 +777,8 @@ ISCon$set(
     if (length(dups) > 0) {
       for (dup in dups) {
         dupIdx <- grep(dup, colnames(matrix))
-        matrix[ , dupIdx[[1]] ] <- rowMeans(matrix[, dupIdx, with = FALSE])
-        matrix[ , (dupIdx[2:length(dupIdx)]) := NULL ]
+        matrix[, dupIdx[[1]] ] <- rowMeans(matrix[, dupIdx, with = FALSE])
+        matrix[, (dupIdx[2:length(dupIdx)]) := NULL ]
       }
       if (verbose) {
         warning(
@@ -868,6 +836,7 @@ ISCon$set(
 
     # add processing information for user
     fasInfo <- .getLKtbl(
+      con <- self,
       schema = "Microarray",
       query = "FeatureAnnotationSet"
     )
@@ -950,7 +919,7 @@ ISCon$set(
 }
 
 # Get cacheinfo string from output type and annotation
-.getcacheinfo <- function(outputType, annotation) {
+.getCacheInfo <- function(outputType, annotation) {
   cacheinfo <- paste0(outputType, "_", annotation)
   return(cacheinfo)
 }

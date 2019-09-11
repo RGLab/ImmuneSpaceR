@@ -1,11 +1,5 @@
 context("ISCon$downloadGEFiles()")
 
-# Connections --------------------------------------------------
-sdy269 <- CreateConnection("SDY269", verbose = TRUE)
-sdy67 <- suppressMessages(CreateConnection("SDY67"))
-allsdy <- CreateConnection("")
-
-
 # Helper Functions ---------------------------------------------
 getFileList <- function(con) {
   gef <- con$getDataset("gene_expression_files")

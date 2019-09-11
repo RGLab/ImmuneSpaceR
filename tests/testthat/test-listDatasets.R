@@ -1,9 +1,5 @@
 context("ISCon$listDatasets()")
 
-# Connections --------------------------------------------------
-sdy269 <- CreateConnection("SDY269", verbose = TRUE)
-sdy87 <- suppressMessages(CreateConnection("SDY87", verbose = TRUE))
-
 
 # Helper Functions ---------------------------------------------
 try_ld <- function(con, ...) {
@@ -17,26 +13,26 @@ try_ld <- function(con, ...) {
 
 # Tests --------------------------------------------------------
 test_that("both datasets and EM returned without argument", {
-  res <- try_ld(sdy269)
+  res <- try_ld(SDY269)
   expect_true(all(c("datasets", "Expression Matrices") %in% res))
 })
 
 test_that("strings other than datasets and EM return error", {
-  res <- try_ld(sdy269, output = "my_fav_sdy")
+  res <- try_ld(SDY269, output = "my_fav_sdy")
   expect_true(res$message == "output other than datasets and expressions not allowed")
 })
 
 test_that("argument of datasets returns only datasets", {
-  res <- try_ld(sdy269, output = "datasets")
+  res <- try_ld(SDY269, output = "datasets")
   expect_true(!("Expression Matrices" %in% res))
 })
 
 test_that("argument of EM returns only EM", {
-  res <- try_ld(sdy269, output = "expression")
+  res <- try_ld(SDY269, output = "expression")
   expect_true(!("Datasets" %in% res))
 })
 
 test_that("argument of EM returns error when no EM present", {
-  res <- try_ld(sdy87, output = "expression")
+  res <- try_ld(SDY87, output = "expression")
   expect_true(res == "No Expression Matrices Available")
 })
