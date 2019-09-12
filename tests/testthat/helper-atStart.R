@@ -13,12 +13,11 @@ if (!any(file.exists("~/.netrc", "~/_netrc"))) {
 }
 
 # Initialize connections for studies used throughout testing
-ALL    <- suppressMessages(CreateConnection(""))
-SDY269 <- suppressMessages(CreateConnection("SDY269"))
-SDY67  <- suppressMessages(CreateConnection("SDY67"))
+ALL <- suppressMessages(CreateConnection(""))
+IS1 <- suppressMessages(CreateConnection("IS1"))
+SDY28 <- suppressMessages(CreateConnection("SDY28"))
+SDY67 <- suppressMessages(CreateConnection("SDY67"))
+SDY87 <- suppressMessages(CreateConnection("SDY87"))
 SDY180 <- suppressMessages(CreateConnection("SDY180"))
-SDY28  <- suppressMessages(CreateConnection("SDY28"))
-SDY87  <- suppressMessages(CreateConnection("SDY87"))
-IS1    <- suppressMessages(CreateConnection("IS1"))
+SDY269 <- suppressMessages(CreateConnection("SDY269"))
 SDY404 <- suppressMessages(CreateConnection("SDY404"))
-

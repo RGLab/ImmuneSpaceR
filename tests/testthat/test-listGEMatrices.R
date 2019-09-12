@@ -6,7 +6,7 @@ em_list <- list()
 em_list[["SDY269"]] <- c(
   "SDY269_PBMC_LAIV_Geo",
   "SDY269_PBMC_TIV_Geo"
-  )
+)
 em_list[["SDY404"]] <- c(
   "SDY404_PBMC_Young_Geo",
   "SDY404_PBMC_Older_Geo"
