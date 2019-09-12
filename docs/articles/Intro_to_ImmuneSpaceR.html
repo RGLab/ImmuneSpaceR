@@ -6,9 +6,16 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>An Introduction to the ImmuneSpaceR Package • ImmuneSpaceR</title>
+<!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png">
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png">
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png">
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png">
 <!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.7/yeti/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous">
-<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- sticky kit --><script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous">
+<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
 <script src="../pkgdown.js"></script><meta property="og:title" content="An Introduction to the ImmuneSpaceR Package">
 <meta property="og:description" content="">
 <meta property="og:image" content="/logo.png">
@@ -45,7 +52,7 @@
       <ul class="nav navbar-nav">
 <li>
   <a href="../index.html">
-    <span class="fa fa-home fa-lg"></span>
+    <span class="fas fa fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -114,13 +121,14 @@
 <!--/.navbar -->
 
       
+
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1>An Introduction to the ImmuneSpaceR Package</h1>
                         <h4 class="author">Renan Sauteraud</h4>
             
-            <h4 class="date">2019-07-05</h4>
+            <h4 class="date">2019-09-12</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/RGLab/ImmuneSpaceR/blob/master/vignettes/Intro_to_ImmuneSpaceR.Rmd"><code>vignettes/Intro_to_ImmuneSpaceR.Rmd</code></a></small>
       <div class="hidden name"><code>Intro_to_ImmuneSpaceR.Rmd</code></div>
@@ -129,6 +137,9 @@
 
     
     
+<pre><code>## Registered S3 method overwritten by 'seriation':
+##   method         from 
+##   reorder.hclust gclus</code></pre>
 <p>This package provides a <em>thin</em> wrapper around <a href="https://cran.r-project.org/web/packages/Rlabkey/index.html"><code>Rlabkey</code></a> and connects to the <a href="https://www.immunespace.org">ImmuneSpace</a> database, making it easier to fetch datasets, including gene expression data, HAI, and so forth, from specific studies.</p>
 <div id="configuration" class="section level1">
 <h1 class="hasAnchor">
@@ -143,7 +154,7 @@
 <li>On <strong>Windows</strong>, it sould be named <code>_netrc</code>
 </li>
 <li>The file should be located in the user’s <strong>home</strong> directory</li>
-<li>To determine home directory, run <code><a href="https://www.rdocumentation.org/packages/base/topics/Sys.getenv">Sys.getenv("HOME")</a></code> in R</li>
+<li>To determine home directory, run <code><a href="https://rdrr.io/r/base/Sys.getenv.html">Sys.getenv("HOME")</a></code> in R</li>
 <li>The permissions on this file should be unreadable for everybody except the owner</li>
 </ul>
 <p>The following three lines must be included in the <code>.netrc</code> or <code>_netrc</code> file either separated by white space (spaces, tabs, or newlines) or commas.</p>
@@ -157,9 +168,9 @@ password superSecretPassword</code></pre>
 <h1 class="hasAnchor">
 <a href="#instantiate-a-connection" class="anchor"></a>Instantiate a connection</h1>
 <p>We’ll be looking at study <code>SDY269</code>. If you want to use a different study, change that string. The connections have state, so you can instantiate multiple connections to different studies simultaneously.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(ImmuneSpaceR)</a>
-<a class="sourceLine" id="cb2-2" data-line-number="2">sdy269 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/CreateConnection.html">CreateConnection</a></span>(<span class="dt">study =</span> <span class="st">"SDY269"</span>)</a>
-<a class="sourceLine" id="cb2-3" data-line-number="3">sdy269</a></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(ImmuneSpaceR)
+sdy269 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/CreateConnection.html">CreateConnection</a></span>(<span class="dt">study =</span> <span class="st">"SDY269"</span>)
+sdy269</code></pre></div>
 <pre><code>## &lt;ImmuneSpaceConnection&gt;
 ##   Study: SDY269
 ##   URL: https://www.immunespace.org/Studies/SDY269
@@ -182,7 +193,7 @@ password superSecretPassword</code></pre>
 <h1 class="hasAnchor">
 <a href="#fetching-datasets" class="anchor"></a>Fetching datasets</h1>
 <p>We can grab any of the datasets listed in the connection.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1">sdy269<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getDataset</a></span>(<span class="st">"hai"</span>)</a></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sdy269<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getDataset</a></span>(<span class="st">"hai"</span>)</code></pre></div>
 <pre><code>##      participant_id age_reported gender  race          cohort
 ##   1:  SUB112829.269           26   Male White LAIV group 2008
 ##   2:  SUB112829.269           26   Male White LAIV group 2008
@@ -219,20 +230,20 @@ password superSecretPassword</code></pre>
 ## 334:              80
 ## 335:              40
 ## 336:              40</code></pre>
-<p>The <em>sdy269</em> object is an <strong>R6</strong> class, so it behaves like a true object. Methods (like <code>getDataset</code>) are members of the object, thus the <code>$</code> semantics to access member functions.</p>
+<p>The <em>sdy269</em> object is an <strong>R6</strong> class, so it behaves like a true object. Methods (like <code>getDataset</code>) are members of the object, thus the <code><a href="https://rdrr.io/r/base/Extract.html">$</a></code> semantics to access member functions.</p>
 <p>The first time you retrieve a dataset, it will contact the database. The data is cached in the object, so the next time you call <code>getDataset</code> on the same dataset, it will retrieve the cached local copy. This is much faster.</p>
 <p>To get only a subset of the data and speed up the download, filters can be passed to <code>getDataset</code>. The filters are created using the <code>makeFilter</code> function of the <code>Rlabkey</code> package.</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(Rlabkey)</a>
-<a class="sourceLine" id="cb6-2" data-line-number="2">myFilter &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/Rlabkey/topics/makeFilter">makeFilter</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"gender"</span>, <span class="st">"EQUAL"</span>, <span class="st">"Female"</span>))</a>
-<a class="sourceLine" id="cb6-3" data-line-number="3">hai &lt;-<span class="st"> </span>sdy269<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getDataset</a></span>(<span class="st">"hai"</span>, <span class="dt">colFilter =</span> myFilter)</a></code></pre></div>
-<p>See <code><a href="https://www.rdocumentation.org/packages/Rlabkey/topics/makeFilter">?Rlabkey::makeFilter</a></code> for more information on the syntax.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(Rlabkey)
+myFilter &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/Rlabkey/man/makeFilter.html">makeFilter</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"gender"</span>, <span class="st">"EQUAL"</span>, <span class="st">"Female"</span>))
+hai &lt;-<span class="st"> </span>sdy269<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getDataset</a></span>(<span class="st">"hai"</span>, <span class="dt">colFilter =</span> myFilter)</code></pre></div>
+<p>See <code><a href="https://rdrr.io/pkg/Rlabkey/man/makeFilter.html">?Rlabkey::makeFilter</a></code> for more information on the syntax.</p>
 <p>For more information about <code>getDataset</code>’s options, refer to the dedicated vignette.</p>
 </div>
 <div id="fetching-expression-matrices" class="section level1">
 <h1 class="hasAnchor">
 <a href="#fetching-expression-matrices" class="anchor"></a>Fetching expression matrices</h1>
 <p>We can also grab a gene expression matrix</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1">sdy269<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getGEMatrix</a></span>(<span class="st">"SDY269_PBMC_LAIV_Geo"</span>)</a></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sdy269<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getGEMatrix</a></span>(<span class="st">"SDY269_PBMC_LAIV_Geo"</span>)</code></pre></div>
 <pre><code>## Reading local matrix</code></pre>
 <pre><code>## Constructing ExpressionSet</code></pre>
 <pre><code>## ExpressionSet (storageMode: lockedEnvironment)
@@ -252,12 +263,10 @@ password superSecretPassword</code></pre>
 ## Annotation:</code></pre>
 <p>The object contacts the database and downloads the matrix file. This is stored and cached locally as a <code>data.table</code>. The next time you access it, it will be much faster since it won’t need to contact the database again.</p>
 <p>It is also possible to call this function using multiple matrix names. In this case, all the matrices are downloaded and combined into a single <code>ExpressionSet</code>.</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" data-line-number="1">sdy269<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getGEMatrix</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"SDY269_PBMC_TIV_Geo"</span>, <span class="st">"SDY269_PBMC_LAIV_Geo"</span>))</a></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sdy269<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getGEMatrix</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"SDY269_PBMC_TIV_Geo"</span>, <span class="st">"SDY269_PBMC_LAIV_Geo"</span>))</code></pre></div>
 <pre><code>## Reading local matrix</code></pre>
-<pre><code>## returning summary matrix from cache</code></pre>
-<pre><code>## returning latest annotation from cache</code></pre>
-<pre><code>## Constructing ExpressionSet
-## Constructing ExpressionSet</code></pre>
+<pre><code>## Constructing ExpressionSet</code></pre>
+<pre><code>## Returning SDY269_PBMC_LAIV_Geo_summary_latest_eset from cache</code></pre>
 <pre><code>## Combining ExpressionSets</code></pre>
 <pre><code>## ExpressionSet (storageMode: lockedEnvironment)
 ## assayData: 16442 features, 163 samples 
@@ -275,17 +284,17 @@ password superSecretPassword</code></pre>
 ## experimentData: use 'experimentData(object)'
 ## Annotation:</code></pre>
 <p>Finally, the summary argument will let you download the matrix with gene symbols in place of probe ids.</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" data-line-number="1">gs &lt;-<span class="st"> </span>sdy269<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getGEMatrix</a></span>(<span class="st">"SDY269_PBMC_TIV_Geo"</span>, <span class="dt">outputType =</span> <span class="st">"summary"</span>, <span class="dt">annotation =</span> <span class="st">"latest"</span>)</a></code></pre></div>
-<pre><code>## returning SDY269_PBMC_TIV_Geo_sum_eset from cache</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">gs &lt;-<span class="st"> </span>sdy269<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getGEMatrix</a></span>(<span class="st">"SDY269_PBMC_TIV_Geo"</span>, <span class="dt">outputType =</span> <span class="st">"summary"</span>, <span class="dt">annotation =</span> <span class="st">"latest"</span>)</code></pre></div>
+<pre><code>## Returning SDY269_PBMC_TIV_Geo_summary_latest_eset from cache</code></pre>
 <p>If the connection was created with <code>verbose = TRUE</code>, some methods will display additional informations such as the valid dataset names.</p>
 </div>
 <div id="plotting" class="section level1">
 <h1 class="hasAnchor">
 <a href="#plotting" class="anchor"></a>Plotting</h1>
 <p>A plot of a dataset can be generated using the <code>plot</code> method which automatically chooses the type of plot depending on the selected dataset.</p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb20-1" data-line-number="1">sdy269<span class="op">$</span><span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/plot">plot</a></span>(<span class="st">"hai"</span>)</a></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sdy269<span class="op">$</span><span class="kw"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span>(<span class="st">"hai"</span>)</code></pre></div>
 <p><img src="Intro_to_ImmuneSpaceR_files/figure-html/plotting-1.png" width="672" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb21-1" data-line-number="1">sdy269<span class="op">$</span><span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/plot">plot</a></span>(<span class="st">"elisa"</span>)</a></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sdy269<span class="op">$</span><span class="kw"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span>(<span class="st">"elisa"</span>)</code></pre></div>
 <p><img src="Intro_to_ImmuneSpaceR_files/figure-html/plotting-2.png" width="672" style="display: block; margin: auto;"></p>
 <p>However, the <code>type</code> argument can be used to manually select from “boxplot”, “heatmap”, “violin” and “line”.</p>
 </div>
@@ -293,10 +302,10 @@ password superSecretPassword</code></pre>
 <h1 class="hasAnchor">
 <a href="#cross-study-connections" class="anchor"></a>Cross study connections</h1>
 <p>To fetch data from multiple studies, simply create a connection at the project level.</p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb22-1" data-line-number="1">con &lt;-<span class="st"> </span><span class="kw"><a href="../reference/CreateConnection.html">CreateConnection</a></span>(<span class="st">""</span>)</a></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">con &lt;-<span class="st"> </span><span class="kw"><a href="../reference/CreateConnection.html">CreateConnection</a></span>(<span class="st">""</span>)</code></pre></div>
 <p>This will instantiate a connection at the <code>Studies</code> level. Most functions work cross study connections just like they do on single studies.</p>
 <p>You can get a list of datasets and gene expression matrices available accross all studies.</p>
-<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb23-1" data-line-number="1">con</a></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">con</code></pre></div>
 <pre><code>## &lt;ImmuneSpaceConnection&gt;
 ##   Study: Studies
 ##   URL: https://www.immunespace.org/Studies/
@@ -315,28 +324,28 @@ password superSecretPassword</code></pre>
 ##     - mbaa
 ##     - neut_ab_titer
 ##     - pcr
-##   106 Available Expression Matrices</code></pre>
+##   104 Available Expression Matrices</code></pre>
 <p>In cross-study connections, <code>getDataset</code> and <code>getGEMatrix</code> will combine the requested datasets or expression matrices. See the dedicated vignettes for more information.</p>
 <p>Likewise, <code>plot</code> will visualize accross studies. Note that in most cases the datasets will have too many cohorts/subjects, making the filtering of the data a necessity. The <code>colFilter</code> argument can be used here, as described in the <code>getDataset</code> section.</p>
-<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb25-1" data-line-number="1">plotFilter &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/Rlabkey/topics/makeFilter">makeFilter</a></span>(</a>
-<a class="sourceLine" id="cb25-2" data-line-number="2">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"cohort"</span>, <span class="st">"IN"</span>, <span class="st">"TIV 2010;TIV Group 2008"</span>),</a>
-<a class="sourceLine" id="cb25-3" data-line-number="3">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"study_time_collected"</span>, <span class="st">"EQUALS"</span>, <span class="st">"7"</span>)</a>
-<a class="sourceLine" id="cb25-4" data-line-number="4">)</a>
-<a class="sourceLine" id="cb25-5" data-line-number="5">con<span class="op">$</span><span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/plot">plot</a></span>(<span class="st">"elispot"</span>, <span class="dt">filter =</span> plotFilter)</a></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">plotFilter &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/Rlabkey/man/makeFilter.html">makeFilter</a></span>(
+  <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"cohort"</span>, <span class="st">"IN"</span>, <span class="st">"TIV 2010;TIV Group 2008"</span>),
+  <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"study_time_collected"</span>, <span class="st">"EQUALS"</span>, <span class="st">"7"</span>)
+)
+con<span class="op">$</span><span class="kw"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span>(<span class="st">"elispot"</span>, <span class="dt">filter =</span> plotFilter)</code></pre></div>
 <p><img src="Intro_to_ImmuneSpaceR_files/figure-html/cross-connection-qplot-1.png" width="672" style="display: block; margin: auto;"></p>
 <p>The figure above shows the ELISPOT results for two different years of TIV vaccine cohorts from two different studies.</p>
 </div>
 <div id="session-info" class="section level1">
 <h1 class="hasAnchor">
 <a href="#session-info" class="anchor"></a>Session info</h1>
-<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb26-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/sessionInfo">sessionInfo</a></span>()</a></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://rdrr.io/r/utils/sessionInfo.html">sessionInfo</a></span>()</code></pre></div>
 <pre><code>## R version 3.6.0 (2019-04-26)
 ## Platform: x86_64-pc-linux-gnu (64-bit)
-## Running under: Ubuntu 18.04.2 LTS
+## Running under: Ubuntu 16.04.1 LTS
 ## 
 ## Matrix products: default
-## BLAS:   /usr/lib/x86_64-linux-gnu/blas/libblas.so.3.7.1
-## LAPACK: /usr/lib/x86_64-linux-gnu/lapack/liblapack.so.3.7.1
+## BLAS:   /usr/lib/libblas/libblas.so.3.6.0
+## LAPACK: /usr/lib/lapack/liblapack.so.3.6.0
 ## 
 ## locale:
 ##  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
@@ -350,11 +359,11 @@ password superSecretPassword</code></pre>
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-## [1] Rlabkey_2.3.0       jsonlite_1.6        httr_1.4.0         
-## [4] ImmuneSpaceR_1.13.1 rmarkdown_1.13      knitr_1.23         
+## [1] Rlabkey_2.3.1       jsonlite_1.6        httr_1.4.0         
+## [4] ImmuneSpaceR_1.13.2 rmarkdown_1.13      knitr_1.23         
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] ncdfFlow_2.30.1       bitops_1.0-6          matrixStats_0.54.0   
+##  [1] ncdfFlow_2.30.0       bitops_1.0-6          matrixStats_0.54.0   
 ##  [4] fs_1.3.1              webshot_0.5.1         RColorBrewer_1.1-2   
 ##  [7] rprojroot_1.3-2       Rgraphviz_2.28.0      tools_3.6.0          
 ## [10] backports_1.1.4       R6_2.4.0              KernSmooth_2.23-15   
@@ -362,30 +371,29 @@ password superSecretPassword</code></pre>
 ## [16] flowWorkspace_3.32.0  tidyselect_0.2.5      gridExtra_2.3        
 ## [19] curl_3.3              compiler_3.6.0        preprocessCore_1.46.0
 ## [22] graph_1.62.0          Biobase_2.44.0        TSP_1.1-7            
-## [25] xml2_1.2.0            desc_1.2.0            plotly_4.9.0         
-## [28] labeling_0.3          caTools_1.17.1.2      scales_1.0.0         
-## [31] DEoptimR_1.0-8        hexbin_1.27.3         mvtnorm_1.0-11       
-## [34] robustbase_0.93-5     pkgdown_1.3.0         commonmark_1.7       
-## [37] stringr_1.4.0         digest_0.6.20         rrcov_1.4-7          
-## [40] pkgconfig_2.0.2       htmltools_0.3.6       htmlwidgets_1.3      
-## [43] rlang_0.4.0           rstudioapi_0.10       flowCore_1.50.0      
-## [46] gtools_3.8.1          dendextend_1.12.0     dplyr_0.8.3          
-## [49] magrittr_1.5          Rcpp_1.0.1            munsell_0.5.0        
-## [52] viridis_0.5.1         stringi_1.4.3         yaml_2.2.0           
-## [55] MASS_7.3-51.4         zlibbioc_1.30.0       plyr_1.8.4           
-## [58] gplots_3.0.1.1        grid_3.6.0            parallel_3.6.0       
-## [61] gdata_2.18.0          crayon_1.3.4          lattice_0.20-38      
-## [64] pillar_1.4.2          corpcor_1.6.9         reshape2_1.4.3       
-## [67] codetools_0.2-16      stats4_3.6.0          glue_1.3.1           
-## [70] gclus_1.3.2           evaluate_0.14         latticeExtra_0.6-28  
-## [73] data.table_1.12.2     RcppParallel_4.4.3    foreach_1.4.4        
-## [76] gtable_0.3.0          purrr_0.3.2           tidyr_0.8.3          
-## [79] heatmaply_0.16.0      assertthat_0.2.1      ggplot2_3.2.0        
-## [82] xfun_0.8              roxygen2_6.1.1        IDPmisc_1.1.19       
-## [85] pcaPP_1.9-73          viridisLite_0.3.0     seriation_1.2-7      
-## [88] tibble_2.1.3          pheatmap_1.0.12       iterators_1.0.10     
-## [91] registry_0.5-1        memoise_1.1.0         flowViz_1.48.0       
-## [94] cluster_2.0.8</code></pre>
+## [25] desc_1.2.0            plotly_4.9.0          labeling_0.3         
+## [28] caTools_1.17.1.2      scales_1.0.0          DEoptimR_1.0-8       
+## [31] hexbin_1.27.3         mvtnorm_1.0-10        robustbase_0.93-5    
+## [34] pkgdown_1.4.0         stringr_1.4.0         digest_0.6.19        
+## [37] rrcov_1.4-7           pkgconfig_2.0.2       htmltools_0.3.6      
+## [40] htmlwidgets_1.3       rlang_0.3.4           rstudioapi_0.10      
+## [43] flowCore_1.50.0       gtools_3.8.1          dendextend_1.12.0    
+## [46] dplyr_0.8.1           magrittr_1.5          Rcpp_1.0.1           
+## [49] munsell_0.5.0         viridis_0.5.1         stringi_1.4.3        
+## [52] yaml_2.2.0            MASS_7.3-51.4         zlibbioc_1.30.0      
+## [55] gplots_3.0.1.1        plyr_1.8.4            grid_3.6.0           
+## [58] parallel_3.6.0        gdata_2.18.0          crayon_1.3.4         
+## [61] lattice_0.20-38       pillar_1.4.1          corpcor_1.6.9        
+## [64] reshape2_1.4.3        codetools_0.2-16      stats4_3.6.0         
+## [67] glue_1.3.1            gclus_1.3.2           evaluate_0.14        
+## [70] latticeExtra_0.6-28   data.table_1.12.2     RcppParallel_4.4.3   
+## [73] foreach_1.4.4         gtable_0.3.0          purrr_0.3.2          
+## [76] tidyr_0.8.3           heatmaply_0.16.0      assertthat_0.2.1     
+## [79] ggplot2_3.2.0         xfun_0.7              IDPmisc_1.1.19       
+## [82] pcaPP_1.9-73          viridisLite_0.3.0     seriation_1.2-3      
+## [85] tibble_2.1.1          pheatmap_1.0.8        iterators_1.0.10     
+## [88] registry_0.5-1        memoise_1.1.0         flowViz_1.48.0       
+## [91] cluster_2.0.9</code></pre>
 </div>
   </div>
 
@@ -408,17 +416,20 @@ password superSecretPassword</code></pre>
 </div>
 
 
+
       <footer><div class="copyright">
   <p>Developed by Greg Finak, Renan Sauteraud, Mike Jiang, Gil Guday, Leo Dashevskiy, Evan Henrich, Ju Yeong Kim, Lauren Wolfe, Helen Miller, Raphael Gottardo, ImmuneSpace Package Maintainer.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.0.</p>
 </div>
+
       </footer>
 </div>
 
   
+
 
   </body>
 </html>
