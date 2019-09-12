@@ -597,10 +597,7 @@ ISCon$set(
     }
 
     self$cache[[cache_name]] <- EM
-
-    if (!runningLocally) {
-      file.remove(fl)
-    }
+    file.remove(fl)
   }
 )
 
