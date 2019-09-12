@@ -3,8 +3,11 @@ context("private$.localStudyPath()")
 
 # Helper Functions ---------------------------------------------
 testPath <- function(labkey.url.base, link, pipelineRoot) {
-  SDY269$config$labkey.url.base <- labkey.url.base
-  .localStudyPath <- SDY269$.__enclos_env__$private$.localStudyPath
+  # do not change to connection SDY269 because this is used after
+  # by test-plot.R
+  con <- CreateConnection("SDY269")
+  con$config$labkey.url.base <- labkey.url.base
+  .localStudyPath <- con$.__enclos_env__$private$.localStudyPath
   res <- tryCatch(
     path <- .localStudyPath(link = link),
     error = function(e) return(e)
