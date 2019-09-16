@@ -283,7 +283,7 @@ ISCon$set(
   value = function(files, destdir = ".") {
     stopifnot(file.exists(destdir))
 
-    gef <- con$getDataset("gene_expression_files", original_view = TRUE)
+    gef <- self$getDataset("gene_expression_files", original_view = TRUE)
 
     vapply(
       files,
