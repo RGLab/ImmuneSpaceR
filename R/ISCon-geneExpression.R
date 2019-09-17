@@ -590,7 +590,6 @@ ISCon$set(
         remoteFilePath = file.path("analysis/exprs_matrices", mxName),
         localFilePath = fl
       )
-      file.remove(fl)
     }
 
     EM <- data.table::fread(fl, sep = "\t", header = TRUE)
@@ -601,6 +600,9 @@ ISCon$set(
 
     self$cache[[cache_name]] <- EM
 
+    if (!runningLocally) {
+      file.remove(fl)
+    }
   }
 )
 
