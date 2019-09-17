@@ -285,7 +285,7 @@ ISCon$set(
 
     gef <- self$getDataset("gene_expression_files", original_view = TRUE)
 
-    vapply(
+    res <- vapply(
       files,
       function(file) {
         if (!file %in% gef$file_info_name) {
@@ -298,14 +298,16 @@ ISCon$set(
 
         folderPath <- file.path("Studies", gef[file == file_info_name]$study_accession[1])
         remoteFilePath <- gef[file == file_info_name]$file_info_name[1]
+        remoteFilePath <- file.path("rawdata/gene_expression", remoteFilePath)
 
         linkExists <- labkey.webdav.pathExists(
           baseUrl = self$config$labkey.url.base,
           folderPath = folderPath,
           remoteFilePath = remoteFilePath
         )
+
         if (!linkExists) {
-          stop()
+          stop("file path does not exist")
         }
 
         message("Downloading ", file, "..")
