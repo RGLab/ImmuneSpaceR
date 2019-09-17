@@ -1,8 +1,5 @@
 context("ISCon$plot()")
 
-# Connections --------------------------------------------------
-sdy269 <- CreateConnection("SDY269")
-
 
 # Helper Functions ---------------------------------------------
 testPlot <- function(con, dataset, ...) {
@@ -26,7 +23,7 @@ testPlot <- function(con, dataset, ...) {
 
 test_that("default arguments", {
   res <- testPlot(
-    con = sdy269,
+    con = SDY269,
     dataset = "hai"
   )
   expect_true(!is.null(res$plot))
@@ -34,7 +31,7 @@ test_that("default arguments", {
 
 test_that("normalize to baseline = FALSE", {
   res <- testPlot(
-    con = sdy269,
+    con = SDY269,
     dataset = "hai",
     normalize_to_baseline = FALSE
   )
@@ -43,7 +40,7 @@ test_that("normalize to baseline = FALSE", {
 
 test_that("type changes", {
   res <- testPlot(
-    con = sdy269,
+    con = SDY269,
     dataset = "hai",
     type = "violin"
   )
@@ -53,7 +50,7 @@ test_that("type changes", {
 # filter must be in Rlabkey's format
 test_that("non-null filter", {
   res <- testPlot(
-    con = sdy269,
+    con = SDY269,
     dataset = "hai",
     filter = Rlabkey::makeFilter(c("study_time_collected", "EQUALS", "28"))
   )
@@ -63,7 +60,7 @@ test_that("non-null filter", {
 # facet styles allowed grid, wrap
 test_that("non-grid facet", {
   res <- testPlot(
-    con = sdy269,
+    con = SDY269,
     dataset = "hai",
     facet = "wrap"
   )
@@ -72,7 +69,7 @@ test_that("non-grid facet", {
 
 test_that("alternative text-sizes", {
   res <- testPlot(
-    con = sdy269,
+    con = SDY269,
     dataset = "hai",
     text_size = 20
   )
@@ -82,7 +79,7 @@ test_that("alternative text-sizes", {
 # When there is no error, it comes back NULL
 test_that("non-null legend", {
   res <- testPlot(
-    con = sdy269,
+    con = SDY269,
     dataset = "hai",
     type = "heatmap", # must be heatmap for legend to be used
     legend = "Race" # Race, Gender, Age are possible
@@ -92,7 +89,7 @@ test_that("non-null legend", {
 
 test_that("show_virus_strain = TRUE", {
   res <- testPlot(
-    con = sdy269,
+    con = SDY269,
     dataset = "hai",
     show_virus_strain = TRUE
   )
@@ -101,7 +98,7 @@ test_that("show_virus_strain = TRUE", {
 
 test_that("interactive = TRUE", {
   res <- testPlot(
-    con = sdy269,
+    con = SDY269,
     dataset = "hai",
     interactive = TRUE
   )

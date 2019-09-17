@@ -115,17 +115,17 @@ ISCon$set(
 )
 
 
-# Replace url path to a local path
+# Replace url with webdav to a local path on server or dev machine
 ISCon$set(
   which = "private",
   name = ".localStudyPath",
-  value = function(urlPath) {
+  value = function(link) {
     # If running on individual dev machine, must have symlink set for '/share' to
-    # ~/release19.1/build/deploy
+    # ~/release<ver>/build/deploy
     gsub(
       file.path(gsub("/$", "", self$config$labkey.url.base), "(|/)_webdav"),
       file.path("/share/files"),
-      urlPath
+      link
     )
   }
 )
@@ -151,8 +151,6 @@ ISCon$set(
     response
   }
 )
-
-
 
 # HELPER -----------------------------------------------------------------------
 

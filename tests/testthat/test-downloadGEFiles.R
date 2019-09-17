@@ -1,15 +1,10 @@
 context("ISCon$downloadGEFiles()")
 
-# Connections --------------------------------------------------
-sdy269 <- CreateConnection("SDY269", verbose = TRUE)
-sdy67 <- suppressMessages(CreateConnection("SDY67"))
-allsdy <- CreateConnection("")
-
-
 # Helper Functions ---------------------------------------------
 getFileList <- function(con) {
   gef <- con$getDataset("gene_expression_files")
-  nms <- unique(gef$name)
+  nms <- unique(gef$file_info_name)
+  nms <- nms[ !is.na(nms)]
   if (length(nms) > 5) {
     nms <- nms[1:5]
   }
@@ -19,8 +14,16 @@ getFileList <- function(con) {
 try_ggef <- function(con) {
   files <- getFileList(con)
   tryCatch(
-    capture.output(con$downloadGEFiles(files = files[1:5]), destdir = destdir),
+    capture.output(con$downloadGEFiles(files = files)),
     warning = function(w) return(w),
     error = function(e) return(e)
   )
 }
+
+# Main Tests ------------------------------------------------
+test_that("gets files when files are present", {
+  res <- try_ggef(con = SDY269)
+  expect_true(all(res))
+})
+
+# TODO: IS1 once virtual study import is changed to pull rawfiles

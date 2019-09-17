@@ -1,11 +1,9 @@
 context("Data Integration")
 
-# Connections --------------------------------------------------
-sdy269 <- CreateConnection("SDY269")
-mats <- sdy269$cache$GE_matrices$name
-eset <- suppressMessages(sdy269$getGEMatrix(mats))
+# Data --------------------------------------------------
+eset <- suppressMessages(SDY269$getGEMatrix())
 pheno <- Biobase::pData(eset)
-hai <- sdy269$getDataset("hai")
+hai <- SDY269$getDataset("hai")
 
 
 # Tests --------------------------------------------------------
