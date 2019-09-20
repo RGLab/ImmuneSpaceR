@@ -616,14 +616,13 @@ ISCon$set(
                      annotation = "latest",
                      reload = FALSE) {
     cacheinfo <- .getCacheInfo(outputType, annotation)
-    cache_name <- paste0(matrixName, cacheinfo)
+    cache_name <- .getMatrixCacheName(matrixName, outputType, annotation)
 
     if (!(matrixName %in% self$cache[[private$.constants$matrices]]$name)) {
       stop("Invalid gene expression matrix name")
     }
 
     cacheinfo_status <- self$cache$GE_matrices$cacheinfo[self$cache$GE_matrices$name == matrixName]
-
 
     # For raw or normalized, can reuse cached annotation
     correctAnno <- grepl(paste0("(raw_|normalized_)", annotation), cacheinfo_status)
@@ -688,12 +687,6 @@ ISCon$set(
         colNameOpt = "fieldname"
       )
       setnames(features, "GeneSymbol", "gene_symbol")
-
-      # update cache$gematrices with correct fasId
-      self$cache$GE_matrices$featureset[self$cache$GE_matrices$name == matrixName] <- annoSetId
-
-      # push features to cache
-      self$cache[[paste0("featureset_", annoSetId)]] <- features
     } else {
       # Get annotation from flat file b/c otherwise don't know order
       # NOTE: For ImmSig studies, this means that summaries use the latest
@@ -703,6 +696,12 @@ ISCon$set(
         gene_symbol = self$cache[[cache_name]]$gene_symbol
       )
     }
+
+    # update cache$GE_matrices with correct fasId
+    self$cache$GE_matrices$featureset[self$cache$GE_matrices$name == matrixName] <- annoSetId
+
+    # push features to cache
+    self$cache[[paste0("featureset_", annoSetId)]] <- features
   }
 )
 
@@ -716,16 +715,35 @@ ISCon$set(
                      outputType,
                      annotation,
                      verbose) {
-    cache_name <- .getMatrixCacheName(matrixName, outputType, annotation)
-    esetName <- .getEsetName(matrixName, outputType, annotation)
 
-    # expression matrix
+    # ------ Expression Matrix --------
+    # must not convert to data.frame until after de-dup b/c data.frame adds suffix
+    # to ensure no dups
     message("Constructing ExpressionSet")
-    matrix <- self$cache[[cache_name]]
+    cache_name <- .getMatrixCacheName(matrixName, outputType, annotation)
+    em <- self$cache[[cache_name]]
 
-    # pheno
+    # handling multiple experiment samples per biosample (e.g. technical replicates)
+    dups <- colnames(em)[duplicated(colnames(em))]
+    if (length(dups) > 0) {
+      for (dup in dups) {
+        dupIdx <- grep(dup, colnames(em))
+        em[, dupIdx[[1]] ] <- rowMeans(em[, dupIdx, with = FALSE])
+        em[, (dupIdx[2:length(dupIdx)]) := NULL ]
+      }
+      if (verbose) {
+        warning(
+          "The matrix contains subjects with multiple measures per timepoint. ",
+          "Averaging the expression values ..."
+        )
+      }
+    }
+
+    em <- data.frame(em, stringsAsFactors = FALSE)
+
+    # ------ Phenotypic Data --------
     runID <- self$cache$GE_matrices[name == matrixName, rowid]
-    bs <- colnames(matrix)[ grep("^BS\\d{6}$", colnames(matrix))]
+    bs <- grep("^BS\\d{6}$", colnames(em), value = TRUE)
     pheno_filter <- makeFilter(
       c(
         "Run",
@@ -751,11 +769,10 @@ ISCon$set(
       )
     )
 
+    # Modify and select pheno colnames
+    # NOTE: Need cohort for updateGEAR() mapping to arm_accession and cohort_type for modules
     setnames(pheno, private$.munge(colnames(pheno)))
     pheno <- data.frame(pheno, stringsAsFactors = FALSE)
-
-    # Need cohort for updateGEAR() mapping to arm_accession
-    # Need cohort_type for modules
     pheno <- pheno[, colnames(pheno) %in% c(
       "biosample_accession",
       "participant_id",
@@ -767,90 +784,48 @@ ISCon$set(
       "exposure_process_preferred"
     )]
 
-    # ensure same order as GEM rownames
     rownames(pheno) <- pheno$biosample_accession
-    order <- names(self$cache[[cache_name]])
-    order <- order[-grep("feature_id|gene_symbol|X|V1", order)] # X|V1 kept for IS1 raw
-    order <- order[ order != "BS694717.1" ] # rm SDY212 dup for the moment
-    pheno <- pheno[match(order, row.names(pheno)), ]
 
-    # handling multiple experiment samples per biosample (e.g. technical replicates)
-    dups <- colnames(matrix)[duplicated(colnames(matrix))]
-    if (length(dups) > 0) {
-      for (dup in dups) {
-        dupIdx <- grep(dup, colnames(matrix))
-        matrix[, dupIdx[[1]] ] <- rowMeans(matrix[, dupIdx, with = FALSE])
-        matrix[, (dupIdx[2:length(dupIdx)]) := NULL ]
-      }
-      if (verbose) {
-        warning(
-          "The matrix contains subjects with multiple measures per timepoint. ",
-          "Averaging the expression values ..."
-        )
-      }
-    }
-
-    # gene features
-    if (outputType == "summary") {
-      fdata <- data.frame(
-        FeatureId = matrix$gene_symbol,
-        gene_symbol = matrix$gene_symbol
-      )
-
-      rownames(fdata) <- rownames(matrix) <- matrix$gene_symbol # exprs and fData must match
-    } else {
-      annoSetId <- self$cache$GE_matrices$featureset[self$cache$GE_matrices$name == matrixName]
-      features <- self$cache[[paste0("featureset_", annoSetId)]][, c("FeatureId", "gene_symbol")]
-      # IS1 matrices have not been standardized, otherwise all others should be 'feature_id'
-      colnames(matrix)[[grep("feature_id|X|V1", colnames(matrix))]] <- "FeatureId"
-
-      # Only known case is SDY300 for "2-Mar" and "1-Mar" which are
-      # likely not actual probe_ids but mistransformed strings
-      if (any(duplicated(matrix$FeatureId))) {
-        matrix <- matrix[ !duplicated(matrix$FeatureId), ]
-      }
-
-      fdata <- data.frame(
-        FeatureId = as.character(matrix$FeatureId),
-        stringsAsFactors = FALSE
-      )
-
-      fdata <- merge(fdata, features, by = "FeatureId", all.x = TRUE)
-
-      # exprs and fData must match
-      rownames(fdata) <- fdata$FeatureId
-      matrix <- matrix[ order(match(matrix$FeatureId, fdata$FeatureId)), ]
-      rownames(matrix) <- matrix$FeatureId
-    }
-
-    # SDY212 has dbl biosample that is need for IS1 normalization, but later removed
-    # in the IS1 report.
+    # For SDY212 ImmSig, adjust pheno to match matrix with dup sample
     if ("BS694717" %in% pheno$biosample_accession) {
       pheno["BS694717.1", ] <- pheno[pheno$biosample_accession == "BS694717", ]
       pheno$biosample_accession[rownames(pheno) == "BS694717.1"] <- "BS694717.1"
     }
 
-    # Prep Eset and push
-    # NOTES: At project level, InputSamples may be filtered
-    matrix <- data.frame(matrix, stringsAsFactors = FALSE) # for when on rsT / rsP
-    exprs <- matrix[, colnames(matrix) %in% pheno$biosample_accession] # rms gene_symbol!
-    pheno <- pheno[colnames(exprs), ]
+    # ------ Feature Annotation --------
+    # IS1 matrices have not been standardized, otherwise all others should be 'feature_id'
+    annoSetId <- self$cache$GE_matrices$featureset[self$cache$GE_matrices$name == matrixName]
+    fdata <- self$cache[[paste0("featureset_", annoSetId)]][, c("FeatureId", "gene_symbol")]
+    rownames(fdata) <- fdata$FeatureId
+    colnames(em)[[grep("feature_id|X|V1|gene_symbol", colnames(em))]] <- "FeatureId"
+    rownames(em) <- em$FeatureId
 
-    # add processing information for user
+    # Only known case is SDY300 for "2-Mar" and "1-Mar" which are
+    # likely not actual probe_ids but strings caste to datetime
+    em <- em[ !duplicated(em$FeatureId), ]
+
+    # ----- Ensure Filtering and Ordering -------
+    # NOTES: At project level, InputSamples may be filtered
+    # fdata: must filter both ways (e.g. SDY67 ImmSig)
+    em <- em[ em$FeatureId %in% fdata$FeatureId, ]
+    fdata <- fdata[ fdata$FeatureId %in% em$FeatureId, ]
+    em <- em[ order(match(em$FeatureId, fdata$FeatureId)), ]
+    em <- em[, colnames(em) %in% row.names(pheno)] # rm FeatureId col
+    pheno <- pheno[ match(colnames(em), row.names(pheno)), ]
+
+    # ----- Compile Processing Info -------
     fasInfo <- .getLKtbl(
       con = self,
       schema = "Microarray",
       query = "FeatureAnnotationSet"
     )
-    gemx <- self$cache$GE_matrices
-    fasId <- gemx$featureset[ gemx$name == matrixName ]
-    fasInfo <- fasInfo[ match(fasId, fasInfo$`Row Id`)]
+
+    fasInfo <- fasInfo[ match(annoSetId, fasInfo$`Row Id`)]
     isRNA <- (fasInfo$Vendor == "NA" & !grepl("ImmSig", fasInfo$Name)) | grepl("SDY67", fasInfo$Name)
-    if (fasInfo$Comment == "Do not update" | is.na(fasInfo$Comment)) {
-      annoVer <- annotation
-    } else {
-      annoVer <- gsub(" ", "", strsplit(fasInfo$Comment, ":")[[1]][2])
-    }
+    annoVer <- ifelse(fasInfo$Comment == "Do not update" | is.na(fasInfo$Comment),
+                      annotation,
+                      strsplit(fasInfo$Comment, ":")[[1]][2]
+                      )
 
     processInfo <- list(
       normalization = ifelse(isRNA, "DESeq", "normalize.quantiles"),
@@ -859,8 +834,10 @@ ISCon$set(
       featureAnnotationSet = fasInfo$Name
     )
 
+    # ------ Create and Cache ExpressionSet Object -------
+    esetName <- .getEsetName(matrixName, outputType, annotation)
     self$cache[[esetName]] <- ExpressionSet(
-      assayData = as.matrix(exprs),
+      assayData = as.matrix(em),
       phenoData = AnnotatedDataFrame(pheno),
       featureData = AnnotatedDataFrame(fdata),
       experimentData = new("MIAME", other = processInfo)
