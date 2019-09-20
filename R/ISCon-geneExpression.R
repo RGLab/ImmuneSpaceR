@@ -823,9 +823,9 @@ ISCon$set(
     fasInfo <- fasInfo[ match(annoSetId, fasInfo$`Row Id`)]
     isRNA <- (fasInfo$Vendor == "NA" & !grepl("ImmSig", fasInfo$Name)) | grepl("SDY67", fasInfo$Name)
     annoVer <- ifelse(fasInfo$Comment == "Do not update" | is.na(fasInfo$Comment),
-                      annotation,
-                      strsplit(fasInfo$Comment, ":")[[1]][2]
-                      )
+      annotation,
+      strsplit(fasInfo$Comment, ":")[[1]][2]
+    )
 
     processInfo <- list(
       normalization = ifelse(isRNA, "DESeq", "normalize.quantiles"),
