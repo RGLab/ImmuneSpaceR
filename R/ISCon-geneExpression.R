@@ -743,8 +743,8 @@ ISCon$set(
 
     # ------ Phenotypic Data --------
     runID <- self$cache$GE_matrices[name == matrixName, rowid]
-    bs <- grep("^BS\\d{6}$", colnames(em), value = TRUE)
-    pheno_filter <- makeFilter(
+    bs <- grep("^BS\\d+$", colnames(em), value = TRUE)
+    pheno_filter <- Rlabkey::makeFilter(
       c(
         "Run",
         "EQUAL",
