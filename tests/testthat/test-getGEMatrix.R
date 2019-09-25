@@ -132,6 +132,13 @@ test_that("get multiple matrices summary from different studies", {
   test_EM(EM, summary = TRUE)
 })
 
+test_that("gets SDY300 eset without error in .constructExpressionSet", {
+  EM <- ALL$getGEMatrix(
+    matrixName = "SDY300_otherCell_dcMonoFlu2011",
+  )
+  test_EM(EM, summary = TRUE)
+})
+
 test_that("loading from cache works correctly", {
 
   # Should load both matrices from cache
@@ -206,7 +213,7 @@ test_that("get ImmSig Study - SDY212 with correct anno and summary", {
   test_EM(EM, summary = FALSE)
   expect_true("BS694717.1" %in% colnames(Biobase::exprs(EM)))
   expect_true("BS694717.1" %in% Biobase::sampleNames(EM))
-  expect_true(all.equal(dim(Biobase::exprs(EM)), c(48771, 92)))
+  expect_true(all.equal(dim(Biobase::exprs(EM)), c(48770, 92)))
 })
 
 test_that("get ImmSig Study - SDY67 fixing 'X' for 'FeatureId'", {
