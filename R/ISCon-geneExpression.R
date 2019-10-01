@@ -67,16 +67,17 @@ ISCon$set(
       # Get matrices from participantIDs
 
       sql <- paste0("SELECT DISTINCT Run.Name
-                     FROM assay.ExpressionMatrix.matrix.InputSamples_computed
+                     FROM InputSamples_computed
                      WHERE Biosample.participantId IN ('", paste0(participantIds, collapse = "','"), "')")
-      )
 
-      matrixNames <- Rlabkey::labkey.executeSql(self$config$labkey.url.base,
-                                                folderPath = self$config$labkey.url.path,
-                                                schemaName = "assay.ExpressionMatrix.matrix",
-                                                sql = sql,
-                                                containerFilter = "CurrentAndSubfolders",
-                                                colNameOpt = "fieldname")
+      matrixNames <- labkey.executeSql(
+        baseUrl = self$config$labkey.url.base,
+        folderPath = self$config$labkey.url.path,
+        schemaName = "assay.ExpressionMatrix.matrix",
+        sql = sql,
+        containerFilter = "CurrentAndSubfolders",
+        colNameOpt = "fieldname"
+      )
 
       return(self$cache[[private$.constants$matrices]][name %in% matrixNames$run_name])
     }
@@ -245,7 +246,7 @@ ISCon$set(
           con = self,
           schema = "assay.Expressionmatrix.matrix",
           query = "InputSamples_computed",
-            viewName = "gene_expression_matrices",
+          viewName = "gene_expression_matrices",
           colNameOpt = "fieldname"
         ),
         error = function(e) return(e)
