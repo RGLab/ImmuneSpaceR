@@ -66,9 +66,9 @@ ISCon$set(
     } else {
       # Get matrices from participantIDs
 
-      sql <- paste0("SELECT DISTINCT Run.Name run_name
+      sql <- paste0("SELECT DISTINCT Run.Name
                      FROM assay.ExpressionMatrix.matrix.InputSamples_computed
-                     WHERE Biosample.participantId IN ('", paste0(participantIds, collapse = "','"), "')"
+                     WHERE Biosample.participantId IN ('", paste0(participantIds, collapse = "','"), "')")
       )
 
       matrixNames <- Rlabkey::labkey.executeSql(self$config$labkey.url.base,
@@ -133,12 +133,6 @@ ISCon$set(
       ct_name <- cohortType # can't use cohort = cohort in d.t
       if (all(ct_name %in% self$cache$GE_matrices$cohort_type)) {
         matrixName <- self$cache$GE_matrices[cohort_type %in% ct_name, name]
-        # SDY67 is special case. "Batch2" matrix is only day 0 and has overlapping
-        # biosamples with full matrix "SDY67_HealthyAdults".  This causes
-        # full matrix for cohort.
-        if (grepl("SDY67", matrixName[[1]])) {
-          matrixName <- matrixName[ grep("Batch2", matrixName, invert = T) ]
-        }
       } else {
         validCohorts <- self$cache$GE_matrices[, cohort_type]
         stop(paste(
@@ -148,6 +142,10 @@ ISCon$set(
       }
     }
 
+    # Return a combined eSet of all matrices by default
+    if (is.null(matrixName)) {
+      matrixName <- self$cache$GE_matrices$name
+    }
 
     # Get matrix or matrices
     esetNames <- vapply(matrixName, function(name) {
@@ -159,11 +157,11 @@ ISCon$set(
         self$cache[[esetName]] <- NULL
         private$.downloadMatrix(name, outputType, annotation, reload)
         private$.getGEFeatures(name, outputType, annotation, reload)
-        private$.constructExpressionSet(name, outputType, annotation)
+        private$.constructExpressionSet(name, outputType, annotation, verbose)
 
         # Add to cacheinfo
         cacheinfo_status <- self$cache$GE_matrices$cacheinfo[self$cache$GE_matrices$name == name]
-        cacheinfo <- .getcacheinfo(outputType, annotation)
+        cacheinfo <- .getCacheInfo(outputType, annotation)
         if (!grepl(cacheinfo, cacheinfo_status)) {
           self$cache$GE_matrices$cacheinfo[self$cache$GE_matrices$name == name] <-
             paste0(
@@ -193,11 +191,12 @@ ISCon$set(
     }
 
     if (verbose == TRUE) {
-      info <- Biobase::experimentData(ret)
+      info <- Biobase::experimentData(eset)
       message("\nNotes:")
       dmp <- lapply(names(info@other), function(nm) {
         message(paste0(nm, ": ", info@other[[nm]]))
       })
+      message("\n")
     }
 
     return(eset)
@@ -282,15 +281,9 @@ ISCon$set(
   value = function(files, destdir = ".") {
     stopifnot(file.exists(destdir))
 
-    gef <- copy(con$getDataset(
-      "gene_expression_files",
-      colSelect = c("participantid", "file_info_name")
-    ))
-    gef[, study_accession := paste0("SDY", gsub("SUB\\d+.", "", participant_id))]
-    gef[, participant_id := NULL]
-    gef <- unique(gef[!is.na(file_info_name) & file_info_name %in% files])
+    gef <- self$getDataset("gene_expression_files", original_view = TRUE)
 
-    vapply(
+    res <- vapply(
       files,
       function(file) {
         if (!file %in% gef$file_info_name) {
@@ -301,30 +294,27 @@ ISCon$set(
           return(FALSE)
         }
 
-        link <- paste0(
-          self$config$labkey.url.base,
-          "/_webdav/Studies/",
-          gef[file == file_info_name]$study_accession[1],
-          "/%40files/rawdata/gene_expression/",
-          gef[file == file_info_name]$file_info_name[1]
+        folderPath <- file.path("Studies", gef[file == file_info_name]$study_accession[1])
+        remoteFilePath <- gef[file == file_info_name]$file_info_name[1]
+        remoteFilePath <- file.path("rawdata/gene_expression", remoteFilePath)
+
+        linkExists <- labkey.webdav.pathExists(
+          baseUrl = self$config$labkey.url.base,
+          folderPath = folderPath,
+          remoteFilePath = remoteFilePath
         )
 
-        # check if file exists
-        head <- HEAD(link, Rlabkey:::labkey.getRequestOptions())
-        if (grepl("json", head$headers$`content-type`)) {
-          warning(
-            file, "does not exist. ",
-            "Please contanct the ImmuneSpace team at immunespace@gmail.com",
-            call. = FALSE, immediate. = TRUE
-          )
-          return(FALSE)
+        if (!linkExists) {
+          stop("file path does not exist")
         }
 
         message("Downloading ", file, "..")
-        GET(
-          url = link,
-          Rlabkey:::labkey.getRequestOptions(),
-          write_disk(file.path(destdir, file), overwrite = TRUE)
+
+        labkey.webdav.get(
+          baseUrl = self$config$labkey.url.base,
+          folderPath = folderPath,
+          remoteFilePath = remoteFilePath,
+          localFilePath = file.path(destdir, file)
         )
 
         TRUE
@@ -406,7 +396,8 @@ ISCon$set(
 )
 
 
-# Map the expression set by the sample names
+# Map the biosample ids in expressionSet object to Immunespace subject IDs
+# concatenated with study time collected or experiment sample IDs
 ISCon$set(
   which = "public",
   name = "mapSampleNames",
@@ -451,16 +442,16 @@ ISCon$set(
           match(sampleNames(EM), pd$biosample_accession),
           expsample_accession
         ]
-    } else if (colType %in% c("participant", "subject")) {
+    } else if (colType == "participant") {
       pd[, nID := paste0(
         participant_id,
         "_",
         tolower(substr(study_time_collected_unit, 1, 1)),
         study_time_collected
-      )         ]
+      )        ]
       sampleNames(EM) <- pd[match(sampleNames(EM), pd$biosample_accession), nID]
     } else if (colType == "biosample") {
-      warning("Nothing done, the column names should already be biosample_accession numbers.")
+      warning("Nothing done, the column names are already be biosample_accession numbers.")
     } else {
       stop("colType should be one of 'expsample_accession', 'biosample_accession', 'participant_id'.")
     }
@@ -484,7 +475,7 @@ ISCon$set(
                      annotation = "latest",
                      reload = FALSE) {
     cache_name <- .getMatrixCacheName(matrixName, outputType, annotation)
-    cacheinfo <- .getcacheinfo(outputType, annotation)
+    cacheinfo <- .getCacheInfo(outputType, annotation)
 
     # check if study has matrices
     if (nrow(subset(
@@ -500,16 +491,11 @@ ISCon$set(
     #   a. outputType and annotation match cache OR
     #   b. outputType matches cache and is not summary
     # Otherwise, load a new matrix
+    currCache <- self$cache$GE_matrices$cacheinfo[self$cache$GE_matrices$name == matrixName]
     if (!reload) {
-      if (grepl(cacheinfo, self$cache$GE_matrices$cacheinfo[self$cache$GE_matrices$name == matrixName])) {
+      if (grepl(cacheinfo, currCache) || (outputType != "summary" && grepl(outputType, currCache))) {
         message(paste0("Returning ", outputType, " matrix from cache"))
         return()
-      }
-      if (outputType != "summary") {
-        if (grepl(outputType, self$cache$GE_matrices$cacheinfo[self$cache$GE_matrices$name == matrixName])) {
-          message(paste0("Returning ", outputType, " matrix from cache"))
-          return()
-        }
       }
     }
 
@@ -544,77 +530,75 @@ ISCon$set(
         self$config$labkey.url.path,
         regexpr("IS\\d{1}", self$config$labkey.url.path)
       )
-      folder_link <- paste0(
-        self$config$labkey.url.base,
-        "/_webdav/HIPC/",
-        sdy,
-        "/%40files/analysis/exprs_matrices?method=JSON"
+
+      runDirs <- labkey.webdav.listDir(
+        baseUrl = self$config$labkey.url.base,
+        folderPath = file.path("HIPC", sdy),
+        remoteFilePath = "analysis/exprs_matrices"
       )
-      runDirs <- unlist(lapply(folder_link, private$.listISFiles))
-      runDirs <- grep("Run", runDirs, value = TRUE)
+      runDirs <- sapply(runDirs$files, "[[", "id")
+      runDirs <- sapply(runDirs, basename)
+      runDirs <- unname(grep("Run", runDirs, value = TRUE))
 
       # Map run sub-directories to the matrixNames passed to downloadMatrix
-      id2MxNm <- sapply(runDirs, function(x) {
-        run_folder <- gsub("exprs_matrices", paste0("exprs_matrices/", x), folder_link)
-        fls <- unlist(lapply(run_folder, private$.listISFiles))
+      id2MxNm <- vapply(runDirs, function(x) {
+        fls <- labkey.webdav.listDir(
+          baseUrl = self$config$labkey.url.base,
+          folderPath = file.path("HIPC", sdy),
+          remoteFilePath = file.path("analysis/exprs_matrices", x)
+        )
+        fls <- sapply(fls$files, "[[", "id")
+        fls <- sapply(fls, basename)
         newNm <- gsub("\\.tsv*", "", grep("tsv", fls, value = TRUE)[[1]])
-      })
+      },
+      FUN.VALUE = "newNm"
+      )
 
       # Generate correct filepath in /HIPC/IS1/@files/analysis/exprs_matrices/
       runId <- names(id2MxNm)[ match(matrixName, id2MxNm) ]
       mxName <- paste0(runId, "/", mxName)
     }
 
-    if (self$config$labkey.url.path == "/Studies/") {
-      path <- paste0("/Studies/", self$cache$GE_matrices[name == matrixName, folder], "/")
-    } else {
-      path <- gsub("^/", "", self$config$labkey.url.path)
-    }
+    folderPath <- ifelse(self$config$labkey.url.path == "/Studies/",
+      paste0("/Studies/", self$cache$GE_matrices[name == matrixName, folder], "/"),
+      gsub("^/", "", self$config$labkey.url.path)
+    )
 
     link <- URLdecode(
       file.path(
         gsub("/$", "", self$config$labkey.url.base),
         "_webdav",
-        path,
+        folderPath,
         "@files/analysis/exprs_matrices",
         mxName
       )
     )
 
-    localpath <- private$.localStudyPath(urlPath = link)
-    if (private$.isRunningLocally(localpath)) {
+    localpath <- private$.localStudyPath(link = link)
+    runningLocally <- private$.isRunningLocally(localpath)
+    if (runningLocally) {
       message("Reading local matrix")
-      self$cache[[cache_name]] <- read.table(
-        localpath,
-        header = TRUE,
-        sep = "\t",
-        quote = "\"",
-        stringsAsFactors = FALSE
-      )
+      fl <- localpath
     } else {
-      opts <- self$config$curlOptions
-      opts$options$netrc <- 1L
-
       message("Downloading matrix..")
       fl <- tempfile()
-      GET(url = link, config = opts, write_disk(fl))
-
-      # fread does not read correctly
-      # SDY1289 has gene symbols in original version with single quote, therefore need
-      # to change 'quote' so that only looks for double-quote
-      EM <- read.table(
-        fl,
-        header = TRUE,
-        sep = "\t",
-        quote = "\"",
-        stringsAsFactors = FALSE
+      labkey.webdav.get(
+        baseUrl = self$config$labkey.url.base,
+        folderPath = folderPath,
+        remoteFilePath = file.path("analysis/exprs_matrices", mxName),
+        localFilePath = fl
       )
+    }
 
-      if (nrow(EM) == 0) {
-        stop("The downloaded matrix has 0 rows. Something went wrong.")
-      }
+    EM <- data.table::fread(fl, sep = "\t", header = TRUE)
 
-      self$cache[[cache_name]] <- EM
+    if (nrow(EM) == 0) {
+      stop("The matrix has 0 rows. Something went wrong.")
+    }
+
+    self$cache[[cache_name]] <- EM
+
+    if (!runningLocally) {
       file.remove(fl)
     }
   }
@@ -629,51 +613,41 @@ ISCon$set(
                      outputType = "summary",
                      annotation = "latest",
                      reload = FALSE) {
-    cacheinfo <- .getcacheinfo(outputType, annotation)
-    cache_name <- paste0(matrixName, cacheinfo)
+    cacheinfo <- .getCacheInfo(outputType, annotation)
+    cache_name <- .getMatrixCacheName(matrixName, outputType, annotation)
 
     if (!(matrixName %in% self$cache[[private$.constants$matrices]]$name)) {
       stop("Invalid gene expression matrix name")
     }
 
     cacheinfo_status <- self$cache$GE_matrices$cacheinfo[self$cache$GE_matrices$name == matrixName]
+
     # For raw or normalized, can reuse cached annotation
+    correctAnno <- grepl(paste0("(raw_|normalized_)", annotation), cacheinfo_status)
     if (!reload) {
-      if (grepl(cacheinfo, cacheinfo_status)) {
+      if (grepl(cacheinfo, cacheinfo_status) || (outputType != "summary" && correctAnno)) {
         message(paste0("Returning ", annotation, " annotation from cache"))
         return()
-      }
-      if (outputType != "summary") {
-        if (grepl(paste0("(raw_", annotation, ")|(normalized_", annotation, ")"), cacheinfo_status)) {
-          message(paste0("Returning ", annotation, " annotation from cache"))
-          return()
-        }
       }
     }
 
     # ---- queries ------
-    runs <- labkey.selectRows(
-      baseUrl = self$config$labkey.url.base,
-      folderPath = self$config$labkey.url.path,
-      schemaName = "Assay.ExpressionMatrix.Matrix",
-      queryName = "Runs",
-      showHidden = TRUE
+    runs <- .getLKtbl(
+      con = self,
+      schema = "Assay.ExpressionMatrix.Matrix",
+      query = "Runs"
     )
 
-    faSets <- labkey.selectRows(
-      baseUrl = self$config$labkey.url.base,
-      folderPath = self$config$labkey.url.path,
-      schemaName = "Microarray",
-      queryName = "FeatureAnnotationSet",
-      showHidden = TRUE
+    faSets <- .getLKtbl(
+      con = self,
+      schema = "Microarray",
+      query = "FeatureAnnotationSet"
     )
 
-    fasMap <- labkey.selectRows(
-      baseUrl = self$config$labkey.url.base,
-      folderPath = self$config$labkey.url.path,
-      schemaName = "Microarray",
-      queryName = "FasMap",
-      showHidden = TRUE
+    fasMap <- .getLKtbl(
+      con = self,
+      schema = "Microarray",
+      query = "FasMap"
     )
 
     #--------------------
@@ -690,7 +664,7 @@ ISCon$set(
       fasIdAtCreation <- runs$`Feature Annotation Set`[ runs$Name == matrixName ]
       idCol <- ifelse(annotation == "default", "Orig Id", "Curr Id")
       annoAlias <- gsub("_orig", "", faSets$Name[ faSets$`Row Id` == fasIdAtCreation ])
-      annoSetId <- fasMap[ fasMap$Name == annoAlias, idCol ]
+      annoSetId <- fasMap[ fasMap$Name == annoAlias, get(idCol) ]
     }
 
     if (outputType != "summary") {
@@ -711,12 +685,6 @@ ISCon$set(
         colNameOpt = "fieldname"
       )
       setnames(features, "GeneSymbol", "gene_symbol")
-
-      # update cache$gematrices with correct fasId
-      self$cache$GE_matrices$featureset[self$cache$GE_matrices$name == matrixName] <- annoSetId
-
-      # push features to cache
-      self$cache[[paste0("featureset_", annoSetId)]] <- features
     } else {
       # Get annotation from flat file b/c otherwise don't know order
       # NOTE: For ImmSig studies, this means that summaries use the latest
@@ -726,26 +694,55 @@ ISCon$set(
         gene_symbol = self$cache[[cache_name]]$gene_symbol
       )
     }
+
+    # update cache$GE_matrices with correct fasId
+    self$cache$GE_matrices$featureset[self$cache$GE_matrices$name == matrixName] <- annoSetId
+
+    # push features to cache
+    self$cache[[paste0("featureset_", annoSetId)]] <- features
   }
 )
 
 
-# Constructs a expression set by matrix
+# Constructs an expressionSet object with expression matrix (exprs),
+# feature annotation data (fData), and subject metadata (pData)
 ISCon$set(
   which = "private",
   name = ".constructExpressionSet",
-  value = function(matrixName, outputType, annotation) {
-    cache_name <- .getMatrixCacheName(matrixName, outputType, annotation)
-    esetName <- .getEsetName(matrixName, outputType, annotation)
+  value = function(matrixName,
+                     outputType,
+                     annotation,
+                     verbose) {
 
-    # expression matrix
+    # ------ Expression Matrix --------
+    # must not convert to data.frame until after de-dup b/c data.frame adds suffix
+    # to ensure no dups
     message("Constructing ExpressionSet")
-    matrix <- self$cache[[cache_name]]
+    cache_name <- .getMatrixCacheName(matrixName, outputType, annotation)
+    em <- self$cache[[cache_name]]
 
-    # pheno
+    # handling multiple experiment samples per biosample (e.g. technical replicates)
+    dups <- unique(colnames(em)[duplicated(colnames(em))])
+    if (length(dups) > 0) {
+      for (dup in dups) {
+        dupIdx <- grep(dup, colnames(em))
+        em[, dupIdx[[1]] ] <- rowMeans(em[, dupIdx, with = FALSE])
+        em[, (dupIdx[2:length(dupIdx)]) := NULL ]
+      }
+      if (verbose) {
+        warning(
+          "The matrix contains subjects with multiple measures per timepoint. ",
+          "Averaging the expression values ..."
+        )
+      }
+    }
+
+    em <- data.frame(em, stringsAsFactors = FALSE)
+
+    # ------ Phenotypic Data --------
     runID <- self$cache$GE_matrices[name == matrixName, rowid]
-    bs <- colnames(matrix)[ grep("^BS\\d{6}$", colnames(matrix))]
-    pheno_filter <- makeFilter(
+    bs <- grep("^BS\\d+$", colnames(em), value = TRUE)
+    pheno_filter <- Rlabkey::makeFilter(
       c(
         "Run",
         "EQUAL",
@@ -770,11 +767,10 @@ ISCon$set(
       )
     )
 
+    # Modify and select pheno colnames
+    # NOTE: Need cohort for updateGEAR() mapping to arm_accession and cohort_type for modules
     setnames(pheno, private$.munge(colnames(pheno)))
     pheno <- data.frame(pheno, stringsAsFactors = FALSE)
-
-    # Need cohort for updateGEAR() mapping to arm_accession
-    # Need cohortType for modules
     pheno <- pheno[, colnames(pheno) %in% c(
       "biosample_accession",
       "participant_id",
@@ -786,99 +782,48 @@ ISCon$set(
       "exposure_process_preferred"
     )]
 
-    # ensure same order as GEM rownames
     rownames(pheno) <- pheno$biosample_accession
-    order <- names(self$cache[[cache_name]])
-    order <- order[-grep("feature_id|gene_symbol|X|V1", order)]
-    order <- order[ order != "BS694717.1" ] # rm SDY212 dup for the moment
-    pheno <- pheno[match(order, row.names(pheno)), ]
 
-    # handling multiple timepoints per subject
-    dups <- colnames(matrix)[duplicated(colnames(matrix))]
-    if (length(dups) > 0) {
-      matrix <- data.table(matrix)
-      for (dup in dups) {
-        dupIdx <- grep(dup, colnames(matrix))
-        newNames <- paste0(dup, seq_len(length(dupIdx)))
-        setnames(matrix, dupIdx, newNames)
-        eval(substitute(
-          matrix[, `:=`(
-            dup,
-            rowMeans(matrix[, dupIdx, with = FALSE])
-          )],
-          list(dup = dup)
-        ))
-        eval(substitute(matrix[, `:=`(newNames, NULL)], list(newNames = newNames)))
-      }
-      if (self$config$verbose) {
-        warning(
-          "The matrix contains subjects with multiple measures per timepoint. ",
-          "Averaging the expression values.."
-        )
-      }
-    }
-
-    # gene features
-    if (outputType == "summary") {
-      fdata <- data.frame(
-        FeatureId = matrix$gene_symbol,
-        gene_symbol = matrix$gene_symbol
-      )
-
-      rownames(fdata) <- rownames(matrix) <- matrix$gene_symbol # exprs and fData must match
-    } else {
-      annoSetId <- self$cache$GE_matrices$featureset[self$cache$GE_matrices$name == matrixName]
-      features <- self$cache[[paste0("featureset_", annoSetId)]][, c("FeatureId", "gene_symbol")]
-      # IS1 matrices have not been standardized, otherwise all others should be 'feature_id'
-      colnames(matrix)[[grep("feature_id|X|V1", colnames(matrix))]] <- "FeatureId"
-
-      # Only known case is SDY300 for "2-Mar" and "1-Mar" which are
-      # likely not actual probe_ids but mistransformed strings
-      if (any(duplicated(matrix$FeatureId))) {
-        matrix <- matrix[ !duplicated(matrix$FeatureId), ]
-      }
-
-      fdata <- data.frame(
-        FeatureId = as.character(matrix$FeatureId),
-        stringsAsFactors = FALSE
-      )
-
-      fdata <- merge(fdata, features, by = "FeatureId", all.x = TRUE)
-
-      # exprs and fData must match
-      rownames(fdata) <- fdata$FeatureId
-      matrix <- matrix[ order(match(matrix$FeatureId, fdata$FeatureId)), ]
-      rownames(matrix) <- matrix$FeatureId
-    }
-
-    # SDY212 has dbl biosample that is need for IS1 normalization, but later removed
-    # in the IS1 report.
+    # For SDY212 ImmSig, adjust pheno to match matrix with dup sample
     if ("BS694717" %in% pheno$biosample_accession) {
       pheno["BS694717.1", ] <- pheno[pheno$biosample_accession == "BS694717", ]
       pheno$biosample_accession[rownames(pheno) == "BS694717.1"] <- "BS694717.1"
     }
 
-    # Prep Eset and push
-    # NOTES: At project level, InputSamples may be filtered
-    matrix <- data.frame(matrix, stringsAsFactors = FALSE) # for when on rsT / rsP
-    exprs <- matrix[, colnames(matrix) %in% pheno$biosample_accession] # rms gene_symbol!
-    pheno <- pheno[colnames(exprs), ]
+    # ------ Feature Annotation --------
+    # IS1 matrices have not been standardized, otherwise all others should be 'feature_id'
+    annoSetId <- self$cache$GE_matrices$featureset[self$cache$GE_matrices$name == matrixName]
+    fdata <- self$cache[[paste0("featureset_", annoSetId)]][, c("FeatureId", "gene_symbol")]
+    rownames(fdata) <- fdata$FeatureId
+    colnames(em)[[grep("feature_id|X|V1|gene_symbol", colnames(em))]] <- "FeatureId"
+    rownames(em) <- em$FeatureId
 
-    # add processing information for user
+    # Only known case is SDY300 for "2-Mar" and "1-Mar" which are
+    # likely not actual probe_ids but strings caste to datetime
+    em <- em[ !duplicated(em$FeatureId), ]
+
+    # ----- Ensure Filtering and Ordering -------
+    # NOTES: At project level, InputSamples may be filtered
+    # fdata: must filter both ways (e.g. SDY67 ImmSig)
+    em <- em[ em$FeatureId %in% fdata$FeatureId, ]
+    fdata <- fdata[ fdata$FeatureId %in% em$FeatureId, ]
+    em <- em[ order(match(em$FeatureId, fdata$FeatureId)), ]
+    em <- em[, colnames(em) %in% row.names(pheno)] # rm FeatureId col
+    pheno <- pheno[ match(colnames(em), row.names(pheno)), ]
+
+    # ----- Compile Processing Info -------
     fasInfo <- .getLKtbl(
       con = self,
       schema = "Microarray",
       query = "FeatureAnnotationSet"
     )
-    gemx <- self$cache$GE_matrices
-    fasId <- gemx$featureset[ gemx$name == matrixName ]
-    fasInfo <- fasInfo[ match(fasId, fasInfo$`Row Id`)]
+
+    fasInfo <- fasInfo[ match(annoSetId, fasInfo$`Row Id`)]
     isRNA <- (fasInfo$Vendor == "NA" & !grepl("ImmSig", fasInfo$Name)) | grepl("SDY67", fasInfo$Name)
-    if (fasInfo$Comment == "Do not update" | is.na(fasInfo$Comment)) {
-      annoVer <- annotation
-    } else {
-      annoVer <- gsub(" ", "", strsplit(fasInfo$Comment, ":")[[1]][2])
-    }
+    annoVer <- ifelse(fasInfo$Comment == "Do not update" | is.na(fasInfo$Comment),
+      annotation,
+      strsplit(fasInfo$Comment, ":")[[1]][2]
+    )
 
     processInfo <- list(
       normalization = ifelse(isRNA, "DESeq", "normalize.quantiles"),
@@ -887,8 +832,10 @@ ISCon$set(
       featureAnnotationSet = fasInfo$Name
     )
 
+    # ------ Create and Cache ExpressionSet Object -------
+    esetName <- .getEsetName(matrixName, outputType, annotation)
     self$cache[[esetName]] <- ExpressionSet(
-      assayData = as.matrix(exprs),
+      assayData = as.matrix(em),
       phenoData = AnnotatedDataFrame(pheno),
       featureData = AnnotatedDataFrame(fdata),
       experimentData = new("MIAME", other = processInfo)
@@ -935,11 +882,9 @@ ISCon$set(
     "ImmSig" = "_immsig"
   )
 
-
+  matrixName <- paste0(matrixName, outputSuffix)
   if (annotation == "ImmSig" || outputType == "summary") {
-    matrixName <- paste0(matrixName, outputSuffix, annotationSuffix)
-  } else {
-    matrixName <- paste0(matrixName, outputSuffix)
+    matrixName <- paste0(matrixName, annotationSuffix)
   }
   return(matrixName)
 }
@@ -951,7 +896,7 @@ ISCon$set(
 }
 
 # Get cacheinfo string from output type and annotation
-.getcacheinfo <- function(outputType, annotation) {
+.getCacheInfo <- function(outputType, annotation) {
   cacheinfo <- paste0(outputType, "_", annotation)
   return(cacheinfo)
 }

@@ -8,6 +8,13 @@
 
 <title>The ImmuneSpaceConnection class — ImmuneSpaceConnection • ImmuneSpaceR</title>
 
+<!-- favicons -->
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
@@ -16,13 +23,15 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
 
 <!-- Font Awesome icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous" />
 
 <!-- clipboard.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script>
 
-<!-- sticky kit -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script>
+<!-- headroom.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
@@ -60,6 +69,7 @@ It provides function to download and display the data within these studies." />
   gtag('config', 'UA-118281859-1');
 </script>
 
+
   </head>
 
   <body>
@@ -84,7 +94,7 @@ It provides function to download and display the data within these studies." />
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fa fa-home fa-lg"></span>
+    <span class="fas fa fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -152,6 +162,7 @@ It provides function to download and display the data within these studies." />
 </div><!--/.navbar -->
 
       
+
       </header>
 
 <div class="row">
@@ -196,12 +207,14 @@ study.</p>
     <h2 class="hasAnchor" id="constructor"><a class="anchor" href="#constructor"></a>Constructor</h2>
 
     
-    <p><code><a href='CreateConnection.html'>CreateConnection</a></code></p>
+
+<p><code><a href='CreateConnection.html'>CreateConnection</a></code></p>
     
     <h2 class="hasAnchor" id="fields"><a class="anchor" href="#fields"></a>Fields</h2>
 
     
-    <dl class='dl-horizontal'>
+
+<dl class='dl-horizontal'>
   <dt><code>study</code></dt><dd><p>A <code>character</code>. The study accession number. Use an empty string ("")
     to create a connection at the project level.</p></dd>
   <dt><code>availableDatasets</code></dt><dd><p>A <code>data.table</code>. The table of datasets available in the connection
@@ -210,122 +223,114 @@ study.</p>
     multiple times.</p></dd>
   <dt><code>config</code></dt><dd><p>A <code>list</code>. Stores configuration of the connection object such as
     URL, path and username.</p></dd>
+
 </dl>
+
     
     <h2 class="hasAnchor" id="methods"><a class="anchor" href="#methods"></a>Methods</h2>
 
     
-    <dl class='dl-horizontal'>
+
+<dl class='dl-horizontal'>
   <dt><code>initialize()</code></dt><dd><p>Initialize <code>ImmuneSpaceConnection</code> class.
     See <code><a href='CreateConnection.html'>CreateConnection</a></code>.</p></dd>
-  <dt><code><a href='https://www.rdocumentation.org/packages/base/topics/print'>print()</a></code></dt><dd><p>Print <code>ImmuneSpaceConnection</code> class.</p></dd>
+  <dt><code><a href='https://rdrr.io/r/base/print.html'>print()</a></code></dt><dd><p>Print <code>ImmuneSpaceConnection</code> class.</p></dd>
   <dt><code>listDatasets(output = c("datasets", "expression"))</code></dt><dd><p>Lists the datasets available in the study or studies of the connection.</p></dd>
-  <dt><code>listGEMatrices(verbose = FALSE, reload = FALSE)</code></dt><dd><p>Lists available gene expression matrices for the connection.
-    <code>verbose</code>: A logical. If TRUE, whether to print the extra details
-    for troubleshooting.
-    <code>reload</code>: A logical. If TRUE, retrieve the table of available gene
-    expression matrices whether a cached version exist or not.</p></dd>
+  <dt><code>listGEMatrices(verbose = FALSE, reload = FALSE, participantIds = NULL)</code></dt><dd><p>Lists available gene expression matrices for the connection.    <code>verbose</code>: A logical. If TRUE, whether to print the extra details
+    for troubleshooting.    <code>reload</code>: A logical. If TRUE, retrieve the table of available gene
+    expression matrices whether a cached version exist or not.    <code>participantIds</code>: A character vector of participant ids to filter
+    by. Only matrices with data from <code>participantIds</code> will be returned.
+    If <code>NULL</code>, all matrices are returned.</p></dd>
   <dt><code>listGEAnalysis()</code></dt><dd><p>Lists available gene expression analysis for the connection.</p></dd>
   <dt><code>listParticipantGroups()</code></dt><dd><p>Lists available participant groups on the ImmuneSpace portal.</p></dd>
-  <dt><code>listWorkspaces(reload = FALSE)</code></dt><dd><p>Lists available workspaces for the connection.
-    <code>reload</code>: A logical. If TRUE, download the table whether a cached
+  <dt><code>listParticipantGEMatrices(group, verbose = FALSE)</code></dt><dd><p>Lists available gene expression matrices for participants in <code>group</code>.    <code>group</code>: A character or integer.
+    Call <code>con$listParticipantGroups()</code> to see available participants
+    groups. Use group_id or group_name as input.    <code>verbose</code>: A logical. If TRUE, whether to print the extra details
+    for troubleshooting.</p></dd>
+  <dt><code>listWorkspaces(reload = FALSE)</code></dt><dd><p>Lists available workspaces for the connection.    <code>reload</code>: A logical. If TRUE, download the table whether a cached
     version exist or not.</p></dd>
-  <dt><code>listGatingSets(reload = FALSE)</code></dt><dd><p>Lists available gating sets for the connection.
-    <code>reload</code>: A logical. If TRUE, download the table whether a cached
+  <dt><code>listGatingSets(reload = FALSE)</code></dt><dd><p>Lists available gating sets for the connection.    <code>reload</code>: A logical. If TRUE, download the table whether a cached
     version exist or not.</p></dd>
   <dt><code>summarizeCyto()</code></dt><dd><p>Prints a summary of cytometry data for the connection.</p></dd>
   <dt><code>summarizeGatingSet(gatingSet)</code></dt><dd><p>Prints a summary of a gating set. Note that this method currently works
-    only in the ImmuneSpace RStudio session.
-    <code>gatingSet</code>: A character. The name of the gating set to summarize.</p></dd>
-  <dt><code>loadGatingSet(gatingSet)</code></dt><dd><p>Loads a gating set via <code><a href='https://www.rdocumentation.org/packages/flowWorkspace/topics/save_gs'>flowWorkspace::load_gs</a></code> to the
+    only in the ImmuneSpace RStudio session.    <code>gatingSet</code>: A character. The name of the gating set to summarize.</p></dd>
+  <dt><code>loadGatingSet(gatingSet)</code></dt><dd><p>Loads a gating set via <code><a href='https://rdrr.io/pkg/flowWorkspace/man/save_gs.html'>flowWorkspace::load_gs</a></code> to the
     current environment. Note that this method currently works only in the
-    ImmuneSpace RStudio Docker session.
-    <code>gatingSet</code>: A character. The name of the gating set to load.</p></dd>
+    ImmuneSpace RStudio Docker session.    <code>gatingSet</code>: A character. The name of the gating set to load.</p></dd>
   <dt><code>getDataset(x, original_view = FALSE, reload = FALSE,
-  colFilter = NULL, ...)</code></dt><dd><p>Get a dataset form the connection.
-    <code>x</code>: A character. The name of the dataset to download.
-    <code>original_view</code>: A logical. If TRUE, download the original ImmPort
-    view; else, download the default grid view.
-    <code>reload</code>: A logical. If TRUE, download the dataset whether a cached
-    version exist or not.
-    <code>colFilter</code>: A character. A filter as returned by Rlabkey's
-    <code>makeFilter</code> function.
-    <code>...</code>: Extra arguments to be passed to <code>labkey.selectRows</code>.</p></dd>
+  colFilter = NULL, ...)</code></dt><dd><p>Get a dataset form the connection.    <code>x</code>: A character. The name of the dataset to download.    <code>original_view</code>: A logical. If TRUE, download the original ImmPort
+    view; else, download the default grid view.    <code>reload</code>: A logical. If TRUE, download the dataset whether a cached
+    version exist or not.    <code>colFilter</code>: A character. A filter as returned by Rlabkey's
+    <code>makeFilter</code> function.    <code>...</code>: Extra arguments to be passed to <code>labkey.selectRows</code>.</p></dd>
   <dt><code>getGEMatrix(matrixName = NULL, cohortType = NULL,
   outputType = "summary", annotation = "latest", reload = FALSE,
   verbose = FALSE)</code></dt><dd><p>Downloads a probe-level or gene-symbol summarized expression matrix from
     ImmuneSpace and constructs an ExpressionSet. Use <code>experimentData()</code>
-    on the resulting ExpressionSet object to see version info for annotation.
-    <code>matrixName</code>: A character. The name of the gene expression matrix
-    to download.
-    <code>cohortType</code>: A character. The name of a cohortType that has an
+    on the resulting ExpressionSet object to see version info for annotation.    <code>matrixName</code>: A character. The name of the gene expression matrix
+    to download.    <code>cohortType</code>: A character. The name of a cohortType that has an
     associated gene expression matrix. Note that if this argument is not
     NULL, then <code>matrixName</code> is ignored. CohortType is a concatenation of
     "cohort" and "cell type" that allows the user to specify a matrix for the
-    cell type subset of a cohort.
-    <code>outputType</code>: A character. one of 'raw', 'normalized' or 'summary'.
+    cell type subset of a cohort.    <code>outputType</code>: A character. one of 'raw', 'normalized' or 'summary'.
     If 'raw', returns an expression matrix of non-normalized values by probe.
     'normalized' returns normalized values by probe. 'summary' returns
-    normalized values averaged by gene symbol.
-    <code>annotation</code>: A character. one of 'default', 'latest', or 'ImmSig'.
+    normalized values averaged by gene symbol.    <code>annotation</code>: A character. one of 'default', 'latest', or 'ImmSig'.
     Determines which feature annotation set (FAS) is used. 'default' uses the
     FAS from when the matrix was generated. latest' uses a recently updated
     FAS based on the original. 'ImmSig' is specific to studies involved in
     the ImmuneSignatures project and uses the annotation from when the
-    meta-study's manuscript was created.
-    <code>reload</code>: A logical. If set to TRUE, the matrix will be downloaded
-    again, even if a cached cop exist in the ImmuneSpaceConnection object.
-    <code>verbose</code>: A logical. If set to TRUE, notes on how the expressionSet
+    meta-study's manuscript was created.    <code>reload</code>: A logical. If set to TRUE, the matrix will be downloaded
+    again, even if a cached copy exists in the ImmuneSpaceConnection object.    <code>verbose</code>: A logical. If set to TRUE, notes on how the expressionSet
     object was created will be printed, including normalization, summarization,
     feature_annotation_set, and alias2symbol mapping version of org.Hs.eg.db.</p></dd>
-  <dt><code>getGEAnalysis(...)</code></dt><dd><p>Downloads data from the gene expression analysis results table.
-    <code>...</code>: A list of arguments to be passed to <code>labkey.selectRows</code>.</p></dd>
+  <dt><code>getGEAnalysis(...)</code></dt><dd><p>Downloads data from the gene expression analysis results table.    <code>...</code>: A list of arguments to be passed to <code>labkey.selectRows</code>.</p></dd>
   <dt><code>getGEInputs()</code></dt><dd><p>Downloads data from the gene expression input samples table.</p></dd>
   <dt><code>getParticipantData(group, dataType, original_view = FALSE,
-  ...)</code></dt><dd><p>Returns a data.table with data subset by participant group.
-    <code>group</code>: A character or integer.
+  ...)</code></dt><dd><p>Returns a data.table with data subset by participant group.    <code>group</code>: A character or integer.
     Call <code>con$listParticipantGroups()</code> to see available participants
-    groups. Use group_id or group_name as input.
-    <code>dataType</code>: A character. Use <code>con$availableDatasets</code> to see
+    groups. Use group_id or group_name as input.    <code>dataType</code>: A character. Use <code>con$availableDatasets</code> to see
     available dataset names.</p></dd>
-  <dt><code>downloadGEFiles(files, destdir = ".")</code></dt><dd><p>Downloads gene expression raw data files.
-    <code>files</code>: A character. Filenames as shown on the
-    gene_expression_files dataset.
-    <code>destdir</code>: A character. The local path to store the downloaded
+  <dt><code>getParticipantGEMatrix(group, outputType = "summary",
+  annotation = "latest", reload = FALSE)</code></dt><dd><p>Downloads probe-level or gene-symbol summarized expression matrices for all
+    participants within <code>group</code> from ImmuneSpace and constructs an
+    ExpressionSet containing observations for each participant in <code>group</code>
+    where gene expression data is available.    <code>group</code>: A character or integer.
+    Call <code>con$listParticipantGroups()</code> to see available participants
+    groups. Use group_id or group_name as input.    <code>outputType</code>: A character. one of 'raw', 'normalized' or 'summary'.
+    If 'raw', returns an expression matrix of non-normalized values by probe.
+    'normalized' returns normalized values by probe. 'summary' returns
+    normalized values averaged by gene symbol.    <code>annotation</code>: A character. one of 'default', 'latest', or 'ImmSig'.
+    Determines which feature annotation set (FAS) is used. 'default' uses the
+    FAS from when the matrix was generated. latest' uses a recently updated
+    FAS based on the original. 'ImmSig' is specific to studies involved in
+    the ImmuneSignatures project and uses the annotation from when the
+    meta-study's manuscript was created.    <code>reload</code>: A logical. If set to TRUE, matrices will be downloaded
+    again, even if a cached copy exists in the ImmuneSpaceConnection object.</p></dd>
+  <dt><code>downloadGEFiles(files, destdir = ".")</code></dt><dd><p>Downloads gene expression raw data files.    <code>files</code>: A character. Filenames as shown on the
+    gene_expression_files dataset.    <code>destdir</code>: A character. The local path to store the downloaded
     files.</p></dd>
-  <dt><code>addTreatment(expressionSet)</code></dt><dd><p>Adds treatment information to the phenoData of an ExpressionSet.
-    <code>expressionSet</code>: An ExpressionSet. The ExpressionSet object that has
+  <dt><code>addTreatment(expressionSet)</code></dt><dd><p>Adds treatment information to the phenoData of an ExpressionSet.    <code>expressionSet</code>: An ExpressionSet. The ExpressionSet object that has
     been downloaded from the connection.</p></dd>
   <dt><code>mapSampleNames(EM = NULL, colType = "participant_id")</code></dt><dd><p>Changes the sampleNames of an ExpressionSet fetched by <code>getGEMatrix</code>
-    using the information in the phenodData slot.
-    <code>EM</code>: An ExpressionSet, as returned by <code>getGEMatrix</code>.
-    <code>colType</code>: A character. The type of column names. Valid options are
+    using the information in the phenodData slot.    <code>EM</code>: An ExpressionSet, as returned by <code>getGEMatrix</code>.    <code>colType</code>: A character. The type of column names. Valid options are
     'expsample_accession' and 'participant_id'.</p></dd>
-  <dt><code><a href='https://www.rdocumentation.org/packages/graphics/topics/plot'>plot(...)</a></code></dt><dd><p>Visualizes a selected dataset. This method is used by the DataExplorer
-    module on the ImmuneSpace portal.
-    <code>dataset</code>: A character. The name of the dataset to plot, as
-    displayed by the listDataset method.
-    <code>normalize_to_baseline</code>: A logical. If TRUE, the values are plotted
-    as log2 fold-change from baseline.
-    <code>type</code>: A character. The type of plot. Valid choices are 'auto',
+  <dt><code><a href='https://rdrr.io/r/graphics/plot.html'>plot(...)</a></code></dt><dd><p>Visualizes a selected dataset. This method is used by the DataExplorer
+    module on the ImmuneSpace portal.    <code>dataset</code>: A character. The name of the dataset to plot, as
+    displayed by the listDataset method.    <code>normalize_to_baseline</code>: A logical. If TRUE, the values are plotted
+    as log2 fold-change from baseline.    <code>type</code>: A character. The type of plot. Valid choices are 'auto',
     'heatmap', 'boxplot', 'lineplot', 'violinplot'. If set to 'auto', the
-    function will select an appropriate plot type for the selected data.
-    <code>filter</code>: A filter as created by the makeFilter function from
-    Rlabkey.
-    <code>facet</code>: The facetting for ggplot2 based plots. Valid choices are
-    'grid' and 'wrap'.
-    <code>text_size</code>: The size of all text elements in the plot.
-    <code>legend</code>: A character. Columns of the dataset or demographics to be
+    function will select an appropriate plot type for the selected data.    <code>filter</code>: A filter as created by the makeFilter function from
+    Rlabkey.    <code>facet</code>: The facetting for ggplot2 based plots. Valid choices are
+    'grid' and 'wrap'.    <code>text_size</code>: The size of all text elements in the plot.    <code>legend</code>: A character. Columns of the dataset or demographics to be
     added as legend on the heatmap. This argument is ignored if the plot type
-    isn't heatmap.
-    <code>show_virus_strain</code>: A logical. Should all the virus strains be
-    shown or should the values be averaged. Only used when dataset = 'hai'.
-    <code>interactive</code>: A logical. If TRUE, an interactive plot will be
-    created. The default is FALSE.
-    <code>...</code>: Extra argument to be passed to ggplot. e.g: shape = 'Age',
+    isn't heatmap.    <code>show_virus_strain</code>: A logical. Should all the virus strains be
+    shown or should the values be averaged. Only used when dataset = 'hai'.    <code>interactive</code>: A logical. If TRUE, an interactive plot will be
+    created. The default is FALSE.    <code>...</code>: Extra argument to be passed to ggplot. e.g: shape = 'Age',
     color = 'Race'.</p></dd>
   <dt><code>clearCache()</code></dt><dd><p>Clears the cache. Removes downloaded datasets and expression matrices.</p></dd>
+
 </dl>
+
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
@@ -333,7 +338,7 @@ study.</p>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><span class='co'># NOT RUN {</span>
+    <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
 <span class='co'># Create a connection (Initiate a ImmuneSpaceConnection object)</span>
 <span class='no'>sdy269</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='CreateConnection.html'>CreateConnection</a></span>(<span class='st'>"SDY269"</span>)
 
@@ -347,13 +352,15 @@ study.</p>
 <span class='no'>LAIV</span> <span class='kw'>&lt;-</span> <span class='no'>sdy269</span>$<span class='fu'>getGEMatrix</span>(<span class='st'>"LAIV_2008"</span>)
 
 <span class='co'># Visualize the ELISA dataset</span>
-<span class='no'>sdy269</span>$<span class='fu'><a href='https://www.rdocumentation.org/packages/graphics/topics/plot'>plot</a></span>(<span class='st'>"elisa"</span>)
-<span class='co'># }</span><div class='input'>
-<span class='no'>sdy</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/try'>try</a></span>(<span class='fu'><a href='CreateConnection.html'>CreateConnection</a></span>(<span class='st'>"SDY269"</span>))
-<span class='kw'>if</span> (<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/class'>inherits</a></span>(<span class='no'>sdy</span>, <span class='st'>"try-error"</span>)) {
-  <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/warning'>warning</a></span>(<span class='st'>"Read the Introduction vignette for more information on how to set
+<span class='no'>sdy269</span>$<span class='fu'><a href='https://rdrr.io/r/graphics/plot.html'>plot</a></span>(<span class='st'>"elisa"</span>)
+}
+
+<span class='no'>sdy</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/try.html'>try</a></span>(<span class='fu'><a href='CreateConnection.html'>CreateConnection</a></span>(<span class='st'>"SDY269"</span>))</div><div class='output co'>#&gt; Error in .check_credential(labkey.url.base, verbose) : 
+#&gt;   Invalid credential or deactivated account. Check your account in the portal.</div><div class='input'><span class='kw'>if</span> (<span class='fu'><a href='https://rdrr.io/r/base/class.html'>inherits</a></span>(<span class='no'>sdy</span>, <span class='st'>"try-error"</span>)) {
+  <span class='fu'><a href='https://rdrr.io/r/base/warning.html'>warning</a></span>(<span class='st'>"Read the Introduction vignette for more information on how to set
 up a .netrc file."</span>)
-}</div></pre>
+}</div><div class='output co'>#&gt; <span class='warning'>Warning: Read the Introduction vignette for more information on how to set</span>
+#&gt; <span class='warning'>up a .netrc file.</span></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -379,19 +386,23 @@ up a .netrc file."</span>)
   </div>
 </div>
 
+
       <footer>
       <div class="copyright">
   <p>Developed by Greg Finak, Renan Sauteraud, Mike Jiang, Gil Guday, Leo Dashevskiy, Evan Henrich, Ju Yeong Kim, Lauren Wolfe, Helen Miller, Raphael Gottardo, ImmuneSpace Package Maintainer.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.0.</p>
 </div>
+
       </footer>
    </div>
 
   
 
+
   </body>
 </html>
+
 
