@@ -724,7 +724,7 @@ ISCon$set(
     em <- self$cache[[cache_name]]
 
     # handling multiple experiment samples per biosample (e.g. technical replicates)
-    dups <- colnames(em)[duplicated(colnames(em))]
+    dups <- unique(colnames(em)[duplicated(colnames(em))])
     if (length(dups) > 0) {
       for (dup in dups) {
         dupIdx <- grep(dup, colnames(em))

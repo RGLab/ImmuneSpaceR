@@ -132,11 +132,22 @@ test_that("get multiple matrices summary from different studies", {
   test_EM(EM, summary = TRUE)
 })
 
+# TODO: identify issue tested here ...
 test_that("gets SDY300 eset without error in .constructExpressionSet", {
   EM <- ALL$getGEMatrix(
-    matrixName = "SDY300_otherCell_dcMonoFlu2011",
+    matrixName = "SDY300_otherCell_dcMonoFlu2011"
   )
   test_EM(EM, summary = TRUE)
+})
+
+# Test for handling more than 2 duplicates for a single biosample ID
+test_that("gets SDY1364 eset without error in .constructExpressionSet", {
+  EM <- ALL$getGEMatrix(
+    matrixName = "SDY1364_PBMC_IntraDermal_Geo",
+    outputType = "normalized",
+    annotation = "latest"
+  )
+  test_EM(EM, summary = FALSE)
 })
 
 test_that("loading from cache works correctly", {
