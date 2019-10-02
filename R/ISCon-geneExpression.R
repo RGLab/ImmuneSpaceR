@@ -79,7 +79,7 @@ ISCon$set(
         colNameOpt = "fieldname"
       )
 
-      return(self$cache[[private$.constants$matrices]][name %in% matrixNames[,1]])
+      return(self$cache[[private$.constants$matrices]][name %in% matrixNames[, 1]])
     }
   }
 )
