@@ -137,14 +137,14 @@ check_netrc <- function() {
 .get_env_url <- function() {
   machine <- Sys.getenv("ISR_machine")
   # if blank, then use production
-  if (machine == ""){
+  if (machine == "") {
     return("https://www.immunespace.org")
 
-  # if local assume http, no ssl
-  } else if (grepl("^10\\.", machine)){
+    # if local assume http, no ssl
+  } else if (grepl("^10\\.", machine)) {
     return(machine)
 
-  # assume format for test / prod as "(test|www).immunespace.org"
+    # assume format for test / prod as "(test|www).immunespace.org"
   } else {
     return(paste0("https://", machine))
   }
