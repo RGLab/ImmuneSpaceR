@@ -431,11 +431,13 @@ ISCon$set(
   }
 
   # Allow http (no SSL) for local
-  if (!grepl("8080", labkey.url.base)) {
+  if (!grepl("^10", labkey.url.base)) {
     labkey.url.base <- gsub("http:", "https:", labkey.url.base)
     if (length(grep("^https://", labkey.url.base)) == 0) {
       labkey.url.base <- paste0("https://", labkey.url.base)
     }
+  } else {
+    labkey.url.base <- paste0(labkey.url.base, ":8080")
   }
 
   labkey.url.base

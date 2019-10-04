@@ -60,10 +60,10 @@ write_netrc <- function(login,
                         password,
                         machine = "www.immunespace.org",
                         file = NULL) {
-  string <- paste(
-    "machine", machine,
-    "login", login,
-    "password", password
+  string <- paste0(
+    "machine ", machine, "\n",
+    "login ", login, "\n",
+    "password ", password, "\n"
   )
   if (is.null(file)) {
     file <- tempfile()
@@ -132,11 +132,22 @@ check_netrc <- function() {
 
 
 # Get labkey.url.base from environment variable
+# Ensure secure connection for server
+# Allow ISCon.R `.get_url.base` method to handle local
 .get_env_url <- function() {
-  ifelse(Sys.getenv("ISR_machine") == "",
-    "https://www.immunespace.org",
-    paste0("https://", Sys.getenv("ISR_machine"))
-  )
+  machine <- Sys.getenv("ISR_machine")
+  # if blank, then use production
+  if (machine == "") {
+    return("https://www.immunespace.org")
+
+    # if local assume http, no ssl
+  } else if (grepl("^10\\.", machine)) {
+    return(machine)
+
+    # assume format for test / prod as "(test|www).immunespace.org"
+  } else {
+    return(paste0("https://", machine))
+  }
 }
 
 # get the path to where a netrc file should be

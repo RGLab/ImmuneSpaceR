@@ -65,10 +65,9 @@ ISCon$set(
       return(self$cache[[private$.constants$matrices]])
     } else {
       # Get matrices from participantIDs
-      # Use assay.ExpressionMatrix.inputSamples in executeSQL to get distinct matrices
 
       sql <- paste0("SELECT DISTINCT Run.Name
-                     FROM InputSamples
+                     FROM InputSamples_computed
                      WHERE Biosample.participantId IN ('", paste0(participantIds, collapse = "','"), "')")
 
       matrixNames <- labkey.executeSql(
@@ -80,7 +79,7 @@ ISCon$set(
         colNameOpt = "fieldname"
       )
 
-      return(self$cache[[private$.constants$matrices]][name %in% matrixNames$Name])
+      return(self$cache[[private$.constants$matrices]][name %in% matrixNames[, 1]])
     }
   }
 )
@@ -246,7 +245,7 @@ ISCon$set(
         .getLKtbl(
           con = self,
           schema = "assay.Expressionmatrix.matrix",
-          query = "InputSamples",
+          query = "InputSamples_computed",
           viewName = "gene_expression_matrices",
           colNameOpt = "fieldname"
         ),
