@@ -239,7 +239,7 @@ ISCon$set(
   name = "getGEInputs",
   value = function() {
     if (!is.null(self$cache[[private$.constants$matrix_inputs]])) {
-      self$cache[[private$.constants$matrix_inputs]]
+      return(self$cache[[private$.constants$matrix_inputs]])
     } else {
       ge <- tryCatch(
         .getLKtbl(
@@ -258,6 +258,7 @@ ISCon$set(
 
       setnames(ge, private$.munge(colnames(ge)))
       self$cache[[private$.constants$matrix_inputs]] <- ge
+      return(ge)
     }
   }
 )

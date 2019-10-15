@@ -3,7 +3,7 @@ context("ISCon$getGEInputs()")
 
 # Helper Functions ---------------------------------------------
 try_gei <- function(con) {
-  tryCatch(
+  res <- tryCatch(
     con$getGEInputs(),
     warning = function(w) return(w),
     error = function(e) return(e)
