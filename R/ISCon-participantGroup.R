@@ -111,13 +111,13 @@ ISCon$set(
 
     message(paste0(length(matNames), " matrices found for ", groupName))
 
-    mat <- self$getGEMatrix(matNames,
+    eset <- self$getGEMatrix(matNames,
       outputType = outputType,
       annotation = annotation,
       reload = reload
     )
 
-    return(mat[, mat$participant_id %in% ids])
+    return(eset[, eset$participant_id %in% ids])
   }
 )
 
