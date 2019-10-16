@@ -142,7 +142,7 @@ check_netrc <- function() {
     return("https://www.immunespace.org")
   }
 
-  if (grepl("immunespace", machine)){
+  if (grepl("immunespace", machine)) {
     return(paste0("https://", machine))
   }
 
