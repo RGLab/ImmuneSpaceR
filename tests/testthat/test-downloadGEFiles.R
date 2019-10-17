@@ -13,8 +13,9 @@ getFileList <- function(con) {
 
 try_ggef <- function(con) {
   files <- getFileList(con)
-  tryCatch(
-    capture.output(con$downloadGEFiles(files = files)),
+  dmp <- tempdir()
+  res <- tryCatch(
+    con$downloadGEFiles(files = files, destdir = dmp),
     warning = function(w) return(w),
     error = function(e) return(e)
   )

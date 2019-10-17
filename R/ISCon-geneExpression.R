@@ -66,7 +66,7 @@ ISCon$set(
     } else {
       # Get matrices from participantIDs
 
-      sql <- paste0("SELECT DISTINCT Run.Name
+      sql <- paste0("SELECT DISTINCT Run.Name run_name
                      FROM InputSamples_computed
                      WHERE Biosample.participantId IN ('", paste0(participantIds, collapse = "','"), "')")
 
@@ -79,7 +79,7 @@ ISCon$set(
         colNameOpt = "fieldname"
       )
 
-      return(self$cache[[private$.constants$matrices]][name %in% matrixNames[, 1]])
+      return(self$cache[[private$.constants$matrices]][name %in% matrixNames$run_name])
     }
   }
 )
@@ -239,7 +239,7 @@ ISCon$set(
   name = "getGEInputs",
   value = function() {
     if (!is.null(self$cache[[private$.constants$matrix_inputs]])) {
-      self$cache[[private$.constants$matrix_inputs]]
+      return(self$cache[[private$.constants$matrix_inputs]])
     } else {
       ge <- tryCatch(
         .getLKtbl(
@@ -258,6 +258,7 @@ ISCon$set(
 
       setnames(ge, private$.munge(colnames(ge)))
       self$cache[[private$.constants$matrix_inputs]] <- ge
+      return(ge)
     }
   }
 )

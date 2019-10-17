@@ -1,16 +1,17 @@
 # Load dependencies ------------------------------------------------------------
-suppressPackageStartupMessages(library(ImmuneSpaceR))
 suppressPackageStartupMessages(library(data.table))
 suppressPackageStartupMessages(library(Rlabkey))
-
+suppressPackageStartupMessages(library(ImmuneSpaceR))
 
 # Declare global test variables ------------------------------------------------
 
-# Use variables put in global environment through .Renviron config file
+# Move netrc file out the way to test against login and password in .Renviron
 if (!any(file.exists("~/.netrc", "~/_netrc"))) {
   assign("labkey.netrc.file", ImmuneSpaceR:::.get_env_netrc(), .GlobalEnv)
-  assign("labkey.url.base", ImmuneSpaceR:::.get_env_url(), .GlobalEnv)
 }
+
+# Regardless of netrc presence, test against `ISR_machine` in .Renviron
+assign("labkey.url.base", ImmuneSpaceR:::.get_env_url(), .GlobalEnv)
 
 # Initialize connections for studies used throughout testing
 ALL <- suppressMessages(CreateConnection(""))
