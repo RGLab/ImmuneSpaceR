@@ -3,7 +3,6 @@ test_getParticipantData <- function(dataset, original_view = FALSE) {
   test_that(paste("auto_test", dataset), {
     skip_if_not(Sys.getenv("ISR_login") == "readonly@rglab.org")
 
-    ALL <- CONNECTIONS$ALL
     data <- try(ALL$getParticipantData("auto_test", dataset, original_view = original_view))
     columns <- colnames(ALL$getDataset(dataset, original_view = original_view, maxRows = 1))
 

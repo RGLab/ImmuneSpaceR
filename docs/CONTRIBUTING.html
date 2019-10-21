@@ -8,6 +8,13 @@
 
 <title>Contributing to ImmuneSpaceR • ImmuneSpaceR</title>
 
+<!-- favicons -->
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="apple-touch-icon.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="apple-touch-icon-120x120.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="apple-touch-icon-76x76.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="apple-touch-icon-60x60.png" />
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
@@ -16,13 +23,15 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
 
 <!-- Font Awesome icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous" />
 
 <!-- clipboard.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script>
 
-<!-- sticky kit -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script>
+<!-- headroom.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="pkgdown.css" rel="stylesheet">
@@ -57,6 +66,7 @@
   gtag('config', 'UA-118281859-1');
 </script>
 
+
   </head>
 
   <body>
@@ -81,7 +91,7 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="index.html">
-    <span class="fa fa-home fa-lg"></span>
+    <span class="fas fa fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -149,6 +159,7 @@
 </div><!--/.navbar -->
 
       
+
       </header>
 
 <div class="row">
@@ -167,7 +178,7 @@
 <p>The goal of a reprex is to make it as easy as possible for me to recreate your problem so that I can fix it. If you’ve never heard of a reprex before, start by reading <a href="https://github.com/jennybc/reprex#what-is-a-reprex">this</a>.</p>
 <hr>
 <p>Brief description of the problem</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="co"># insert reprex here</span></a></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># insert reprex here</span></code></pre></div>
 <hr>
 <div id="issue-labels" class="section level3">
 <h3 class="hasAnchor">
@@ -243,15 +254,12 @@
 <a href="#iscon-r" class="anchor"></a>ISCon.R</h2>
 <ul>
 <li>
-<code>ISCon</code> definition and documentation
-<ul>
+<code>ISCon</code> definition and documentation</li>
 <li><code>self$study</code></li>
 <li><code>self$config</code></li>
 <li><code>self$availableDatasets</code></li>
 <li><code>self$cache</code></li>
 <li><code>private$.constants</code></li>
-</ul>
-</li>
 <li><code>self$initialize()</code></li>
 <li><code>.check_internet()</code></li>
 <li><code>.get_host()</code></li>
@@ -396,7 +404,7 @@
 <h2 class="hasAnchor">
 <a href="#zzz-r" class="anchor"></a>zzz.R</h2>
 <ul>
-<li><code><a href="https://www.rdocumentation.org/packages/base/topics/ns-hooks">.onAttach()</a></code></li>
+<li><code><a href="https://rdrr.io/r/base/ns-hooks.html">.onAttach()</a></code></li>
 </ul>
 <hr>
 </div>
@@ -404,71 +412,71 @@
 <div id="iscon--r-structure-wip" class="section level1">
 <h1 class="hasAnchor">
 <a href="#iscon--r-structure-wip" class="anchor"></a><code>ISCon-*.R</code> Structure (WIP)</h1>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="co">#' @include ISCon.R</span></a>
-<a class="sourceLine" id="cb2-2" data-line-number="2"><span class="ot">NULL</span></a>
-<a class="sourceLine" id="cb2-3" data-line-number="3"></a>
-<a class="sourceLine" id="cb2-4" data-line-number="4"></a>
-<a class="sourceLine" id="cb2-5" data-line-number="5"></a>
-<a class="sourceLine" id="cb2-6" data-line-number="6"><span class="co"># PUBLIC -----------------------------------------------------------------------</span></a>
-<a class="sourceLine" id="cb2-7" data-line-number="7"><span class="co"># (fields and methods that will be public)</span></a>
-<a class="sourceLine" id="cb2-8" data-line-number="8"><span class="co"># (they should be documented in ISCon.R file)</span></a>
-<a class="sourceLine" id="cb2-9" data-line-number="9"></a>
-<a class="sourceLine" id="cb2-10" data-line-number="10"><span class="co"># (comment what/how this method is doing)</span></a>
-<a class="sourceLine" id="cb2-11" data-line-number="11">ISCon<span class="op">$</span><span class="kw">set</span>(</a>
-<a class="sourceLine" id="cb2-12" data-line-number="12">  <span class="dt">which =</span> <span class="st">"public"</span>,</a>
-<a class="sourceLine" id="cb2-13" data-line-number="13">  <span class="dt">name =</span> <span class="st">"aPublicMethod"</span>,</a>
-<a class="sourceLine" id="cb2-14" data-line-number="14">  <span class="dt">value =</span> <span class="cf">function</span>() {</a>
-<a class="sourceLine" id="cb2-15" data-line-number="15">  </a>
-<a class="sourceLine" id="cb2-16" data-line-number="16">  }</a>
-<a class="sourceLine" id="cb2-17" data-line-number="17">)</a>
-<a class="sourceLine" id="cb2-18" data-line-number="18"></a>
-<a class="sourceLine" id="cb2-19" data-line-number="19"></a>
-<a class="sourceLine" id="cb2-20" data-line-number="20"><span class="co"># (comment about the method)</span></a>
-<a class="sourceLine" id="cb2-21" data-line-number="21">ISCon<span class="op">$</span><span class="kw">set</span>(</a>
-<a class="sourceLine" id="cb2-22" data-line-number="22">  <span class="dt">which =</span> <span class="st">"public"</span>,</a>
-<a class="sourceLine" id="cb2-23" data-line-number="23">  <span class="dt">name =</span> <span class="st">"anotherPublicMethod"</span>,</a>
-<a class="sourceLine" id="cb2-24" data-line-number="24">  <span class="dt">value =</span> <span class="cf">function</span>() {</a>
-<a class="sourceLine" id="cb2-25" data-line-number="25"></a>
-<a class="sourceLine" id="cb2-26" data-line-number="26">  }</a>
-<a class="sourceLine" id="cb2-27" data-line-number="27">)</a>
-<a class="sourceLine" id="cb2-28" data-line-number="28"></a>
-<a class="sourceLine" id="cb2-29" data-line-number="29"></a>
-<a class="sourceLine" id="cb2-30" data-line-number="30"></a>
-<a class="sourceLine" id="cb2-31" data-line-number="31"><span class="co"># PRIVATE -----------------------------------------------------------------------</span></a>
-<a class="sourceLine" id="cb2-32" data-line-number="32"></a>
-<a class="sourceLine" id="cb2-33" data-line-number="33"><span class="co"># (comment about this method)</span></a>
-<a class="sourceLine" id="cb2-34" data-line-number="34">ISCon<span class="op">$</span><span class="kw">set</span>(</a>
-<a class="sourceLine" id="cb2-35" data-line-number="35">  <span class="dt">which =</span> <span class="st">"private"</span>,</a>
-<a class="sourceLine" id="cb2-36" data-line-number="36">  <span class="dt">name =</span> <span class="st">".aPrivateMethod"</span>,</a>
-<a class="sourceLine" id="cb2-37" data-line-number="37">  <span class="dt">value =</span> <span class="cf">function</span>() {</a>
-<a class="sourceLine" id="cb2-38" data-line-number="38">  </a>
-<a class="sourceLine" id="cb2-39" data-line-number="39">  }</a>
-<a class="sourceLine" id="cb2-40" data-line-number="40">)</a>
-<a class="sourceLine" id="cb2-41" data-line-number="41"></a>
-<a class="sourceLine" id="cb2-42" data-line-number="42"></a>
-<a class="sourceLine" id="cb2-43" data-line-number="43"><span class="co"># (comment)</span></a>
-<a class="sourceLine" id="cb2-44" data-line-number="44">ISCon<span class="op">$</span><span class="kw">set</span>(</a>
-<a class="sourceLine" id="cb2-45" data-line-number="45">  <span class="dt">which =</span> <span class="st">"private"</span>,</a>
-<a class="sourceLine" id="cb2-46" data-line-number="46">  <span class="dt">name =</span> <span class="st">".anotherPrivateMethod"</span>,</a>
-<a class="sourceLine" id="cb2-47" data-line-number="47">  <span class="dt">value =</span> <span class="cf">function</span>() {</a>
-<a class="sourceLine" id="cb2-48" data-line-number="48">  </a>
-<a class="sourceLine" id="cb2-49" data-line-number="49">  }</a>
-<a class="sourceLine" id="cb2-50" data-line-number="50">)</a>
-<a class="sourceLine" id="cb2-51" data-line-number="51"></a>
-<a class="sourceLine" id="cb2-52" data-line-number="52"></a>
-<a class="sourceLine" id="cb2-53" data-line-number="53"></a>
-<a class="sourceLine" id="cb2-54" data-line-number="54"><span class="co"># HELPERS -----------------------------------------------------------------------</span></a>
-<a class="sourceLine" id="cb2-55" data-line-number="55"></a>
-<a class="sourceLine" id="cb2-56" data-line-number="56"><span class="co"># (comment)</span></a>
-<a class="sourceLine" id="cb2-57" data-line-number="57">.aHelper &lt;-<span class="st"> </span><span class="cf">function</span>(x) {</a>
-<a class="sourceLine" id="cb2-58" data-line-number="58"></a>
-<a class="sourceLine" id="cb2-59" data-line-number="59">}</a>
-<a class="sourceLine" id="cb2-60" data-line-number="60"></a>
-<a class="sourceLine" id="cb2-61" data-line-number="61"></a>
-<a class="sourceLine" id="cb2-62" data-line-number="62"><span class="co"># (comment)</span></a>
-<a class="sourceLine" id="cb2-63" data-line-number="63">.anotherHelper &lt;-<span class="st"> </span><span class="cf">function</span>() {</a>
-<a class="sourceLine" id="cb2-64" data-line-number="64"></a>
-<a class="sourceLine" id="cb2-65" data-line-number="65">}</a></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#' @include ISCon.R</span>
+<span class="ot">NULL</span>
+
+
+
+<span class="co"># PUBLIC -----------------------------------------------------------------------</span>
+<span class="co"># (fields and methods that will be public)</span>
+<span class="co"># (they should be documented in ISCon.R file)</span>
+
+<span class="co"># (comment what/how this method is doing)</span>
+ISCon<span class="op">$</span><span class="kw">set</span>(
+  <span class="dt">which =</span> <span class="st">"public"</span>,
+  <span class="dt">name =</span> <span class="st">"aPublicMethod"</span>,
+  <span class="dt">value =</span> <span class="cf">function</span>() {
+  
+  }
+)
+
+
+<span class="co"># (comment about the method)</span>
+ISCon<span class="op">$</span><span class="kw">set</span>(
+  <span class="dt">which =</span> <span class="st">"public"</span>,
+  <span class="dt">name =</span> <span class="st">"anotherPublicMethod"</span>,
+  <span class="dt">value =</span> <span class="cf">function</span>() {
+
+  }
+)
+
+
+
+<span class="co"># PRIVATE -----------------------------------------------------------------------</span>
+
+<span class="co"># (comment about this method)</span>
+ISCon<span class="op">$</span><span class="kw">set</span>(
+  <span class="dt">which =</span> <span class="st">"private"</span>,
+  <span class="dt">name =</span> <span class="st">".aPrivateMethod"</span>,
+  <span class="dt">value =</span> <span class="cf">function</span>() {
+  
+  }
+)
+
+
+<span class="co"># (comment)</span>
+ISCon<span class="op">$</span><span class="kw">set</span>(
+  <span class="dt">which =</span> <span class="st">"private"</span>,
+  <span class="dt">name =</span> <span class="st">".anotherPrivateMethod"</span>,
+  <span class="dt">value =</span> <span class="cf">function</span>() {
+  
+  }
+)
+
+
+
+<span class="co"># HELPERS -----------------------------------------------------------------------</span>
+
+<span class="co"># (comment)</span>
+.aHelper &lt;-<span class="st"> </span><span class="cf">function</span>(x) {
+
+}
+
+
+<span class="co"># (comment)</span>
+.anotherHelper &lt;-<span class="st"> </span><span class="cf">function</span>() {
+
+}</code></pre></div>
 <ul>
 <li>
 <code>ISCon-*.R</code> files are divided into four sections: PURPOSE, PUBLIC, PRIVATE, HELPERS</li>
@@ -511,14 +519,14 @@
 <h2 class="hasAnchor">
 <a href="#functional-code-guide" class="anchor"></a>Functional Code Guide</h2>
 <ul>
-<li>Use <code><a href="https://www.rdocumentation.org/packages/data.table/topics/data.table">data.table::data.table()</a></code> instead of <code><a href="https://www.rdocumentation.org/packages/base/topics/data.frame">data.frame()</a></code>
+<li>Use <code><a href="https://rdrr.io/pkg/data.table/man/data.table.html">data.table::data.table()</a></code> instead of <code><a href="https://rdrr.io/r/base/data.frame.html">data.frame()</a></code>
 </li>
-<li>Use <code><a href="https://www.rdocumentation.org/packages/data.table/topics/fread">data.table::fread()</a></code> instead of <code><a href="https://www.rdocumentation.org/packages/utils/topics/read.table">read.csv()</a></code> or <code><a href="https://www.rdocumentation.org/packages/utils/topics/read.table">read.table()</a></code>
+<li>Use <code><a href="https://rdrr.io/pkg/data.table/man/fread.html">data.table::fread()</a></code> instead of <code><a href="https://rdrr.io/r/utils/read.table.html">read.csv()</a></code> or <code><a href="https://rdrr.io/r/utils/read.table.html">read.table()</a></code>
 </li>
 <li>Use <code>TRUE</code> or <code>FALSE</code> instead of <code>T</code> or <code>F</code>
 </li>
-<li>Avoid <code><a href="https://www.rdocumentation.org/packages/base/topics/lapply">sapply()</a></code>, use <code><a href="https://www.rdocumentation.org/packages/base/topics/lapply">vapply()</a></code> instead</li>
-<li>Use <code><a href="https://www.rdocumentation.org/packages/base/topics/message">message()</a></code> and <code><a href="https://www.rdocumentation.org/packages/base/topics/warning">warning()</a></code> to communicate with the user in your functions</li>
+<li>Avoid <code><a href="https://rdrr.io/r/base/lapply.html">sapply()</a></code>, use <code><a href="https://rdrr.io/r/base/lapply.html">vapply()</a></code> instead</li>
+<li>Use <code><a href="https://rdrr.io/r/base/message.html">message()</a></code> and <code><a href="https://rdrr.io/r/base/warning.html">warning()</a></code> to communicate with the user in your functions</li>
 <li>Use <code>self$selectRows()</code> or <code>self$executeSql()</code> instead of <code>labkey.selectRows()</code> or <code>labkey.executeSql()</code> (WIP)</li>
 <li>Use <code>fieldname</code> for <code>colNameOpt</code> argument if you decide to use <code>labkey.selectRows()</code> or <code>labkey.executeSql()</code>
 </li>
@@ -530,7 +538,7 @@
 <a href="#style-guide" class="anchor"></a>Style Guide</h2>
 <ul>
 <li>We are mainly following <a href="https://style.tidyverse.org/">the tidyverse style guide</a> except for the object naming convention</li>
-<li>Run <a href="https://styler.r-lib.org/reference/style_pkg.html"><code><a href="https://www.rdocumentation.org/packages/styler/topics/style_pkg">styler::style_pkg()</a></code></a> for convenience</li>
+<li>Run <a href="https://styler.r-lib.org/reference/style_pkg.html"><code><a href="https://rdrr.io/pkg/styler/man/style_pkg.html">styler::style_pkg()</a></code></a> for convenience</li>
 <li>The maximum line length is <strong>80 characters</strong>
 </li>
 <li>Use <code>&lt;-</code> not <code>=</code> for assignment</li>
@@ -587,31 +595,22 @@
 <ul>
 <li>[ ] Build it yourself and test the new features or changes</li>
 <li>[ ] Is it functional, and does it meet the requirements?</li>
-<li>[ ] Is it readable?
-<ul>
+<li>[ ] Is it readable?</li>
 <li>Easy to understand</li>
-</ul>
-</li>
 <li>[ ] Is it following the coding standards/guidelines?</li>
 <li>[ ] Functional coding guide</li>
-<li>[ ] Style guide (No changes in <code><a href="https://www.rdocumentation.org/packages/styler/topics/style_pkg">styler::style_pkg()</a></code>)</li>
-<li>[ ] Is it well documented (clear and sufficient)?
-<ul>
+<li>[ ] Style guide (No changes in <code><a href="https://rdrr.io/pkg/styler/man/style_pkg.html">styler::style_pkg()</a></code>)</li>
+<li>[ ] Is it well documented (clear and sufficient)?</li>
 <li>Comments make sense</li>
 <li>Updated or new vignette or manual</li>
-</ul>
-</li>
-<li>[ ] Does it have new/updated unit tests?
-<ul>
+<li>[ ] Does it have new/updated unit tests?</li>
 <li>Use the <code>covr</code> package to examine the extent of test coverage</li>
-</ul>
-</li>
 <li>[ ] Does it have new dependencies? Is it justifiable?</li>
 <li>[ ] Is there code duplication that should be reduced?</li>
 <li>[ ] Are there user interface improvements that could be made?</li>
 <li>[ ] Are there performance improvements that could be made?</li>
 <li>[ ] Is it passing <code>R CMD check</code>?</li>
-<li>[ ] Is it passing <code>BiocCheck::BiocCheck()</code>?</li>
+<li>[ ] Is it passing <code><a href="https://rdrr.io/pkg/BiocCheck/man/BiocCheck.html">BiocCheck::BiocCheck()</a></code>?</li>
 </ul>
 <hr>
 </div>
@@ -626,7 +625,7 @@
 <li>[ ] Is the version bumped?</li>
 <li>[ ] Is the documentation up to date?</li>
 <li>[ ] Is the pkgdown site up to date?</li>
-<li>[ ] Is it passing <code>BiocCheck::BiocCheck()</code>?</li>
+<li>[ ] Is it passing <code><a href="https://rdrr.io/pkg/BiocCheck/man/BiocCheck.html">BiocCheck::BiocCheck()</a></code>?</li>
 <li>[ ] Is it passing against the production?</li>
 </ul>
 </div>
@@ -702,19 +701,23 @@
 </div>
 
 
+
       <footer>
       <div class="copyright">
   <p>Developed by Greg Finak, Renan Sauteraud, Mike Jiang, Gil Guday, Leo Dashevskiy, Evan Henrich, Ju Yeong Kim, Lauren Wolfe, Helen Miller, Raphael Gottardo, ImmuneSpace Package Maintainer.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.0.</p>
 </div>
+
       </footer>
    </div>
 
   
 
+
   </body>
 </html>
+
 

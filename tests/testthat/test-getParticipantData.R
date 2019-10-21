@@ -1,11 +1,32 @@
 context("ISCon$getParticipantData()")
 
+# Test helpers -----------
+test_that("getParticipantIdsFromGroup() works correctly", {
+  skip_if_not(Sys.getenv("ISR_login") == "readonly@rglab.org")
+  ids <- ALL$.__enclos_env__$private$.getParticipantIdsFromGroup("travis_test")
+  expect_is(ids, "character")
+  expect_gt(length(ids), 0)
+
+  expect_error(
+    SDY180$.__enclos_env__$private$.getParticipantIdsFromGroup("travis_test"),
+    "This method only works with connection to all studies"
+  )
+})
+
+test_that("checkParticipantGroup() works correctly", {
+  expect_equal(ALL$.__enclos_env__$private$.checkParticipantGroup("auto_test"), "auto_test")
+  expect_equal(ALL$.__enclos_env__$private$.checkParticipantGroup(163), "auto_test")
+  expect_error(
+    ALL$.__enclos_env__$private$.checkParticipantGroup("fake"),
+    "'fake' is not in the set of `group_name`"
+  )
+})
 
 # Test listParticipantGroups() -------------------------------------------------
 test_that("listParticipantGroups() works", {
   skip_if_not(Sys.getenv("ISR_login") == "readonly@rglab.org")
 
-  groups <- try(CONNECTIONS$ALL$listParticipantGroups())
+  groups <- try(ALL$listParticipantGroups())
   expect_is(groups, "data.table")
   expect_gt(nrow(groups), 0)
   expect_named(groups, c("group_id", "group_name", "created", "subjects", "studies"))
@@ -27,3 +48,47 @@ test_getParticipantData("hai")
 test_getParticipantData("hla_typing")
 test_getParticipantData("elispot")
 test_getParticipantData("cohort_membership")
+
+
+
+test_that("listParticipantGEMatrices() works correctly", {
+  skip_if_not(Sys.getenv("ISR_login") == "readonly@rglab.org")
+  matrices <- ALL$listParticipantGEMatrices("auto_test")
+  expect_is(matrices, "data.table")
+  expect_gt(nrow(matrices), 0)
+  expect_lt(nrow(matrices), 100)
+
+  matrices <- ALL$listParticipantGEMatrices("gem_test")
+  expect_is(matrices, "data.table")
+  expect_gt(nrow(matrices), 0)
+  expect_lt(nrow(matrices), 100)
+
+  expect_error(
+    ALL$listParticipantGEMatrices("fake"),
+    "'fake' is not in the set of `group_name`"
+  )
+  expect_error(
+    SDY28$listParticipantGEMatrices("fake"),
+    "This method only works with connection to all studies"
+  )
+})
+
+# Test getParticipantGEMatrix()
+test_that("getParticipantGEMatrix() works correctly", {
+  skip_if_not(Sys.getenv("ISR_login") == "readonly@rglab.org")
+
+  expect_message(
+    {
+      EM <- ALL$getParticipantGEMatrix("gem_test")
+    },
+    "4 matrices found for gem_test"
+  )
+  expect_is(EM, "ExpressionSet")
+  expect_gt(nrow(Biobase::exprs(EM)), 0)
+
+  ids <- ALL$.__enclos_env__$private$.getParticipantIdsFromGroup("gem_test")
+  expect_lte(length(unique(EM$participant_id)), length(ids))
+
+  # In summary, no gene is NA
+  expect_false(any(is.na(Biobase::fData(EM)$gene_symbol)))
+})

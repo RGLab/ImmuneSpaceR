@@ -1,3 +1,4 @@
+
 # Declare test-wide variables --------------------------------------------------
 COMMON_COLUMNS <- c("age_reported", "gender", "race", "participant_id")
 SPECIFIC_COLUMNS_SET <- list(
@@ -53,9 +54,8 @@ SPECIFIC_COLUMNS_SET <- list(
 
 
 # Define helper test functions -------------------------------------------------
-test_getDataset <- function(study, dataset) {
+test_getDataset <- function(study, con, dataset) {
   test_that(paste(study, dataset), {
-    con <- CONNECTIONS[[study]]
     specificColumns <- SPECIFIC_COLUMNS_SET[[dataset]]
 
     data <- try(con$getDataset(dataset, reload = TRUE))

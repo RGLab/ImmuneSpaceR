@@ -8,6 +8,7 @@
 #' listGEMatrices
 #' listGEAnalysis
 #' listParticipantGroups
+#' listParticipantMatrices
 #' listWorkspaces
 #' listGatingSets
 #' summarizeCyto
@@ -19,6 +20,7 @@
 #' getGEFiles
 #' getGEInputs
 #' getParticipantData
+#' getParticipantGEMatrix
 #' addTreatmentt
 #' mapSampleNames
 #'
@@ -77,7 +79,7 @@
 #'   \item{\code{listDatasets(output = c("datasets", "expression"))}}{
 #'     Lists the datasets available in the study or studies of the connection.
 #'   }
-#'   \item{\code{listGEMatrices(verbose = FALSE, reload = FALSE)}}{
+#'   \item{\code{listGEMatrices(verbose = FALSE, reload = FALSE, participantIds = NULL)}}{
 #'     Lists available gene expression matrices for the connection.
 #'
 #'     \code{verbose}: A logical. If TRUE, whether to print the extra details
@@ -85,12 +87,27 @@
 #'
 #'     \code{reload}: A logical. If TRUE, retrieve the table of available gene
 #'     expression matrices whether a cached version exist or not.
+#'
+#'     \code{participantIds}: A character vector of participant ids to filter
+#'     by. Only matrices with data from \code{participantIds} will be returned.
+#'     If \code{NULL}, all matrices are returned.
 #'   }
 #'   \item{\code{listGEAnalysis()}}{
 #'     Lists available gene expression analysis for the connection.
 #'   }
 #'   \item{\code{listParticipantGroups()}}{
 #'     Lists available participant groups on the ImmuneSpace portal.
+#'   }
+#'   \item{\code{listParticipantGEMatrices(group, verbose = FALSE)}}{
+#'     Lists available gene expression matrices for participants in \code{group}.
+#'
+#'     \code{group}: A character or integer.
+#'     Call \code{con$listParticipantGroups()} to see available participants
+#'     groups. Use group_id or group_name as input.
+#'
+#'     \code{verbose}: A logical. If TRUE, whether to print the extra details
+#'     for troubleshooting.
+#'
 #'   }
 #'   \item{\code{listWorkspaces(reload = FALSE)}}{
 #'     Lists available workspaces for the connection.
@@ -166,7 +183,7 @@
 #'     meta-study's manuscript was created.
 #'
 #'     \code{reload}: A logical. If set to TRUE, the matrix will be downloaded
-#'     again, even if a cached cop exist in the ImmuneSpaceConnection object.
+#'     again, even if a cached copy exists in the ImmuneSpaceConnection object.
 #'
 #'     \code{verbose}: A logical. If set to TRUE, notes on how the expressionSet
 #'     object was created will be printed, including normalization, summarization,
@@ -190,6 +207,33 @@
 #'
 #'     \code{dataType}: A character. Use \code{con$availableDatasets} to see
 #'     available dataset names.
+#'   }
+#'   \item{\code{getParticipantGEMatrix(group, outputType = "summary",
+#'   annotation = "latest", reload = FALSE)}}{
+#'     Downloads probe-level or gene-symbol summarized expression matrices for all
+#'     participants within \code{group} from ImmuneSpace and constructs an
+#'     ExpressionSet containing observations for each participant in \code{group}
+#'     where gene expression data is available.
+#'
+#'     \code{group}: A character or integer.
+#'     Call \code{con$listParticipantGroups()} to see available participants
+#'     groups. Use group_id or group_name as input.
+#'
+#'     \code{outputType}: A character. one of 'raw', 'normalized' or 'summary'.
+#'     If 'raw', returns an expression matrix of non-normalized values by probe.
+#'     'normalized' returns normalized values by probe. 'summary' returns
+#'     normalized values averaged by gene symbol.
+#'
+#'     \code{annotation}: A character. one of 'default', 'latest', or 'ImmSig'.
+#'     Determines which feature annotation set (FAS) is used. 'default' uses the
+#'     FAS from when the matrix was generated. latest' uses a recently updated
+#'     FAS based on the original. 'ImmSig' is specific to studies involved in
+#'     the ImmuneSignatures project and uses the annotation from when the
+#'     meta-study's manuscript was created.
+#'
+#'     \code{reload}: A logical. If set to TRUE, matrices will be downloaded
+#'     again, even if a cached copy exists in the ImmuneSpaceConnection object.
+#'
 #'   }
 #'   \item{\code{downloadGEFiles(files, destdir = ".")}}{
 #'     Downloads gene expression raw data files.
@@ -387,11 +431,13 @@ ISCon$set(
   }
 
   # Allow http (no SSL) for local
-  if (!grepl("8080", labkey.url.base)) {
+  if (grepl("immunespace", labkey.url.base)) {
     labkey.url.base <- gsub("http:", "https:", labkey.url.base)
     if (length(grep("^https://", labkey.url.base)) == 0) {
       labkey.url.base <- paste0("https://", labkey.url.base)
     }
+  } else {
+    labkey.url.base <- paste0(labkey.url.base, ":8080")
   }
 
   labkey.url.base
