@@ -437,7 +437,9 @@ ISCon$set(
       labkey.url.base <- paste0("https://", labkey.url.base)
     }
   } else {
-    labkey.url.base <- paste0(labkey.url.base, ":8080")
+    if (!grepl(":8080/*$", labkey.url.base)) {
+      labkey.url.base <- paste0(labkey.url.base, ":8080")
+    }
   }
 
   labkey.url.base
