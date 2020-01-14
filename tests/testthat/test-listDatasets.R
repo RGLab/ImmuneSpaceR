@@ -5,8 +5,12 @@ context("ISCon$listDatasets()")
 try_ld <- function(con, ...) {
   tryCatch(
     capture.output(con$listDatasets(...)),
-    warning = function(w) return(w),
-    error = function(e) return(e)
+    warning = function(w) {
+      return(w)
+    },
+    error = function(e) {
+      return(e)
+    }
   )
 }
 

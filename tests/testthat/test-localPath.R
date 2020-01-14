@@ -10,7 +10,9 @@ testPath <- function(labkey.url.base, link, pipelineRoot) {
   .localStudyPath <- con$.__enclos_env__$private$.localStudyPath
   res <- tryCatch(
     path <- .localStudyPath(link = link),
-    error = function(e) return(e)
+    error = function(e) {
+      return(e)
+    }
   )
 }
 

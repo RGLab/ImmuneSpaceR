@@ -4,7 +4,9 @@ context("CreateConnection()")
 try_con <- function(study) {
   tryCatch(
     con <- CreateConnection(study),
-    error = function(e) return(e)
+    error = function(e) {
+      return(e)
+    }
   )
 }
 

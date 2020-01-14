@@ -344,10 +344,10 @@ ISCon$set(
   which = "public",
   name = "initialize",
   value = function(study = NULL,
-                     login = NULL,
-                     password = NULL,
-                     verbose = FALSE,
-                     onTest = FALSE) {
+                   login = NULL,
+                   password = NULL,
+                   verbose = FALSE,
+                   onTest = FALSE) {
     if (length(study) > 1) {
       stop("For multiple studies, use an empty string and filter the connection.")
     }

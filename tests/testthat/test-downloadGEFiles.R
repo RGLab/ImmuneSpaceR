@@ -16,8 +16,12 @@ try_ggef <- function(con) {
   dmp <- tempdir()
   res <- tryCatch(
     con$downloadGEFiles(files = files, destdir = dmp),
-    warning = function(w) return(w),
-    error = function(e) return(e)
+    warning = function(w) {
+      return(w)
+    },
+    error = function(e) {
+      return(e)
+    }
   )
 }
 

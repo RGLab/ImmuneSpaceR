@@ -204,15 +204,18 @@ ISCon$set(
   cluster_rows <- ifelse(nrow(mat) > 2 & ncol(mat) > 2, TRUE, FALSE)
 
   if (interactive) {
-    e <- try({
-      p <- heatmaply(
-        x = mat,
-        colors = rev(palette),
-        col_side_colors = anno,
-        dendrogram = "row",
-        scale = scale
-      )
-    }, silent = TRUE)
+    e <- try(
+      {
+        p <- heatmaply(
+          x = mat,
+          colors = rev(palette),
+          col_side_colors = anno,
+          dendrogram = "row",
+          scale = scale
+        )
+      },
+      silent = TRUE
+    )
     if (inherits(e, "try-error")) {
       p <- heatmaply(
         x = mat,
@@ -224,21 +227,24 @@ ISCon$set(
     }
     p
   } else {
-    e <- try({
-      p <- pheatmap(
-        mat = mat,
-        annotation = anno,
-        show_colnames = FALSE,
-        show_rownames = show_rnames,
-        cluster_cols = FALSE,
-        cluster_rows = cluster_rows,
-        color = palette,
-        scale = scale,
-        breaks = breaks,
-        fontsize = text_size,
-        annotation_colors = anno_color
-      )
-    }, silent = TRUE)
+    e <- try(
+      {
+        p <- pheatmap(
+          mat = mat,
+          annotation = anno,
+          show_colnames = FALSE,
+          show_rownames = show_rnames,
+          cluster_cols = FALSE,
+          cluster_rows = cluster_rows,
+          color = palette,
+          scale = scale,
+          breaks = breaks,
+          fontsize = text_size,
+          annotation_colors = anno_color
+        )
+      },
+      silent = TRUE
+    )
     if (inherits(e, "try-error")) {
       p <- pheatmap(
         mat = mat,

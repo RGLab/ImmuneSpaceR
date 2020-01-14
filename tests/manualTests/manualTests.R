@@ -6,8 +6,12 @@ allsdy <- CreateConnection("")
 try_gei <- function(con) {
   tryCatch(
     con$getGEInputs(),
-    warning = function(w) return(w),
-    error = function(e) return(e)
+    warning = function(w) {
+      return(w)
+    },
+    error = function(e) {
+      return(e)
+    }
   )
 }
 

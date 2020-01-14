@@ -98,7 +98,9 @@ ISCon$set(
         showHidden = FALSE,
         colNameOpt = "rname"
       ),
-      error = function(e) return(e)
+      error = function(e) {
+        return(e)
+      }
     )
 
     if (length(GEA$message) > 0) {
@@ -115,11 +117,11 @@ ISCon$set(
   which = "public",
   name = "getGEMatrix",
   value = function(matrixName = NULL,
-                     cohortType = NULL,
-                     outputType = "summary",
-                     annotation = "latest",
-                     reload = FALSE,
-                     verbose = FALSE) {
+                   cohortType = NULL,
+                   outputType = "summary",
+                   annotation = "latest",
+                   reload = FALSE,
+                   verbose = FALSE) {
 
     # Handle potential incorrect use of "ImmSig" annotation
     if (outputType == "summary" & annotation == "ImmSig") {
@@ -219,7 +221,9 @@ ISCon$set(
         colNameOpt = "caption",
         ...
       ),
-      error = function(e) return(e)
+      error = function(e) {
+        return(e)
+      }
     )
 
     if (length(GEAR$message) > 0) {
@@ -249,7 +253,9 @@ ISCon$set(
           viewName = "gene_expression_matrices",
           colNameOpt = "fieldname"
         ),
-        error = function(e) return(e)
+        error = function(e) {
+          return(e)
+        }
       )
 
       if (length(ge$message) > 0) {
@@ -473,9 +479,9 @@ ISCon$set(
   which = "private",
   name = ".downloadMatrix",
   value = function(matrixName,
-                     outputType = "summary",
-                     annotation = "latest",
-                     reload = FALSE) {
+                   outputType = "summary",
+                   annotation = "latest",
+                   reload = FALSE) {
     cache_name <- .getMatrixCacheName(matrixName, outputType, annotation)
     cacheinfo <- .getCacheInfo(outputType, annotation)
 
@@ -612,9 +618,9 @@ ISCon$set(
   which = "private",
   name = ".getGEFeatures",
   value = function(matrixName,
-                     outputType = "summary",
-                     annotation = "latest",
-                     reload = FALSE) {
+                   outputType = "summary",
+                   annotation = "latest",
+                   reload = FALSE) {
     cacheinfo <- .getCacheInfo(outputType, annotation)
     cache_name <- .getMatrixCacheName(matrixName, outputType, annotation)
 
@@ -712,9 +718,9 @@ ISCon$set(
   which = "private",
   name = ".constructExpressionSet",
   value = function(matrixName,
-                     outputType,
-                     annotation,
-                     verbose) {
+                   outputType,
+                   annotation,
+                   verbose) {
 
     # ------ Expression Matrix --------
     # must not convert to data.frame until after de-dup b/c data.frame adds suffix

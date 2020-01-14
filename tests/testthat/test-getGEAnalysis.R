@@ -4,8 +4,12 @@ context("ISCon$getGEAnalysis()")
 try_ggea <- function(con, ...) {
   tryCatch(
     suppressMessages(con$getGEAnalysis(...)),
-    warning = function(w) return(w),
-    error = function(e) return(e)
+    warning = function(w) {
+      return(w)
+    },
+    error = function(e) {
+      return(e)
+    }
   )
 }
 

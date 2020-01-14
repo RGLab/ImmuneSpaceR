@@ -5,8 +5,12 @@ context("ISCon$getGEInputs()")
 try_gei <- function(con) {
   res <- tryCatch(
     con$getGEInputs(),
-    warning = function(w) return(w),
-    error = function(e) return(e)
+    warning = function(w) {
+      return(w)
+    },
+    error = function(e) {
+      return(e)
+    }
   )
 }
 
