@@ -44,7 +44,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ImmuneSpaceR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.13.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.15.1</span>
       </span>
     </div>
 
@@ -128,7 +128,7 @@
       <h1>An Introduction to the ImmuneSpaceR Package</h1>
                         <h4 class="author">Renan Sauteraud</h4>
             
-            <h4 class="date">2019-09-12</h4>
+            <h4 class="date">2020-01-14</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/RGLab/ImmuneSpaceR/blob/master/vignettes/Intro_to_ImmuneSpaceR.Rmd"><code>vignettes/Intro_to_ImmuneSpaceR.Rmd</code></a></small>
       <div class="hidden name"><code>Intro_to_ImmuneSpaceR.Rmd</code></div>
@@ -168,9 +168,9 @@ password superSecretPassword</code></pre>
 <h1 class="hasAnchor">
 <a href="#instantiate-a-connection" class="anchor"></a>Instantiate a connection</h1>
 <p>We’ll be looking at study <code>SDY269</code>. If you want to use a different study, change that string. The connections have state, so you can instantiate multiple connections to different studies simultaneously.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(ImmuneSpaceR)
-sdy269 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/CreateConnection.html">CreateConnection</a></span>(<span class="dt">study =</span> <span class="st">"SDY269"</span>)
-sdy269</code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(ImmuneSpaceR)</a>
+<a class="sourceLine" id="cb3-2" data-line-number="2">sdy269 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/CreateConnection.html">CreateConnection</a></span>(<span class="dt">study =</span> <span class="st">"SDY269"</span>)</a>
+<a class="sourceLine" id="cb3-3" data-line-number="3">sdy269</a></code></pre></div>
 <pre><code>## &lt;ImmuneSpaceConnection&gt;
 ##   Study: SDY269
 ##   URL: https://www.immunespace.org/Studies/SDY269
@@ -193,7 +193,7 @@ sdy269</code></pre></div>
 <h1 class="hasAnchor">
 <a href="#fetching-datasets" class="anchor"></a>Fetching datasets</h1>
 <p>We can grab any of the datasets listed in the connection.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sdy269<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getDataset</a></span>(<span class="st">"hai"</span>)</code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1">sdy269<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getDataset</a></span>(<span class="st">"hai"</span>)</a></code></pre></div>
 <pre><code>##      participant_id age_reported gender  race          cohort
 ##   1:  SUB112829.269           26   Male White LAIV group 2008
 ##   2:  SUB112829.269           26   Male White LAIV group 2008
@@ -233,9 +233,9 @@ sdy269</code></pre></div>
 <p>The <em>sdy269</em> object is an <strong>R6</strong> class, so it behaves like a true object. Methods (like <code>getDataset</code>) are members of the object, thus the <code><a href="https://rdrr.io/r/base/Extract.html">$</a></code> semantics to access member functions.</p>
 <p>The first time you retrieve a dataset, it will contact the database. The data is cached in the object, so the next time you call <code>getDataset</code> on the same dataset, it will retrieve the cached local copy. This is much faster.</p>
 <p>To get only a subset of the data and speed up the download, filters can be passed to <code>getDataset</code>. The filters are created using the <code>makeFilter</code> function of the <code>Rlabkey</code> package.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(Rlabkey)
-myFilter &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/Rlabkey/man/makeFilter.html">makeFilter</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"gender"</span>, <span class="st">"EQUAL"</span>, <span class="st">"Female"</span>))
-hai &lt;-<span class="st"> </span>sdy269<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getDataset</a></span>(<span class="st">"hai"</span>, <span class="dt">colFilter =</span> myFilter)</code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(Rlabkey)</a>
+<a class="sourceLine" id="cb7-2" data-line-number="2">myFilter &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/Rlabkey/man/makeFilter.html">makeFilter</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"gender"</span>, <span class="st">"EQUAL"</span>, <span class="st">"Female"</span>))</a>
+<a class="sourceLine" id="cb7-3" data-line-number="3">hai &lt;-<span class="st"> </span>sdy269<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getDataset</a></span>(<span class="st">"hai"</span>, <span class="dt">colFilter =</span> myFilter)</a></code></pre></div>
 <p>See <code><a href="https://rdrr.io/pkg/Rlabkey/man/makeFilter.html">?Rlabkey::makeFilter</a></code> for more information on the syntax.</p>
 <p>For more information about <code>getDataset</code>’s options, refer to the dedicated vignette.</p>
 </div>
@@ -243,8 +243,8 @@ hai &lt;-<span class="st"> </span>sdy269<span class="op">$</span><span class="kw
 <h1 class="hasAnchor">
 <a href="#fetching-expression-matrices" class="anchor"></a>Fetching expression matrices</h1>
 <p>We can also grab a gene expression matrix</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sdy269<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getGEMatrix</a></span>(<span class="st">"SDY269_PBMC_LAIV_Geo"</span>)</code></pre></div>
-<pre><code>## Reading local matrix</code></pre>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1">sdy269<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getGEMatrix</a></span>(<span class="st">"SDY269_PBMC_LAIV_Geo"</span>)</a></code></pre></div>
+<pre><code>## Downloading matrix..</code></pre>
 <pre><code>## Constructing ExpressionSet</code></pre>
 <pre><code>## ExpressionSet (storageMode: lockedEnvironment)
 ## assayData: 16442 features, 83 samples 
@@ -263,8 +263,8 @@ hai &lt;-<span class="st"> </span>sdy269<span class="op">$</span><span class="kw
 ## Annotation:</code></pre>
 <p>The object contacts the database and downloads the matrix file. This is stored and cached locally as a <code>data.table</code>. The next time you access it, it will be much faster since it won’t need to contact the database again.</p>
 <p>It is also possible to call this function using multiple matrix names. In this case, all the matrices are downloaded and combined into a single <code>ExpressionSet</code>.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sdy269<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getGEMatrix</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"SDY269_PBMC_TIV_Geo"</span>, <span class="st">"SDY269_PBMC_LAIV_Geo"</span>))</code></pre></div>
-<pre><code>## Reading local matrix</code></pre>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" data-line-number="1">sdy269<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getGEMatrix</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"SDY269_PBMC_TIV_Geo"</span>, <span class="st">"SDY269_PBMC_LAIV_Geo"</span>))</a></code></pre></div>
+<pre><code>## Downloading matrix..</code></pre>
 <pre><code>## Constructing ExpressionSet</code></pre>
 <pre><code>## Returning SDY269_PBMC_LAIV_Geo_summary_latest_eset from cache</code></pre>
 <pre><code>## Combining ExpressionSets</code></pre>
@@ -284,7 +284,7 @@ hai &lt;-<span class="st"> </span>sdy269<span class="op">$</span><span class="kw
 ## experimentData: use 'experimentData(object)'
 ## Annotation:</code></pre>
 <p>Finally, the summary argument will let you download the matrix with gene symbols in place of probe ids.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">gs &lt;-<span class="st"> </span>sdy269<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getGEMatrix</a></span>(<span class="st">"SDY269_PBMC_TIV_Geo"</span>, <span class="dt">outputType =</span> <span class="st">"summary"</span>, <span class="dt">annotation =</span> <span class="st">"latest"</span>)</code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" data-line-number="1">gs &lt;-<span class="st"> </span>sdy269<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getGEMatrix</a></span>(<span class="st">"SDY269_PBMC_TIV_Geo"</span>, <span class="dt">outputType =</span> <span class="st">"summary"</span>, <span class="dt">annotation =</span> <span class="st">"latest"</span>)</a></code></pre></div>
 <pre><code>## Returning SDY269_PBMC_TIV_Geo_summary_latest_eset from cache</code></pre>
 <p>If the connection was created with <code>verbose = TRUE</code>, some methods will display additional informations such as the valid dataset names.</p>
 </div>
@@ -292,9 +292,9 @@ hai &lt;-<span class="st"> </span>sdy269<span class="op">$</span><span class="kw
 <h1 class="hasAnchor">
 <a href="#plotting" class="anchor"></a>Plotting</h1>
 <p>A plot of a dataset can be generated using the <code>plot</code> method which automatically chooses the type of plot depending on the selected dataset.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sdy269<span class="op">$</span><span class="kw"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span>(<span class="st">"hai"</span>)</code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb20-1" data-line-number="1">sdy269<span class="op">$</span><span class="kw"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span>(<span class="st">"hai"</span>)</a></code></pre></div>
 <p><img src="Intro_to_ImmuneSpaceR_files/figure-html/plotting-1.png" width="672" style="display: block; margin: auto;"></p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sdy269<span class="op">$</span><span class="kw"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span>(<span class="st">"elisa"</span>)</code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb21-1" data-line-number="1">sdy269<span class="op">$</span><span class="kw"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span>(<span class="st">"elisa"</span>)</a></code></pre></div>
 <p><img src="Intro_to_ImmuneSpaceR_files/figure-html/plotting-2.png" width="672" style="display: block; margin: auto;"></p>
 <p>However, the <code>type</code> argument can be used to manually select from “boxplot”, “heatmap”, “violin” and “line”.</p>
 </div>
@@ -302,10 +302,10 @@ hai &lt;-<span class="st"> </span>sdy269<span class="op">$</span><span class="kw
 <h1 class="hasAnchor">
 <a href="#cross-study-connections" class="anchor"></a>Cross study connections</h1>
 <p>To fetch data from multiple studies, simply create a connection at the project level.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">con &lt;-<span class="st"> </span><span class="kw"><a href="../reference/CreateConnection.html">CreateConnection</a></span>(<span class="st">""</span>)</code></pre></div>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb22-1" data-line-number="1">con &lt;-<span class="st"> </span><span class="kw"><a href="../reference/CreateConnection.html">CreateConnection</a></span>(<span class="st">""</span>)</a></code></pre></div>
 <p>This will instantiate a connection at the <code>Studies</code> level. Most functions work cross study connections just like they do on single studies.</p>
 <p>You can get a list of datasets and gene expression matrices available accross all studies.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">con</code></pre></div>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb23-1" data-line-number="1">con</a></code></pre></div>
 <pre><code>## &lt;ImmuneSpaceConnection&gt;
 ##   Study: Studies
 ##   URL: https://www.immunespace.org/Studies/
@@ -324,80 +324,76 @@ hai &lt;-<span class="st"> </span>sdy269<span class="op">$</span><span class="kw
 ##     - mbaa
 ##     - neut_ab_titer
 ##     - pcr
-##   104 Available Expression Matrices</code></pre>
+##   110 Available Expression Matrices</code></pre>
 <p>In cross-study connections, <code>getDataset</code> and <code>getGEMatrix</code> will combine the requested datasets or expression matrices. See the dedicated vignettes for more information.</p>
 <p>Likewise, <code>plot</code> will visualize accross studies. Note that in most cases the datasets will have too many cohorts/subjects, making the filtering of the data a necessity. The <code>colFilter</code> argument can be used here, as described in the <code>getDataset</code> section.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">plotFilter &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/Rlabkey/man/makeFilter.html">makeFilter</a></span>(
-  <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"cohort"</span>, <span class="st">"IN"</span>, <span class="st">"TIV 2010;TIV Group 2008"</span>),
-  <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"study_time_collected"</span>, <span class="st">"EQUALS"</span>, <span class="st">"7"</span>)
-)
-con<span class="op">$</span><span class="kw"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span>(<span class="st">"elispot"</span>, <span class="dt">filter =</span> plotFilter)</code></pre></div>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb25-1" data-line-number="1">plotFilter &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/Rlabkey/man/makeFilter.html">makeFilter</a></span>(</a>
+<a class="sourceLine" id="cb25-2" data-line-number="2">  <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"cohort"</span>, <span class="st">"IN"</span>, <span class="st">"TIV 2010;TIV Group 2008"</span>),</a>
+<a class="sourceLine" id="cb25-3" data-line-number="3">  <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"study_time_collected"</span>, <span class="st">"EQUALS"</span>, <span class="st">"7"</span>)</a>
+<a class="sourceLine" id="cb25-4" data-line-number="4">)</a>
+<a class="sourceLine" id="cb25-5" data-line-number="5">con<span class="op">$</span><span class="kw"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span>(<span class="st">"elispot"</span>, <span class="dt">filter =</span> plotFilter)</a></code></pre></div>
 <p><img src="Intro_to_ImmuneSpaceR_files/figure-html/cross-connection-qplot-1.png" width="672" style="display: block; margin: auto;"></p>
 <p>The figure above shows the ELISPOT results for two different years of TIV vaccine cohorts from two different studies.</p>
 </div>
 <div id="session-info" class="section level1">
 <h1 class="hasAnchor">
 <a href="#session-info" class="anchor"></a>Session info</h1>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://rdrr.io/r/utils/sessionInfo.html">sessionInfo</a></span>()</code></pre></div>
-<pre><code>## R version 3.6.0 (2019-04-26)
-## Platform: x86_64-pc-linux-gnu (64-bit)
-## Running under: Ubuntu 16.04.1 LTS
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb26-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/utils/sessionInfo.html">sessionInfo</a></span>()</a></code></pre></div>
+<pre><code>## R version 3.6.2 (2019-12-12)
+## Platform: x86_64-apple-darwin15.6.0 (64-bit)
+## Running under: macOS Catalina 10.15.2
 ## 
 ## Matrix products: default
-## BLAS:   /usr/lib/libblas/libblas.so.3.6.0
-## LAPACK: /usr/lib/lapack/liblapack.so.3.6.0
+## BLAS:   /Library/Frameworks/R.framework/Versions/3.6/Resources/lib/libRblas.0.dylib
+## LAPACK: /Library/Frameworks/R.framework/Versions/3.6/Resources/lib/libRlapack.dylib
 ## 
 ## locale:
-##  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
-##  [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
-##  [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
-##  [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
-##  [9] LC_ADDRESS=C               LC_TELEPHONE=C            
-## [11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+## [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
 ## 
 ## attached base packages:
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-## [1] Rlabkey_2.3.1       jsonlite_1.6        httr_1.4.0         
-## [4] ImmuneSpaceR_1.13.2 rmarkdown_1.13      knitr_1.23         
+## [1] Rlabkey_2.3.3       jsonlite_1.6        httr_1.4.1         
+## [4] ImmuneSpaceR_1.15.1 rmarkdown_2.0       knitr_1.26         
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] ncdfFlow_2.30.0       bitops_1.0-6          matrixStats_0.54.0   
-##  [4] fs_1.3.1              webshot_0.5.1         RColorBrewer_1.1-2   
-##  [7] rprojroot_1.3-2       Rgraphviz_2.28.0      tools_3.6.0          
-## [10] backports_1.1.4       R6_2.4.0              KernSmooth_2.23-15   
-## [13] lazyeval_0.2.2        BiocGenerics_0.30.0   colorspace_1.4-1     
-## [16] flowWorkspace_3.32.0  tidyselect_0.2.5      gridExtra_2.3        
-## [19] curl_3.3              compiler_3.6.0        preprocessCore_1.46.0
-## [22] graph_1.62.0          Biobase_2.44.0        TSP_1.1-7            
-## [25] desc_1.2.0            plotly_4.9.0          labeling_0.3         
-## [28] caTools_1.17.1.2      scales_1.0.0          DEoptimR_1.0-8       
-## [31] hexbin_1.27.3         mvtnorm_1.0-10        robustbase_0.93-5    
-## [34] pkgdown_1.4.0         stringr_1.4.0         digest_0.6.19        
-## [37] rrcov_1.4-7           pkgconfig_2.0.2       htmltools_0.3.6      
-## [40] htmlwidgets_1.3       rlang_0.3.4           rstudioapi_0.10      
-## [43] flowCore_1.50.0       gtools_3.8.1          dendextend_1.12.0    
-## [46] dplyr_0.8.1           magrittr_1.5          Rcpp_1.0.1           
-## [49] munsell_0.5.0         viridis_0.5.1         stringi_1.4.3        
-## [52] yaml_2.2.0            MASS_7.3-51.4         zlibbioc_1.30.0      
-## [55] gplots_3.0.1.1        plyr_1.8.4            grid_3.6.0           
-## [58] parallel_3.6.0        gdata_2.18.0          crayon_1.3.4         
-## [61] lattice_0.20-38       pillar_1.4.1          corpcor_1.6.9        
-## [64] reshape2_1.4.3        codetools_0.2-16      stats4_3.6.0         
-## [67] glue_1.3.1            gclus_1.3.2           evaluate_0.14        
-## [70] latticeExtra_0.6-28   data.table_1.12.2     RcppParallel_4.4.3   
-## [73] foreach_1.4.4         gtable_0.3.0          purrr_0.3.2          
-## [76] tidyr_0.8.3           heatmaply_0.16.0      assertthat_0.2.1     
-## [79] ggplot2_3.2.0         xfun_0.7              IDPmisc_1.1.19       
-## [82] pcaPP_1.9-73          viridisLite_0.3.0     seriation_1.2-3      
-## [85] tibble_2.1.1          pheatmap_1.0.8        iterators_1.0.10     
-## [88] registry_0.5-1        memoise_1.1.0         flowViz_1.48.0       
-## [91] cluster_2.0.9</code></pre>
+##  [1] ncdfFlow_2.32.0       bitops_1.0-6          matrixStats_0.55.0   
+##  [4] fs_1.3.1              webshot_0.5.2         RColorBrewer_1.1-2   
+##  [7] rprojroot_1.3-2       Rgraphviz_2.30.0      tools_3.6.2          
+## [10] backports_1.1.5       R6_2.4.1              KernSmooth_2.23-16   
+## [13] lazyeval_0.2.2        BiocGenerics_0.32.0   colorspace_1.4-1     
+## [16] flowWorkspace_3.34.1  tidyselect_0.2.5      gridExtra_2.3        
+## [19] curl_4.3              compiler_3.6.2        preprocessCore_1.48.0
+## [22] graph_1.64.0          Biobase_2.46.0        TSP_1.1-7            
+## [25] desc_1.2.0            plotly_4.9.1          labeling_0.3         
+## [28] caTools_1.17.1.3      scales_1.1.0          hexbin_1.28.0        
+## [31] pkgdown_1.4.1         stringr_1.4.0         digest_0.6.23        
+## [34] jpeg_0.1-8.1          pkgconfig_2.0.3       htmltools_0.4.0      
+## [37] htmlwidgets_1.5.1     rlang_0.4.2           rstudioapi_0.10      
+## [40] flowCore_1.52.1       farver_2.0.1          gtools_3.8.1         
+## [43] dendextend_1.13.2     dplyr_0.8.3           magrittr_1.5         
+## [46] Rcpp_1.0.3            munsell_0.5.0         viridis_0.5.1        
+## [49] lifecycle_0.1.0       stringi_1.4.4         yaml_2.2.0           
+## [52] MASS_7.3-51.5         zlibbioc_1.32.0       plyr_1.8.5           
+## [55] gplots_3.0.1.2        grid_3.6.2            parallel_3.6.2       
+## [58] gdata_2.18.0          crayon_1.3.4          lattice_0.20-38      
+## [61] zeallot_0.1.0         pillar_1.4.3          reshape2_1.4.3       
+## [64] codetools_0.2-16      stats4_3.6.2          glue_1.3.1           
+## [67] gclus_1.3.2           evaluate_0.14         latticeExtra_0.6-29  
+## [70] data.table_1.12.8     RcppParallel_4.4.4    png_0.1-7            
+## [73] vctrs_0.2.1           foreach_1.4.7         gtable_0.3.0         
+## [76] purrr_0.3.3           tidyr_1.0.0           heatmaply_1.0.0      
+## [79] assertthat_0.2.1      ggplot2_3.2.1         xfun_0.12            
+## [82] IDPmisc_1.1.19        viridisLite_0.3.0     seriation_1.2-8      
+## [85] tibble_2.1.3          pheatmap_1.0.12       iterators_1.0.12     
+## [88] registry_0.5-1        memoise_1.1.0         flowViz_1.50.0       
+## [91] cluster_2.1.0</code></pre>
 </div>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
+
         <div id="tocnav">
       <h2 class="hasAnchor">
 <a href="#tocnav" class="anchor"></a>Contents</h2>
@@ -422,7 +418,7 @@ con<span class="op">$</span><span class="kw"><a href="https://rdrr.io/r/graphics
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.</p>
 </div>
 
       </footer>

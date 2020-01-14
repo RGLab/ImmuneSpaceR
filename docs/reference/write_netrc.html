@@ -15,10 +15,12 @@
 <link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
 <link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
 <link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
+
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
 <link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.7/yeti/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
+
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
 
@@ -39,12 +41,12 @@
 
 
 
+
 <meta property="og:title" content="Write a netrc file — write_netrc" />
-
 <meta property="og:description" content="Write a netrc file that is valid for accessing ImmuneSpace" />
-
 <meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
+
 
 
 
@@ -85,7 +87,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ImmuneSpaceR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.13.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.15.1</span>
       </span>
     </div>
 
@@ -134,7 +136,6 @@
   <a href="../news/index.html">Changelog</a>
 </li>
       </ul>
-      
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://www.immunespace.org/">
@@ -173,14 +174,11 @@
     </div>
 
     <div class="ref-description">
-    
     <p>Write a netrc file that is valid for accessing ImmuneSpace</p>
-    
     </div>
 
-    <pre class="usage"><span class='fu'>write_netrc</span>(<span class='no'>login</span>, <span class='no'>password</span>, <span class='kw'>machine</span> <span class='kw'>=</span> <span class='st'>"www.immunespace.org"</span>,
-  <span class='kw'>file</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
-    
+    <pre class="usage"><span class='fu'>write_netrc</span>(<span class='no'>login</span>, <span class='no'>password</span>, <span class='kw'>machine</span> <span class='kw'>=</span> <span class='st'>"www.immunespace.org"</span>, <span class='kw'>file</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
@@ -203,22 +201,19 @@ ImmuneSpace.</p></td>
 file. If left NULL, the netrc will be written into a temporary file.</p></td>
     </tr>
     </table>
-    
+
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>A character vector containing the file paths for netrc</p>
-    
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'>write_netrc</span>(<span class='st'>"immunespaceuser@gmail.com"</span>, <span class='st'>"mypassword"</span>)</div><div class='output co'>#&gt; [1] "/tmp/RtmpCDB3OK/file56c328cd09d"</div></pre>
+    <pre class="examples"><div class='input'><span class='fu'>write_netrc</span>(<span class='st'>"immunespaceuser@gmail.com"</span>, <span class='st'>"mypassword"</span>)</div><div class='output co'>#&gt; [1] "/var/folders/9m/vwxpkj1100z3gpsf27m21fx00000gn/T//RtmpHR4v73/filee66906cd37"</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-      
       <li><a href="#value">Value</a></li>
-      
       <li><a href="#examples">Examples</a></li>
     </ul>
 
@@ -232,7 +227,7 @@ file. If left NULL, the netrc will be written into a temporary file.</p></td>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.</p>
 </div>
 
       </footer>
