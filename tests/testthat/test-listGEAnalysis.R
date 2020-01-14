@@ -7,7 +7,9 @@ SDY34 <- CreateConnection("SDY34")
 # Helper Functions ---------------------------------------------
 try_lgea <- function(con) {
   res <- tryCatch(con$listGEAnalysis(),
-    error = function(e) return(e)
+    error = function(e) {
+      return(e)
+    }
   )
 }
 

@@ -139,8 +139,12 @@ ISCon$set(
     response <- NULL
     res <- tryCatch(
       Rlabkey:::labkey.get(link),
-      warning = function(w) return(w),
-      error = function(e) return(NULL)
+      warning = function(w) {
+        return(w)
+      },
+      error = function(e) {
+        return(NULL)
+      }
     )
     if (!is.null(res)) {
       tmp <- fromJSON(res, simplifyDataFrame = FALSE)

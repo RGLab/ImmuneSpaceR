@@ -344,10 +344,10 @@ ISCon$set(
   which = "public",
   name = "initialize",
   value = function(study = NULL,
-                     login = NULL,
-                     password = NULL,
-                     verbose = FALSE,
-                     onTest = FALSE) {
+                   login = NULL,
+                   password = NULL,
+                   verbose = FALSE,
+                   onTest = FALSE) {
     if (length(study) > 1) {
       stop("For multiple studies, use an empty string and filter the connection.")
     }
@@ -437,7 +437,9 @@ ISCon$set(
       labkey.url.base <- paste0("https://", labkey.url.base)
     }
   } else {
-    labkey.url.base <- paste0(labkey.url.base, ":8080")
+    if (!grepl(":8080/*$", labkey.url.base)) {
+      labkey.url.base <- paste0(labkey.url.base, ":8080")
+    }
   }
 
   labkey.url.base

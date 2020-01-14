@@ -5,7 +5,9 @@ context("ISCon$plot()")
 testPlot <- function(con, dataset, ...) {
   res <- tryCatch(
     con$plot(dataset, ...),
-    error = function(e) return(e)
+    error = function(e) {
+      return(e)
+    }
   )
 }
 

@@ -63,7 +63,9 @@ test_that("handles multiple samples per subject * timepoint combination", {
       outputType = "raw",
       verbose = TRUE
     ),
-    warning = function(w) return(w)
+    warning = function(w) {
+      return(w)
+    }
   )
 
   expect_true(grepl("Averaging the expression values", warningMsg))
