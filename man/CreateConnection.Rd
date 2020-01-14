@@ -4,8 +4,13 @@
 \alias{CreateConnection}
 \title{CreateConnection}
 \usage{
-CreateConnection(study = NULL, login = NULL, password = NULL,
-  verbose = FALSE, onTest = FALSE)
+CreateConnection(
+  study = NULL,
+  login = NULL,
+  password = NULL,
+  verbose = FALSE,
+  onTest = FALSE
+)
 }
 \arguments{
 \item{study}{A \code{"character"} vector naming the study.}

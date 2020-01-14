@@ -24,10 +24,6 @@
 \alias{addTreatmentt}
 \alias{mapSampleNames}
 \title{The ImmuneSpaceConnection class}
-\format{An object of class \code{R6ClassGenerator} of length 24.}
-\usage{
-ISCon
-}
 \value{
 An instance of an ImmuneSpaceConnection for a study in
 \code{labkey.url.path}.
@@ -337,4 +333,275 @@ up a .netrc file.")
 \seealso{
 \code{\link{CreateConnection}} \code{\link{ImmuneSpaceR-package}}
 }
-\keyword{datasets}
+\section{Methods}{
+\subsection{Public methods}{
+\itemize{
+\item \href{#method-listWorkspaces}{\code{ISCon$listWorkspaces()}}
+\item \href{#method-listGatingSets}{\code{ISCon$listGatingSets()}}
+\item \href{#method-summarizeCyto}{\code{ISCon$summarizeCyto()}}
+\item \href{#method-summarizeGatingSet}{\code{ISCon$summarizeGatingSet()}}
+\item \href{#method-loadGatingSet}{\code{ISCon$loadGatingSet()}}
+\item \href{#method-listDatasets}{\code{ISCon$listDatasets()}}
+\item \href{#method-getDataset}{\code{ISCon$getDataset()}}
+\item \href{#method-listGEMatrices}{\code{ISCon$listGEMatrices()}}
+\item \href{#method-listGEAnalysis}{\code{ISCon$listGEAnalysis()}}
+\item \href{#method-getGEMatrix}{\code{ISCon$getGEMatrix()}}
+\item \href{#method-getGEAnalysis}{\code{ISCon$getGEAnalysis()}}
+\item \href{#method-getGEInputs}{\code{ISCon$getGEInputs()}}
+\item \href{#method-getGEFiles}{\code{ISCon$getGEFiles()}}
+\item \href{#method-downloadGEFiles}{\code{ISCon$downloadGEFiles()}}
+\item \href{#method-addTreatment}{\code{ISCon$addTreatment()}}
+\item \href{#method-mapSampleNames}{\code{ISCon$mapSampleNames()}}
+\item \href{#method-listParticipantGroups}{\code{ISCon$listParticipantGroups()}}
+\item \href{#method-getParticipantData}{\code{ISCon$getParticipantData()}}
+\item \href{#method-listParticipantGEMatrices}{\code{ISCon$listParticipantGEMatrices()}}
+\item \href{#method-getParticipantGEMatrix}{\code{ISCon$getParticipantGEMatrix()}}
+\item \href{#method-plot}{\code{ISCon$plot()}}
+\item \href{#method-print}{\code{ISCon$print()}}
+\item \href{#method-clearCache}{\code{ISCon$clearCache()}}
+\item \href{#method-new}{\code{ISCon$new()}}
+\item \href{#method-clone}{\code{ISCon$clone()}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-listWorkspaces"></a>}}
+\subsection{Method \code{listWorkspaces()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ISCon$listWorkspaces(reload = FALSE)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-listGatingSets"></a>}}
+\subsection{Method \code{listGatingSets()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ISCon$listGatingSets(reload = FALSE)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-summarizeCyto"></a>}}
+\subsection{Method \code{summarizeCyto()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ISCon$summarizeCyto()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-summarizeGatingSet"></a>}}
+\subsection{Method \code{summarizeGatingSet()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ISCon$summarizeGatingSet(gatingSet)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-loadGatingSet"></a>}}
+\subsection{Method \code{loadGatingSet()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ISCon$loadGatingSet(gatingSet)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-listDatasets"></a>}}
+\subsection{Method \code{listDatasets()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ISCon$listDatasets(output = c("datasets", "expression"))}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-getDataset"></a>}}
+\subsection{Method \code{getDataset()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ISCon$getDataset(
+  x,
+  original_view = FALSE,
+  reload = FALSE,
+  colFilter = NULL,
+  transformMethod = "none",
+  ...
+)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-listGEMatrices"></a>}}
+\subsection{Method \code{listGEMatrices()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ISCon$listGEMatrices(verbose = FALSE, reload = FALSE, participantIds = NULL)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-listGEAnalysis"></a>}}
+\subsection{Method \code{listGEAnalysis()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ISCon$listGEAnalysis()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-getGEMatrix"></a>}}
+\subsection{Method \code{getGEMatrix()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ISCon$getGEMatrix(
+  matrixName = NULL,
+  cohortType = NULL,
+  outputType = "summary",
+  annotation = "latest",
+  reload = FALSE,
+  verbose = FALSE
+)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-getGEAnalysis"></a>}}
+\subsection{Method \code{getGEAnalysis()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ISCon$getGEAnalysis(...)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-getGEInputs"></a>}}
+\subsection{Method \code{getGEInputs()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ISCon$getGEInputs()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-getGEFiles"></a>}}
+\subsection{Method \code{getGEFiles()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ISCon$getGEFiles(files, destdir = ".", quiet = FALSE)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-downloadGEFiles"></a>}}
+\subsection{Method \code{downloadGEFiles()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ISCon$downloadGEFiles(files, destdir = ".")}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-addTreatment"></a>}}
+\subsection{Method \code{addTreatment()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ISCon$addTreatment(expressionSet)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-mapSampleNames"></a>}}
+\subsection{Method \code{mapSampleNames()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ISCon$mapSampleNames(EM = NULL, colType = "participant_id")}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-listParticipantGroups"></a>}}
+\subsection{Method \code{listParticipantGroups()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ISCon$listParticipantGroups()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-getParticipantData"></a>}}
+\subsection{Method \code{getParticipantData()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ISCon$getParticipantData(
+  group,
+  dataType,
+  original_view = FALSE,
+  reload = FALSE,
+  colFilter = NULL,
+  transformMethod = "none",
+  ...
+)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-listParticipantGEMatrices"></a>}}
+\subsection{Method \code{listParticipantGEMatrices()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ISCon$listParticipantGEMatrices(group, verbose = FALSE)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-getParticipantGEMatrix"></a>}}
+\subsection{Method \code{getParticipantGEMatrix()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ISCon$getParticipantGEMatrix(
+  group,
+  outputType = "summary",
+  annotation = "latest",
+  reload = FALSE
+)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-plot"></a>}}
+\subsection{Method \code{plot()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ISCon$plot(...)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-print"></a>}}
+\subsection{Method \code{print()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ISCon$print()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-clearCache"></a>}}
+\subsection{Method \code{clearCache()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ISCon$clearCache()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-new"></a>}}
+\subsection{Method \code{new()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ISCon$new(
+  study = NULL,
+  login = NULL,
+  password = NULL,
+  verbose = FALSE,
+  onTest = FALSE
+)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-clone"></a>}}
+\subsection{Method \code{clone()}}{
+The objects of this class are cloneable with this method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ISCon$clone(deep = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{deep}}{Whether to make a deep clone.}
+}
+\if{html}{\out{</div>}}
+}
+}
+}
