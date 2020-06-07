@@ -52,7 +52,7 @@ remotes::install_github("RGLab/ImmuneSpaceR")
 The ImmuneSpace Portal can be accessed via `ImmuneSpaceR` with the user's credentials. A `.netrc` file storing login and password information is required.
 
 1. [Register](https://www.immunespace.org/login/home/register.view?)
-1. Create a netrc file with your ImmuneSpace credetntials using `interactive_netrc()` function in R:
+1. Create a netrc file with your ImmuneSpace credentials using `interactive_netrc()` function in R:
 
 ```R
 library(ImmuneSpaceR)
