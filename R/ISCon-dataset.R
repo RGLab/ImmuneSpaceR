@@ -224,7 +224,7 @@ ISCon$set(
   # List of datasets with transformable column names (current as of March 2019)
   # and default transformation methods (selected by Raphael)
   datasets <- list(
-    "elisa" = list(column = "value_reported", method = "log"),
+    "elisa" = list(column = "value_preferred", method = "log"),
     "elispot" = list(column = "spot_number_reported", method = "log1p"),
     "fcs_analyzed_result" = list(column = "population_cell_number", method = "sqrt"),
     "hai" = list(column = "value_preferred", method = "log"),

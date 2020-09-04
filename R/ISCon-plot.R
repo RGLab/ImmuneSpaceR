@@ -426,7 +426,7 @@ ISCon$set(
     dt <- merge(dt, demo, by = "participant_id", all.x = TRUE) # Add race, gender, age
     setkey(dt, NULL)
   } else if (dataset == "elisa") {
-    dt <- dt[, value_preferred := value_reported]
+    dt <- dt[, value_preferred := value_preferred]
   }
 
   dt <- dt[, response := ifelse(value_preferred < 0, 0, value_preferred)]
