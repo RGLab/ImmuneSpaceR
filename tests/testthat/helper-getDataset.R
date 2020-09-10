@@ -7,7 +7,7 @@ SPECIFIC_COLUMNS_SET <- list(
     type = c("character", "character")
   ),
   elisa = data.table(
-    name = c("value_reported", "analyte"),
+    name = c("value_preferred", "analyte"),
     type = c("numeric", "character")
   ),
   elispot = data.table(

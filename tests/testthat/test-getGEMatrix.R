@@ -59,7 +59,7 @@ test_that("gets TIV_young eSet raw", {
 test_that("handles multiple samples per subject * timepoint combination", {
   warningMsg <- tryCatch(
     ALL$getGEMatrix(
-      matrixName = "SDY1328_WholeBlood_HealthyAdults_geo",
+      matrixName = "SDY1328_WholeBlood_HealthyAldults_Geo",
       outputType = "raw",
       verbose = TRUE
     ),
@@ -72,12 +72,12 @@ test_that("handles multiple samples per subject * timepoint combination", {
 
   # should return matrix from cache
   EM <- ALL$getGEMatrix(
-    matrixName = "SDY1328_WholeBlood_HealthyAdults_geo",
+    matrixName = "SDY1328_WholeBlood_HealthyAldults_Geo",
     outputType = "raw"
   )
   test_EM(EM, summary = FALSE)
-  expect_equal(length(colnames(EM)), 164)
-  # Note: orig matrix has 169 Biosamples, but 5 are assumed to be technical replicates
+  expect_equal(length(colnames(EM)), 335)
+  # Note: orig matrix has 342 Biosamples, but 7 are assumed to be technical replicates
 })
 
 test_that("gets TIV_2008 eSet summary", {

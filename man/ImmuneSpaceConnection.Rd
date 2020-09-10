@@ -365,6 +365,7 @@ up a .netrc file.")
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-listWorkspaces"></a>}}
+\if{latex}{\out{\hypertarget{method-listWorkspaces}{}}}
 \subsection{Method \code{listWorkspaces()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ISCon$listWorkspaces(reload = FALSE)}\if{html}{\out{</div>}}
@@ -373,6 +374,7 @@ up a .netrc file.")
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-listGatingSets"></a>}}
+\if{latex}{\out{\hypertarget{method-listGatingSets}{}}}
 \subsection{Method \code{listGatingSets()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ISCon$listGatingSets(reload = FALSE)}\if{html}{\out{</div>}}
@@ -381,6 +383,7 @@ up a .netrc file.")
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-summarizeCyto"></a>}}
+\if{latex}{\out{\hypertarget{method-summarizeCyto}{}}}
 \subsection{Method \code{summarizeCyto()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ISCon$summarizeCyto()}\if{html}{\out{</div>}}
@@ -389,6 +392,7 @@ up a .netrc file.")
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-summarizeGatingSet"></a>}}
+\if{latex}{\out{\hypertarget{method-summarizeGatingSet}{}}}
 \subsection{Method \code{summarizeGatingSet()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ISCon$summarizeGatingSet(gatingSet)}\if{html}{\out{</div>}}
@@ -397,6 +401,7 @@ up a .netrc file.")
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-loadGatingSet"></a>}}
+\if{latex}{\out{\hypertarget{method-loadGatingSet}{}}}
 \subsection{Method \code{loadGatingSet()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ISCon$loadGatingSet(gatingSet)}\if{html}{\out{</div>}}
@@ -405,6 +410,7 @@ up a .netrc file.")
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-listDatasets"></a>}}
+\if{latex}{\out{\hypertarget{method-listDatasets}{}}}
 \subsection{Method \code{listDatasets()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ISCon$listDatasets(output = c("datasets", "expression"))}\if{html}{\out{</div>}}
@@ -413,6 +419,7 @@ up a .netrc file.")
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-getDataset"></a>}}
+\if{latex}{\out{\hypertarget{method-getDataset}{}}}
 \subsection{Method \code{getDataset()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ISCon$getDataset(
@@ -428,6 +435,7 @@ up a .netrc file.")
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-listGEMatrices"></a>}}
+\if{latex}{\out{\hypertarget{method-listGEMatrices}{}}}
 \subsection{Method \code{listGEMatrices()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ISCon$listGEMatrices(verbose = FALSE, reload = FALSE, participantIds = NULL)}\if{html}{\out{</div>}}
@@ -436,6 +444,7 @@ up a .netrc file.")
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-listGEAnalysis"></a>}}
+\if{latex}{\out{\hypertarget{method-listGEAnalysis}{}}}
 \subsection{Method \code{listGEAnalysis()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ISCon$listGEAnalysis()}\if{html}{\out{</div>}}
@@ -444,6 +453,7 @@ up a .netrc file.")
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-getGEMatrix"></a>}}
+\if{latex}{\out{\hypertarget{method-getGEMatrix}{}}}
 \subsection{Method \code{getGEMatrix()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ISCon$getGEMatrix(
@@ -459,6 +469,7 @@ up a .netrc file.")
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-getGEAnalysis"></a>}}
+\if{latex}{\out{\hypertarget{method-getGEAnalysis}{}}}
 \subsection{Method \code{getGEAnalysis()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ISCon$getGEAnalysis(...)}\if{html}{\out{</div>}}
@@ -467,6 +478,7 @@ up a .netrc file.")
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-getGEInputs"></a>}}
+\if{latex}{\out{\hypertarget{method-getGEInputs}{}}}
 \subsection{Method \code{getGEInputs()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ISCon$getGEInputs()}\if{html}{\out{</div>}}
@@ -475,6 +487,7 @@ up a .netrc file.")
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-getGEFiles"></a>}}
+\if{latex}{\out{\hypertarget{method-getGEFiles}{}}}
 \subsection{Method \code{getGEFiles()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ISCon$getGEFiles(files, destdir = ".", quiet = FALSE)}\if{html}{\out{</div>}}
@@ -483,6 +496,7 @@ up a .netrc file.")
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-downloadGEFiles"></a>}}
+\if{latex}{\out{\hypertarget{method-downloadGEFiles}{}}}
 \subsection{Method \code{downloadGEFiles()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ISCon$downloadGEFiles(files, destdir = ".")}\if{html}{\out{</div>}}
@@ -491,6 +505,7 @@ up a .netrc file.")
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-addTreatment"></a>}}
+\if{latex}{\out{\hypertarget{method-addTreatment}{}}}
 \subsection{Method \code{addTreatment()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ISCon$addTreatment(expressionSet)}\if{html}{\out{</div>}}
@@ -499,6 +514,7 @@ up a .netrc file.")
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-mapSampleNames"></a>}}
+\if{latex}{\out{\hypertarget{method-mapSampleNames}{}}}
 \subsection{Method \code{mapSampleNames()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ISCon$mapSampleNames(EM = NULL, colType = "participant_id")}\if{html}{\out{</div>}}
@@ -507,6 +523,7 @@ up a .netrc file.")
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-listParticipantGroups"></a>}}
+\if{latex}{\out{\hypertarget{method-listParticipantGroups}{}}}
 \subsection{Method \code{listParticipantGroups()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ISCon$listParticipantGroups()}\if{html}{\out{</div>}}
@@ -515,6 +532,7 @@ up a .netrc file.")
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-getParticipantData"></a>}}
+\if{latex}{\out{\hypertarget{method-getParticipantData}{}}}
 \subsection{Method \code{getParticipantData()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ISCon$getParticipantData(
@@ -531,6 +549,7 @@ up a .netrc file.")
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-listParticipantGEMatrices"></a>}}
+\if{latex}{\out{\hypertarget{method-listParticipantGEMatrices}{}}}
 \subsection{Method \code{listParticipantGEMatrices()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ISCon$listParticipantGEMatrices(group, verbose = FALSE)}\if{html}{\out{</div>}}
@@ -539,6 +558,7 @@ up a .netrc file.")
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-getParticipantGEMatrix"></a>}}
+\if{latex}{\out{\hypertarget{method-getParticipantGEMatrix}{}}}
 \subsection{Method \code{getParticipantGEMatrix()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ISCon$getParticipantGEMatrix(
@@ -552,6 +572,7 @@ up a .netrc file.")
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-plot"></a>}}
+\if{latex}{\out{\hypertarget{method-plot}{}}}
 \subsection{Method \code{plot()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ISCon$plot(...)}\if{html}{\out{</div>}}
@@ -560,6 +581,7 @@ up a .netrc file.")
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-print"></a>}}
+\if{latex}{\out{\hypertarget{method-print}{}}}
 \subsection{Method \code{print()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ISCon$print()}\if{html}{\out{</div>}}
@@ -568,6 +590,7 @@ up a .netrc file.")
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clearCache"></a>}}
+\if{latex}{\out{\hypertarget{method-clearCache}{}}}
 \subsection{Method \code{clearCache()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ISCon$clearCache()}\if{html}{\out{</div>}}
@@ -576,6 +599,7 @@ up a .netrc file.")
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-new"></a>}}
+\if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ISCon$new(
@@ -590,6 +614,7 @@ up a .netrc file.")
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{
