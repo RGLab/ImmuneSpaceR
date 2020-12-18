@@ -53,19 +53,6 @@ jobs:
 
       - uses: r-lib/actions/setup-pandoc@v1
 
-      - name: Install BiocManager
-        env:
-          VERSION: ${{ matrix.config.r }}
-        run: |
-          remotes::install_cran("BiocManager")
-          if (${{ matrix.config.r }} == "devel") {
-            version <- "devel"
-          } else {
-            version <- BiocManager::version()
-          }
-          BiocManager::install(version = version, ask = FALSE)
-        shell: Rscript {0}
-
       - name: Query dependencies
         run: |
           install.packages('remotes')
@@ -80,6 +67,19 @@ jobs:
           path: ${{ env.R_LIBS_USER }}
           key: ${{ runner.os }}-${{ hashFiles('.github/R-version') }}-1-${{ hashFiles('.github/depends.Rds') }}
           restore-keys: ${{ runner.os }}-${{ hashFiles('.github/R-version') }}-1-
+
+      - name: Install BiocManager
+        env:
+          VERSION: ${{ matrix.config.r }}
+        run: |
+          remotes::install_cran("BiocManager")
+          if (${{ matrix.config.r }} == "devel") {
+            version <- "devel"
+          } else {
+            version <- BiocManager::version()
+          }
+          BiocManager::install(version = version, ask = FALSE)
+        shell: Rscript {0}
 
       - name: Install system dependencies
         if: runner.os == 'Linux'
