@@ -44,6 +44,7 @@ jobs:
           else
               echo "ISR_machine=test.immunespace.org" >> "$GITHUB_ENV"
           fi
+        shell: bash
 
       - uses: actions/checkout@v2
 
@@ -69,11 +70,9 @@ jobs:
           restore-keys: ${{ runner.os }}-${{ hashFiles('.github/R-version') }}-1-
 
       - name: Install BiocManager
-        env:
-          VERSION: ${{ matrix.config.r }}
         run: |
           remotes::install_cran("BiocManager")
-          if (${{ matrix.config.r }} == "devel") {
+          if ("${{ matrix.config.r }}" == "devel") {
             version <- "devel"
           } else {
             version <- BiocManager::version()
