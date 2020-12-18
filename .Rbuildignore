@@ -1,8 +1,7 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
-^\.travis\.yml$
-^\.pkg-build\.sh$
-^README\.Rmd$
 ^docs$
 ^CONTRIBUTING.md$
 ^_pkgdown\.yml$
+^\.github$
+^codecov\.yml$

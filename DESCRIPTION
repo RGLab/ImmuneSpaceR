@@ -27,7 +27,8 @@ BugReports: https://github.com/RGLab/ImmuneSpaceR/issues
 License: GPL-2
 Suggests:
     knitr,
-    testthat
+    testthat,
+    covr
 Imports:
     utils,
     R6,
