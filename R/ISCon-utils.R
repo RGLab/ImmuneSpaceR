@@ -64,7 +64,7 @@ ISCon$set(
       includeSubfolders = TRUE,
       includeEffectivePermissions = TRUE
     )
-    folders <- folders[ grepl("IS\\d{1}|SDY\\d{2,4}", folders$name), ]
+    folders <- folders[grepl("IS\\d{1}|SDY\\d{2,4}", folders$name), ]
     study <- basename(self$config$labkey.url.path)
 
     if (!(study %in% c("Studies", folders$name))) {

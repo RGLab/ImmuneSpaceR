@@ -4,7 +4,7 @@ context("ISCon$downloadGEFiles()")
 getFileList <- function(con) {
   gef <- con$getDataset("gene_expression_files")
   nms <- unique(gef$file_info_name)
-  nms <- nms[ !is.na(nms)]
+  nms <- nms[!is.na(nms)]
   if (length(nms) > 5) {
     nms <- nms[1:5]
   }

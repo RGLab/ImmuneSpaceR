@@ -456,7 +456,7 @@ ISCon$set(
         "_",
         tolower(substr(study_time_collected_unit, 1, 1)),
         study_time_collected
-      )        ]
+      )]
       sampleNames(EM) <- pd[match(sampleNames(EM), pd$biosample_accession), nID]
     } else if (colType == "biosample") {
       warning("Nothing done, the column names are already be biosample_accession numbers.")
@@ -563,7 +563,7 @@ ISCon$set(
       )
 
       # Generate correct filepath in /HIPC/IS1/@files/analysis/exprs_matrices/
-      runId <- names(id2MxNm)[ match(matrixName, id2MxNm) ]
+      runId <- names(id2MxNm)[match(matrixName, id2MxNm)]
       mxName <- paste0(runId, "/", mxName)
     }
 
@@ -669,10 +669,10 @@ ISCon$set(
       sdy <- regmatches(matrixName, regexpr("SDY\\d{2,3}", matrixName))
       annoSetId <- faSets$`Row Id`[faSets$Name == paste0("ImmSig_", tolower(sdy))]
     } else {
-      fasIdAtCreation <- runs$`Feature Annotation Set`[ runs$Name == matrixName ]
+      fasIdAtCreation <- runs$`Feature Annotation Set`[runs$Name == matrixName]
       idCol <- ifelse(annotation == "default", "Orig Id", "Curr Id")
-      annoAlias <- gsub("_orig", "", faSets$Name[ faSets$`Row Id` == fasIdAtCreation ])
-      annoSetId <- fasMap[ fasMap$Name == annoAlias, get(idCol) ]
+      annoAlias <- gsub("_orig", "", faSets$Name[faSets$`Row Id` == fasIdAtCreation])
+      annoSetId <- fasMap[fasMap$Name == annoAlias, get(idCol)]
     }
 
     if (outputType != "summary") {
@@ -734,8 +734,8 @@ ISCon$set(
     if (length(dups) > 0) {
       for (dup in dups) {
         dupIdx <- grep(dup, colnames(em))
-        em[, dupIdx[[1]] ] <- rowMeans(em[, dupIdx, with = FALSE])
-        em[, (dupIdx[2:length(dupIdx)]) := NULL ]
+        em[, dupIdx[[1]]] <- rowMeans(em[, dupIdx, with = FALSE])
+        em[, (dupIdx[2:length(dupIdx)]) := NULL]
       }
       if (verbose) {
         warning(
@@ -808,16 +808,16 @@ ISCon$set(
 
     # Only known case is SDY300 for "2-Mar" and "1-Mar" which are
     # likely not actual probe_ids but strings caste to datetime
-    em <- em[ !duplicated(em$FeatureId), ]
+    em <- em[!duplicated(em$FeatureId), ]
 
     # ----- Ensure Filtering and Ordering -------
     # NOTES: At project level, InputSamples may be filtered
     # fdata: must filter both ways (e.g. SDY67 ImmSig)
-    em <- em[ em$FeatureId %in% fdata$FeatureId, ]
-    fdata <- fdata[ fdata$FeatureId %in% em$FeatureId, ]
-    em <- em[ order(match(em$FeatureId, fdata$FeatureId)), ]
+    em <- em[em$FeatureId %in% fdata$FeatureId, ]
+    fdata <- fdata[fdata$FeatureId %in% em$FeatureId, ]
+    em <- em[order(match(em$FeatureId, fdata$FeatureId)), ]
     em <- em[, colnames(em) %in% row.names(pheno)] # rm FeatureId col
-    pheno <- pheno[ match(colnames(em), row.names(pheno)), ]
+    pheno <- pheno[match(colnames(em), row.names(pheno)), ]
 
     # ----- Compile Processing Info -------
     fasInfo <- .getLKtbl(
@@ -826,7 +826,7 @@ ISCon$set(
       query = "FeatureAnnotationSet"
     )
 
-    fasInfo <- fasInfo[ match(annoSetId, fasInfo$`Row Id`)]
+    fasInfo <- fasInfo[match(annoSetId, fasInfo$`Row Id`)]
     isRNA <- (fasInfo$Vendor == "NA" & !grepl("ImmSig", fasInfo$Name)) | grepl("SDY67", fasInfo$Name)
     annoVer <- ifelse(fasInfo$Comment == "Do not update" | is.na(fasInfo$Comment),
       annotation,

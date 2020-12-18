@@ -29,6 +29,8 @@ replaced by a custom scale.
 }
 \examples{
 library(ggplot2)
-p <- ggplot(data = mtcars) + geom_point(aes(x = mpg, y = cyl, color = hp)) + facet_grid(vs ~ am)
+p <- ggplot(data = mtcars) +
+  geom_point(aes(x = mpg, y = cyl, color = hp)) +
+  facet_grid(vs ~ am)
 p + theme_IS()
 }

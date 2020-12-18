@@ -217,7 +217,7 @@ test_that("loading from cache works correctly", {
 
 # Use specific tests here to ensure the IS1 report will load correctly
 test_that("get ImmSig Study - SDY212 with correct anno and summary", {
-  mats <- IS1$cache$GE_matrices$name[ grep("SDY212", IS1$cache$GE_matrices$name) ]
+  mats <- IS1$cache$GE_matrices$name[grep("SDY212", IS1$cache$GE_matrices$name)]
   EM <- IS1$getGEMatrix(
     matrixName = mats,
     outputType = "raw",
@@ -230,7 +230,7 @@ test_that("get ImmSig Study - SDY212 with correct anno and summary", {
 })
 
 test_that("get ImmSig Study - SDY67 fixing 'X' for 'FeatureId'", {
-  mats <- IS1$cache$GE_matrices$name[ grep("SDY67", IS1$cache$GE_matrices$name) ]
+  mats <- IS1$cache$GE_matrices$name[grep("SDY67", IS1$cache$GE_matrices$name)]
   EM <- IS1$getGEMatrix(
     matrixName = mats,
     outputType = "raw",
