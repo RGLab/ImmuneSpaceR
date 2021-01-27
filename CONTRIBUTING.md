@@ -338,8 +338,7 @@ ISCon$set(
 ## Notes
 
 * Even a smallest change can break the package and the portal, so be mindful about the changes you make
-
-## [Glossary](https://www.notion.so/rglab/ImmuneSpace-Glossary-e205838b1f534abc903fa8c2228a6d7f)
+* Check out [ImmuneSpace Glossary](https://www.notion.so/rglab/ImmuneSpace-Glossary-e205838b1f534abc903fa8c2228a6d7f) for commonly used Acronyms, symbols, abbreviations, and terms
 
 
 ---
@@ -377,7 +376,7 @@ ISCon$set(
 
 ### How do I setup my machine for `ImmuneSpaceR` development?
 
-* Read [this Notion documentation]](https://www.notion.so/0d597ef4-4b78-49bd-a49f-a4d81c1b0f98)
+* Read [this Notion documentation](https://www.notion.so/0d597ef4-4b78-49bd-a49f-a4d81c1b0f98)
 
 
 ---
