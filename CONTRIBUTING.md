@@ -21,7 +21,7 @@ Brief description of the problem
 * bug: found something that's giving you a headache? use this flag!
 * question: not sure how to use or what is going on? Ask away
 * enhancement: new feature? refactor? optimization?
-* infrastructure: tests, Travis, codecov, bioconductor, pkgdown
+* infrastructure: tests, ci, codecov, bioconductor, pkgdown
 * help wanted: maybe you are stuck? need some help? use this flag to get attention
 
 
@@ -38,29 +38,29 @@ If you'd like to contribute changes to `ImmuneSpaceR`, we use [the GitHub flow](
 
 ## New Feature
 
-`fb_newFeature` -> Code Review -> `dev` -> `master` -> BioConductor Submission
+`fb_newFeature` -> Code Review -> `dev` -> `master` -> Bioconductor Submission
 
 For example:
 
-a. Run into a problem or come up with an idea for a new feature or optimization/enhancement
-a. Create an issue to address the problem or propose the new feature
-a. Create a new branch from `dev`
-a. Make changes in the new branch
-a. Build and install
-a. Manually test out your changes
-a. Make a commit
-a. If you have more changes to make, repeat steps from d to g
-a. Run `R CMD check` and `BiocCheck`
-a. If you get an error or warning, repeat steps from d to i
-a. Push your commit(s) to GitHub. This will kick off Travis build
-a. Wait for Travis build to be done and repeat steps from d to k if there are errors or you'd like to make more changes
-a. When the new branch is ready to merge, create a Pull Request. The maintainer will assign reviewers for your PR
-a. Reviewers will go through the PR checklist and give you feedback. Repeat steps from d to l accordingly
-a. Once the reviewers approve your PR, the maintainer will merge your branch to `dev` branch
+1. Run into a problem or come up with an idea for a new feature or optimization/enhancement
+2. Create an issue to address the problem or propose the new feature
+3. Create a new branch from `dev`
+4. Make changes in the new branch
+5. Build and install
+6. Manually test out your changes
+8. Make a commit
+9. If you have more changes to make, repeat steps from #4 to #8
+10. Run `R CMD check` and `BiocCheck`
+11. If you get an error or warning, repeat steps from #4 to #10
+12. Push your commit(s) to GitHub. This will kick off Travis build
+13. Wait for Travis build to be done and repeat steps from #4 to #12 if there are errors or you'd like to make more changes
+14. When the new branch is ready to merge, create a Pull Request. The maintainer will assign reviewers for your PR
+15. Reviewers will go through the PR checklist and give you feedback. Repeat steps from #4 to #13 accordingly
+16. Once the reviewers approve your PR, the maintainer will merge your branch to `dev` branch
 
 ## Hot Fix
 
-`dev` -> `master` -> BioConductor Submission
+`dev` -> `master` -> Bioconductor Submission
 
 
 ---
@@ -301,7 +301,6 @@ ISCon$set(
 * Use `TRUE` or `FALSE` instead of `T` or `F`
 * Avoid `sapply()`, use `vapply()` instead
 * Use `message()` and `warning()` to communicate with the user in your functions
-* Use `self$selectRows()` or `self$executeSql()` instead of `labkey.selectRows()` or `labkey.executeSql()` (WIP)
 * Use `fieldname` for `colNameOpt` argument if you decide to use `labkey.selectRows()` or `labkey.executeSql()`
 * Use [the `profvis` package](https://rstudio.github.io/profvis/) to test the performance of your code
 
@@ -327,43 +326,20 @@ ISCon$set(
 * Comment every functions and methods
 * Comments should explain the why, not the what
 
+## Versioning
+
+* Bump version in only `dev` branch after hot fixes and/or feature branch merge
+* We follow [Sementic Verioning 2.0.0](https://semver.org/): `MAJOR.MINOR.PATCH`
+  * `MAJOR`: when making incompatible API changes
+  * `MINOR`: when adding functionality in a backwards compatible manner
+  * `PATH`: when making backwards compatible bug fixes
+* For `ImmuneSpaceR`, we follow Bioconductor's [Verion Numbering](https://www.bioconductor.org/developers/how-to/version-numbering/)
+
 ## Notes
 
 * Even a smallest change can break the package and the portal, so be mindful about the changes you make
 
-## Glossary (WIP)
-
-* WIP: Work in Progress
-
-
----
-
-
-# Code Review for Pull Requests
-
-* Reviewing code is a lot of work for both code owner and reviewer. The purpose of the following checklists is to set expectations for the code review and reduce time spent on reading the code.
-* Code owners, please respect reviewer's time. Reviewers, please be respectful and kind to the code owners in your reviews
-
-## Checklist for Reviewer
-
-* [ ]  Build it yourself and test the new features or changes
-* [ ]  Is it functional, and does it meet the requirements?
-* [ ]  Is it readable?
-  * Easy to understand
-* [ ]  Is it following the coding standards/guidelines?
-* [ ]  Functional coding guide
-* [ ]  Style guide (No changes in `styler::style_pkg()`)
-* [ ]  Is it well documented (clear and sufficient)?
-  * Comments make sense
-  * Updated or new vignette or manual
-* [ ]  Does it have new/updated unit tests?
-  * Use the `covr` package to examine the extent of test coverage
-* [ ]  Does it have new dependencies? Is it justifiable?
-* [ ]  Is there code duplication that should be reduced?
-* [ ]  Are there user interface improvements that could be made?
-* [ ]  Are there performance improvements that could be made?
-* [ ]  Is it passing `R CMD check`?
-* [ ]  Is it passing `BiocCheck::BiocCheck()`?
+## [Glossary](https://www.notion.so/rglab/ImmuneSpace-Glossary-e205838b1f534abc903fa8c2228a6d7f)
 
 
 ---
@@ -371,7 +347,7 @@ ISCon$set(
 
 # Maintainer Guide
 
-## Merge to `master` branch Checklist
+## Merge to `master` Branch Checklist
 
 * [ ]  Is the version bumped?
 * [ ]  Is the documentation up to date?
@@ -379,7 +355,7 @@ ISCon$set(
 * [ ]  Is it passing `BiocCheck::BiocCheck()`?
 * [ ]  Is it passing against the production?
 
-## BioConductor Submission Checklist
+## Bioconductor Submission Checklist
 
 * [ ]  Is the version valid?
 * [ ]  Is it passing `BiocCheck`?
@@ -399,9 +375,9 @@ ISCon$set(
 
 * Well
 
-### How do I setup my machine for `ImmuneSpaceR` development
+### How do I setup my machine for `ImmuneSpaceR` development?
 
-* See [Setup local for travis-like testing](https://www.notion.so/0d597ef4-4b78-49bd-a49f-a4d81c1b0f98)
+* Read [this Notion documentation]](https://www.notion.so/0d597ef4-4b78-49bd-a49f-a4d81c1b0f98)
 
 
 ---
@@ -415,7 +391,7 @@ ISCon$set(
 * [The tidyverse style guide](https://style.tidyverse.org/)
 * [Google's R Style Guide](https://google.github.io/styleguide/Rguide.xml)
 * [rOpenSci Guide](https://ropensci.github.io/dev_guide/)
-* [BioConductor Package Guidelines](https://www.bioconductor.org/developers/package-guidelines/)
+* [Bioconductor Package Guidelines](https://www.bioconductor.org/developers/package-guidelines/)
 * [Writing R Extensions](https://cran.r-project.org/doc/manuals/r-release/R-exts.html)
 
 ## General coding best practices
