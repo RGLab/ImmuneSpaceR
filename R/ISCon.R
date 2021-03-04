@@ -461,23 +461,19 @@ ISCon$set(
 
 
 .get_url_path <- function(study) {
-  labkey.url.path <- try(
-    get("labkey.url.path", .GlobalEnv),
-    silent = TRUE
-  )
-
-  if (inherits(labkey.url.path, "try-error")) {
-    if (is.null(study)) {
+  if (is.null(study)) {
+    if (exists("labkey.url.path", .GlobalEnv)) {
+      labkey.url.path <- get("labkey.url.path", .GlobalEnv)
+    } else {
       stop("study cannot be NULL")
     }
-    pathStr <- ifelse(
+  } else {
+    base_path <- ifelse(
       grepl("^IS\\d{1,3}$", study),
       "/HIPC/",
       "/Studies/"
     )
-    labkey.url.path <- paste0(pathStr, study)
-  } else if (!is.null(study)) {
-    labkey.url.path <- file.path(dirname(labkey.url.path), study)
+    labkey.url.path <- paste0(base_path, study)
   }
 
   labkey.url.path
