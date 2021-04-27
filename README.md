@@ -2,7 +2,7 @@
 
 <!-- badges: start -->
 [![R build status](https://github.com/RGLab/ImmuneSpaceR/workflows/R-CMD-check/badge.svg)](https://github.com/RGLab/ImmuneSpaceR/actions)
-[![Codecov test coverage](https://codecov.io/gh/RGLab/ImmuneSpaceR/branch/master/graph/badge.svg)](https://codecov.io/gh/RGLab/ImmuneSpaceR?branch=master)
+[![Codecov test coverage](https://codecov.io/gh/RGLab/ImmuneSpaceR/branch/main/graph/badge.svg)](https://codecov.io/gh/RGLab/ImmuneSpaceR?branch=main)
 [![Lifecycle: stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://www.tidyverse.org/lifecycle/#stable)
 
 [![Years in BioC](http://www.bioconductor.org/shields/years-in-bioc/ImmuneSpaceR.svg)](http://bioconductor.org/packages/release/bioc/html/ImmuneSpaceR.html)

@@ -38,7 +38,7 @@ If you'd like to contribute changes to `ImmuneSpaceR`, we use [the GitHub flow](
 
 ## New Feature
 
-`fb_newFeature` -> Code Review -> `dev` -> `master` -> Bioconductor Submission
+`fb_newFeature` -> Code Review -> `dev` -> `main` -> Bioconductor Submission
 
 For example:
 
@@ -60,7 +60,7 @@ For example:
 
 ## Hot Fix
 
-`dev` -> `master` -> Bioconductor Submission
+`dev` -> `main` -> Bioconductor Submission
 
 
 ---
@@ -346,7 +346,7 @@ ISCon$set(
 
 # Maintainer Guide
 
-## Merge to `master` Branch Checklist
+## Merge to `main` Branch Checklist
 
 * [ ]  Is the version bumped?
 * [ ]  Is the documentation up to date?

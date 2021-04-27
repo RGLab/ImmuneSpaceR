@@ -17,23 +17,27 @@
 <link rel="apple-touch-icon" type="image/png" sizes="60x60" href="apple-touch-icon-60x60.png" />
 
 <!-- jquery -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.7/yeti/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.4.0/yeti/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
 
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script>
+
+<!-- bootstrap-toc -->
+<link rel="stylesheet" href="bootstrap-toc.css">
+<script src="bootstrap-toc.js"></script>
 
 <!-- Font Awesome icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous" />
 
 <!-- clipboard.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script>
 
 <!-- headroom.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="pkgdown.css" rel="stylesheet">
@@ -44,7 +48,6 @@
 
 <meta property="og:title" content="Contributing to ImmuneSpaceR" />
 <meta property="og:image" content="/logo.png" />
-<meta name="twitter:card" content="summary" />
 
 
 
@@ -72,7 +75,7 @@
 
   </head>
 
-  <body>
+  <body data-spy="scroll" data-target="#toc">
     <div class="container template-title-body">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -86,7 +89,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">ImmuneSpaceR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.15.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.19.2</span>
       </span>
     </div>
 
@@ -94,7 +97,7 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -138,19 +141,19 @@
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://www.immunespace.org/">
-    <span class="fa fa-globe"></span>
+    <span class="fas fa-globe"></span>
      
   </a>
 </li>
 <li>
   <a href="https://twitter.com/ImmuneSpace">
-    <span class="fa fa-twitter"></span>
+    <span class="fas fa-twitter"></span>
      
   </a>
 </li>
 <li>
   <a href="https://github.com/RGLab/ImmuneSpaceR">
-    <span class="fa fa-github"></span>
+    <span class="fas fa-github"></span>
      
   </a>
 </li>
@@ -180,7 +183,8 @@
 <p>The goal of a reprex is to make it as easy as possible for me to recreate your problem so that I can fix it. If you’ve never heard of a reprex before, start by reading <a href="https://github.com/jennybc/reprex#what-is-a-reprex">this</a>.</p>
 <hr>
 <p>Brief description of the problem</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="co"># insert reprex here</span></a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># insert reprex here</span></code></pre></div>
 <hr>
 <div id="issue-labels" class="section level3">
 <h3 class="hasAnchor">
@@ -189,7 +193,7 @@
 <li>bug: found something that’s giving you a headache? use this flag!</li>
 <li>question: not sure how to use or what is going on? Ask away</li>
 <li>enhancement: new feature? refactor? optimization?</li>
-<li>infrastructure: tests, Travis, codecov, bioconductor, pkgdown</li>
+<li>infrastructure: tests, ci, codecov, bioconductor, pkgdown</li>
 <li>help wanted: maybe you are stuck? need some help? use this flag to get attention</li>
 </ul>
 </div>
@@ -207,53 +211,57 @@
 <div id="new-feature" class="section level2">
 <h2 class="hasAnchor">
 <a href="#new-feature" class="anchor"></a>New Feature</h2>
-<p><code>fb_newFeature</code> -&gt; Code Review -&gt; <code>dev</code> -&gt; <code>master</code> -&gt; BioConductor Submission</p>
+<p><code>fb_newFeature</code> -&gt; Code Review -&gt; <code>dev</code> -&gt; <code>main</code> -&gt; Bioconductor Submission</p>
 <p>For example:</p>
-<p>a. Run into a problem or come up with an idea for a new feature or optimization/enhancement</p>
-<p>a. Create an issue to address the problem or propose the new feature</p>
-<p>a. Create a new branch from <code>dev</code></p>
-<p>a. Make changes in the new branch</p>
-<p>a. Build and install</p>
-<p>a. Manually test out your changes</p>
-<p>a. Make a commit</p>
-<p>a. If you have more changes to make, repeat steps from d to g</p>
-<p>a. Run <code>R CMD check</code> and <code>BiocCheck</code></p>
-<p>a. If you get an error or warning, repeat steps from d to i</p>
-<p>a. Push your commit(s) to GitHub. This will kick off Travis build</p>
-<p>a. Wait for Travis build to be done and repeat steps from d to k if there are errors or you’d like to make more changes</p>
-<p>a. When the new branch is ready to merge, create a Pull Request. The maintainer will assign reviewers for your PR</p>
-<p>a. Reviewers will go through the PR checklist and give you feedback. Repeat steps from d to l accordingly</p>
-<p>a. Once the reviewers approve your PR, the maintainer will merge your branch to <code>dev</code> branch</p>
+<ol>
+<li>Run into a problem or come up with an idea for a new feature or optimization/enhancement</li>
+<li>Create an issue to address the problem or propose the new feature</li>
+<li>Create a new branch from <code>dev</code>
+</li>
+<li>Make changes in the new branch</li>
+<li>Build and install</li>
+<li>Manually test out your changes</li>
+<li>Make a commit</li>
+<li>If you have more changes to make, repeat steps from #4 to #8</li>
+<li>Run <code>R CMD check</code> and <code>BiocCheck</code>
+</li>
+<li>If you get an error or warning, repeat steps from #4 to #10</li>
+<li>Push your commit(s) to GitHub. This will kick off Travis build</li>
+<li>Wait for Travis build to be done and repeat steps from #4 to #12 if there are errors or you’d like to make more changes</li>
+<li>When the new branch is ready to merge, create a Pull Request. The maintainer will assign reviewers for your PR</li>
+<li>Reviewers will go through the PR checklist and give you feedback. Repeat steps from #4 to #13 accordingly</li>
+<li>Once the reviewers approve your PR, the maintainer will merge your branch to <code>dev</code> branch</li>
+</ol>
 </div>
 <div id="hot-fix" class="section level2">
 <h2 class="hasAnchor">
 <a href="#hot-fix" class="anchor"></a>Hot Fix</h2>
-<p><code>dev</code> -&gt; <code>master</code> -&gt; BioConductor Submission</p>
+<p><code>dev</code> -&gt; <code>main</code> -&gt; Bioconductor Submission</p>
 <hr>
 </div>
 </div>
 <div id="package-structure-wip" class="section level1">
 <h1 class="hasAnchor">
 <a href="#package-structure-wip" class="anchor"></a>Package Structure (WIP)</h1>
-<div id="immunespacer-r" class="section level2">
+<div id="immunespacerr" class="section level2">
 <h2 class="hasAnchor">
-<a href="#immunespacer-r" class="anchor"></a>ImmuneSpaceR.R</h2>
+<a href="#immunespacerr" class="anchor"></a>ImmuneSpaceR.R</h2>
 <ul>
 <li>Package description</li>
 <li>Declare global variables for <code>data.table</code> scoping</li>
 </ul>
 </div>
-<div id="createconnection-r" class="section level2">
+<div id="createconnectionr" class="section level2">
 <h2 class="hasAnchor">
-<a href="#createconnection-r" class="anchor"></a>CreateConnection.R</h2>
+<a href="#createconnectionr" class="anchor"></a>CreateConnection.R</h2>
 <ul>
 <li>
 <code><a href="reference/CreateConnection.html">CreateConnection()</a></code>: constructor for <code>ISCon</code> class</li>
 </ul>
 </div>
-<div id="iscon-r" class="section level2">
+<div id="isconr" class="section level2">
 <h2 class="hasAnchor">
-<a href="#iscon-r" class="anchor"></a>ISCon.R</h2>
+<a href="#isconr" class="anchor"></a>ISCon.R</h2>
 <ul>
 <li>
 <code>ISCon</code> definition and documentation
@@ -276,9 +284,9 @@
 <li><code>.check_credential()</code></li>
 </ul>
 </div>
-<div id="iscon-cytometry-r" class="section level2">
+<div id="iscon-cytometryr" class="section level2">
 <h2 class="hasAnchor">
-<a href="#iscon-cytometry-r" class="anchor"></a>ISCon-cytometry.R</h2>
+<a href="#iscon-cytometryr" class="anchor"></a>ISCon-cytometry.R</h2>
 <ul>
 <li><code>self$listWorkspaces()</code></li>
 <li><code>self$listGatingSets()</code></li>
@@ -293,9 +301,9 @@
 <li><code>.buildGSPath()</code></li>
 </ul>
 </div>
-<div id="iscon-dataset-r" class="section level2">
+<div id="iscon-datasetr" class="section level2">
 <h2 class="hasAnchor">
-<a href="#iscon-dataset-r" class="anchor"></a>ISCon-dataset.R</h2>
+<a href="#iscon-datasetr" class="anchor"></a>ISCon-dataset.R</h2>
 <ul>
 <li><code>self$listDatasets()</code></li>
 <li><code>self$getDataset()</code></li>
@@ -307,9 +315,9 @@
 <li><code>.transformData()</code></li>
 </ul>
 </div>
-<div id="iscon-geneexpression-r" class="section level2">
+<div id="iscon-geneexpressionr" class="section level2">
 <h2 class="hasAnchor">
-<a href="#iscon-geneexpression-r" class="anchor"></a>ISCon-geneExpression.R</h2>
+<a href="#iscon-geneexpressionr" class="anchor"></a>ISCon-geneExpression.R</h2>
 <ul>
 <li><code>self$listGEMatrices()</code></li>
 <li><code>self$listGEAnalysis()</code></li>
@@ -328,18 +336,18 @@
 <li><code>.combineEMs()</code></li>
 </ul>
 </div>
-<div id="iscon-participantgroup-r" class="section level2">
+<div id="iscon-participantgroupr" class="section level2">
 <h2 class="hasAnchor">
-<a href="#iscon-participantgroup-r" class="anchor"></a>ISCon-participantGroup.R</h2>
+<a href="#iscon-participantgroupr" class="anchor"></a>ISCon-participantGroup.R</h2>
 <ul>
 <li><code>self$listParticipantGroups()</code></li>
 <li><code>self$getParticipantData()</code></li>
 <li><code>private.assertAllStudyConnection()</code></li>
 </ul>
 </div>
-<div id="iscon-plot-r" class="section level2">
+<div id="iscon-plotr" class="section level2">
 <h2 class="hasAnchor">
-<a href="#iscon-plot-r" class="anchor"></a>ISCon-plot.R</h2>
+<a href="#iscon-plotr" class="anchor"></a>ISCon-plot.R</h2>
 <ul>
 <li><code>self$plot()</code></li>
 <li><code>.plot()</code></li>
@@ -352,9 +360,9 @@
 <li><code>.format_lab()</code></li>
 </ul>
 </div>
-<div id="iscon-utils-r" class="section level2">
+<div id="iscon-utilsr" class="section level2">
 <h2 class="hasAnchor">
-<a href="#iscon-utils-r" class="anchor"></a>ISCon-utils.R</h2>
+<a href="#iscon-utilsr" class="anchor"></a>ISCon-utils.R</h2>
 <ul>
 <li><code>self$print()</code></li>
 <li><code>self$clearCache()</code></li>
@@ -368,9 +376,9 @@
 <li><code>.mixedsort()</code></li>
 </ul>
 </div>
-<div id="netrc-r" class="section level2">
+<div id="netrcr" class="section level2">
 <h2 class="hasAnchor">
-<a href="#netrc-r" class="anchor"></a>netrc.R</h2>
+<a href="#netrcr" class="anchor"></a>netrc.R</h2>
 <ul>
 <li><code><a href="reference/interactive_netrc.html">interactive_netrc()</a></code></li>
 <li><code><a href="reference/write_netrc.html">write_netrc()</a></code></li>
@@ -381,107 +389,108 @@
 <li><code>.check_con()</code></li>
 </ul>
 </div>
-<div id="template-r" class="section level2">
+<div id="templater" class="section level2">
 <h2 class="hasAnchor">
-<a href="#template-r" class="anchor"></a>template.R</h2>
+<a href="#templater" class="anchor"></a>template.R</h2>
 <ul>
 <li><code><a href="reference/template_IS.html">template_IS()</a></code></li>
 </ul>
 </div>
-<div id="theme-r" class="section level2">
+<div id="themer" class="section level2">
 <h2 class="hasAnchor">
-<a href="#theme-r" class="anchor"></a>theme.R</h2>
+<a href="#themer" class="anchor"></a>theme.R</h2>
 <ul>
 <li><code><a href="reference/theme_IS.html">theme_IS()</a></code></li>
 <li><code><a href="reference/ISpalette.html">ISpalette()</a></code></li>
 <li><code>.override_scale()</code></li>
 </ul>
 </div>
-<div id="utils-r" class="section level2">
+<div id="utilsr" class="section level2">
 <h2 class="hasAnchor">
-<a href="#utils-r" class="anchor"></a>utils.R</h2>
+<a href="#utilsr" class="anchor"></a>utils.R</h2>
 <ul>
 <li><code><a href="reference/loadConnection.html">loadConnection()</a></code></li>
 <li><code><a href="reference/loadConnection.html">saveConnection()</a></code></li>
 </ul>
 </div>
-<div id="zzz-r" class="section level2">
+<div id="zzzr" class="section level2">
 <h2 class="hasAnchor">
-<a href="#zzz-r" class="anchor"></a>zzz.R</h2>
+<a href="#zzzr" class="anchor"></a>zzz.R</h2>
 <ul>
 <li><code><a href="https://rdrr.io/r/base/ns-hooks.html">.onAttach()</a></code></li>
 </ul>
 <hr>
 </div>
 </div>
-<div id="iscon--r-structure-wip" class="section level1">
+<div id="iscon-r-structure-wip" class="section level1">
 <h1 class="hasAnchor">
-<a href="#iscon--r-structure-wip" class="anchor"></a><code>ISCon-*.R</code> Structure (WIP)</h1>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="co">#' @include ISCon.R</span></a>
-<a class="sourceLine" id="cb2-2" data-line-number="2"><span class="ot">NULL</span></a>
-<a class="sourceLine" id="cb2-3" data-line-number="3"></a>
-<a class="sourceLine" id="cb2-4" data-line-number="4"></a>
-<a class="sourceLine" id="cb2-5" data-line-number="5"></a>
-<a class="sourceLine" id="cb2-6" data-line-number="6"><span class="co"># PUBLIC -----------------------------------------------------------------------</span></a>
-<a class="sourceLine" id="cb2-7" data-line-number="7"><span class="co"># (fields and methods that will be public)</span></a>
-<a class="sourceLine" id="cb2-8" data-line-number="8"><span class="co"># (they should be documented in ISCon.R file)</span></a>
-<a class="sourceLine" id="cb2-9" data-line-number="9"></a>
-<a class="sourceLine" id="cb2-10" data-line-number="10"><span class="co"># (comment what/how this method is doing)</span></a>
-<a class="sourceLine" id="cb2-11" data-line-number="11">ISCon<span class="op">$</span><span class="kw">set</span>(</a>
-<a class="sourceLine" id="cb2-12" data-line-number="12">  <span class="dt">which =</span> <span class="st">"public"</span>,</a>
-<a class="sourceLine" id="cb2-13" data-line-number="13">  <span class="dt">name =</span> <span class="st">"aPublicMethod"</span>,</a>
-<a class="sourceLine" id="cb2-14" data-line-number="14">  <span class="dt">value =</span> <span class="cf">function</span>() {</a>
-<a class="sourceLine" id="cb2-15" data-line-number="15">  </a>
-<a class="sourceLine" id="cb2-16" data-line-number="16">  }</a>
-<a class="sourceLine" id="cb2-17" data-line-number="17">)</a>
-<a class="sourceLine" id="cb2-18" data-line-number="18"></a>
-<a class="sourceLine" id="cb2-19" data-line-number="19"></a>
-<a class="sourceLine" id="cb2-20" data-line-number="20"><span class="co"># (comment about the method)</span></a>
-<a class="sourceLine" id="cb2-21" data-line-number="21">ISCon<span class="op">$</span><span class="kw">set</span>(</a>
-<a class="sourceLine" id="cb2-22" data-line-number="22">  <span class="dt">which =</span> <span class="st">"public"</span>,</a>
-<a class="sourceLine" id="cb2-23" data-line-number="23">  <span class="dt">name =</span> <span class="st">"anotherPublicMethod"</span>,</a>
-<a class="sourceLine" id="cb2-24" data-line-number="24">  <span class="dt">value =</span> <span class="cf">function</span>() {</a>
-<a class="sourceLine" id="cb2-25" data-line-number="25"></a>
-<a class="sourceLine" id="cb2-26" data-line-number="26">  }</a>
-<a class="sourceLine" id="cb2-27" data-line-number="27">)</a>
-<a class="sourceLine" id="cb2-28" data-line-number="28"></a>
-<a class="sourceLine" id="cb2-29" data-line-number="29"></a>
-<a class="sourceLine" id="cb2-30" data-line-number="30"></a>
-<a class="sourceLine" id="cb2-31" data-line-number="31"><span class="co"># PRIVATE -----------------------------------------------------------------------</span></a>
-<a class="sourceLine" id="cb2-32" data-line-number="32"></a>
-<a class="sourceLine" id="cb2-33" data-line-number="33"><span class="co"># (comment about this method)</span></a>
-<a class="sourceLine" id="cb2-34" data-line-number="34">ISCon<span class="op">$</span><span class="kw">set</span>(</a>
-<a class="sourceLine" id="cb2-35" data-line-number="35">  <span class="dt">which =</span> <span class="st">"private"</span>,</a>
-<a class="sourceLine" id="cb2-36" data-line-number="36">  <span class="dt">name =</span> <span class="st">".aPrivateMethod"</span>,</a>
-<a class="sourceLine" id="cb2-37" data-line-number="37">  <span class="dt">value =</span> <span class="cf">function</span>() {</a>
-<a class="sourceLine" id="cb2-38" data-line-number="38">  </a>
-<a class="sourceLine" id="cb2-39" data-line-number="39">  }</a>
-<a class="sourceLine" id="cb2-40" data-line-number="40">)</a>
-<a class="sourceLine" id="cb2-41" data-line-number="41"></a>
-<a class="sourceLine" id="cb2-42" data-line-number="42"></a>
-<a class="sourceLine" id="cb2-43" data-line-number="43"><span class="co"># (comment)</span></a>
-<a class="sourceLine" id="cb2-44" data-line-number="44">ISCon<span class="op">$</span><span class="kw">set</span>(</a>
-<a class="sourceLine" id="cb2-45" data-line-number="45">  <span class="dt">which =</span> <span class="st">"private"</span>,</a>
-<a class="sourceLine" id="cb2-46" data-line-number="46">  <span class="dt">name =</span> <span class="st">".anotherPrivateMethod"</span>,</a>
-<a class="sourceLine" id="cb2-47" data-line-number="47">  <span class="dt">value =</span> <span class="cf">function</span>() {</a>
-<a class="sourceLine" id="cb2-48" data-line-number="48">  </a>
-<a class="sourceLine" id="cb2-49" data-line-number="49">  }</a>
-<a class="sourceLine" id="cb2-50" data-line-number="50">)</a>
-<a class="sourceLine" id="cb2-51" data-line-number="51"></a>
-<a class="sourceLine" id="cb2-52" data-line-number="52"></a>
-<a class="sourceLine" id="cb2-53" data-line-number="53"></a>
-<a class="sourceLine" id="cb2-54" data-line-number="54"><span class="co"># HELPERS -----------------------------------------------------------------------</span></a>
-<a class="sourceLine" id="cb2-55" data-line-number="55"></a>
-<a class="sourceLine" id="cb2-56" data-line-number="56"><span class="co"># (comment)</span></a>
-<a class="sourceLine" id="cb2-57" data-line-number="57">.aHelper &lt;-<span class="st"> </span><span class="cf">function</span>(x) {</a>
-<a class="sourceLine" id="cb2-58" data-line-number="58"></a>
-<a class="sourceLine" id="cb2-59" data-line-number="59">}</a>
-<a class="sourceLine" id="cb2-60" data-line-number="60"></a>
-<a class="sourceLine" id="cb2-61" data-line-number="61"></a>
-<a class="sourceLine" id="cb2-62" data-line-number="62"><span class="co"># (comment)</span></a>
-<a class="sourceLine" id="cb2-63" data-line-number="63">.anotherHelper &lt;-<span class="st"> </span><span class="cf">function</span>() {</a>
-<a class="sourceLine" id="cb2-64" data-line-number="64"></a>
-<a class="sourceLine" id="cb2-65" data-line-number="65">}</a></code></pre></div>
+<a href="#iscon-r-structure-wip" class="anchor"></a><code>ISCon-*.R</code> Structure (WIP)</h1>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co">#' @include ISCon.R</span>
+<span class="cn">NULL</span>
+
+
+
+<span class="co"># PUBLIC -----------------------------------------------------------------------</span>
+<span class="co"># (fields and methods that will be public)</span>
+<span class="co"># (they should be documented in ISCon.R file)</span>
+
+<span class="co"># (comment what/how this method is doing)</span>
+<span class="va">ISCon</span><span class="op">$</span><span class="fu">set</span><span class="op">(</span>
+  which <span class="op">=</span> <span class="st">"public"</span>,
+  name <span class="op">=</span> <span class="st">"aPublicMethod"</span>,
+  value <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span>
+  
+  <span class="op">}</span>
+<span class="op">)</span>
+
+
+<span class="co"># (comment about the method)</span>
+<span class="va">ISCon</span><span class="op">$</span><span class="fu">set</span><span class="op">(</span>
+  which <span class="op">=</span> <span class="st">"public"</span>,
+  name <span class="op">=</span> <span class="st">"anotherPublicMethod"</span>,
+  value <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span>
+
+  <span class="op">}</span>
+<span class="op">)</span>
+
+
+
+<span class="co"># PRIVATE -----------------------------------------------------------------------</span>
+
+<span class="co"># (comment about this method)</span>
+<span class="va">ISCon</span><span class="op">$</span><span class="fu">set</span><span class="op">(</span>
+  which <span class="op">=</span> <span class="st">"private"</span>,
+  name <span class="op">=</span> <span class="st">".aPrivateMethod"</span>,
+  value <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span>
+  
+  <span class="op">}</span>
+<span class="op">)</span>
+
+
+<span class="co"># (comment)</span>
+<span class="va">ISCon</span><span class="op">$</span><span class="fu">set</span><span class="op">(</span>
+  which <span class="op">=</span> <span class="st">"private"</span>,
+  name <span class="op">=</span> <span class="st">".anotherPrivateMethod"</span>,
+  value <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span>
+  
+  <span class="op">}</span>
+<span class="op">)</span>
+
+
+
+<span class="co"># HELPERS -----------------------------------------------------------------------</span>
+
+<span class="co"># (comment)</span>
+<span class="va">.aHelper</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">{</span>
+
+<span class="op">}</span>
+
+
+<span class="co"># (comment)</span>
+<span class="va">.anotherHelper</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span>
+
+<span class="op">}</span></code></pre></div>
 <ul>
 <li>
 <code>ISCon-*.R</code> files are divided into four sections: PURPOSE, PUBLIC, PRIVATE, HELPERS</li>
@@ -532,7 +541,6 @@
 </li>
 <li>Avoid <code><a href="https://rdrr.io/r/base/lapply.html">sapply()</a></code>, use <code><a href="https://rdrr.io/r/base/lapply.html">vapply()</a></code> instead</li>
 <li>Use <code><a href="https://rdrr.io/r/base/message.html">message()</a></code> and <code><a href="https://rdrr.io/r/base/warning.html">warning()</a></code> to communicate with the user in your functions</li>
-<li>Use <code>self$selectRows()</code> or <code>self$executeSql()</code> instead of <code>labkey.selectRows()</code> or <code>labkey.executeSql()</code> (WIP)</li>
 <li>Use <code>fieldname</code> for <code>colNameOpt</code> argument if you decide to use <code>labkey.selectRows()</code> or <code>labkey.executeSql()</code>
 </li>
 <li>Use <a href="https://rstudio.github.io/profvis/">the <code>profvis</code> package</a> to test the performance of your code</li>
@@ -543,10 +551,10 @@
 <a href="#style-guide" class="anchor"></a>Style Guide</h2>
 <ul>
 <li>We are mainly following <a href="https://style.tidyverse.org/">the tidyverse style guide</a> except for the object naming convention</li>
-<li>Run <a href="https://styler.r-lib.org/reference/style_pkg.html"><code><a href="https://rdrr.io/pkg/styler/man/style_pkg.html">styler::style_pkg()</a></code></a> for convenience</li>
+<li>Run <a href="https://styler.r-lib.org/reference/style_pkg.html"><code>styler::style_pkg()</code></a> for convenience</li>
 <li>The maximum line length is <strong>80 characters</strong>
 </li>
-<li>Use <code>&lt;-</code> not <code>=</code> for assignment</li>
+<li>Use <code><a href="https://rdrr.io/r/base/assignOps.html">&lt;-</a></code> not <code><a href="https://rdrr.io/r/base/assignOps.html">=</a></code> for assignment</li>
 <li>When indenting your code, use <strong>two spaces</strong>. Never use tabs or mix tabs and spaces</li>
 <li>Use common sense and <strong>BE CONSISTENT</strong>
 </li>
@@ -571,60 +579,31 @@
 <li>Comments should explain the why, not the what</li>
 </ul>
 </div>
+<div id="versioning" class="section level2">
+<h2 class="hasAnchor">
+<a href="#versioning" class="anchor"></a>Versioning</h2>
+<ul>
+<li>Bump version in only <code>dev</code> branch after hot fixes and/or feature branch merge</li>
+<li>We follow <a href="https://semver.org/">Sementic Verioning 2.0.0</a>: <code>MAJOR.MINOR.PATCH</code>
+<ul>
+<li>
+<code>MAJOR</code>: when making incompatible API changes</li>
+<li>
+<code>MINOR</code>: when adding functionality in a backwards compatible manner</li>
+<li>
+<code>PATH</code>: when making backwards compatible bug fixes</li>
+</ul>
+</li>
+<li>For <code>ImmuneSpaceR</code>, we follow Bioconductor’s <a href="https://www.bioconductor.org/developers/how-to/version-numbering/">Verion Numbering</a>
+</li>
+</ul>
+</div>
 <div id="notes" class="section level2">
 <h2 class="hasAnchor">
 <a href="#notes" class="anchor"></a>Notes</h2>
 <ul>
 <li>Even a smallest change can break the package and the portal, so be mindful about the changes you make</li>
-</ul>
-</div>
-<div id="glossary-wip" class="section level2">
-<h2 class="hasAnchor">
-<a href="#glossary-wip" class="anchor"></a>Glossary (WIP)</h2>
-<ul>
-<li>WIP: Work in Progress</li>
-</ul>
-<hr>
-</div>
-</div>
-<div id="code-review-for-pull-requests" class="section level1">
-<h1 class="hasAnchor">
-<a href="#code-review-for-pull-requests" class="anchor"></a>Code Review for Pull Requests</h1>
-<ul>
-<li>Reviewing code is a lot of work for both code owner and reviewer. The purpose of the following checklists is to set expectations for the code review and reduce time spent on reading the code.</li>
-<li>Code owners, please respect reviewer’s time. Reviewers, please be respectful and kind to the code owners in your reviews</li>
-</ul>
-<div id="checklist-for-reviewer" class="section level2">
-<h2 class="hasAnchor">
-<a href="#checklist-for-reviewer" class="anchor"></a>Checklist for Reviewer</h2>
-<ul>
-<li>[ ] Build it yourself and test the new features or changes</li>
-<li>[ ] Is it functional, and does it meet the requirements?</li>
-<li>[ ] Is it readable?
-<ul>
-<li>Easy to understand</li>
-</ul>
-</li>
-<li>[ ] Is it following the coding standards/guidelines?</li>
-<li>[ ] Functional coding guide</li>
-<li>[ ] Style guide (No changes in <code><a href="https://rdrr.io/pkg/styler/man/style_pkg.html">styler::style_pkg()</a></code>)</li>
-<li>[ ] Is it well documented (clear and sufficient)?
-<ul>
-<li>Comments make sense</li>
-<li>Updated or new vignette or manual</li>
-</ul>
-</li>
-<li>[ ] Does it have new/updated unit tests?
-<ul>
-<li>Use the <code>covr</code> package to examine the extent of test coverage</li>
-</ul>
-</li>
-<li>[ ] Does it have new dependencies? Is it justifiable?</li>
-<li>[ ] Is there code duplication that should be reduced?</li>
-<li>[ ] Are there user interface improvements that could be made?</li>
-<li>[ ] Are there performance improvements that could be made?</li>
-<li>[ ] Is it passing <code>R CMD check</code>?</li>
-<li>[ ] Is it passing <code><a href="https://rdrr.io/pkg/BiocCheck/man/BiocCheck.html">BiocCheck::BiocCheck()</a></code>?</li>
+<li>Check out <a href="https://www.notion.so/rglab/ImmuneSpace-Glossary-e205838b1f534abc903fa8c2228a6d7f">ImmuneSpace Glossary</a> for commonly used Acronyms, symbols, abbreviations, and terms</li>
 </ul>
 <hr>
 </div>
@@ -632,24 +611,40 @@
 <div id="maintainer-guide" class="section level1">
 <h1 class="hasAnchor">
 <a href="#maintainer-guide" class="anchor"></a>Maintainer Guide</h1>
-<div id="merge-to-master-branch-checklist" class="section level2">
+<div id="merge-to-main-branch-checklist" class="section level2">
 <h2 class="hasAnchor">
-<a href="#merge-to-master-branch-checklist" class="anchor"></a>Merge to <code>master</code> branch Checklist</h2>
-<ul>
-<li>[ ] Is the version bumped?</li>
-<li>[ ] Is the documentation up to date?</li>
-<li>[ ] Is the pkgdown site up to date?</li>
-<li>[ ] Is it passing <code><a href="https://rdrr.io/pkg/BiocCheck/man/BiocCheck.html">BiocCheck::BiocCheck()</a></code>?</li>
-<li>[ ] Is it passing against the production?</li>
+<a href="#merge-to-main-branch-checklist" class="anchor"></a>Merge to <code>main</code> Branch Checklist</h2>
+<ul class="task-list">
+<li>
+<input type="checkbox" disabled>
+Is the version bumped?</li>
+<li>
+<input type="checkbox" disabled>
+Is the documentation up to date?</li>
+<li>
+<input type="checkbox" disabled>
+Is the pkgdown site up to date?</li>
+<li>
+<input type="checkbox" disabled>
+Is it passing <code>BiocCheck::BiocCheck()</code>?</li>
+<li>
+<input type="checkbox" disabled>
+Is it passing against the production?</li>
 </ul>
 </div>
 <div id="bioconductor-submission-checklist" class="section level2">
 <h2 class="hasAnchor">
-<a href="#bioconductor-submission-checklist" class="anchor"></a>BioConductor Submission Checklist</h2>
-<ul>
-<li>[ ] Is the version valid?</li>
-<li>[ ] Is it passing <code>BiocCheck</code>?</li>
-<li>[ ] Does it need to be merged to the release branch of BiocConductor?</li>
+<a href="#bioconductor-submission-checklist" class="anchor"></a>Bioconductor Submission Checklist</h2>
+<ul class="task-list">
+<li>
+<input type="checkbox" disabled>
+Is the version valid?</li>
+<li>
+<input type="checkbox" disabled>
+Is it passing <code>BiocCheck</code>?</li>
+<li>
+<input type="checkbox" disabled>
+Does it need to be merged to the release branch of BiocConductor?</li>
 </ul>
 <hr>
 </div>
@@ -673,9 +668,9 @@
 </div>
 <div id="how-do-i-setup-my-machine-for-immunespacer-development" class="section level3">
 <h3 class="hasAnchor">
-<a href="#how-do-i-setup-my-machine-for-immunespacer-development" class="anchor"></a>How do I setup my machine for <code>ImmuneSpaceR</code> development</h3>
+<a href="#how-do-i-setup-my-machine-for-immunespacer-development" class="anchor"></a>How do I setup my machine for <code>ImmuneSpaceR</code> development?</h3>
 <ul>
-<li>See <a href="https://www.notion.so/0d597ef4-4b78-49bd-a49f-a4d81c1b0f98">Setup local for travis-like testing</a>
+<li>Read <a href="https://www.notion.so/0d597ef4-4b78-49bd-a49f-a4d81c1b0f98">this Notion documentation</a>
 </li>
 </ul>
 <hr>
@@ -693,7 +688,7 @@
 <li><a href="https://style.tidyverse.org/">The tidyverse style guide</a></li>
 <li><a href="https://google.github.io/styleguide/Rguide.xml">Google’s R Style Guide</a></li>
 <li><a href="https://ropensci.github.io/dev_guide/">rOpenSci Guide</a></li>
-<li><a href="https://www.bioconductor.org/developers/package-guidelines/">BioConductor Package Guidelines</a></li>
+<li><a href="https://www.bioconductor.org/developers/package-guidelines/">Bioconductor Package Guidelines</a></li>
 <li><a href="https://cran.r-project.org/doc/manuals/r-release/R-exts.html">Writing R Extensions</a></li>
 </ul>
 </div>
@@ -712,6 +707,12 @@
 
   </div>
 
+  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
+    <nav id="toc" data-toggle="toc" class="sticky-top">
+      <h2 data-toc-skip>Contents</h2>
+    </nav>
+  </div>
+
 </div>
 
 
@@ -722,7 +723,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

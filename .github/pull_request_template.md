@@ -22,7 +22,7 @@
 <!--- Code owners, please respect reviewer's time. Reviewers, please be respectful and kind to the code owners in your reviews --->
 
 This Pull Request should follow [ImmuneSpaceR Package Development Guide](
-https://github.com/RGLab/ImmuneSpaceR/blob/master/CONTRIBUTING.md#package-development-guide)
+https://github.com/RGLab/ImmuneSpaceR/blob/main/CONTRIBUTING.md#package-development-guide)
 
 * [ ]  Can you build it yourself and test the new features or changes?
 * [ ]  Is it functional, and does it meet the requirements?

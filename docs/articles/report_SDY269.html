@@ -12,14 +12,14 @@
 <link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png">
 <link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png">
 <link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png">
-<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.7/yeti/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous">
-<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
+<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.4.0/yeti/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="../bootstrap-toc.css">
+<script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
+<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
 <script src="../pkgdown.js"></script><meta property="og:title" content="SDY269: Correlating HAI with Flow Cytometry and ELISPOT Results">
-<meta property="og:description" content="">
+<meta property="og:description" content="ImmuneSpaceR">
 <meta property="og:image" content="/logo.png">
-<meta name="twitter:card" content="summary">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
@@ -31,7 +31,7 @@
   gtag('config', 'UA-118281859-1');
 </script>
 </head>
-<body>
+<body data-spy="scroll" data-target="#toc">
     <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -44,7 +44,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ImmuneSpaceR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.15.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.19.2</span>
       </span>
     </div>
 
@@ -52,7 +52,7 @@
       <ul class="nav navbar-nav">
 <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -96,19 +96,19 @@
 <ul class="nav navbar-nav navbar-right">
 <li>
   <a href="https://www.immunespace.org/">
-    <span class="fa fa-globe"></span>
+    <span class="fas fa-globe"></span>
      
   </a>
 </li>
 <li>
   <a href="https://twitter.com/ImmuneSpace">
-    <span class="fa fa-twitter"></span>
+    <span class="fas fa-twitter"></span>
      
   </a>
 </li>
 <li>
   <a href="https://github.com/RGLab/ImmuneSpaceR">
-    <span class="fa fa-github"></span>
+    <span class="fas fa-github"></span>
      
   </a>
 </li>
@@ -122,13 +122,13 @@
 
       
 
-      </header><div class="row">
+      </header><script src="report_SDY269_files/header-attrs-2.7/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
-      <h1>SDY269: Correlating HAI with Flow Cytometry and ELISPOT Results</h1>
+      <h1 data-toc-skip>SDY269: Correlating HAI with Flow Cytometry and ELISPOT Results</h1>
                         <h4 class="author">Renan Sauteraud</h4>
             
-            <h4 class="date">2020-01-14</h4>
+            <h4 class="date">2021-04-27</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/RGLab/ImmuneSpaceR/blob/master/vignettes/report_SDY269.Rmd"><code>vignettes/report_SDY269.Rmd</code></a></small>
       <div class="hidden name"><code>report_SDY269.Rmd</code></div>
@@ -141,84 +141,81 @@
 <div id="summary" class="section level1">
 <h1 class="hasAnchor">
 <a href="#summary" class="anchor"></a>Summary</h1>
-<p>This report investigate the association between the number influenza-specific cells measured by ELISPOT measured at day 7 with the number of plasmablast measured by flow cytometry and day 7 and the HAI response measured at day 28 (log-fold day28/day0). It basically reproduces Figure 1 d-e) of <a href="http://www.ncbi.nlm.nih.gov/pmc/articles/PMC3140559/" target="_BLANK"> Nakaya et al. (2011)</a> published as part of the original study.</p>
+<p>This report investigate the association between the number influenza-specific cells measured by ELISPOT measured at day 7 with the number of plasmablast measured by flow cytometry and day 7 and the HAI response measured at day 28 (log-fold day28/day0). It basically reproduces Figure 1 d-e) of <a href="http://www.ncbi.nlm.nih.gov/pmc/articles/PMC3140559/" target="_BLANK"> Nakaya et al. (2011)</a> published as part of the original study.</p>
 </div>
 <div id="load-immunespacer-and-other-libraries" class="section level1">
 <h1 class="hasAnchor">
 <a href="#load-immunespacer-and-other-libraries" class="anchor"></a>Load ImmuneSpaceR and other libraries</h1>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(ImmuneSpaceR)</a>
-<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(ggplot2)</a>
-<a class="sourceLine" id="cb1-3" data-line-number="3"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(data.table)</a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/RGLab/ImmuneSpaceR">ImmuneSpaceR</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org">ggplot2</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://r-datatable.com">data.table</a></span><span class="op">)</span></code></pre></div>
 </div>
 <div id="connect-to-the-study-and-get-datasets" class="section level1">
 <h1 class="hasAnchor">
 <a href="#connect-to-the-study-and-get-datasets" class="anchor"></a>Connect to the study and get datasets</h1>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1">study &lt;-<span class="st"> </span><span class="kw"><a href="../reference/CreateConnection.html">CreateConnection</a></span>(<span class="st">"SDY269"</span>)</a>
-<a class="sourceLine" id="cb2-2" data-line-number="2">dt_hai &lt;-<span class="st"> </span>study<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getDataset</a></span>(<span class="st">"hai"</span>, <span class="dt">reload =</span> <span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb2-3" data-line-number="3">dt_fcs &lt;-<span class="st"> </span>study<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getDataset</a></span>(<span class="st">"fcs_analyzed_result"</span>, <span class="dt">reload =</span> <span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb2-4" data-line-number="4">dt_elispot &lt;-<span class="st"> </span>study<span class="op">$</span><span class="kw"><a href="../reference/ImmuneSpaceConnection.html">getDataset</a></span>(<span class="st">"elispot"</span>, <span class="dt">reload =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">study</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/CreateConnection.html">CreateConnection</a></span><span class="op">(</span><span class="st">"SDY269"</span><span class="op">)</span>
+<span class="va">dt_hai</span> <span class="op">&lt;-</span> <span class="va">study</span><span class="op">$</span><span class="fu">getDataset</span><span class="op">(</span><span class="st">"hai"</span>, reload <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
+<span class="va">dt_fcs</span> <span class="op">&lt;-</span> <span class="va">study</span><span class="op">$</span><span class="fu">getDataset</span><span class="op">(</span><span class="st">"fcs_analyzed_result"</span>, reload <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
+<span class="va">dt_elispot</span> <span class="op">&lt;-</span> <span class="va">study</span><span class="op">$</span><span class="fu">getDataset</span><span class="op">(</span><span class="st">"elispot"</span>, reload <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
 </div>
 <div id="transform-data" class="section level1">
 <h1 class="hasAnchor">
 <a href="#transform-data" class="anchor"></a>Transform data</h1>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="co"># Compute max fold change for HAI, and remove time zero</span></a>
-<a class="sourceLine" id="cb3-2" data-line-number="2">dt_hai &lt;-<span class="st"> </span>dt_hai[, hai_response <span class="op">:</span><span class="er">=</span><span class="st"> </span>value_preferred <span class="op">/</span><span class="st"> </span>value_preferred[study_time_collected <span class="op">==</span><span class="st"> </span><span class="dv">0</span>],</a>
-<a class="sourceLine" id="cb3-3" data-line-number="3">                 by =<span class="st"> "virus,cohort,participant_id"</span>][study_time_collected <span class="op">==</span><span class="st"> </span><span class="dv">28</span>]</a>
-<a class="sourceLine" id="cb3-4" data-line-number="4">dt_hai &lt;-<span class="st"> </span>dt_hai[, <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="dt">hai_response =</span> <span class="kw"><a href="https://rdrr.io/r/base/Extremes.html">max</a></span>(hai_response)), by =<span class="st"> "cohort,participant_id"</span>]</a>
-<a class="sourceLine" id="cb3-5" data-line-number="5"></a>
-<a class="sourceLine" id="cb3-6" data-line-number="6"><span class="co"># Define variable for ELISPOT, keep only the IgG class</span></a>
-<a class="sourceLine" id="cb3-7" data-line-number="7">dt_elispot &lt;-<span class="st"> </span>dt_elispot[, elispot_response <span class="op">:</span><span class="er">=</span><span class="st"> </span>spot_number_reported <span class="op">+</span><span class="st"> </span><span class="dv">1</span>][study_time_collected <span class="op">==</span><span class="st"> </span><span class="dv">7</span> <span class="op">&amp;</span><span class="st"> </span>analyte <span class="op">==</span><span class="st"> "IgG"</span>]</a>
-<a class="sourceLine" id="cb3-8" data-line-number="8"></a>
-<a class="sourceLine" id="cb3-9" data-line-number="9"><span class="co"># Compute % plasmablasts</span></a>
-<a class="sourceLine" id="cb3-10" data-line-number="10">dt_fcs &lt;-<span class="st"> </span>dt_fcs[, fcs_response <span class="op">:</span><span class="er">=</span><span class="st"> </span>(<span class="kw"><a href="https://rdrr.io/r/base/double.html">as.double</a></span>(population_cell_number) <span class="op">+</span><span class="st"> </span><span class="dv">1</span>) <span class="op">/</span></a>
-<a class="sourceLine" id="cb3-11" data-line-number="11"><span class="st">                   </span><span class="kw"><a href="https://rdrr.io/r/base/double.html">as.double</a></span>(base_parent_population)][study_time_collected <span class="op">==</span><span class="st"> </span><span class="dv">7</span>]</a></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># Compute max fold change for HAI, and remove time zero</span>
+<span class="va">dt_hai</span> <span class="op">&lt;-</span> <span class="va">dt_hai</span><span class="op">[</span>, <span class="va">hai_response</span> <span class="op">:=</span> <span class="va">value_preferred</span> <span class="op">/</span> <span class="va">value_preferred</span><span class="op">[</span><span class="va">study_time_collected</span> <span class="op">==</span> <span class="fl">0</span><span class="op">]</span>,
+                 by <span class="op">=</span> <span class="st">"virus,cohort,participant_id"</span><span class="op">]</span><span class="op">[</span><span class="va">study_time_collected</span> <span class="op">==</span> <span class="fl">28</span><span class="op">]</span>
+<span class="va">dt_hai</span> <span class="op">&lt;-</span> <span class="va">dt_hai</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>hai_response <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html">max</a></span><span class="op">(</span><span class="va">hai_response</span><span class="op">)</span><span class="op">)</span>, by <span class="op">=</span> <span class="st">"cohort,participant_id"</span><span class="op">]</span>
+
+<span class="co"># Define variable for ELISPOT, keep only the IgG class</span>
+<span class="va">dt_elispot</span> <span class="op">&lt;-</span> <span class="va">dt_elispot</span><span class="op">[</span>, <span class="va">elispot_response</span> <span class="op">:=</span> <span class="va">spot_number_reported</span> <span class="op">+</span> <span class="fl">1</span><span class="op">]</span><span class="op">[</span><span class="va">study_time_collected</span> <span class="op">==</span> <span class="fl">7</span> <span class="op">&amp;</span> <span class="va">analyte</span> <span class="op">==</span> <span class="st">"IgG"</span><span class="op">]</span>
+
+<span class="co"># Compute % plasmablasts</span>
+<span class="va">dt_fcs</span> <span class="op">&lt;-</span> <span class="va">dt_fcs</span><span class="op">[</span>, <span class="va">fcs_response</span> <span class="op">:=</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/double.html">as.double</a></span><span class="op">(</span><span class="va">population_cell_number</span><span class="op">)</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span> <span class="op">/</span>
+                   <span class="fu"><a href="https://rdrr.io/r/base/double.html">as.double</a></span><span class="op">(</span><span class="va">base_parent_population</span><span class="op">)</span><span class="op">]</span><span class="op">[</span><span class="va">study_time_collected</span> <span class="op">==</span> <span class="fl">7</span><span class="op">]</span></code></pre></div>
 </div>
 <div id="merge-data-and-phenodata" class="section level1">
 <h1 class="hasAnchor">
 <a href="#merge-data-and-phenodata" class="anchor"></a>Merge data and phenodata</h1>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="co"># Let's key the different datasets</span></a>
-<a class="sourceLine" id="cb4-2" data-line-number="2"><span class="kw"><a href="https://Rdatatable.gitlab.io/data.table/reference/setkey.html">setkeyv</a></span>(dt_hai, <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"participant_id"</span>))</a>
-<a class="sourceLine" id="cb4-3" data-line-number="3"><span class="kw"><a href="https://Rdatatable.gitlab.io/data.table/reference/setkey.html">setkeyv</a></span>(dt_fcs, <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"participant_id"</span>))</a>
-<a class="sourceLine" id="cb4-4" data-line-number="4"><span class="kw"><a href="https://Rdatatable.gitlab.io/data.table/reference/setkey.html">setkeyv</a></span>(dt_elispot, <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"participant_id"</span>))</a>
-<a class="sourceLine" id="cb4-5" data-line-number="5">dt_all &lt;-<span class="st"> </span>dt_hai[dt_fcs, nomatch =<span class="st"> </span><span class="dv">0</span>][dt_elispot, nomatch =<span class="st"> </span><span class="dv">0</span>]</a></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># Let's key the different datasets</span>
+<span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/setkey.html">setkeyv</a></span><span class="op">(</span><span class="va">dt_hai</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"participant_id"</span><span class="op">)</span><span class="op">)</span>
+<span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/setkey.html">setkeyv</a></span><span class="op">(</span><span class="va">dt_fcs</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"participant_id"</span><span class="op">)</span><span class="op">)</span>
+<span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/setkey.html">setkeyv</a></span><span class="op">(</span><span class="va">dt_elispot</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"participant_id"</span><span class="op">)</span><span class="op">)</span>
+<span class="va">dt_all</span> <span class="op">&lt;-</span> <span class="va">dt_hai</span><span class="op">[</span><span class="va">dt_fcs</span>, nomatch <span class="op">=</span> <span class="fl">0</span><span class="op">]</span><span class="op">[</span><span class="va">dt_elispot</span>, nomatch <span class="op">=</span> <span class="fl">0</span><span class="op">]</span></code></pre></div>
 <p>The figure below shows the absolute number of plasmablast cells measured by flow cytometry vs. the number of frequency of influenza-specific cells measured by ELISPOT.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span>(dt_all, <span class="kw"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="dt">x =</span> <span class="kw"><a href="https://rdrr.io/r/base/double.html">as.double</a></span>(fcs_response), <span class="dt">y =</span> elispot_response, <span class="dt">color =</span> cohort)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb5-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html">geom_point</a></span>() <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb5-3" data-line-number="3"><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html">scale_y_log10</a></span>() <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb5-4" data-line-number="4"><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html">scale_x_log10</a></span>() <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb5-5" data-line-number="5"><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/geom_smooth.html">geom_smooth</a></span>(<span class="dt">method =</span> <span class="st">"lm"</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb5-6" data-line-number="6"><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/labs.html">xlab</a></span>(<span class="st">"Total plasmablasts (%)"</span>) <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb5-7" data-line-number="7"><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/labs.html">ylab</a></span>(<span class="st">"Influenza specific cells</span><span class="ch">\n</span><span class="st"> (per 10^6 PBMCs)"</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb5-8" data-line-number="8"><span class="st">  </span><span class="kw"><a href="../reference/theme_IS.html">theme_IS</a></span>()</a></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span><span class="va">dt_all</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/double.html">as.double</a></span><span class="op">(</span><span class="va">fcs_response</span><span class="op">)</span>, y <span class="op">=</span> <span class="va">elispot_response</span>, color <span class="op">=</span> <span class="va">cohort</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html">geom_point</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> 
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html">scale_y_log10</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> 
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html">scale_x_log10</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> 
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_smooth.html">geom_smooth</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">"lm"</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">xlab</a></span><span class="op">(</span><span class="st">"Total plasmablasts (%)"</span><span class="op">)</span> <span class="op">+</span> 
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">ylab</a></span><span class="op">(</span><span class="st">"Influenza specific cells\n (per 10^6 PBMCs)"</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="../reference/theme_IS.html">theme_IS</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
 <p><img src="report_SDY269_files/figure-html/plot1-1.png" width="700" style="display: block; margin: auto;"></p>
 <p>The figure below shows the HAI fold increase over baseline vs. the number of frequency of influenza-specific cells measured by ELISPOT.</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span>(dt_all, <span class="kw"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="dt">x =</span> <span class="kw"><a href="https://rdrr.io/r/base/double.html">as.double</a></span>(hai_response), <span class="dt">y =</span> elispot_response, <span class="dt">color =</span> cohort)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb6-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html">geom_point</a></span>() <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb6-3" data-line-number="3"><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html">scale_x_continuous</a></span>(<span class="dt">trans =</span> <span class="st">"log2"</span>) <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb6-4" data-line-number="4"><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html">scale_y_log10</a></span>() <span class="op">+</span></a>
-<a class="sourceLine" id="cb6-5" data-line-number="5"><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/geom_smooth.html">geom_smooth</a></span>(<span class="dt">method =</span> <span class="st">"lm"</span>) <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb6-6" data-line-number="6"><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/labs.html">xlab</a></span>(<span class="st">"HAI fold"</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb6-7" data-line-number="7"><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/labs.html">ylab</a></span>(<span class="st">"Influenza specific cells</span><span class="ch">\n</span><span class="st"> (per 10^6 PBMCs)"</span>) <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb6-8" data-line-number="8"><span class="st">  </span><span class="kw"><a href="../reference/theme_IS.html">theme_IS</a></span>()</a></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span><span class="va">dt_all</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/double.html">as.double</a></span><span class="op">(</span><span class="va">hai_response</span><span class="op">)</span>, y <span class="op">=</span> <span class="va">elispot_response</span>, color <span class="op">=</span> <span class="va">cohort</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html">geom_point</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> 
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html">scale_x_continuous</a></span><span class="op">(</span>trans <span class="op">=</span> <span class="st">"log2"</span><span class="op">)</span> <span class="op">+</span> 
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html">scale_y_log10</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_smooth.html">geom_smooth</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">"lm"</span><span class="op">)</span> <span class="op">+</span> 
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">xlab</a></span><span class="op">(</span><span class="st">"HAI fold"</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">ylab</a></span><span class="op">(</span><span class="st">"Influenza specific cells\n (per 10^6 PBMCs)"</span><span class="op">)</span> <span class="op">+</span> 
+  <span class="fu"><a href="../reference/theme_IS.html">theme_IS</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
 <p><img src="report_SDY269_files/figure-html/plot2-1.png" width="700" style="display: block; margin: auto;"></p>
 <p>In each case, we observe good correlations between the different responses, at least for the TIV cohort.</p>
 </div>
   </div>
 
-  <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
+  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
 
-        <div id="tocnav">
-      <h2 class="hasAnchor">
-<a href="#tocnav" class="anchor"></a>Contents</h2>
-      <ul class="nav nav-pills nav-stacked">
-<li><a href="#summary">Summary</a></li>
-      <li><a href="#load-immunespacer-and-other-libraries">Load ImmuneSpaceR and other libraries</a></li>
-      <li><a href="#connect-to-the-study-and-get-datasets">Connect to the study and get datasets</a></li>
-      <li><a href="#transform-data">Transform data</a></li>
-      <li><a href="#merge-data-and-phenodata">Merge data and phenodata</a></li>
-      </ul>
+        <nav id="toc" data-toggle="toc"><h2 data-toc-skip>Contents</h2>
+    </nav>
 </div>
-      </div>
 
 </div>
 
@@ -229,7 +226,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

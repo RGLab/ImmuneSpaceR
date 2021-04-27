@@ -17,23 +17,27 @@
 <link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
 
 <!-- jquery -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.7/yeti/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.4.0/yeti/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
 
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script>
+
+<!-- bootstrap-toc -->
+<link rel="stylesheet" href="../bootstrap-toc.css">
+<script src="../bootstrap-toc.js"></script>
 
 <!-- Font Awesome icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous" />
 
 <!-- clipboard.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script>
 
 <!-- headroom.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
@@ -46,7 +50,6 @@
 <meta property="og:description" content="A connection respresents a study or a set of studies available on ImmuneSpace.
 It provides function to download and display the data within these studies." />
 <meta property="og:image" content="/logo.png" />
-<meta name="twitter:card" content="summary" />
 
 
 
@@ -74,7 +77,7 @@ It provides function to download and display the data within these studies." />
 
   </head>
 
-  <body>
+  <body data-spy="scroll" data-target="#toc">
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -88,7 +91,7 @@ It provides function to download and display the data within these studies." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ImmuneSpaceR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.15.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.19.2</span>
       </span>
     </div>
 
@@ -96,7 +99,7 @@ It provides function to download and display the data within these studies." />
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -140,19 +143,19 @@ It provides function to download and display the data within these studies." />
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://www.immunespace.org/">
-    <span class="fa fa-globe"></span>
+    <span class="fas fa-globe"></span>
      
   </a>
 </li>
 <li>
   <a href="https://twitter.com/ImmuneSpace">
-    <span class="fa fa-twitter"></span>
+    <span class="fas fa-twitter"></span>
      
   </a>
 </li>
 <li>
   <a href="https://github.com/RGLab/ImmuneSpaceR">
-    <span class="fa fa-github"></span>
+    <span class="fas fa-github"></span>
      
   </a>
 </li>
@@ -206,7 +209,7 @@ study.</p>
 
     
 
-<dl class='dl-horizontal'>
+<dl>
   <dt><code>study</code></dt><dd><p>A <code>character</code>. The study accession number. Use an empty string ("")
     to create a connection at the project level.</p></dd>
   <dt><code>availableDatasets</code></dt><dd><p>A <code>data.table</code>. The table of datasets available in the connection
@@ -222,7 +225,7 @@ study.</p>
 
     
 
-<dl class='dl-horizontal'>
+<dl>
   <dt><code>initialize()</code></dt><dd><p>Initialize <code>ImmuneSpaceConnection</code> class.
     See <code><a href='CreateConnection.html'>CreateConnection</a></code>.</p></dd>
   <dt><code><a href='https://rdrr.io/r/base/print.html'>print()</a></code></dt><dd><p>Print <code>ImmuneSpaceConnection</code> class.</p></dd>
@@ -305,7 +308,7 @@ study.</p>
   <dt><code>mapSampleNames(EM = NULL, colType = "participant_id")</code></dt><dd><p>Changes the sampleNames of an ExpressionSet fetched by <code>getGEMatrix</code>
     using the information in the phenodData slot.    <code>EM</code>: An ExpressionSet, as returned by <code>getGEMatrix</code>.    <code>colType</code>: A character. The type of column names. Valid options are
     'expsample_accession' and 'participant_id'.</p></dd>
-  <dt><code><a href='https://rdrr.io/r/graphics/plot.html'>plot(...)</a></code></dt><dd><p>Visualizes a selected dataset. This method is used by the DataExplorer
+  <dt><code><a href='https://rdrr.io/r/graphics/plot.default.html'>plot(...)</a></code></dt><dd><p>Visualizes a selected dataset. This method is used by the DataExplorer
     module on the ImmuneSpace portal.    <code>dataset</code>: A character. The name of the dataset to plot, as
     displayed by the listDataset method.    <code>normalize_to_baseline</code>: A logical. If TRUE, the values are plotted
     as log2 fold-change from baseline.    <code>type</code>: A character. The type of plot. Valid choices are 'auto',
@@ -328,7 +331,7 @@ study.</p>
     <h2 class="hasAnchor" id="methods"><a class="anchor" href="#methods"></a>Methods</h2>
 
     
-<h3>Public methods</h3>
+<h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Public methods</h3>
 
 <ul>
 <li><p><a href='#method-listWorkspaces'><code>ISCon$listWorkspaces()</code></a></p></li>
@@ -358,189 +361,189 @@ study.</p>
 <li><p><a href='#method-clone'><code>ISCon$clone()</code></a></p></li>
 </ul>
 <p><hr>
-<a id="method-listWorkspaces"></a></p><h3>Method <code>listWorkspaces()</code></h3>
+<a id="method-listWorkspaces"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>listWorkspaces()</code></h3>
 
-<h3>Usage</h3>
-<p><div class="r"></p><pre>ISCon$listWorkspaces(reload = FALSE)</pre><p></div></p>
-
-<p><hr>
-<a id="method-listGatingSets"></a></p><h3>Method <code>listGatingSets()</code></h3>
-
-<h3>Usage</h3>
-<p><div class="r"></p><pre>ISCon$listGatingSets(reload = FALSE)</pre><p></div></p>
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>ISCon</span><span class='op'>$</span><span class='fu'>listWorkspaces</span><span class='op'>(</span>reload <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></pre><p></div></p>
 
 <p><hr>
-<a id="method-summarizeCyto"></a></p><h3>Method <code>summarizeCyto()</code></h3>
+<a id="method-listGatingSets"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>listGatingSets()</code></h3>
 
-<h3>Usage</h3>
-<p><div class="r"></p><pre>ISCon$summarizeCyto()</pre><p></div></p>
-
-<p><hr>
-<a id="method-summarizeGatingSet"></a></p><h3>Method <code>summarizeGatingSet()</code></h3>
-
-<h3>Usage</h3>
-<p><div class="r"></p><pre>ISCon$summarizeGatingSet(gatingSet)</pre><p></div></p>
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>ISCon</span><span class='op'>$</span><span class='fu'>listGatingSets</span><span class='op'>(</span>reload <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></pre><p></div></p>
 
 <p><hr>
-<a id="method-loadGatingSet"></a></p><h3>Method <code>loadGatingSet()</code></h3>
+<a id="method-summarizeCyto"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>summarizeCyto()</code></h3>
 
-<h3>Usage</h3>
-<p><div class="r"></p><pre>ISCon$loadGatingSet(gatingSet)</pre><p></div></p>
-
-<p><hr>
-<a id="method-listDatasets"></a></p><h3>Method <code>listDatasets()</code></h3>
-
-<h3>Usage</h3>
-<p><div class="r"></p><pre>ISCon$listDatasets(output = c("datasets", "expression"))</pre><p></div></p>
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>ISCon</span><span class='op'>$</span><span class='fu'>summarizeCyto</span><span class='op'>(</span><span class='op'>)</span></pre><p></div></p>
 
 <p><hr>
-<a id="method-getDataset"></a></p><h3>Method <code>getDataset()</code></h3>
+<a id="method-summarizeGatingSet"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>summarizeGatingSet()</code></h3>
 
-<h3>Usage</h3>
-<p><div class="r"></p><pre>ISCon$getDataset(
-  x,
-  original_view = FALSE,
-  reload = FALSE,
-  colFilter = NULL,
-  transformMethod = "none",
-  ...
-)</pre><p></div></p>
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>ISCon</span><span class='op'>$</span><span class='fu'>summarizeGatingSet</span><span class='op'>(</span><span class='va'>gatingSet</span><span class='op'>)</span></pre><p></div></p>
 
 <p><hr>
-<a id="method-listGEMatrices"></a></p><h3>Method <code>listGEMatrices()</code></h3>
+<a id="method-loadGatingSet"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>loadGatingSet()</code></h3>
 
-<h3>Usage</h3>
-<p><div class="r"></p><pre>ISCon$listGEMatrices(verbose = FALSE, reload = FALSE, participantIds = NULL)</pre><p></div></p>
-
-<p><hr>
-<a id="method-listGEAnalysis"></a></p><h3>Method <code>listGEAnalysis()</code></h3>
-
-<h3>Usage</h3>
-<p><div class="r"></p><pre>ISCon$listGEAnalysis()</pre><p></div></p>
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>ISCon</span><span class='op'>$</span><span class='fu'>loadGatingSet</span><span class='op'>(</span><span class='va'>gatingSet</span><span class='op'>)</span></pre><p></div></p>
 
 <p><hr>
-<a id="method-getGEMatrix"></a></p><h3>Method <code>getGEMatrix()</code></h3>
+<a id="method-listDatasets"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>listDatasets()</code></h3>
 
-<h3>Usage</h3>
-<p><div class="r"></p><pre>ISCon$getGEMatrix(
-  matrixName = NULL,
-  cohortType = NULL,
-  outputType = "summary",
-  annotation = "latest",
-  reload = FALSE,
-  verbose = FALSE
-)</pre><p></div></p>
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>ISCon</span><span class='op'>$</span><span class='fu'>listDatasets</span><span class='op'>(</span>output <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"datasets"</span>, <span class='st'>"expression"</span><span class='op'>)</span><span class='op'>)</span></pre><p></div></p>
 
 <p><hr>
-<a id="method-getGEAnalysis"></a></p><h3>Method <code>getGEAnalysis()</code></h3>
+<a id="method-getDataset"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>getDataset()</code></h3>
 
-<h3>Usage</h3>
-<p><div class="r"></p><pre>ISCon$getGEAnalysis(...)</pre><p></div></p>
-
-<p><hr>
-<a id="method-getGEInputs"></a></p><h3>Method <code>getGEInputs()</code></h3>
-
-<h3>Usage</h3>
-<p><div class="r"></p><pre>ISCon$getGEInputs()</pre><p></div></p>
-
-<p><hr>
-<a id="method-getGEFiles"></a></p><h3>Method <code>getGEFiles()</code></h3>
-
-<h3>Usage</h3>
-<p><div class="r"></p><pre>ISCon$getGEFiles(files, destdir = ".", quiet = FALSE)</pre><p></div></p>
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>ISCon</span><span class='op'>$</span><span class='fu'>getDataset</span><span class='op'>(</span>
+  <span class='va'>x</span>,
+  original_view <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  reload <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  colFilter <span class='op'>=</span> <span class='cn'>NULL</span>,
+  transformMethod <span class='op'>=</span> <span class='st'>"none"</span>,
+  <span class='va'>...</span>
+<span class='op'>)</span></pre><p></div></p>
 
 <p><hr>
-<a id="method-downloadGEFiles"></a></p><h3>Method <code>downloadGEFiles()</code></h3>
+<a id="method-listGEMatrices"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>listGEMatrices()</code></h3>
 
-<h3>Usage</h3>
-<p><div class="r"></p><pre>ISCon$downloadGEFiles(files, destdir = ".")</pre><p></div></p>
-
-<p><hr>
-<a id="method-addTreatment"></a></p><h3>Method <code>addTreatment()</code></h3>
-
-<h3>Usage</h3>
-<p><div class="r"></p><pre>ISCon$addTreatment(expressionSet)</pre><p></div></p>
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>ISCon</span><span class='op'>$</span><span class='fu'>listGEMatrices</span><span class='op'>(</span>verbose <span class='op'>=</span> <span class='cn'>FALSE</span>, reload <span class='op'>=</span> <span class='cn'>FALSE</span>, participantIds <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span></pre><p></div></p>
 
 <p><hr>
-<a id="method-mapSampleNames"></a></p><h3>Method <code>mapSampleNames()</code></h3>
+<a id="method-listGEAnalysis"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>listGEAnalysis()</code></h3>
 
-<h3>Usage</h3>
-<p><div class="r"></p><pre>ISCon$mapSampleNames(EM = NULL, colType = "participant_id")</pre><p></div></p>
-
-<p><hr>
-<a id="method-listParticipantGroups"></a></p><h3>Method <code>listParticipantGroups()</code></h3>
-
-<h3>Usage</h3>
-<p><div class="r"></p><pre>ISCon$listParticipantGroups()</pre><p></div></p>
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>ISCon</span><span class='op'>$</span><span class='fu'>listGEAnalysis</span><span class='op'>(</span><span class='op'>)</span></pre><p></div></p>
 
 <p><hr>
-<a id="method-getParticipantData"></a></p><h3>Method <code>getParticipantData()</code></h3>
+<a id="method-getGEMatrix"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>getGEMatrix()</code></h3>
 
-<h3>Usage</h3>
-<p><div class="r"></p><pre>ISCon$getParticipantData(
-  group,
-  dataType,
-  original_view = FALSE,
-  reload = FALSE,
-  colFilter = NULL,
-  transformMethod = "none",
-  ...
-)</pre><p></div></p>
-
-<p><hr>
-<a id="method-listParticipantGEMatrices"></a></p><h3>Method <code>listParticipantGEMatrices()</code></h3>
-
-<h3>Usage</h3>
-<p><div class="r"></p><pre>ISCon$listParticipantGEMatrices(group, verbose = FALSE)</pre><p></div></p>
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>ISCon</span><span class='op'>$</span><span class='fu'>getGEMatrix</span><span class='op'>(</span>
+  matrixName <span class='op'>=</span> <span class='cn'>NULL</span>,
+  cohortType <span class='op'>=</span> <span class='cn'>NULL</span>,
+  outputType <span class='op'>=</span> <span class='st'>"summary"</span>,
+  annotation <span class='op'>=</span> <span class='st'>"latest"</span>,
+  reload <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  verbose <span class='op'>=</span> <span class='cn'>FALSE</span>
+<span class='op'>)</span></pre><p></div></p>
 
 <p><hr>
-<a id="method-getParticipantGEMatrix"></a></p><h3>Method <code>getParticipantGEMatrix()</code></h3>
+<a id="method-getGEAnalysis"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>getGEAnalysis()</code></h3>
 
-<h3>Usage</h3>
-<p><div class="r"></p><pre>ISCon$getParticipantGEMatrix(
-  group,
-  outputType = "summary",
-  annotation = "latest",
-  reload = FALSE
-)</pre><p></div></p>
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>ISCon</span><span class='op'>$</span><span class='fu'>getGEAnalysis</span><span class='op'>(</span><span class='va'>...</span><span class='op'>)</span></pre><p></div></p>
 
 <p><hr>
-<a id="method-plot"></a></p><h3>Method <code><a href='https://rdrr.io/r/graphics/plot.html'>plot()</a></code></h3>
+<a id="method-getGEInputs"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>getGEInputs()</code></h3>
 
-<h3>Usage</h3>
-<p><div class="r"></p><pre>ISCon$plot(...)</pre><p></div></p>
-
-<p><hr>
-<a id="method-print"></a></p><h3>Method <code><a href='https://rdrr.io/r/base/print.html'>print()</a></code></h3>
-
-<h3>Usage</h3>
-<p><div class="r"></p><pre>ISCon$print()</pre><p></div></p>
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>ISCon</span><span class='op'>$</span><span class='fu'>getGEInputs</span><span class='op'>(</span><span class='op'>)</span></pre><p></div></p>
 
 <p><hr>
-<a id="method-clearCache"></a></p><h3>Method <code>clearCache()</code></h3>
+<a id="method-getGEFiles"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>getGEFiles()</code></h3>
 
-<h3>Usage</h3>
-<p><div class="r"></p><pre>ISCon$clearCache()</pre><p></div></p>
-
-<p><hr>
-<a id="method-new"></a></p><h3>Method <code>new()</code></h3>
-
-<h3>Usage</h3>
-<p><div class="r"></p><pre>ISCon$new(
-  study = NULL,
-  login = NULL,
-  password = NULL,
-  verbose = FALSE,
-  onTest = FALSE
-)</pre><p></div></p>
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>ISCon</span><span class='op'>$</span><span class='fu'>getGEFiles</span><span class='op'>(</span><span class='va'>files</span>, destdir <span class='op'>=</span> <span class='st'>"."</span>, quiet <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></pre><p></div></p>
 
 <p><hr>
-<a id="method-clone"></a></p><h3>Method <code>clone()</code></h3>
-<p>The objects of this class are cloneable with this method.</p><h3>Usage</h3>
-<p><div class="r"></p><pre>ISCon$clone(deep = FALSE)</pre><p></div></p>
+<a id="method-downloadGEFiles"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>downloadGEFiles()</code></h3>
 
-<h3>Arguments</h3>
-<p><div class="arguments"></p><dl class='dl-horizontal'>
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>ISCon</span><span class='op'>$</span><span class='fu'>downloadGEFiles</span><span class='op'>(</span><span class='va'>files</span>, destdir <span class='op'>=</span> <span class='st'>"."</span><span class='op'>)</span></pre><p></div></p>
+
+<p><hr>
+<a id="method-addTreatment"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>addTreatment()</code></h3>
+
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>ISCon</span><span class='op'>$</span><span class='fu'>addTreatment</span><span class='op'>(</span><span class='va'>expressionSet</span><span class='op'>)</span></pre><p></div></p>
+
+<p><hr>
+<a id="method-mapSampleNames"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>mapSampleNames()</code></h3>
+
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>ISCon</span><span class='op'>$</span><span class='fu'>mapSampleNames</span><span class='op'>(</span>EM <span class='op'>=</span> <span class='cn'>NULL</span>, colType <span class='op'>=</span> <span class='st'>"participant_id"</span><span class='op'>)</span></pre><p></div></p>
+
+<p><hr>
+<a id="method-listParticipantGroups"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>listParticipantGroups()</code></h3>
+
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>ISCon</span><span class='op'>$</span><span class='fu'>listParticipantGroups</span><span class='op'>(</span><span class='op'>)</span></pre><p></div></p>
+
+<p><hr>
+<a id="method-getParticipantData"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>getParticipantData()</code></h3>
+
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>ISCon</span><span class='op'>$</span><span class='fu'>getParticipantData</span><span class='op'>(</span>
+  <span class='va'>group</span>,
+  <span class='va'>dataType</span>,
+  original_view <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  reload <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  colFilter <span class='op'>=</span> <span class='cn'>NULL</span>,
+  transformMethod <span class='op'>=</span> <span class='st'>"none"</span>,
+  <span class='va'>...</span>
+<span class='op'>)</span></pre><p></div></p>
+
+<p><hr>
+<a id="method-listParticipantGEMatrices"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>listParticipantGEMatrices()</code></h3>
+
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>ISCon</span><span class='op'>$</span><span class='fu'>listParticipantGEMatrices</span><span class='op'>(</span><span class='va'>group</span>, verbose <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></pre><p></div></p>
+
+<p><hr>
+<a id="method-getParticipantGEMatrix"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>getParticipantGEMatrix()</code></h3>
+
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>ISCon</span><span class='op'>$</span><span class='fu'>getParticipantGEMatrix</span><span class='op'>(</span>
+  <span class='va'>group</span>,
+  outputType <span class='op'>=</span> <span class='st'>"summary"</span>,
+  annotation <span class='op'>=</span> <span class='st'>"latest"</span>,
+  reload <span class='op'>=</span> <span class='cn'>FALSE</span>
+<span class='op'>)</span></pre><p></div></p>
+
+<p><hr>
+<a id="method-plot"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code><a href='https://rdrr.io/r/graphics/plot.default.html'>plot()</a></code></h3>
+
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>ISCon</span><span class='op'>$</span><span class='fu'>plot</span><span class='op'>(</span><span class='va'>...</span><span class='op'>)</span></pre><p></div></p>
+
+<p><hr>
+<a id="method-print"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code><a href='https://rdrr.io/r/base/print.html'>print()</a></code></h3>
+
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>ISCon</span><span class='op'>$</span><span class='fu'>print</span><span class='op'>(</span><span class='op'>)</span></pre><p></div></p>
+
+<p><hr>
+<a id="method-clearCache"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>clearCache()</code></h3>
+
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>ISCon</span><span class='op'>$</span><span class='fu'>clearCache</span><span class='op'>(</span><span class='op'>)</span></pre><p></div></p>
+
+<p><hr>
+<a id="method-new"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>new()</code></h3>
+
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>ISCon</span><span class='op'>$</span><span class='fu'>new</span><span class='op'>(</span>
+  study <span class='op'>=</span> <span class='cn'>NULL</span>,
+  login <span class='op'>=</span> <span class='cn'>NULL</span>,
+  password <span class='op'>=</span> <span class='cn'>NULL</span>,
+  verbose <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  onTest <span class='op'>=</span> <span class='cn'>FALSE</span>
+<span class='op'>)</span></pre><p></div></p>
+
+<p><hr>
+<a id="method-clone"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>clone()</code></h3>
+<p>The objects of this class are cloneable with this method.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>ISCon</span><span class='op'>$</span><span class='fu'>clone</span><span class='op'>(</span>deep <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></pre><p></div></p>
+
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
+<p><div class="arguments"></p><dl>
 <dt><code>deep</code></dt><dd><p>Whether to make a deep clone.</p></dd>
 
 </dl><p></div></p>
@@ -548,43 +551,34 @@ study.</p>
 
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
+    <pre class="examples"><div class='input'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span>
 <span class='co'># Create a connection (Initiate a ImmuneSpaceConnection object)</span>
-<span class='no'>sdy269</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='CreateConnection.html'>CreateConnection</a></span>(<span class='st'>"SDY269"</span>)
+<span class='va'>sdy269</span> <span class='op'>&lt;-</span> <span class='fu'><a href='CreateConnection.html'>CreateConnection</a></span><span class='op'>(</span><span class='st'>"SDY269"</span><span class='op'>)</span>
 
 <span class='co'># Print the connection object</span>
-<span class='no'>sdy269</span>
+<span class='va'>sdy269</span>
 
 <span class='co'># Retrieve the HAI dataset</span>
-<span class='no'>HAI</span> <span class='kw'>&lt;-</span> <span class='no'>sdy269</span>$<span class='fu'>getDataset</span>(<span class='st'>"hai"</span>)
+<span class='va'>HAI</span> <span class='op'>&lt;-</span> <span class='va'>sdy269</span><span class='op'>$</span><span class='fu'>getDataset</span><span class='op'>(</span><span class='st'>"hai"</span><span class='op'>)</span>
 
 <span class='co'># Fetch a summarized gene expresssion matrix with latest annotation</span>
-<span class='no'>LAIV</span> <span class='kw'>&lt;-</span> <span class='no'>sdy269</span>$<span class='fu'>getGEMatrix</span>(<span class='st'>"LAIV_2008"</span>)
+<span class='va'>LAIV</span> <span class='op'>&lt;-</span> <span class='va'>sdy269</span><span class='op'>$</span><span class='fu'>getGEMatrix</span><span class='op'>(</span><span class='st'>"LAIV_2008"</span><span class='op'>)</span>
 
 <span class='co'># Visualize the ELISA dataset</span>
-<span class='no'>sdy269</span>$<span class='fu'><a href='https://rdrr.io/r/graphics/plot.html'>plot</a></span>(<span class='st'>"elisa"</span>)
-}
+<span class='va'>sdy269</span><span class='op'>$</span><span class='fu'>plot</span><span class='op'>(</span><span class='st'>"elisa"</span><span class='op'>)</span>
+<span class='op'>}</span>
 
-<span class='no'>sdy</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/try.html'>try</a></span>(<span class='fu'><a href='CreateConnection.html'>CreateConnection</a></span>(<span class='st'>"SDY269"</span>))</div><div class='output co'>#&gt; Error in .check_credential(labkey.url.base, verbose) : 
-#&gt;   Invalid credential or deactivated account. Check your account in the portal.</div><div class='input'><span class='kw'>if</span> (<span class='fu'><a href='https://rdrr.io/r/base/class.html'>inherits</a></span>(<span class='no'>sdy</span>, <span class='st'>"try-error"</span>)) {
-  <span class='fu'><a href='https://rdrr.io/r/base/warning.html'>warning</a></span>(<span class='st'>"Read the Introduction vignette for more information on how to set
-up a .netrc file."</span>)
-}</div><div class='output co'>#&gt; <span class='warning'>Warning: Read the Introduction vignette for more information on how to set</span>
-#&gt; <span class='warning'>up a .netrc file.</span></div></pre>
+<span class='va'>sdy</span> <span class='op'>&lt;-</span> <span class='kw'><a href='https://rdrr.io/r/base/try.html'>try</a></span><span class='op'>(</span><span class='fu'><a href='CreateConnection.html'>CreateConnection</a></span><span class='op'>(</span><span class='st'>"SDY269"</span><span class='op'>)</span><span class='op'>)</span>
+<span class='kw'>if</span> <span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/class.html'>inherits</a></span><span class='op'>(</span><span class='va'>sdy</span>, <span class='st'>"try-error"</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>{</span>
+  <span class='kw'><a href='https://rdrr.io/r/base/warning.html'>warning</a></span><span class='op'>(</span><span class='st'>"Read the Introduction vignette for more information on how to set
+up a .netrc file."</span><span class='op'>)</span>
+<span class='op'>}</span>
+</div></pre>
   </div>
-  <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
-    <h2>Contents</h2>
-    <ul class="nav nav-pills nav-stacked">
-      <li><a href="#value">Value</a></li>
-      <li><a href="#details">Details</a></li>
-      <li><a href="#constructor">Constructor</a></li>
-      <li><a href="#fields">Fields</a></li>
-      <li><a href="#methods">Methods</a></li>
-      <li><a href="#see-also">See also</a></li>
-      <li><a href="#methods">Methods</a></li>
-      <li><a href="#examples">Examples</a></li>
-    </ul>
-
+  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
+    <nav id="toc" data-toggle="toc" class="sticky-top">
+      <h2 data-toc-skip>Contents</h2>
+    </nav>
   </div>
 </div>
 
@@ -595,7 +589,7 @@ up a .netrc file."</span>)
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

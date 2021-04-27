@@ -3,11 +3,11 @@
 on:
   push:
     branches:
-      - master
+      - main
       - dev
   pull_request:
     branches:
-      - master
+      - main
       - dev
   schedule:
     - cron: "0 12 * * *"
@@ -39,7 +39,7 @@ jobs:
     steps:
       - name: Set environment for branch
         run: |
-          if [[ $GITHUB_REF == "refs/heads/master" ]]; then
+          if [[ $GITHUB_REF == "refs/heads/main" ]]; then
               echo "ISR_machine=www.immunespace.org" >> "$GITHUB_ENV"
           else
               echo "ISR_machine=test.immunespace.org" >> "$GITHUB_ENV"
