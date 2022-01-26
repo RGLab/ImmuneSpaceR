@@ -58,12 +58,12 @@ ISCon$set(
   which = "private",
   name = ".checkStudy",
   value = function(verbose = FALSE) {
-    folders <- labkey.getFolders(
+    folders <- suppressWarnings(labkey.getFolders(
       baseUrl = self$config$labkey.url.base,
       folderPath = "",
       includeSubfolders = TRUE,
       includeEffectivePermissions = TRUE
-    )
+    ))
     folders <- folders[grepl("IS\\d{1}|SDY\\d{2,4}", folders$name), ]
     study <- basename(self$config$labkey.url.path)
 

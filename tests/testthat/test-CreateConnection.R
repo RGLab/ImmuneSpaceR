@@ -23,7 +23,7 @@ test_that("Study argument accepts only one study", {
   expect_true("multiple" %in% msg_list)
 })
 
-test_that("all studies can loaded with empty string", {
+test_that("all studies can be loaded with empty string", {
   res <- try_con("")
   expect_true(res$study == "Studies")
 })
