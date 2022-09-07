@@ -32,6 +32,8 @@
 </script>
 </head>
 <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -44,23 +46,17 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ImmuneSpaceR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.19.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.25.1</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
 <li>
-  <a href="../index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -95,19 +91,19 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://www.immunespace.org/">
+  <a href="https://www.immunespace.org/" class="external-link">
     <span class="fa fa-globe"></span>
      
   </a>
 </li>
 <li>
-  <a href="https://twitter.com/ImmuneSpace">
+  <a href="https://twitter.com/ImmuneSpace" class="external-link">
     <span class="fa fa-twitter"></span>
      
   </a>
 </li>
 <li>
-  <a href="https://github.com/RGLab/ImmuneSpaceR">
+  <a href="https://github.com/RGLab/ImmuneSpaceR" class="external-link">
     <span class="fa fa-github"></span>
      
   </a>
@@ -126,11 +122,11 @@
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Handling Expression Matrices with ImmuneSpaceR</h1>
-                        <h4 class="author">Renan Sauteraud</h4>
+                        <h4 data-toc-skip class="author">Renan Sauteraud</h4>
             
-            <h4 class="date">2021-07-20</h4>
+            <h4 data-toc-skip class="date">2022-09-07</h4>
       
-      <small class="dont-index">Source: <a href="https://github.com/RGLab/ImmuneSpaceR/blob/master/vignettes/getGEMatrix.Rmd"><code>vignettes/getGEMatrix.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/RGLab/ImmuneSpaceR/blob/HEAD/vignettes/getGEMatrix.Rmd" class="external-link"><code>vignettes/getGEMatrix.Rmd</code></a></small>
       <div class="hidden name"><code>getGEMatrix.Rmd</code></div>
 
     </div>
@@ -138,345 +134,340 @@
     
     
 <p>This vignette shows detailed examples for the <code><a href="../reference/ImmuneSpaceConnection.html">getGEMatrix()</a></code> method</p>
-<div id="create-connections" class="section level1">
-<h1 class="hasAnchor">
-<a href="#create-connections" class="anchor"></a>Create connections</h1>
+<div class="section level2">
+<h2 id="create-connections">Create connections<a class="anchor" aria-label="anchor" href="#create-connections"></a>
+</h2>
 <p>As explained into the introductory vignette, datasets must be downloaded from <code>ImmuneSpaceConnection</code> objects. We must first instantiate a connection to the study or studies of interest. Throughout this vignette, we will use two connections, one to a single study, and one to to all available data.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/RGLab/ImmuneSpaceR">ImmuneSpaceR</a></span><span class="op">)</span>
-<span class="va">sdy269</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/CreateConnection.html">CreateConnection</a></span><span class="op">(</span><span class="st">"SDY269"</span><span class="op">)</span></code></pre></div>
-<pre><code>## Warning in matrix(data = unlist(curfld[resultCols]), nrow = 1, ncol =
-## length(resultCols), : data length [4] is not a sub-multiple or multiple of the
-## number of columns [7]</code></pre>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">all</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/CreateConnection.html">CreateConnection</a></span><span class="op">(</span><span class="st">""</span><span class="op">)</span></code></pre></div>
-<pre><code>## Warning in matrix(data = unlist(curfld[resultCols]), nrow = 1, ncol =
-## length(resultCols), : data length [4] is not a sub-multiple or multiple of the
-## number of columns [7]</code></pre>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/RGLab/ImmuneSpaceR" class="external-link">ImmuneSpaceR</a></span><span class="op">)</span></span>
+<span><span class="va">sdy269</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/CreateConnection.html">CreateConnection</a></span><span class="op">(</span><span class="st">"SDY269"</span><span class="op">)</span></span>
+<span><span class="va">all</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/CreateConnection.html">CreateConnection</a></span><span class="op">(</span><span class="st">""</span><span class="op">)</span></span></code></pre></div>
 </div>
-<div id="list-the-expression-matrices" class="section level1">
-<h1 class="hasAnchor">
-<a href="#list-the-expression-matrices" class="anchor"></a>List the expression matrices</h1>
+<div class="section level2">
+<h2 id="list-the-expression-matrices">List the expression matrices<a class="anchor" aria-label="anchor" href="#list-the-expression-matrices"></a>
+</h2>
 <p>Now that the connections have been instantiated, we can start downloading from them. But we need to figure out which processed matrices are available within our chosen studies.</p>
 <p>On the ImmuneSpace portal, in the study of interest or at the project level, the <strong>Gene expression matrices</strong> table will show the available runs.</p>
 <p>Printing the connections will, among other information, list the datasets availables. The <code>listDatasets</code> method will only display the downloadable data. looking for. With <code>output = "expression"</code>, the datasets wont be printed.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">sdy269</span><span class="op">$</span><span class="fu">listDatasets</span><span class="op">(</span><span class="op">)</span></code></pre></div>
-<pre><code>## datasets
-##  cohort_membership
-##  demographics
-##  elisa
-##  elispot
-##  fcs_analyzed_result
-##  fcs_sample_files
-##  gene_expression_files
-##  hai
-##  pcr
-## Expression Matrices
-##  SDY269_PBMC_TIV_Geo
-##  SDY269_PBMC_LAIV_Geo</code></pre>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">sdy269</span><span class="op">$</span><span class="fu">listDatasets</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## datasets</span></span>
+<span><span class="co">##  cohort_membership</span></span>
+<span><span class="co">##  demographics</span></span>
+<span><span class="co">##  elisa</span></span>
+<span><span class="co">##  elispot</span></span>
+<span><span class="co">##  fcs_analyzed_result</span></span>
+<span><span class="co">##  fcs_sample_files</span></span>
+<span><span class="co">##  gene_expression_files</span></span>
+<span><span class="co">##  hai</span></span>
+<span><span class="co">##  pcr</span></span>
+<span><span class="co">## Expression Matrices</span></span>
+<span><span class="co">##  SDY269_PBMC_TIV_Geo</span></span>
+<span><span class="co">##  SDY269_PBMC_LAIV_Geo</span></span></code></pre>
 <p>Using <code>output = "expression"</code>, we can remove the datasets from the output.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">all</span><span class="op">$</span><span class="fu">listDatasets</span><span class="op">(</span>output <span class="op">=</span> <span class="st">"expression"</span><span class="op">)</span></code></pre></div>
-<pre><code>## Expression Matrices
-##  SDY1630_Spleen_AllSubjects
-##  SDY1630_PBMC_AllSubjects
-##  SDY1630_LungLymphNode_AllSubjects
-##  SDY1630_Lung_AllSubjects
-##  SDY1630_BoneMarrow_AllSubjects
-##  SDY1529_WholeBlood_HealthyAdults_PreVax_Geo
-##  SDY1529_WholeBlood_HealthyAdults_PostVax_Geo
-##  SDY787_Tcell_wPaPboost_Geo
-##  SDY787_Tcell_aP_Geo
-##  SDY787_Tcell_aPaPboost_Geo
-##  SDY1328_WholeBlood_HealthyAldults_Geo
-##  SDY520_WholeBlood_Young_geo
-##  SDY520_WholeBlood_Older_Geo
-##  SDY640_WholeBlood_Young_Geo
-##  SDY640_WholeBlood_Older_Geo
-##  SDY1086_PBMC_GroupB_Geo
-##  SDY1086_PBMC_GroupA_Geo
-##  SDY1267_PBMC_RRR_Geo
-##  SDY1267_PBMC_ARR_Geo
-##  SDY1412_WholeBlood_EPC002_geo
-##  SDY1256_WholeBlood_EPIC001_geo
-##  SDY80_PBMC_Cohort2_geo
-##  SDY299_WholeBlood_HEPISLAV
-##  SDY180_WholeBlood_Grp2Saline_Geo
-##  SDY180_WholeBlood_Grp2Pneunomax23_Geo
-##  SDY180_WholeBlood_Grp2Fluzone_Geo
-##  SDY180_WholeBlood_Grp1Saline_Geo
-##  SDY180_WholeBlood_Grp1Pneunomax23_Geo
-##  SDY180_WholeBlood_Grp1Fluzone_Geo
-##  SDY1325_WholeBlood_LowIntraMuscularPS_geo
-##  SDY1294_PBMC_ChineseCohort_Geo
-##  SDY1119_PBMC_oldHealthy_Geo
-##  SDY1119_PBMC_oldT2D_Geo
-##  SDY1119_PBMC_youngT2D_Geo
-##  SDY1119_PBMC_youngHealthy_Geo
-##  SDY1289_WholeBlood_MontrealCohort_Geo
-##  SDY1289_WholeBlood_LausanneCohort_Geo
-##  SDY1324_PBMC_nonBCGvacc
-##  SDY1324_PBMC_LatentTB
-##  SDY1324_PBMC_BCGvacc
-##  SDY89_WholeBlood_EnergixB
-##  SDY1370_Bcell_lc16m8_geo
-##  SDY1370_Bcell_dryvax_geo
-##  SDY1370_Tcell_lc16m8_geo
-##  SDY1370_Tcell_dryvax_geo
-##  SDY1370_PBMC_lc16m8_geo
-##  SDY1370_PBMC_dryvax_geo
-##  SDY1368_WholeBlood_Twin_Geo
-##  SDY1368_WholeBlood_NonTwin_Geo
-##  SDY67_PBMC_HealthyAdults
-##  SDY224_PBMC_TIV2010_ImmPort
-##  SDY888_PBMC_UninfectedEndemicArea_Geo
-##  SDY888_PBMC_UninfectedNonEndemicArea_Geo
-##  SDY888_PBMC_InfectedEndemicArea_Geo
-##  SDY28_PBMC_Dryvax
-##  SDY34_PBMC_TIV
-##  SDY34_PBMC_Controls
-##  SDY305_Other_IDTIV_Geo
-##  SDY305_Other_TIV_Geo
-##  SDY112_Other_GroupC
-##  SDY112_Other_GroupB
-##  SDY112_Other_GroupA
-##  SDY315_Other_GroupC_Geo
-##  SDY315_Other_GroupB_Geo
-##  SDY315_Other_GroupA_Geo
-##  SDY406_Other_ILI_Geo
-##  SDY113_Other_IDTIV_Geo
-##  SDY113_Other_LAIV_Geo
-##  SDY113_Other_TIV_Geo
-##  SDY144_Other_TIV_Geo
-##  SDY690_PBMC_Energixb
-##  SDY690_WholeBlood_Energixb
-##  SDY597_Other_InVitro
-##  SDY522_Other_LAIV
-##  SDY387_WholeBlood_NCH2010
-##  SDY372_WholeBlood_JDM2012
-##  SDY368_WholeBlood_NCH2013
-##  SDY364_WholeBlood_NCH2012
-##  SDY312_Other_GroupC
-##  SDY312_Other_GroupB
-##  SDY312_Other_GroupA
-##  SDY301_Other_AIRFV
-##  SDY296_WholeBlood_AIRFV
-##  SDY667_WholeBlood_PSORPPP
-##  SDY212_WholeBlood_Older_Geo
-##  SDY212_WholeBlood_Young_Geo
-##  SDY212_PBMC_Older_Geo
-##  SDY212_PBMC_Young_geo
-##  SDY270_PBMC_TIVGroup_Geo
-##  SDY1373_WholeBlood_highDose_Geo
-##  SDY1373_WholeBlood_lowDose_Geo
-##  SDY1364_PBMC_IntraDermal_Geo
-##  SDY1364_PBMC_IntraMuscular_Geo
-##  SDY1325_WholeBlood_IntramuscularCRM_Geo
-##  SDY1325_WholeBlood_IntramuscularPS_Geo
-##  SDY1325_WholeBlood_SubcutaneousPS_Geo
-##  SDY1291_PBMC_HealthyHIVUninfected_Geo
-##  SDY1293_PBMC_Vaccinated_geo
-##  SDY1293_PBMC_Control_Geo
-##  SDY1276_WholeBlood_Validation_Geo
-##  SDY1276_WholeBlood_Discovery_Geo
-##  SDY1264_PBMC_Trial2_Geo
-##  SDY1264_PBMC_Trial1_Geo
-##  SDY1260_PBMC_MCV4_Geo
-##  SDY1260_PBMC_MPSV4_Geo
-##  SDY984_PBMC_Elderly_Geo
-##  SDY984_PBMC_Young_Geo
-##  SDY61_PBMC_TIVGrp
-##  SDY56_PBMC_Older
-##  SDY56_PBMC_Young
-##  SDY63_PBMC_Young_Geo
-##  SDY63_PBMC_Older_Geo
-##  SDY404_PBMC_Young_Geo
-##  SDY404_PBMC_Older_Geo
-##  SDY400_PBMC_Older_Geo
-##  SDY400_PBMC_Young_Geo
-##  SDY269_PBMC_TIV_Geo
-##  SDY269_PBMC_LAIV_Geo
-##  SDY300_dendriticCell_dcMonoFlu2011
-##  SDY300_otherCell_dcMonoFlu2011
-##  SDY162_Macrophage_VLplus
-##  SDY162_PBMC_VLplus
-##  SDY162_Macrophage_VLminus
-##  SDY162_PBMC_VLminus</code></pre>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">all</span><span class="op">$</span><span class="fu">listDatasets</span><span class="op">(</span>output <span class="op">=</span> <span class="st">"expression"</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## Expression Matrices</span></span>
+<span><span class="co">##  SDY1630_Spleen_AllSubjects</span></span>
+<span><span class="co">##  SDY1630_PBMC_AllSubjects</span></span>
+<span><span class="co">##  SDY1630_LungLymphNode_AllSubjects</span></span>
+<span><span class="co">##  SDY1630_Lung_AllSubjects</span></span>
+<span><span class="co">##  SDY1630_BoneMarrow_AllSubjects</span></span>
+<span><span class="co">##  SDY1529_WholeBlood_HealthyAdults_PreVax_Geo</span></span>
+<span><span class="co">##  SDY1529_WholeBlood_HealthyAdults_PostVax_Geo</span></span>
+<span><span class="co">##  SDY787_Tcell_wPaPboost_Geo</span></span>
+<span><span class="co">##  SDY787_Tcell_aP_Geo</span></span>
+<span><span class="co">##  SDY787_Tcell_aPaPboost_Geo</span></span>
+<span><span class="co">##  SDY1328_WholeBlood_HealthyAldults_Geo</span></span>
+<span><span class="co">##  SDY520_WholeBlood_Young_geo</span></span>
+<span><span class="co">##  SDY520_WholeBlood_Older_Geo</span></span>
+<span><span class="co">##  SDY640_WholeBlood_Young_Geo</span></span>
+<span><span class="co">##  SDY640_WholeBlood_Older_Geo</span></span>
+<span><span class="co">##  SDY1086_PBMC_GroupB_Geo</span></span>
+<span><span class="co">##  SDY1086_PBMC_GroupA_Geo</span></span>
+<span><span class="co">##  SDY1267_PBMC_RRR_Geo</span></span>
+<span><span class="co">##  SDY1267_PBMC_ARR_Geo</span></span>
+<span><span class="co">##  SDY1412_WholeBlood_EPC002_geo</span></span>
+<span><span class="co">##  SDY1256_WholeBlood_EPIC001_geo</span></span>
+<span><span class="co">##  SDY645_WholeBlood_JuvDM</span></span>
+<span><span class="co">##  SDY376_WholeBlood_JDM</span></span>
+<span><span class="co">##  SDY80_PBMC_Cohort2_geo</span></span>
+<span><span class="co">##  SDY299_WholeBlood_HEPISLAV</span></span>
+<span><span class="co">##  SDY180_WholeBlood_Grp2Saline_Geo</span></span>
+<span><span class="co">##  SDY180_WholeBlood_Grp2Pneunomax23_Geo</span></span>
+<span><span class="co">##  SDY180_WholeBlood_Grp2Fluzone_Geo</span></span>
+<span><span class="co">##  SDY180_WholeBlood_Grp1Saline_Geo</span></span>
+<span><span class="co">##  SDY180_WholeBlood_Grp1Pneunomax23_Geo</span></span>
+<span><span class="co">##  SDY180_WholeBlood_Grp1Fluzone_Geo</span></span>
+<span><span class="co">##  SDY1325_WholeBlood_LowIntraMuscularPS_geo</span></span>
+<span><span class="co">##  SDY1294_PBMC_ChineseCohort_Geo</span></span>
+<span><span class="co">##  SDY1119_PBMC_oldHealthy_Geo</span></span>
+<span><span class="co">##  SDY1119_PBMC_oldT2D_Geo</span></span>
+<span><span class="co">##  SDY1119_PBMC_youngT2D_Geo</span></span>
+<span><span class="co">##  SDY1119_PBMC_youngHealthy_Geo</span></span>
+<span><span class="co">##  SDY1289_WholeBlood_MontrealCohort_Geo</span></span>
+<span><span class="co">##  SDY1289_WholeBlood_LausanneCohort_Geo</span></span>
+<span><span class="co">##  SDY1324_PBMC_nonBCGvacc</span></span>
+<span><span class="co">##  SDY1324_PBMC_LatentTB</span></span>
+<span><span class="co">##  SDY1324_PBMC_BCGvacc</span></span>
+<span><span class="co">##  SDY89_WholeBlood_EnergixB</span></span>
+<span><span class="co">##  SDY1370_Bcell_lc16m8_geo</span></span>
+<span><span class="co">##  SDY1370_Bcell_dryvax_geo</span></span>
+<span><span class="co">##  SDY1370_Tcell_lc16m8_geo</span></span>
+<span><span class="co">##  SDY1370_Tcell_dryvax_geo</span></span>
+<span><span class="co">##  SDY1370_PBMC_lc16m8_geo</span></span>
+<span><span class="co">##  SDY1370_PBMC_dryvax_geo</span></span>
+<span><span class="co">##  SDY1368_WholeBlood_Twin_Geo</span></span>
+<span><span class="co">##  SDY1368_WholeBlood_NonTwin_Geo</span></span>
+<span><span class="co">##  SDY67_PBMC_HealthyAdults</span></span>
+<span><span class="co">##  SDY224_PBMC_TIV2010_ImmPort</span></span>
+<span><span class="co">##  SDY888_PBMC_UninfectedEndemicArea_Geo</span></span>
+<span><span class="co">##  SDY888_PBMC_UninfectedNonEndemicArea_Geo</span></span>
+<span><span class="co">##  SDY888_PBMC_InfectedEndemicArea_Geo</span></span>
+<span><span class="co">##  SDY28_PBMC_Dryvax</span></span>
+<span><span class="co">##  SDY34_PBMC_TIV</span></span>
+<span><span class="co">##  SDY34_PBMC_Controls</span></span>
+<span><span class="co">##  SDY305_Other_IDTIV_Geo</span></span>
+<span><span class="co">##  SDY305_Other_TIV_Geo</span></span>
+<span><span class="co">##  SDY112_Other_GroupC</span></span>
+<span><span class="co">##  SDY112_Other_GroupB</span></span>
+<span><span class="co">##  SDY112_Other_GroupA</span></span>
+<span><span class="co">##  SDY315_Other_GroupC_Geo</span></span>
+<span><span class="co">##  SDY315_Other_GroupB_Geo</span></span>
+<span><span class="co">##  SDY315_Other_GroupA_Geo</span></span>
+<span><span class="co">##  SDY406_Other_ILI_Geo</span></span>
+<span><span class="co">##  SDY113_Other_IDTIV_Geo</span></span>
+<span><span class="co">##  SDY113_Other_LAIV_Geo</span></span>
+<span><span class="co">##  SDY113_Other_TIV_Geo</span></span>
+<span><span class="co">##  SDY144_Other_TIV_Geo</span></span>
+<span><span class="co">##  SDY690_PBMC_Energixb</span></span>
+<span><span class="co">##  SDY690_WholeBlood_Energixb</span></span>
+<span><span class="co">##  SDY597_Other_InVitro</span></span>
+<span><span class="co">##  SDY522_Other_LAIV</span></span>
+<span><span class="co">##  SDY387_WholeBlood_NCH2010</span></span>
+<span><span class="co">##  SDY372_WholeBlood_JDM2012</span></span>
+<span><span class="co">##  SDY368_WholeBlood_NCH2013</span></span>
+<span><span class="co">##  SDY364_WholeBlood_NCH2012</span></span>
+<span><span class="co">##  SDY312_Other_GroupC</span></span>
+<span><span class="co">##  SDY312_Other_GroupB</span></span>
+<span><span class="co">##  SDY312_Other_GroupA</span></span>
+<span><span class="co">##  SDY301_Other_AIRFV</span></span>
+<span><span class="co">##  SDY296_WholeBlood_AIRFV</span></span>
+<span><span class="co">##  SDY667_WholeBlood_PSORPPP</span></span>
+<span><span class="co">##  SDY212_WholeBlood_Older_Geo</span></span>
+<span><span class="co">##  SDY212_WholeBlood_Young_Geo</span></span>
+<span><span class="co">##  SDY212_PBMC_Older_Geo</span></span>
+<span><span class="co">##  SDY212_PBMC_Young_geo</span></span>
+<span><span class="co">##  SDY270_PBMC_TIVGroup_Geo</span></span>
+<span><span class="co">##  SDY1373_WholeBlood_highDose_Geo</span></span>
+<span><span class="co">##  SDY1373_WholeBlood_lowDose_Geo</span></span>
+<span><span class="co">##  SDY1364_PBMC_IntraDermal_Geo</span></span>
+<span><span class="co">##  SDY1364_PBMC_IntraMuscular_Geo</span></span>
+<span><span class="co">##  SDY1325_WholeBlood_IntramuscularCRM_Geo</span></span>
+<span><span class="co">##  SDY1325_WholeBlood_IntramuscularPS_Geo</span></span>
+<span><span class="co">##  SDY1325_WholeBlood_SubcutaneousPS_Geo</span></span>
+<span><span class="co">##  SDY1291_PBMC_HealthyHIVUninfected_Geo</span></span>
+<span><span class="co">##  SDY1293_PBMC_Vaccinated_geo</span></span>
+<span><span class="co">##  SDY1293_PBMC_Control_Geo</span></span>
+<span><span class="co">##  SDY1276_WholeBlood_Validation_Geo</span></span>
+<span><span class="co">##  SDY1264_PBMC_Trial2_Geo</span></span>
+<span><span class="co">##  SDY1264_PBMC_Trial1_Geo</span></span>
+<span><span class="co">##  SDY1260_PBMC_MCV4_Geo</span></span>
+<span><span class="co">##  SDY1260_PBMC_MPSV4_Geo</span></span>
+<span><span class="co">##  SDY984_PBMC_Elderly_Geo</span></span>
+<span><span class="co">##  SDY984_PBMC_Young_Geo</span></span>
+<span><span class="co">##  SDY61_PBMC_TIVGrp</span></span>
+<span><span class="co">##  SDY56_PBMC_Older</span></span>
+<span><span class="co">##  SDY56_PBMC_Young</span></span>
+<span><span class="co">##  SDY63_PBMC_Young_Geo</span></span>
+<span><span class="co">##  SDY63_PBMC_Older_Geo</span></span>
+<span><span class="co">##  SDY404_PBMC_Young_Geo</span></span>
+<span><span class="co">##  SDY404_PBMC_Older_Geo</span></span>
+<span><span class="co">##  SDY400_PBMC_Older_Geo</span></span>
+<span><span class="co">##  SDY400_PBMC_Young_Geo</span></span>
+<span><span class="co">##  SDY269_PBMC_TIV_Geo</span></span>
+<span><span class="co">##  SDY269_PBMC_LAIV_Geo</span></span>
+<span><span class="co">##  SDY300_dendriticCell_dcMonoFlu2011</span></span>
+<span><span class="co">##  SDY300_otherCell_dcMonoFlu2011</span></span>
+<span><span class="co">##  SDY162_Macrophage_VLplus</span></span>
+<span><span class="co">##  SDY162_PBMC_VLplus</span></span>
+<span><span class="co">##  SDY162_Macrophage_VLminus</span></span>
+<span><span class="co">##  SDY162_PBMC_VLminus</span></span></code></pre>
 <p>Naturally, <code>all</code> contains every processed matrices available on ImmuneSpace as it combines all available studies.</p>
 </div>
-<div id="download" class="section level1">
-<h1 class="hasAnchor">
-<a href="#download" class="anchor"></a>Download</h1>
-<div id="by-run-name" class="section level2">
-<h2 class="hasAnchor">
-<a href="#by-run-name" class="anchor"></a>By run name</h2>
+<div class="section level2">
+<h2 id="download">Download<a class="anchor" aria-label="anchor" href="#download"></a>
+</h2>
+<div class="section level3">
+<h3 id="by-run-name">By run name<a class="anchor" aria-label="anchor" href="#by-run-name"></a>
+</h3>
 <p>The <code>getGEMatrix</code> method will accept any of the run names listed in the connection.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">TIV_2008</span> <span class="op">&lt;-</span> <span class="va">sdy269</span><span class="op">$</span><span class="fu">getGEMatrix</span><span class="op">(</span><span class="st">"SDY269_PBMC_TIV_Geo"</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## Downloading matrix..</span></span></code></pre>
+<pre><code><span><span class="co">## Constructing ExpressionSet</span></span></code></pre>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">TIV_2008</span> <span class="op">&lt;-</span> <span class="va">sdy269</span><span class="op">$</span><span class="fu">getGEMatrix</span><span class="op">(</span><span class="st">"SDY269_PBMC_TIV_Geo"</span><span class="op">)</span></code></pre></div>
-<pre><code>## Downloading matrix..</code></pre>
-<pre><code>## Constructing ExpressionSet</code></pre>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">TIV_2011</span> <span class="op">&lt;-</span> <span class="va">all</span><span class="op">$</span><span class="fu">getGEMatrix</span><span class="op">(</span>matrixName <span class="op">=</span> <span class="st">"SDY144_Other_TIV_Geo"</span><span class="op">)</span></code></pre></div>
-<pre><code>## Downloading matrix..
-## Constructing ExpressionSet</code></pre>
+<code class="sourceCode R"><span><span class="va">TIV_2011</span> <span class="op">&lt;-</span> <span class="va">all</span><span class="op">$</span><span class="fu">getGEMatrix</span><span class="op">(</span>matrixName <span class="op">=</span> <span class="st">"SDY144_Other_TIV_Geo"</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## Downloading matrix..</span></span>
+<span><span class="co">## Constructing ExpressionSet</span></span></code></pre>
 <p>The matrices are returned as <code>ExpressionSet</code> where the phenoData slot contains basic demographic information and the featureData slot shows a mapping of probe to official gene symbols.</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">TIV_2008</span></code></pre></div>
-<pre><code>## ExpressionSet (storageMode: lockedEnvironment)
-## assayData: 16146 features, 80 samples 
-##   element names: exprs 
-## protocolData: none
-## phenoData
-##   sampleNames: BS586128 BS586240 ... BS586267 (80 total)
-##   varLabels: participant_id study_time_collected ...
-##     exposure_process_preferred (8 total)
-##   varMetadata: labelDescription
-## featureData
-##   featureNames: DDR1 RFC2 ... NUS1P3 (16146 total)
-##   fvarLabels: FeatureId gene_symbol
-##   fvarMetadata: labelDescription
-## experimentData: use 'experimentData(object)'
-## Annotation:</code></pre>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">TIV_2008</span></span></code></pre></div>
+<pre><code><span><span class="co">## ExpressionSet (storageMode: lockedEnvironment)</span></span>
+<span><span class="co">## assayData: 16146 features, 80 samples </span></span>
+<span><span class="co">##   element names: exprs </span></span>
+<span><span class="co">## protocolData: none</span></span>
+<span><span class="co">## phenoData</span></span>
+<span><span class="co">##   sampleNames: BS586128 BS586240 ... BS586267 (80 total)</span></span>
+<span><span class="co">##   varLabels: participant_id study_time_collected ...</span></span>
+<span><span class="co">##     exposure_process_preferred (8 total)</span></span>
+<span><span class="co">##   varMetadata: labelDescription</span></span>
+<span><span class="co">## featureData</span></span>
+<span><span class="co">##   featureNames: DDR1 RFC2 ... NUS1P3 (16146 total)</span></span>
+<span><span class="co">##   fvarLabels: FeatureId gene_symbol</span></span>
+<span><span class="co">##   fvarMetadata: labelDescription</span></span>
+<span><span class="co">## experimentData: use 'experimentData(object)'</span></span>
+<span><span class="co">## Annotation:</span></span></code></pre>
 </div>
-<div id="by-cohorttype" class="section level2">
-<h2 class="hasAnchor">
-<a href="#by-cohorttype" class="anchor"></a>By cohortType</h2>
+<div class="section level3">
+<h3 id="by-cohorttype">By cohortType<a class="anchor" aria-label="anchor" href="#by-cohorttype"></a>
+</h3>
 <p>The <code>cohortType</code> argument can be used in place of the run name (<code>x</code>). It is a concatenation of “cohort” and “cell type” so that you may use matrices for analysis that have been normalized within cell-type. Likewise, the list of valid cohortTypes can be found in the Gene expression matrices table.</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">LAIV_2008</span> <span class="op">&lt;-</span> <span class="va">sdy269</span><span class="op">$</span><span class="fu">getGEMatrix</span><span class="op">(</span>cohortType <span class="op">=</span> <span class="st">"LAIV group 2008_PBMC"</span><span class="op">)</span></code></pre></div>
-<pre><code>## Downloading matrix..</code></pre>
-<pre><code>## Constructing ExpressionSet</code></pre>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">LAIV_2008</span> <span class="op">&lt;-</span> <span class="va">sdy269</span><span class="op">$</span><span class="fu">getGEMatrix</span><span class="op">(</span>cohortType <span class="op">=</span> <span class="st">"LAIV group 2008_PBMC"</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## Downloading matrix..</span></span></code></pre>
+<pre><code><span><span class="co">## Constructing ExpressionSet</span></span></code></pre>
 <p>Note that when cohort is used, <code>x</code> is ignored.</p>
 </div>
 </div>
-<div id="summarized-matrices" class="section level1">
-<h1 class="hasAnchor">
-<a href="#summarized-matrices" class="anchor"></a>Summarized matrices</h1>
+<div class="section level2">
+<h2 id="summarized-matrices">Summarized matrices<a class="anchor" aria-label="anchor" href="#summarized-matrices"></a>
+</h2>
 <p>By default, the returned <code>ExpressionSet</code>s have probe names as features (or rows). However, multiple probes often match the same gene and merging experiments from different arrays is impossible at feature level. When they are available, the <code>summary</code> argument allows to return the matrices with gene symbols instead of probes. You should use <code>currAnno</code> set to <code>TRUE</code> to use the latest official gene symbols mapped for each probe, but you can also set this to <code>FALSE</code> to retrieve the original mappings from when the matrix was created.</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">TIV_2008_sum</span> <span class="op">&lt;-</span> <span class="va">sdy269</span><span class="op">$</span><span class="fu">getGEMatrix</span><span class="op">(</span><span class="st">"SDY269_PBMC_TIV_Geo"</span>, outputType <span class="op">=</span> <span class="st">"summary"</span>, annotation <span class="op">=</span> <span class="st">"latest"</span><span class="op">)</span></code></pre></div>
-<pre><code>## Returning SDY269_PBMC_TIV_Geo_summary_latest_eset from cache</code></pre>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">TIV_2008_sum</span> <span class="op">&lt;-</span> <span class="va">sdy269</span><span class="op">$</span><span class="fu">getGEMatrix</span><span class="op">(</span><span class="st">"SDY269_PBMC_TIV_Geo"</span>, outputType <span class="op">=</span> <span class="st">"summary"</span>, annotation <span class="op">=</span> <span class="st">"latest"</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## Returning SDY269_PBMC_TIV_Geo_summary_latest_eset from cache</span></span></code></pre>
 <p>Probes that do not map to a unique gene are removed and expression is averaged by gene.</p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">TIV_2008_sum</span></code></pre></div>
-<pre><code>## ExpressionSet (storageMode: lockedEnvironment)
-## assayData: 16146 features, 80 samples 
-##   element names: exprs 
-## protocolData: none
-## phenoData
-##   sampleNames: BS586128 BS586240 ... BS586267 (80 total)
-##   varLabels: participant_id study_time_collected ...
-##     exposure_process_preferred (8 total)
-##   varMetadata: labelDescription
-## featureData
-##   featureNames: DDR1 RFC2 ... NUS1P3 (16146 total)
-##   fvarLabels: FeatureId gene_symbol
-##   fvarMetadata: labelDescription
-## experimentData: use 'experimentData(object)'
-## Annotation:</code></pre>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">TIV_2008_sum</span></span></code></pre></div>
+<pre><code><span><span class="co">## ExpressionSet (storageMode: lockedEnvironment)</span></span>
+<span><span class="co">## assayData: 16146 features, 80 samples </span></span>
+<span><span class="co">##   element names: exprs </span></span>
+<span><span class="co">## protocolData: none</span></span>
+<span><span class="co">## phenoData</span></span>
+<span><span class="co">##   sampleNames: BS586128 BS586240 ... BS586267 (80 total)</span></span>
+<span><span class="co">##   varLabels: participant_id study_time_collected ...</span></span>
+<span><span class="co">##     exposure_process_preferred (8 total)</span></span>
+<span><span class="co">##   varMetadata: labelDescription</span></span>
+<span><span class="co">## featureData</span></span>
+<span><span class="co">##   featureNames: DDR1 RFC2 ... NUS1P3 (16146 total)</span></span>
+<span><span class="co">##   fvarLabels: FeatureId gene_symbol</span></span>
+<span><span class="co">##   fvarMetadata: labelDescription</span></span>
+<span><span class="co">## experimentData: use 'experimentData(object)'</span></span>
+<span><span class="co">## Annotation:</span></span></code></pre>
 </div>
-<div id="combining-matrices" class="section level1">
-<h1 class="hasAnchor">
-<a href="#combining-matrices" class="anchor"></a>Combining matrices</h1>
+<div class="section level2">
+<h2 id="combining-matrices">Combining matrices<a class="anchor" aria-label="anchor" href="#combining-matrices"></a>
+</h2>
 <p>In order to faciliate analysis across experiments and studies, when multiple runs or cohorts are specified, <code>getGEMatrix</code> will attempt to combine the selected expression matrices into a single <code>ExpressionSet</code>.</p>
 <p>To avoid returning an empty object, it is usually recommended to use the summarized version of the matrices, thus combining by genes. This is almost always necessary when combining data from multiple studies.</p>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># Within a study</span>
-<span class="va">em269</span> <span class="op">&lt;-</span> <span class="va">sdy269</span><span class="op">$</span><span class="fu">getGEMatrix</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"SDY269_PBMC_TIV_Geo"</span>, <span class="st">"SDY269_PBMC_LAIV_Geo"</span><span class="op">)</span><span class="op">)</span></code></pre></div>
-<pre><code>## Returning SDY269_PBMC_TIV_Geo_summary_latest_eset from cache</code></pre>
-<pre><code>## Returning SDY269_PBMC_LAIV_Geo_summary_latest_eset from cache</code></pre>
-<pre><code>## Combining ExpressionSets</code></pre>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># Combining across studies</span>
-<span class="va">TIV_seasons</span> <span class="op">&lt;-</span> <span class="va">all</span><span class="op">$</span><span class="fu">getGEMatrix</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"SDY269_PBMC_TIV_Geo"</span>, <span class="st">"SDY144_Other_TIV_Geo"</span><span class="op">)</span>,
-                               outputType <span class="op">=</span> <span class="st">"summary"</span>,
-                               annotation <span class="op">=</span> <span class="st">"latest"</span><span class="op">)</span></code></pre></div>
-<pre><code>## Downloading matrix..</code></pre>
-<pre><code>## Constructing ExpressionSet</code></pre>
-<pre><code>## Returning SDY144_Other_TIV_Geo_summary_latest_eset from cache</code></pre>
-<pre><code>## Combining ExpressionSets</code></pre>
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Within a study</span></span>
+<span><span class="va">em269</span> <span class="op">&lt;-</span> <span class="va">sdy269</span><span class="op">$</span><span class="fu">getGEMatrix</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"SDY269_PBMC_TIV_Geo"</span>, <span class="st">"SDY269_PBMC_LAIV_Geo"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## Returning SDY269_PBMC_TIV_Geo_summary_latest_eset from cache</span></span></code></pre>
+<pre><code><span><span class="co">## Returning SDY269_PBMC_LAIV_Geo_summary_latest_eset from cache</span></span></code></pre>
+<pre><code><span><span class="co">## Combining ExpressionSets</span></span></code></pre>
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Combining across studies</span></span>
+<span><span class="va">TIV_seasons</span> <span class="op">&lt;-</span> <span class="va">all</span><span class="op">$</span><span class="fu">getGEMatrix</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"SDY269_PBMC_TIV_Geo"</span>, <span class="st">"SDY144_Other_TIV_Geo"</span><span class="op">)</span>,</span>
+<span>                               outputType <span class="op">=</span> <span class="st">"summary"</span>,</span>
+<span>                               annotation <span class="op">=</span> <span class="st">"latest"</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## Downloading matrix..</span></span></code></pre>
+<pre><code><span><span class="co">## Constructing ExpressionSet</span></span></code></pre>
+<pre><code><span><span class="co">## Returning SDY144_Other_TIV_Geo_summary_latest_eset from cache</span></span></code></pre>
+<pre><code><span><span class="co">## Combining ExpressionSets</span></span></code></pre>
 </div>
-<div id="caching" class="section level1">
-<h1 class="hasAnchor">
-<a href="#caching" class="anchor"></a>Caching</h1>
-<p>As explained in the introductory, the <code>ImmuneSpaceConnection</code> class is a <a href="https://cran.r-project.org/web/packages/R6/index.html"><code>R6</code></a> class. It means its objects have fields accessed by reference. As a consequence, they can be modified without making a copy of the entire object. ImmuneSpaceR uses this feature to store downloaded datasets and expression matrices. Subsequent calls to <code>getGEMatrix</code> with the same input will be faster.</p>
-<p>See <code><a href="https://r6.r-lib.org/reference/R6Class.html">?R6::R6Class</a></code> for more information about R6 class system.</p>
+<div class="section level2">
+<h2 id="caching">Caching<a class="anchor" aria-label="anchor" href="#caching"></a>
+</h2>
+<p>As explained in the introductory, the <code>ImmuneSpaceConnection</code> class is a <a href="https://cran.r-project.org/web/packages/R6/index.html" class="external-link"><code>R6</code></a> class. It means its objects have fields accessed by reference. As a consequence, they can be modified without making a copy of the entire object. ImmuneSpaceR uses this feature to store downloaded datasets and expression matrices. Subsequent calls to <code>getGEMatrix</code> with the same input will be faster.</p>
+<p>See <code><a href="https://r6.r-lib.org/reference/R6Class.html" class="external-link">?R6::R6Class</a></code> for more information about R6 class system.</p>
 <p>We can see a list of already downloaded runs and feature sets the <code>cache</code> field. This is not intended to be used for data manipulation and only displayed here to explain what gets cached.</p>
-<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span><span class="va">sdy269</span><span class="op">$</span><span class="va">cache</span><span class="op">)</span></code></pre></div>
-<pre><code>## [1] "GE_matrices"                             
-## [2] "SDY269_PBMC_TIV_Geo_sum_latest"          
-## [3] "featureset_18"                           
-## [4] "SDY269_PBMC_TIV_Geo_summary_latest_eset" 
-## [5] "SDY269_PBMC_LAIV_Geo_sum_latest"         
-## [6] "SDY269_PBMC_LAIV_Geo_summary_latest_eset"</code></pre>
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">sdy269</span><span class="op">$</span><span class="va">cache</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## [1] "GE_matrices"                             </span></span>
+<span><span class="co">## [2] "SDY269_PBMC_TIV_Geo_sum_latest"          </span></span>
+<span><span class="co">## [3] "featureset_18"                           </span></span>
+<span><span class="co">## [4] "SDY269_PBMC_TIV_Geo_summary_latest_eset" </span></span>
+<span><span class="co">## [5] "SDY269_PBMC_LAIV_Geo_sum_latest"         </span></span>
+<span><span class="co">## [6] "SDY269_PBMC_LAIV_Geo_summary_latest_eset"</span></span></code></pre>
 <p>If, for any reason, a specific marix needs to be redownloaded, the <code>reload</code> argument will clear the cache for that specific <code>getGEMatrix</code> call and download the file and metadata again.</p>
-<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">TIV_2008</span> <span class="op">&lt;-</span> <span class="va">sdy269</span><span class="op">$</span><span class="fu">getGEMatrix</span><span class="op">(</span><span class="st">"SDY269_PBMC_TIV_Geo"</span>, reload <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
-<pre><code>## Downloading matrix..</code></pre>
-<pre><code>## Constructing ExpressionSet</code></pre>
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">TIV_2008</span> <span class="op">&lt;-</span> <span class="va">sdy269</span><span class="op">$</span><span class="fu">getGEMatrix</span><span class="op">(</span><span class="st">"SDY269_PBMC_TIV_Geo"</span>, reload <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## Downloading matrix..</span></span></code></pre>
+<pre><code><span><span class="co">## Constructing ExpressionSet</span></span></code></pre>
 <p>Finally, it is possible to clear every cached expression matrix (and dataset).</p>
-<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">sdy269</span><span class="op">$</span><span class="fu">clearCache</span><span class="op">(</span><span class="op">)</span></code></pre></div>
+<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">sdy269</span><span class="op">$</span><span class="fu">clearCache</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>Again, the <code>cache</code> field should never be modified manually. When in doubt, simply reload the expression matrix.</p>
 </div>
-<div id="session-info" class="section level1">
-<h1 class="hasAnchor">
-<a href="#session-info" class="anchor"></a>Session info</h1>
-<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
-<pre><code>## R version 4.1.0 (2021-05-18)
-## Platform: x86_64-apple-darwin17.0 (64-bit)
-## Running under: macOS Catalina 10.15.7
-## 
-## Matrix products: default
-## BLAS:   /Library/Frameworks/R.framework/Versions/4.1/Resources/lib/libRblas.dylib
-## LAPACK: /Library/Frameworks/R.framework/Versions/4.1/Resources/lib/libRlapack.dylib
-## 
-## locale:
-## [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
-## 
-## attached base packages:
-## [1] stats     graphics  grDevices utils     datasets  methods   base     
-## 
-## other attached packages:
-## [1] ImmuneSpaceR_1.19.2 knitr_1.33         
-## 
-## loaded via a namespace (and not attached):
-##  [1] ncdfFlow_2.38.0       bitops_1.0-7          matrixStats_0.59.0   
-##  [4] fs_1.5.0              webshot_0.5.2         RColorBrewer_1.1-2   
-##  [7] httr_1.4.2            rprojroot_2.0.2       Rgraphviz_2.36.0     
-## [10] tools_4.1.0           utf8_1.2.1            R6_2.5.0             
-## [13] KernSmooth_2.23-20    BiocGenerics_0.38.0   lazyeval_0.2.2       
-## [16] colorspace_2.0-2      flowWorkspace_4.4.0   tidyselect_1.1.1     
-## [19] gridExtra_2.3         preprocessCore_1.54.0 curl_4.3.2           
-## [22] compiler_4.1.0        textshaping_0.3.5     graph_1.70.0         
-## [25] Biobase_2.52.0        TSP_1.1-10            xml2_1.3.2           
-## [28] desc_1.3.0            plotly_4.9.4.1        caTools_1.18.2       
-## [31] scales_1.1.1          pkgdown_1.6.1         systemfonts_1.0.2    
-## [34] stringr_1.4.0         digest_0.6.27         rmarkdown_2.9        
-## [37] base64enc_0.1-3       jpeg_0.1-8.1          pkgconfig_2.0.3      
-## [40] htmltools_0.5.1.1     fastmap_1.1.0         htmlwidgets_1.5.3    
-## [43] rlang_0.4.11          flowCore_2.4.0        generics_0.1.0       
-## [46] jsonlite_1.7.2        gtools_3.9.2          dendextend_1.15.1    
-## [49] dplyr_1.0.7           magrittr_2.0.1        RProtoBufLib_2.4.0   
-## [52] Rcpp_1.0.7            munsell_0.5.0         S4Vectors_0.30.0     
-## [55] fansi_0.5.0           viridis_0.6.1         lifecycle_1.0.0      
-## [58] stringi_1.7.3         yaml_2.2.1            zlibbioc_1.38.0      
-## [61] gplots_3.1.1          grid_4.1.0            parallel_4.1.0       
-## [64] crayon_1.4.1          lattice_0.20-44       pillar_1.6.1         
-## [67] Rlabkey_2.8.0         codetools_0.2-18      stats4_4.1.0         
-## [70] XML_3.99-0.6          glue_1.4.2            evaluate_0.14        
-## [73] latticeExtra_0.6-29   data.table_1.14.0     RcppParallel_5.1.4   
-## [76] foreach_1.5.1         png_0.1-7             vctrs_0.3.8          
-## [79] gtable_0.3.0          aws.s3_0.3.21         purrr_0.3.4          
-## [82] tidyr_1.1.3           heatmaply_1.2.1       assertthat_0.2.1     
-## [85] cachem_1.0.5          ggplot2_3.3.5         xfun_0.24            
-## [88] ragg_1.1.3            viridisLite_0.4.0     pheatmap_1.0.12      
-## [91] seriation_1.3.0       tibble_3.1.2          iterators_1.0.13     
-## [94] registry_0.5-1        cytolib_2.4.0         aws.signature_0.6.0  
-## [97] memoise_2.0.0         ellipsis_0.3.2</code></pre>
+<div class="section level2">
+<h2 id="session-info">Session info<a class="anchor" aria-label="anchor" href="#session-info"></a>
+</h2>
+<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## R version 4.2.1 (2022-06-23)</span></span>
+<span><span class="co">## Platform: x86_64-apple-darwin17.0 (64-bit)</span></span>
+<span><span class="co">## Running under: macOS Big Sur ... 10.16</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## Matrix products: default</span></span>
+<span><span class="co">## BLAS:   /Library/Frameworks/R.framework/Versions/4.2/Resources/lib/libRblas.0.dylib</span></span>
+<span><span class="co">## LAPACK: /Library/Frameworks/R.framework/Versions/4.2/Resources/lib/libRlapack.dylib</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## locale:</span></span>
+<span><span class="co">## [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## attached base packages:</span></span>
+<span><span class="co">## [1] stats     graphics  grDevices utils     datasets  methods   base     </span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## other attached packages:</span></span>
+<span><span class="co">## [1] ImmuneSpaceR_1.25.1 knitr_1.40         </span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## loaded via a namespace (and not attached):</span></span>
+<span><span class="co">##   [1] ncdfFlow_2.42.1       bitops_1.0-7          matrixStats_0.62.0   </span></span>
+<span><span class="co">##   [4] fs_1.5.2              webshot_0.5.3         RColorBrewer_1.1-3   </span></span>
+<span><span class="co">##   [7] httr_1.4.4            rprojroot_2.0.3       Rgraphviz_2.40.0     </span></span>
+<span><span class="co">##  [10] tools_4.2.1           bslib_0.4.0           utf8_1.2.2           </span></span>
+<span><span class="co">##  [13] R6_2.5.1              KernSmooth_2.23-20    lazyeval_0.2.2       </span></span>
+<span><span class="co">##  [16] BiocGenerics_0.42.0   colorspace_2.0-3      flowWorkspace_4.8.0  </span></span>
+<span><span class="co">##  [19] tidyselect_1.1.2      gridExtra_2.3         preprocessCore_1.58.0</span></span>
+<span><span class="co">##  [22] curl_4.3.2            compiler_4.2.1        textshaping_0.3.6    </span></span>
+<span><span class="co">##  [25] graph_1.74.0          cli_3.3.0             Biobase_2.56.0       </span></span>
+<span><span class="co">##  [28] TSP_1.2-1             xml2_1.3.3            desc_1.4.1           </span></span>
+<span><span class="co">##  [31] plotly_4.10.0         sass_0.4.2            caTools_1.18.2       </span></span>
+<span><span class="co">##  [34] scales_1.2.1          pkgdown_2.0.6         systemfonts_1.0.4    </span></span>
+<span><span class="co">##  [37] stringr_1.4.1         digest_0.6.29         rmarkdown_2.16       </span></span>
+<span><span class="co">##  [40] base64enc_0.1-3       jpeg_0.1-9            pkgconfig_2.0.3      </span></span>
+<span><span class="co">##  [43] htmltools_0.5.3       fastmap_1.1.0         htmlwidgets_1.5.4    </span></span>
+<span><span class="co">##  [46] rlang_1.0.5           flowCore_2.8.0        jquerylib_0.1.4      </span></span>
+<span><span class="co">##  [49] generics_0.1.3        jsonlite_1.8.0        gtools_3.9.3         </span></span>
+<span><span class="co">##  [52] dendextend_1.16.0     dplyr_1.0.10          magrittr_2.0.3       </span></span>
+<span><span class="co">##  [55] RProtoBufLib_2.8.0    interp_1.1-3          Rcpp_1.0.9           </span></span>
+<span><span class="co">##  [58] munsell_0.5.0         S4Vectors_0.34.0      fansi_1.0.3          </span></span>
+<span><span class="co">##  [61] viridis_0.6.2         lifecycle_1.0.1       stringi_1.7.8        </span></span>
+<span><span class="co">##  [64] yaml_2.3.5            zlibbioc_1.42.0       gplots_3.1.3         </span></span>
+<span><span class="co">##  [67] grid_4.2.1            deldir_1.0-6          lattice_0.20-45      </span></span>
+<span><span class="co">##  [70] pillar_1.8.1          Rlabkey_2.8.4         codetools_0.2-18     </span></span>
+<span><span class="co">##  [73] stats4_4.2.1          XML_3.99-0.10         glue_1.6.2           </span></span>
+<span><span class="co">##  [76] evaluate_0.16         latticeExtra_0.6-30   data.table_1.14.2    </span></span>
+<span><span class="co">##  [79] RcppParallel_5.1.5    foreach_1.5.2         png_0.1-7            </span></span>
+<span><span class="co">##  [82] vctrs_0.4.1           tidyr_1.2.0           gtable_0.3.1         </span></span>
+<span><span class="co">##  [85] aws.s3_0.3.21         purrr_0.3.4           heatmaply_1.3.0      </span></span>
+<span><span class="co">##  [88] assertthat_0.2.1      cachem_1.0.6          ggplot2_3.3.6        </span></span>
+<span><span class="co">##  [91] xfun_0.32             ragg_1.2.2            viridisLite_0.4.1    </span></span>
+<span><span class="co">##  [94] pheatmap_1.0.12       seriation_1.3.6       tibble_3.1.8         </span></span>
+<span><span class="co">##  [97] iterators_1.0.14      registry_0.5-1        cytolib_2.8.0        </span></span>
+<span><span class="co">## [100] aws.signature_0.6.0   memoise_2.0.1</span></span></code></pre>
 </div>
   </div>
 
@@ -491,11 +482,13 @@
 
 
       <footer><div class="copyright">
-  <p>Developed by Greg Finak, Renan Sauteraud, Mike Jiang, Gil Guday, Leo Dashevskiy, Evan Henrich, Ju Yeong Kim, Lauren Wolfe, Helen Miller, Raphael Gottardo, ImmuneSpace Package Maintainer.</p>
+  <p></p>
+<p>Developed by Greg Finak, Renan Sauteraud, Mike Jiang, Gil Guday, Leo Dashevskiy, Evan Henrich, Ju Yeong Kim, Lauren Wolfe, Helen Miller, Raphael Gottardo, ImmuneSpace Package Maintainer.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer>
@@ -503,6 +496,8 @@
 
   
 
+
+  
 
   </body>
 </html>

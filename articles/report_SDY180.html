@@ -32,6 +32,8 @@
 </script>
 </head>
 <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -44,23 +46,17 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ImmuneSpaceR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.19.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.25.1</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
 <li>
-  <a href="../index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -95,19 +91,19 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://www.immunespace.org/">
+  <a href="https://www.immunespace.org/" class="external-link">
     <span class="fa fa-globe"></span>
      
   </a>
 </li>
 <li>
-  <a href="https://twitter.com/ImmuneSpace">
+  <a href="https://twitter.com/ImmuneSpace" class="external-link">
     <span class="fa fa-twitter"></span>
      
   </a>
 </li>
 <li>
-  <a href="https://github.com/RGLab/ImmuneSpaceR">
+  <a href="https://github.com/RGLab/ImmuneSpaceR" class="external-link">
     <span class="fa fa-github"></span>
      
   </a>
@@ -126,69 +122,69 @@
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>SDY180: Abundance of Plasmablasts Measured by Multiparameter Flow Cytometry</h1>
-                        <h4 class="author">Renan Sauteraud</h4>
+                        <h4 data-toc-skip class="author">Renan Sauteraud</h4>
             
-            <h4 class="date">2021-07-20</h4>
+            <h4 data-toc-skip class="date">2022-09-07</h4>
       
-      <small class="dont-index">Source: <a href="https://github.com/RGLab/ImmuneSpaceR/blob/master/vignettes/report_SDY180.Rmd"><code>vignettes/report_SDY180.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/RGLab/ImmuneSpaceR/blob/HEAD/vignettes/report_SDY180.Rmd" class="external-link"><code>vignettes/report_SDY180.Rmd</code></a></small>
       <div class="hidden name"><code>report_SDY180.Rmd</code></div>
 
     </div>
 
     
     
-<p><code>ImmuneSpaceR</code> code produces consistent results, regardless of whether it is being executed from a module or a UI based report on the server or on a local machine. This vignette reproduces a report available on <a href="https://www.immunespace.org/reports/Studies/SDY180/runReport.view?reportId=module%20%3ASDY180%2Freports%2Fschemas%2Fstudy%2Fdemographics%2Fplasmablast_abundance.Rmd">the ImmuneSpace portal</a> using the same code.</p>
-<div id="summary" class="section level1">
-<h1 class="hasAnchor">
-<a href="#summary" class="anchor"></a>Summary</h1>
+<p><code>ImmuneSpaceR</code> code produces consistent results, regardless of whether it is being executed from a module or a UI based report on the server or on a local machine. This vignette reproduces a report available on <a href="https://www.immunespace.org/reports/Studies/SDY180/runReport.view?reportId=module%20%3ASDY180%2Freports%2Fschemas%2Fstudy%2Fdemographics%2Fplasmablast_abundance.Rmd" class="external-link">the ImmuneSpace portal</a> using the same code.</p>
+<div class="section level2">
+<h2 id="summary">Summary<a class="anchor" aria-label="anchor" href="#summary"></a>
+</h2>
 <p>This report investigate the abundance of plasmablast (and other B cell subsets) over time after vaccination with Pneumovax, Fluzone, or no vaccination (saline control group).</p>
 <p>It can be seen on the three figures below that the plasmablast subset peaks at day 7 in both vaccine groups, with a stronger and more durable response with Pneumovax.</p>
-<p>As expected, there is no clear peak in the saline group. These results are similar to those reported in Figure 6B of <a href="http://www.ncbi.nlm.nih.gov/pmc/articles/PMC3681204/" target="_BLANK">Obermoser et al. (2013)</a> published as part of the original study.</p>
+<p>As expected, there is no clear peak in the saline group. These results are similar to those reported in Figure 6B of <a href="http://www.ncbi.nlm.nih.gov/pmc/articles/PMC3681204/" target="_BLANK" class="external-link">Obermoser et al. (2013)</a> published as part of the original study.</p>
 </div>
-<div id="load-immunespacer-and-other-libraries" class="section level1">
-<h1 class="hasAnchor">
-<a href="#load-immunespacer-and-other-libraries" class="anchor"></a>Load ImmuneSpaceR and other libraries</h1>
+<div class="section level2">
+<h2 id="load-immunespacer-and-other-libraries">Load ImmuneSpaceR and other libraries<a class="anchor" aria-label="anchor" href="#load-immunespacer-and-other-libraries"></a>
+</h2>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/RGLab/ImmuneSpaceR">ImmuneSpaceR</a></span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org">ggplot2</a></span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://r-datatable.com">data.table</a></span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/RGLab/ImmuneSpaceR" class="external-link">ImmuneSpaceR</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-datatable.com" class="external-link">data.table</a></span><span class="op">)</span></span></code></pre></div>
 </div>
-<div id="connect-to-the-study-and-get-the-flow-cytometry-results" class="section level1">
-<h1 class="hasAnchor">
-<a href="#connect-to-the-study-and-get-the-flow-cytometry-results" class="anchor"></a>Connect to the study and get the flow cytometry results</h1>
+<div class="section level2">
+<h2 id="connect-to-the-study-and-get-the-flow-cytometry-results">Connect to the study and get the flow cytometry results<a class="anchor" aria-label="anchor" href="#connect-to-the-study-and-get-the-flow-cytometry-results"></a>
+</h2>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">study</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/CreateConnection.html">CreateConnection</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"SDY180"</span><span class="op">)</span><span class="op">)</span>
-<span class="va">dt_fcs</span> <span class="op">&lt;-</span> <span class="va">study</span><span class="op">$</span><span class="fu">getDataset</span><span class="op">(</span><span class="st">"fcs_analyzed_result"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">study</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/CreateConnection.html">CreateConnection</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"SDY180"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">dt_fcs</span> <span class="op">&lt;-</span> <span class="va">study</span><span class="op">$</span><span class="fu">getDataset</span><span class="op">(</span><span class="st">"fcs_analyzed_result"</span><span class="op">)</span></span></code></pre></div>
 </div>
-<div id="subset-the-population-of-interest" class="section level1">
-<h1 class="hasAnchor">
-<a href="#subset-the-population-of-interest" class="anchor"></a>Subset the population of interest</h1>
+<div class="section level2">
+<h2 id="subset-the-population-of-interest">Subset the population of interest<a class="anchor" aria-label="anchor" href="#subset-the-population-of-interest"></a>
+</h2>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">dt_fcs19</span> <span class="op">&lt;-</span> <span class="va">dt_fcs</span><span class="op">[</span><span class="va">population_name_reported</span> <span class="op">%like%</span> <span class="st">"Plasma"</span><span class="op">]</span>
-<span class="va">dt_fcs19</span> <span class="op">&lt;-</span> <span class="va">dt_fcs19</span><span class="op">[</span>, <span class="va">cohort</span> <span class="op">:=</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html">gsub</a></span><span class="op">(</span><span class="st">"Study g"</span>, <span class="st">"G"</span>, <span class="va">cohort</span><span class="op">)</span>, <span class="op">]</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">dt_fcs19</span> <span class="op">&lt;-</span> <span class="va">dt_fcs</span><span class="op">[</span><span class="va">population_name_reported</span> <span class="op"><a href="https://Rdatatable.gitlab.io/data.table/reference/like.html" class="external-link">%like%</a></span> <span class="st">"Plasma"</span><span class="op">]</span></span>
+<span><span class="va">dt_fcs19</span> <span class="op">&lt;-</span> <span class="va">dt_fcs19</span><span class="op">[</span>, <span class="va">cohort</span> <span class="op">:=</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">gsub</a></span><span class="op">(</span><span class="st">"Study g"</span>, <span class="st">"G"</span>, <span class="va">cohort</span><span class="op">)</span>, <span class="op">]</span></span></code></pre></div>
 </div>
-<div id="compute-the-median" class="section level1">
-<h1 class="hasAnchor">
-<a href="#compute-the-median" class="anchor"></a>Compute the median</h1>
+<div class="section level2">
+<h2 id="compute-the-median">Compute the median<a class="anchor" aria-label="anchor" href="#compute-the-median"></a>
+</h2>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">dt_fcs19_median</span> <span class="op">&lt;-</span> <span class="va">dt_fcs19</span><span class="op">[</span>, <span class="fu">.</span><span class="op">(</span>median_cell_reported <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/median.html">median</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/double.html">as.double</a></span><span class="op">(</span><span class="va">population_cell_number</span><span class="op">)</span> <span class="op">+</span> <span class="fl">1</span>,
-                   na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span>, by <span class="op">=</span> <span class="fu">.</span><span class="op">(</span><span class="va">cohort</span>,<span class="va">study_time_collected</span>, <span class="va">population_name_reported</span><span class="op">)</span><span class="op">]</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">dt_fcs19_median</span> <span class="op">&lt;-</span> <span class="va">dt_fcs19</span><span class="op">[</span>, <span class="fu">.</span><span class="op">(</span>median_cell_reported <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/median.html" class="external-link">median</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/double.html" class="external-link">as.double</a></span><span class="op">(</span><span class="va">population_cell_number</span><span class="op">)</span> <span class="op">+</span> <span class="fl">1</span>,</span>
+<span>                   na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span>, by <span class="op">=</span> <span class="fu">.</span><span class="op">(</span><span class="va">cohort</span>,<span class="va">study_time_collected</span>, <span class="va">population_name_reported</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
 </div>
-<div id="flow-cytometry-vs--elispot" class="section level1">
-<h1 class="hasAnchor">
-<a href="#flow-cytometry-vs--elispot" class="anchor"></a>Flow cytometry vs. ELISPOT</h1>
+<div class="section level2">
+<h2 id="flow-cytometry-vs--elispot">Flow cytometry vs. ELISPOT<a class="anchor" aria-label="anchor" href="#flow-cytometry-vs--elispot"></a>
+</h2>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span><span class="va">dt_fcs19</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html">as.factor</a></span><span class="op">(</span><span class="va">study_time_collected</span><span class="op">)</span>, y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/double.html">as.double</a></span><span class="op">(</span><span class="va">population_cell_number</span><span class="op">)</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_boxplot.html">geom_boxplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> 
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_jitter.html">geom_jitter</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> 
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html">scale_y_log10</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> 
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_grid.html">facet_grid</a></span><span class="op">(</span><span class="va">cohort</span><span class="op">~</span><span class="va">population_name_reported</span>, scale <span class="op">=</span> <span class="st">"free"</span><span class="op">)</span> <span class="op">+</span> 
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">xlab</a></span><span class="op">(</span><span class="st">"Time"</span><span class="op">)</span> <span class="op">+</span> 
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">ylab</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/expression.html">expression</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste</a></span><span class="op">(</span><span class="st">"Number of cells/"</span>, <span class="va">mu</span>, <span class="st">"l"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> 
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html">geom_line</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">dt_fcs19_median</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html">as.factor</a></span><span class="op">(</span><span class="va">study_time_collected</span><span class="op">)</span>, y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/double.html">as.double</a></span><span class="op">(</span><span class="va">median_cell_reported</span><span class="op">)</span>,
-  group <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>, color <span class="op">=</span> <span class="st">"black"</span>, size <span class="op">=</span> <span class="fl">1.2</span><span class="op">)</span> <span class="op">+</span> 
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Plasma cell abundance after vaccination"</span><span class="op">)</span> <span class="op">+</span> 
-  <span class="fu"><a href="../reference/theme_IS.html">theme_IS</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">dt_fcs19</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">as.factor</a></span><span class="op">(</span><span class="va">study_time_collected</span><span class="op">)</span>, y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/double.html" class="external-link">as.double</a></span><span class="op">(</span><span class="va">population_cell_number</span><span class="op">)</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_boxplot.html" class="external-link">geom_boxplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> </span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_jitter.html" class="external-link">geom_jitter</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> </span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_y_log10</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> </span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_grid.html" class="external-link">facet_grid</a></span><span class="op">(</span><span class="va">cohort</span><span class="op">~</span><span class="va">population_name_reported</span>, scale <span class="op">=</span> <span class="st">"free"</span><span class="op">)</span> <span class="op">+</span> </span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">xlab</a></span><span class="op">(</span><span class="st">"Time"</span><span class="op">)</span> <span class="op">+</span> </span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ylab</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"Number of cells/"</span>, <span class="va">mu</span>, <span class="st">"l"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">dt_fcs19_median</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">as.factor</a></span><span class="op">(</span><span class="va">study_time_collected</span><span class="op">)</span>, y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/double.html" class="external-link">as.double</a></span><span class="op">(</span><span class="va">median_cell_reported</span><span class="op">)</span>,</span>
+<span>  group <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>, color <span class="op">=</span> <span class="st">"black"</span>, size <span class="op">=</span> <span class="fl">1.2</span><span class="op">)</span> <span class="op">+</span> </span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Plasma cell abundance after vaccination"</span><span class="op">)</span> <span class="op">+</span> </span>
+<span>  <span class="fu"><a href="../reference/theme_IS.html">theme_IS</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p><img src="report_SDY180_files/figure-html/unnamed-chunk-1-1.png" width="700" style="display: block; margin: auto;"></p>
 </div>
   </div>
@@ -204,11 +200,13 @@
 
 
       <footer><div class="copyright">
-  <p>Developed by Greg Finak, Renan Sauteraud, Mike Jiang, Gil Guday, Leo Dashevskiy, Evan Henrich, Ju Yeong Kim, Lauren Wolfe, Helen Miller, Raphael Gottardo, ImmuneSpace Package Maintainer.</p>
+  <p></p>
+<p>Developed by Greg Finak, Renan Sauteraud, Mike Jiang, Gil Guday, Leo Dashevskiy, Evan Henrich, Ju Yeong Kim, Lauren Wolfe, Helen Miller, Raphael Gottardo, ImmuneSpace Package Maintainer.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer>
@@ -216,6 +214,8 @@
 
   
 
+
+  
 
   </body>
 </html>

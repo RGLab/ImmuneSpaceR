@@ -32,6 +32,8 @@
 </script>
 </head>
 <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -44,23 +46,17 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ImmuneSpaceR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.19.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.25.1</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
 <li>
-  <a href="../index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -95,19 +91,19 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://www.immunespace.org/">
+  <a href="https://www.immunespace.org/" class="external-link">
     <span class="fa fa-globe"></span>
      
   </a>
 </li>
 <li>
-  <a href="https://twitter.com/ImmuneSpace">
+  <a href="https://twitter.com/ImmuneSpace" class="external-link">
     <span class="fa fa-twitter"></span>
      
   </a>
 </li>
 <li>
-  <a href="https://github.com/RGLab/ImmuneSpaceR">
+  <a href="https://github.com/RGLab/ImmuneSpaceR" class="external-link">
     <span class="fa fa-github"></span>
      
   </a>
@@ -126,11 +122,11 @@
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>interactive_netrc() Function Walkthrough</h1>
-                        <h4 class="author">Lauren Wolfe</h4>
+                        <h4 data-toc-skip class="author">Lauren Wolfe</h4>
             
-            <h4 class="date">2021-07-20</h4>
+            <h4 data-toc-skip class="date">2022-09-07</h4>
       
-      <small class="dont-index">Source: <a href="https://github.com/RGLab/ImmuneSpaceR/blob/master/vignettes/interactiveNetrc.Rmd"><code>vignettes/interactiveNetrc.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/RGLab/ImmuneSpaceR/blob/HEAD/vignettes/interactiveNetrc.Rmd" class="external-link"><code>vignettes/interactiveNetrc.Rmd</code></a></small>
       <div class="hidden name"><code>interactiveNetrc.Rmd</code></div>
 
     </div>
@@ -138,26 +134,26 @@
     
     
 <p>This vignette shows detailed examples for all functionalities of the <code><a href="../reference/interactive_netrc.html">interactive_netrc()</a></code> function.</p>
-<div id="configuration" class="section level1">
-<h1 class="hasAnchor">
-<a href="#configuration" class="anchor"></a>Configuration</h1>
-<p>In order to connect to ImmuneSpace, you will need a <code>.netrc</code> file in your home directory that will contain a <code>machine</code> name (hostname of ImmuneSpace), and your ImmuneSpace <code>login</code> and <code>password</code>. See <a href="https://www.labkey.org/wiki/home/Documentation/page.view?name=netrc">here</a> for more information.</p>
+<div class="section level2">
+<h2 id="configuration">Configuration<a class="anchor" aria-label="anchor" href="#configuration"></a>
+</h2>
+<p>In order to connect to ImmuneSpace, you will need a <code>.netrc</code> file in your home directory that will contain a <code>machine</code> name (hostname of ImmuneSpace), and your ImmuneSpace <code>login</code> and <code>password</code>. See <a href="https://www.labkey.org/wiki/home/Documentation/page.view?name=netrc" class="external-link">here</a> for more information.</p>
 <p>A netrc file may look like this:</p>
 <pre><code>machine www.immunespace.org
 login myuser@domain.com
 password supersecretpassword</code></pre>
 </div>
-<div id="writing-your-netrc-file" class="section level1">
-<h1 class="hasAnchor">
-<a href="#writing-your-netrc-file" class="anchor"></a>Writing your netrc file</h1>
+<div class="section level2">
+<h2 id="writing-your-netrc-file">Writing your netrc file<a class="anchor" aria-label="anchor" href="#writing-your-netrc-file"></a>
+</h2>
 <p>There are two options when it comes to writing a netrc:</p>
 <ul>
-<li>If you’re familiar with the command-line interface, see <a href="https://rglab.github.io/ImmuneSpaceR/articles/Intro_to_ImmuneSpaceR.html">the introductory vignette</a>.</li>
+<li>If you’re familiar with the command-line interface, see <a href="https://rglab.github.io/ImmuneSpaceR/articles/Intro_to_ImmuneSpaceR.html" class="external-link">the introductory vignette</a>.</li>
 <li>For those less comfortable with the command line, there is the <code>interactive_netrc</code> function.</li>
 </ul>
-<div id="interactive_netrc" class="section level2">
-<h2 class="hasAnchor">
-<a href="#interactive_netrc" class="anchor"></a>interactive_netrc()</h2>
+<div class="section level3">
+<h3 id="interactive_netrc">interactive_netrc()<a class="anchor" aria-label="anchor" href="#interactive_netrc"></a>
+</h3>
 <p>The <code>interactive_netrc</code> function will:</p>
 <ul>
 <li>check if a netrc file already exists</li>
@@ -168,7 +164,7 @@ password supersecretpassword</code></pre>
 <p>Below is a gif demonstrating how to use this function:</p>
 <p><img src="img/createNetrc.gif" width="675"></p>
 <p>In the case that the user did not provide login information that results in a connection to ImmuneSpace, a netrc file will not be written to the user’s home directory, and the user can try the method again checking for typos.</p>
-<p>If the user still cannot connect to ImmuneSpace via the API, they might want to double check that they are registered and that their login information works for <a href="https://immunespace.org/">ImmuneSpace</a>.</p>
+<p>If the user still cannot connect to ImmuneSpace via the API, they might want to double check that they are registered and that their login information works for <a href="https://immunespace.org/" class="external-link">ImmuneSpace</a>.</p>
 <p>If a netrc file already exists, <code>interactive_netrc</code> will print the existing file to the console and ask the user if they wish to overwrite that file.</p>
 <ul>
 <li>
@@ -193,11 +189,13 @@ password supersecretpassword</code></pre>
 
 
       <footer><div class="copyright">
-  <p>Developed by Greg Finak, Renan Sauteraud, Mike Jiang, Gil Guday, Leo Dashevskiy, Evan Henrich, Ju Yeong Kim, Lauren Wolfe, Helen Miller, Raphael Gottardo, ImmuneSpace Package Maintainer.</p>
+  <p></p>
+<p>Developed by Greg Finak, Renan Sauteraud, Mike Jiang, Gil Guday, Leo Dashevskiy, Evan Henrich, Ju Yeong Kim, Lauren Wolfe, Helen Miller, Raphael Gottardo, ImmuneSpace Package Maintainer.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer>
@@ -205,6 +203,8 @@ password supersecretpassword</code></pre>
 
   
 
+
+  
 
   </body>
 </html>
