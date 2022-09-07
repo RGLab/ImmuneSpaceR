@@ -511,14 +511,12 @@ ISCon$set(
       fileSuffix <- ".immsig"
     } else {
       if (outputType == "summary") {
-        fileSuffix <- switch(
-          annotation,
+        fileSuffix <- switch(annotation,
           "latest" = ".summary",
           "default" = ".summary.orig"
         )
       } else {
-        fileSuffix <- switch(
-          outputType,
+        fileSuffix <- switch(outputType,
           "normalized" = "",
           "raw" = ".raw"
         )
@@ -877,14 +875,12 @@ ISCon$set(
 
 # Get the cache name of expression matrix by output type and annotation
 .getMatrixCacheName <- function(matrixName, outputType, annotation) {
-  outputSuffix <- switch(
-    outputType,
+  outputSuffix <- switch(outputType,
     "summary" = "_sum",
     "normalized" = "_norm",
     "raw" = "_raw"
   )
-  annotationSuffix <- switch(
-    annotation,
+  annotationSuffix <- switch(annotation,
     "latest" = "_latest",
     "default" = "_default",
     "ImmSig" = "_immsig"

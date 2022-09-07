@@ -42,6 +42,7 @@ globalVariables(
     "geo_accession",
     "expsample_accession",
     "feature_id",
-    "labkey.netrc.file"
+    "labkey.netrc.file",
+    "cell_number_preferred"
   )
 )

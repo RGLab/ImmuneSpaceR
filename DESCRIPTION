@@ -1,7 +1,7 @@
 Package: ImmuneSpaceR
 Type: Package
 Title: A Thin Wrapper around the ImmuneSpace Database
-Version: 1.19.2
+Version: 1.25.1
 Date: 2014-06-12
 Authors@R: c(person("Greg", "Finak", role = "aut"),
              person("Renan", "Sauteraud", role = "aut"),
@@ -28,7 +28,8 @@ License: GPL-2
 Suggests:
     knitr,
     testthat,
-    covr
+    covr,
+    withr
 Imports:
     utils,
     R6,
@@ -50,7 +51,8 @@ Imports:
     flowCore,
     flowWorkspace,
     digest
-RoxygenNote: 7.1.1
+RoxygenNote: 7.2.1
+Encoding: UTF-8
 Collate: 
     'CreateConnection.R'
     'ISCon.R'

@@ -336,36 +336,36 @@ up a .netrc file.")
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-listWorkspaces}{\code{ISCon$listWorkspaces()}}
-\item \href{#method-listGatingSets}{\code{ISCon$listGatingSets()}}
-\item \href{#method-summarizeCyto}{\code{ISCon$summarizeCyto()}}
-\item \href{#method-summarizeGatingSet}{\code{ISCon$summarizeGatingSet()}}
-\item \href{#method-loadGatingSet}{\code{ISCon$loadGatingSet()}}
-\item \href{#method-listDatasets}{\code{ISCon$listDatasets()}}
-\item \href{#method-getDataset}{\code{ISCon$getDataset()}}
-\item \href{#method-listGEMatrices}{\code{ISCon$listGEMatrices()}}
-\item \href{#method-listGEAnalysis}{\code{ISCon$listGEAnalysis()}}
-\item \href{#method-getGEMatrix}{\code{ISCon$getGEMatrix()}}
-\item \href{#method-getGEAnalysis}{\code{ISCon$getGEAnalysis()}}
-\item \href{#method-getGEInputs}{\code{ISCon$getGEInputs()}}
-\item \href{#method-getGEFiles}{\code{ISCon$getGEFiles()}}
-\item \href{#method-downloadGEFiles}{\code{ISCon$downloadGEFiles()}}
-\item \href{#method-addTreatment}{\code{ISCon$addTreatment()}}
-\item \href{#method-mapSampleNames}{\code{ISCon$mapSampleNames()}}
-\item \href{#method-listParticipantGroups}{\code{ISCon$listParticipantGroups()}}
-\item \href{#method-getParticipantData}{\code{ISCon$getParticipantData()}}
-\item \href{#method-listParticipantGEMatrices}{\code{ISCon$listParticipantGEMatrices()}}
-\item \href{#method-getParticipantGEMatrix}{\code{ISCon$getParticipantGEMatrix()}}
-\item \href{#method-plot}{\code{ISCon$plot()}}
-\item \href{#method-print}{\code{ISCon$print()}}
-\item \href{#method-clearCache}{\code{ISCon$clearCache()}}
-\item \href{#method-new}{\code{ISCon$new()}}
-\item \href{#method-clone}{\code{ISCon$clone()}}
+\item \href{#method-ImmuneSpaceConnection-listWorkspaces}{\code{ISCon$listWorkspaces()}}
+\item \href{#method-ImmuneSpaceConnection-listGatingSets}{\code{ISCon$listGatingSets()}}
+\item \href{#method-ImmuneSpaceConnection-summarizeCyto}{\code{ISCon$summarizeCyto()}}
+\item \href{#method-ImmuneSpaceConnection-summarizeGatingSet}{\code{ISCon$summarizeGatingSet()}}
+\item \href{#method-ImmuneSpaceConnection-loadGatingSet}{\code{ISCon$loadGatingSet()}}
+\item \href{#method-ImmuneSpaceConnection-listDatasets}{\code{ISCon$listDatasets()}}
+\item \href{#method-ImmuneSpaceConnection-getDataset}{\code{ISCon$getDataset()}}
+\item \href{#method-ImmuneSpaceConnection-listGEMatrices}{\code{ISCon$listGEMatrices()}}
+\item \href{#method-ImmuneSpaceConnection-listGEAnalysis}{\code{ISCon$listGEAnalysis()}}
+\item \href{#method-ImmuneSpaceConnection-getGEMatrix}{\code{ISCon$getGEMatrix()}}
+\item \href{#method-ImmuneSpaceConnection-getGEAnalysis}{\code{ISCon$getGEAnalysis()}}
+\item \href{#method-ImmuneSpaceConnection-getGEInputs}{\code{ISCon$getGEInputs()}}
+\item \href{#method-ImmuneSpaceConnection-getGEFiles}{\code{ISCon$getGEFiles()}}
+\item \href{#method-ImmuneSpaceConnection-downloadGEFiles}{\code{ISCon$downloadGEFiles()}}
+\item \href{#method-ImmuneSpaceConnection-addTreatment}{\code{ISCon$addTreatment()}}
+\item \href{#method-ImmuneSpaceConnection-mapSampleNames}{\code{ISCon$mapSampleNames()}}
+\item \href{#method-ImmuneSpaceConnection-listParticipantGroups}{\code{ISCon$listParticipantGroups()}}
+\item \href{#method-ImmuneSpaceConnection-getParticipantData}{\code{ISCon$getParticipantData()}}
+\item \href{#method-ImmuneSpaceConnection-listParticipantGEMatrices}{\code{ISCon$listParticipantGEMatrices()}}
+\item \href{#method-ImmuneSpaceConnection-getParticipantGEMatrix}{\code{ISCon$getParticipantGEMatrix()}}
+\item \href{#method-ImmuneSpaceConnection-plot}{\code{ISCon$plot()}}
+\item \href{#method-ImmuneSpaceConnection-print}{\code{ISCon$print()}}
+\item \href{#method-ImmuneSpaceConnection-clearCache}{\code{ISCon$clearCache()}}
+\item \href{#method-ImmuneSpaceConnection-new}{\code{ISCon$new()}}
+\item \href{#method-ImmuneSpaceConnection-clone}{\code{ISCon$clone()}}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-listWorkspaces"></a>}}
-\if{latex}{\out{\hypertarget{method-listWorkspaces}{}}}
+\if{html}{\out{<a id="method-ImmuneSpaceConnection-listWorkspaces"></a>}}
+\if{latex}{\out{\hypertarget{method-ImmuneSpaceConnection-listWorkspaces}{}}}
 \subsection{Method \code{listWorkspaces()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ISCon$listWorkspaces(reload = FALSE)}\if{html}{\out{</div>}}
@@ -373,8 +373,8 @@ up a .netrc file.")
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-listGatingSets"></a>}}
-\if{latex}{\out{\hypertarget{method-listGatingSets}{}}}
+\if{html}{\out{<a id="method-ImmuneSpaceConnection-listGatingSets"></a>}}
+\if{latex}{\out{\hypertarget{method-ImmuneSpaceConnection-listGatingSets}{}}}
 \subsection{Method \code{listGatingSets()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ISCon$listGatingSets(reload = FALSE)}\if{html}{\out{</div>}}
@@ -382,8 +382,8 @@ up a .netrc file.")
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-summarizeCyto"></a>}}
-\if{latex}{\out{\hypertarget{method-summarizeCyto}{}}}
+\if{html}{\out{<a id="method-ImmuneSpaceConnection-summarizeCyto"></a>}}
+\if{latex}{\out{\hypertarget{method-ImmuneSpaceConnection-summarizeCyto}{}}}
 \subsection{Method \code{summarizeCyto()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ISCon$summarizeCyto()}\if{html}{\out{</div>}}
@@ -391,8 +391,8 @@ up a .netrc file.")
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-summarizeGatingSet"></a>}}
-\if{latex}{\out{\hypertarget{method-summarizeGatingSet}{}}}
+\if{html}{\out{<a id="method-ImmuneSpaceConnection-summarizeGatingSet"></a>}}
+\if{latex}{\out{\hypertarget{method-ImmuneSpaceConnection-summarizeGatingSet}{}}}
 \subsection{Method \code{summarizeGatingSet()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ISCon$summarizeGatingSet(gatingSet)}\if{html}{\out{</div>}}
@@ -400,8 +400,8 @@ up a .netrc file.")
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-loadGatingSet"></a>}}
-\if{latex}{\out{\hypertarget{method-loadGatingSet}{}}}
+\if{html}{\out{<a id="method-ImmuneSpaceConnection-loadGatingSet"></a>}}
+\if{latex}{\out{\hypertarget{method-ImmuneSpaceConnection-loadGatingSet}{}}}
 \subsection{Method \code{loadGatingSet()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ISCon$loadGatingSet(gatingSet)}\if{html}{\out{</div>}}
@@ -409,8 +409,8 @@ up a .netrc file.")
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-listDatasets"></a>}}
-\if{latex}{\out{\hypertarget{method-listDatasets}{}}}
+\if{html}{\out{<a id="method-ImmuneSpaceConnection-listDatasets"></a>}}
+\if{latex}{\out{\hypertarget{method-ImmuneSpaceConnection-listDatasets}{}}}
 \subsection{Method \code{listDatasets()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ISCon$listDatasets(output = c("datasets", "expression"))}\if{html}{\out{</div>}}
@@ -418,8 +418,8 @@ up a .netrc file.")
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-getDataset"></a>}}
-\if{latex}{\out{\hypertarget{method-getDataset}{}}}
+\if{html}{\out{<a id="method-ImmuneSpaceConnection-getDataset"></a>}}
+\if{latex}{\out{\hypertarget{method-ImmuneSpaceConnection-getDataset}{}}}
 \subsection{Method \code{getDataset()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ISCon$getDataset(
@@ -434,8 +434,8 @@ up a .netrc file.")
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-listGEMatrices"></a>}}
-\if{latex}{\out{\hypertarget{method-listGEMatrices}{}}}
+\if{html}{\out{<a id="method-ImmuneSpaceConnection-listGEMatrices"></a>}}
+\if{latex}{\out{\hypertarget{method-ImmuneSpaceConnection-listGEMatrices}{}}}
 \subsection{Method \code{listGEMatrices()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ISCon$listGEMatrices(verbose = FALSE, reload = FALSE, participantIds = NULL)}\if{html}{\out{</div>}}
@@ -443,8 +443,8 @@ up a .netrc file.")
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-listGEAnalysis"></a>}}
-\if{latex}{\out{\hypertarget{method-listGEAnalysis}{}}}
+\if{html}{\out{<a id="method-ImmuneSpaceConnection-listGEAnalysis"></a>}}
+\if{latex}{\out{\hypertarget{method-ImmuneSpaceConnection-listGEAnalysis}{}}}
 \subsection{Method \code{listGEAnalysis()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ISCon$listGEAnalysis()}\if{html}{\out{</div>}}
@@ -452,8 +452,8 @@ up a .netrc file.")
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-getGEMatrix"></a>}}
-\if{latex}{\out{\hypertarget{method-getGEMatrix}{}}}
+\if{html}{\out{<a id="method-ImmuneSpaceConnection-getGEMatrix"></a>}}
+\if{latex}{\out{\hypertarget{method-ImmuneSpaceConnection-getGEMatrix}{}}}
 \subsection{Method \code{getGEMatrix()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ISCon$getGEMatrix(
@@ -468,8 +468,8 @@ up a .netrc file.")
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-getGEAnalysis"></a>}}
-\if{latex}{\out{\hypertarget{method-getGEAnalysis}{}}}
+\if{html}{\out{<a id="method-ImmuneSpaceConnection-getGEAnalysis"></a>}}
+\if{latex}{\out{\hypertarget{method-ImmuneSpaceConnection-getGEAnalysis}{}}}
 \subsection{Method \code{getGEAnalysis()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ISCon$getGEAnalysis(...)}\if{html}{\out{</div>}}
@@ -477,8 +477,8 @@ up a .netrc file.")
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-getGEInputs"></a>}}
-\if{latex}{\out{\hypertarget{method-getGEInputs}{}}}
+\if{html}{\out{<a id="method-ImmuneSpaceConnection-getGEInputs"></a>}}
+\if{latex}{\out{\hypertarget{method-ImmuneSpaceConnection-getGEInputs}{}}}
 \subsection{Method \code{getGEInputs()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ISCon$getGEInputs()}\if{html}{\out{</div>}}
@@ -486,8 +486,8 @@ up a .netrc file.")
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-getGEFiles"></a>}}
-\if{latex}{\out{\hypertarget{method-getGEFiles}{}}}
+\if{html}{\out{<a id="method-ImmuneSpaceConnection-getGEFiles"></a>}}
+\if{latex}{\out{\hypertarget{method-ImmuneSpaceConnection-getGEFiles}{}}}
 \subsection{Method \code{getGEFiles()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ISCon$getGEFiles(files, destdir = ".", quiet = FALSE)}\if{html}{\out{</div>}}
@@ -495,8 +495,8 @@ up a .netrc file.")
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-downloadGEFiles"></a>}}
-\if{latex}{\out{\hypertarget{method-downloadGEFiles}{}}}
+\if{html}{\out{<a id="method-ImmuneSpaceConnection-downloadGEFiles"></a>}}
+\if{latex}{\out{\hypertarget{method-ImmuneSpaceConnection-downloadGEFiles}{}}}
 \subsection{Method \code{downloadGEFiles()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ISCon$downloadGEFiles(files, destdir = ".")}\if{html}{\out{</div>}}
@@ -504,8 +504,8 @@ up a .netrc file.")
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-addTreatment"></a>}}
-\if{latex}{\out{\hypertarget{method-addTreatment}{}}}
+\if{html}{\out{<a id="method-ImmuneSpaceConnection-addTreatment"></a>}}
+\if{latex}{\out{\hypertarget{method-ImmuneSpaceConnection-addTreatment}{}}}
 \subsection{Method \code{addTreatment()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ISCon$addTreatment(expressionSet)}\if{html}{\out{</div>}}
@@ -513,8 +513,8 @@ up a .netrc file.")
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-mapSampleNames"></a>}}
-\if{latex}{\out{\hypertarget{method-mapSampleNames}{}}}
+\if{html}{\out{<a id="method-ImmuneSpaceConnection-mapSampleNames"></a>}}
+\if{latex}{\out{\hypertarget{method-ImmuneSpaceConnection-mapSampleNames}{}}}
 \subsection{Method \code{mapSampleNames()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ISCon$mapSampleNames(EM = NULL, colType = "participant_id")}\if{html}{\out{</div>}}
@@ -522,8 +522,8 @@ up a .netrc file.")
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-listParticipantGroups"></a>}}
-\if{latex}{\out{\hypertarget{method-listParticipantGroups}{}}}
+\if{html}{\out{<a id="method-ImmuneSpaceConnection-listParticipantGroups"></a>}}
+\if{latex}{\out{\hypertarget{method-ImmuneSpaceConnection-listParticipantGroups}{}}}
 \subsection{Method \code{listParticipantGroups()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ISCon$listParticipantGroups()}\if{html}{\out{</div>}}
@@ -531,8 +531,8 @@ up a .netrc file.")
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-getParticipantData"></a>}}
-\if{latex}{\out{\hypertarget{method-getParticipantData}{}}}
+\if{html}{\out{<a id="method-ImmuneSpaceConnection-getParticipantData"></a>}}
+\if{latex}{\out{\hypertarget{method-ImmuneSpaceConnection-getParticipantData}{}}}
 \subsection{Method \code{getParticipantData()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ISCon$getParticipantData(
@@ -548,8 +548,8 @@ up a .netrc file.")
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-listParticipantGEMatrices"></a>}}
-\if{latex}{\out{\hypertarget{method-listParticipantGEMatrices}{}}}
+\if{html}{\out{<a id="method-ImmuneSpaceConnection-listParticipantGEMatrices"></a>}}
+\if{latex}{\out{\hypertarget{method-ImmuneSpaceConnection-listParticipantGEMatrices}{}}}
 \subsection{Method \code{listParticipantGEMatrices()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ISCon$listParticipantGEMatrices(group, verbose = FALSE)}\if{html}{\out{</div>}}
@@ -557,8 +557,8 @@ up a .netrc file.")
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-getParticipantGEMatrix"></a>}}
-\if{latex}{\out{\hypertarget{method-getParticipantGEMatrix}{}}}
+\if{html}{\out{<a id="method-ImmuneSpaceConnection-getParticipantGEMatrix"></a>}}
+\if{latex}{\out{\hypertarget{method-ImmuneSpaceConnection-getParticipantGEMatrix}{}}}
 \subsection{Method \code{getParticipantGEMatrix()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ISCon$getParticipantGEMatrix(
@@ -571,8 +571,8 @@ up a .netrc file.")
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-plot"></a>}}
-\if{latex}{\out{\hypertarget{method-plot}{}}}
+\if{html}{\out{<a id="method-ImmuneSpaceConnection-plot"></a>}}
+\if{latex}{\out{\hypertarget{method-ImmuneSpaceConnection-plot}{}}}
 \subsection{Method \code{plot()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ISCon$plot(...)}\if{html}{\out{</div>}}
@@ -580,8 +580,8 @@ up a .netrc file.")
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-print"></a>}}
-\if{latex}{\out{\hypertarget{method-print}{}}}
+\if{html}{\out{<a id="method-ImmuneSpaceConnection-print"></a>}}
+\if{latex}{\out{\hypertarget{method-ImmuneSpaceConnection-print}{}}}
 \subsection{Method \code{print()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ISCon$print()}\if{html}{\out{</div>}}
@@ -589,8 +589,8 @@ up a .netrc file.")
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-clearCache"></a>}}
-\if{latex}{\out{\hypertarget{method-clearCache}{}}}
+\if{html}{\out{<a id="method-ImmuneSpaceConnection-clearCache"></a>}}
+\if{latex}{\out{\hypertarget{method-ImmuneSpaceConnection-clearCache}{}}}
 \subsection{Method \code{clearCache()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ISCon$clearCache()}\if{html}{\out{</div>}}
@@ -598,8 +598,8 @@ up a .netrc file.")
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-new"></a>}}
-\if{latex}{\out{\hypertarget{method-new}{}}}
+\if{html}{\out{<a id="method-ImmuneSpaceConnection-new"></a>}}
+\if{latex}{\out{\hypertarget{method-ImmuneSpaceConnection-new}{}}}
 \subsection{Method \code{new()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ISCon$new(
@@ -613,8 +613,8 @@ up a .netrc file.")
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-clone}{}}}
+\if{html}{\out{<a id="method-ImmuneSpaceConnection-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-ImmuneSpaceConnection-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{
