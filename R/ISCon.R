@@ -511,15 +511,11 @@ ISCon$set(
 
   if (!inherits(nf, "try-error") && !is.null(nf)) {
     curlOptions <- labkey.setCurlOptions(
-      ssl_verifyhost = 2,
-      sslversion = 1,
       netrc_file = nf,
       useragent = useragent
     )
   } else {
     curlOptions <- labkey.setCurlOptions(
-      ssl_verifyhost = 2,
-      sslversion = 1,
       useragent = useragent
     )
   }
