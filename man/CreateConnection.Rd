@@ -26,8 +26,8 @@ login.}
 troubleshooting.}
 
 \item{onTest}{A \code{"logical"} whether to connect to the test server
-(https://test.immunespace.org/) instead of the production server
-(https://www.immunespace.org/).}
+(https://datatools-dev.immunespace.org/) instead of the production server
+(https://datatools.immunespace.org/).}
 }
 \value{
 an instance of an \code{ImmuneSpaceConnection}

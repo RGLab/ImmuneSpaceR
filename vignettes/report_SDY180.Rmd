@@ -27,7 +27,7 @@ if (!any(file.exists("~/.netrc", "~/_netrc"))) {
 
 
 
-`ImmuneSpaceR` code produces consistent results, regardless of whether it is being executed from a module or a UI based report on the server or on a local machine. This vignette reproduces a report available on <a href="https://www.immunespace.org/reports/Studies/SDY180/runReport.view?reportId=module %3ASDY180%2Freports%2Fschemas%2Fstudy%2Fdemographics%2Fplasmablast_abundance.Rmd">the ImmuneSpace portal</a> using the same code.
+`ImmuneSpaceR` code produces consistent results, regardless of whether it is being executed from a module or a UI based report on the server or on a local machine. This vignette reproduces a report available on <a href="https://datatools.immunespace.org/reports/Studies/SDY180/runReport.view?reportId=module %3ASDY180%2Freports%2Fschemas%2Fstudy%2Fdemographics%2Fplasmablast_abundance.Rmd">the ImmuneSpace portal</a> using the same code.
 
 
 
