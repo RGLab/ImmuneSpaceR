@@ -6,7 +6,7 @@ template:
 navbar:
   right:
     - icon: fa-globe
-      href: https://www.immunespace.org/
+      href: https://datatools.immunespace.org/
     - icon: fa-twitter
       href: https://twitter.com/ImmuneSpace
     - icon: fa-github

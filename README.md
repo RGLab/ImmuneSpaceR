@@ -11,8 +11,9 @@
 [![Updated](https://bioconductor.org/shields/lastcommit/release/bioc/ImmuneSpaceR.svg)](http://bioconductor.org/packages/release/bioc/news/ImmuneSpaceR/NEWS)
 <!-- badges: end -->
 
+> Please update the URL (machine name) to `datatools.immunespace.org` from `www.immunespace.org` in your `.netrc` file.
 
-A thin wrapper around Rlabkey to access the [ImmuneSpace](https://www.immunespace.org) database from R.
+A thin wrapper around Rlabkey to access the [ImmuneSpace Data & Tools Portal](https://datatools.immunespace.org) from R.
 
 This package simplifies access to the [HIPC](https://www.immuneprofiling.org/) ImmuneSpace database for R programmers. It takes advantage of the standardization of the database to hide all the [`Rlabkey`](https://cran.r-project.org/web/packages/Rlabkey/index.html) specific code away from the user. The study-specific datasets can be accessed via an object-oriented paradigm.
 
@@ -40,7 +41,7 @@ remotes::install_github("RGLab/ImmuneSpaceR")
 
 The ImmuneSpace Portal can be accessed via `ImmuneSpaceR` with the user's credentials. A `.netrc` file storing login and password information is required.
 
-1. [Register](https://www.immunespace.org/login/home/register.view?)
+1. [Register](https://datatools.immunespace.org/login/home/register.view?)
 1. Create a netrc file with your ImmuneSpace credetntials using `interactive_netrc()` function in R:
 
 ``` r
@@ -103,7 +104,7 @@ con$plot("hai")
 
 ## Examples & Documentation
 
-For more advanced examples and detailed documentation, see [the package vignettes](http://rglab.github.io/ImmuneSpaceR/articles/) and the reports available on [ImmuneSpace](https://www.immunespace.org/).
+For more advanced examples and detailed documentation, see [the package vignettes](http://rglab.github.io/ImmuneSpaceR/articles/) and the reports available on [ImmuneSpace](https://datatools.immunespace.org/).
 
 
 
