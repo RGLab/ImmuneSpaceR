@@ -41,9 +41,9 @@ jobs:
       - name: Set environment for branch
         run: |
           if [[ $GITHUB_REF == "refs/heads/main" ]]; then
-              echo "ISR_machine=www.immunespace.org" >> "$GITHUB_ENV"
+              echo "ISR_machine=datatools.immunespace.org" >> "$GITHUB_ENV"
           else
-              echo "ISR_machine=test.immunespace.org" >> "$GITHUB_ENV"
+              echo "ISR_machine=datatools-dev.immunespace.org" >> "$GITHUB_ENV"
           fi
         shell: bash
 

@@ -33,11 +33,11 @@
 #' \code{.netrc} file in \code{"~/"} the user's home directory. The
 #' \code{.netrc} file should contain a \code{machine}, \code{login}, and
 #' \code{password} entry to allow access to ImmuneSpace, where \code{machine} is
-#' the host name like "www.immunespace.org".
+#' the host name like "datatools.immunespace.org".
 #'
 #' It can also use global variables \code{labkey.url.base}, and
 #' \code{labkey.url.path}, to access a study. \code{labkey.url.base} should be
-#' \code{https://www.immunespace.org/}. \code{labkey.url.path} should be
+#' \code{https://datatools.immunespace.org/}. \code{labkey.url.path} should be
 #' \code{/Studies/studyname}, where 'studyname' is the accession number of the
 #' study.
 #'
@@ -403,7 +403,7 @@ ISCon$set(
 
 
 .get_host <- function(onTest = FALSE) {
-  ifelse(onTest, "test.immunespace.org", "www.immunespace.org")
+  ifelse(onTest, "datatools-dev.immunespace.org", "datatools.immunespace.org")
 }
 
 
@@ -511,15 +511,11 @@ ISCon$set(
 
   if (!inherits(nf, "try-error") && !is.null(nf)) {
     curlOptions <- labkey.setCurlOptions(
-      ssl_verifyhost = 2,
-      sslversion = 1,
       netrc_file = nf,
       useragent = useragent
     )
   } else {
     curlOptions <- labkey.setCurlOptions(
-      ssl_verifyhost = 2,
-      sslversion = 1,
       useragent = useragent
     )
   }

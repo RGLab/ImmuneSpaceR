@@ -29,7 +29,7 @@ In order to connect to ImmuneSpace, you will need a `.netrc` file in your home d
 A netrc file may look like this:
 
 ```
-machine www.immunespace.org
+machine datatools.immunespace.org
 login myuser@domain.com
 password supersecretpassword
 ```
@@ -58,7 +58,7 @@ Below is a gif demonstrating how to use this function:
 
 In the case that the user did not provide login information that results in a connection to ImmuneSpace, a netrc file will not be written to the user's home directory, and the user can try the method again checking for typos.
 
-If the user still cannot connect to ImmuneSpace via the API, they might want to double check that they are registered and that their login information works for [ImmuneSpace](https://immunespace.org/).
+If the user still cannot connect to ImmuneSpace via the API, they might want to double check that they are registered and that their login information works for [ImmuneSpace](https://datatools.immunespace.org/).
 
 If a netrc file already exists, `interactive_netrc` will print the existing file to the console and ask the user if they wish to overwrite that file.
 
