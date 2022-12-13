@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>A Thin Wrapper around the ImmuneSpace Database • ImmuneSpaceR</title>
+<title>A Thin Wrapper around the ImmuneSpace Data and Tools Portal • ImmuneSpaceR</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
 <link rel="apple-touch-icon" type="image/png" sizes="180x180" href="apple-touch-icon.png">
@@ -17,10 +17,10 @@
 <script src="bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="pkgdown.css" rel="stylesheet">
-<script src="pkgdown.js"></script><meta property="og:title" content="A Thin Wrapper around the ImmuneSpace Database">
+<script src="pkgdown.js"></script><meta property="og:title" content="A Thin Wrapper around the ImmuneSpace Data and Tools Portal">
 <meta property="og:description" content="Provides a convenient API for accessing data sets within
-    ImmuneSpace (www.immunespace.org), the data repository and
-    analysis platform of the Human Immunology Project Consortium
+    ImmuneSpace Data and Tools Portal (datatools.immunespace.org), the data
+    repository and analysis platform of the Human Immunology Project Consortium
     (HIPC).">
 <meta property="og:image" content="/logo.png">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
@@ -49,7 +49,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">ImmuneSpaceR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.25.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.25.2</span>
       </span>
     </div>
 
@@ -94,7 +94,7 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://www.immunespace.org/" class="external-link">
+  <a href="https://datatools.immunespace.org/" class="external-link">
     <span class="fa fa-globe"></span>
      
   </a>
@@ -128,7 +128,8 @@
 </h1></div>
 <!-- badges: start -->
 <p><a href="http://bioconductor.org/packages/release/bioc/html/ImmuneSpaceR.html" class="external-link"><img src="http://www.bioconductor.org/shields/years-in-bioc/ImmuneSpaceR.svg" alt="Years in BioC"></a> <a href="https://bioconductor.org/checkResults/release/bioc-LATEST/ImmuneSpaceR" class="external-link"><img src="http://www.bioconductor.org/shields/build/release/bioc/ImmuneSpaceR.svg" alt="BioC status"></a> <a href="https://bioconductor.org/packages/stats/bioc/ImmuneSpaceR/" class="external-link"><img src="http://www.bioconductor.org/shields/downloads/ImmuneSpaceR.svg" alt="Downloads"></a> <a href="http://bioconductor.org/packages/release/bioc/news/ImmuneSpaceR/NEWS" class="external-link"><img src="https://bioconductor.org/shields/lastcommit/release/bioc/ImmuneSpaceR.svg" alt="Updated"></a> <!-- badges: end --></p>
-<p>A thin wrapper around Rlabkey to access the <a href="https://www.immunespace.org" class="external-link">ImmuneSpace</a> database from R.</p>
+<blockquote><p>Please update the URL (machine name) to <code>datatools.immunespace.org</code> from <code>www.immunespace.org</code> in your <code>.netrc</code> file.</p></blockquote>
+<p>A thin wrapper around Rlabkey to access the <a href="https://datatools.immunespace.org" class="external-link">ImmuneSpace Data &amp; Tools Portal</a> from R.</p>
 <p>This package simplifies access to the <a href="https://www.immuneprofiling.org/" class="external-link">HIPC</a> ImmuneSpace database for R programmers. It takes advantage of the standardization of the database to hide all the <a href="https://cran.r-project.org/web/packages/Rlabkey/index.html" class="external-link"><code>Rlabkey</code></a> specific code away from the user. The study-specific datasets can be accessed via an object-oriented paradigm.</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
@@ -136,7 +137,7 @@
 <p>Install from <a href="http://bioconductor.org/packages/release/bioc/html/ImmuneSpaceR.html" class="external-link">Bioconductor</a>:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"BiocManager"</span><span class="op">)</span></span>
-<span><span class="fu">BiocManager</span><span class="fu">::</span><span class="fu">install</span><span class="op">(</span><span class="st">"ImmuneSpaceR"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">BiocManager</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/BiocManager/man/install.html" class="external-link">install</a></span><span class="op">(</span><span class="st">"ImmuneSpaceR"</span><span class="op">)</span></span></code></pre></div>
 <p>Or install the latest development version via <a href="https://cran.r-project.org/web/packages/remotes/index.html" class="external-link"><code>remotes</code></a>:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"remotes"</span><span class="op">)</span></span>
@@ -147,7 +148,7 @@
 </h2>
 <p>The ImmuneSpace Portal can be accessed via <code>ImmuneSpaceR</code> with the user’s credentials. A <code>.netrc</code> file storing login and password information is required.</p>
 <ol style="list-style-type: decimal">
-<li><a href="https://www.immunespace.org/login/home/register.view?" class="external-link">Register</a></li>
+<li><a href="https://datatools.immunespace.org/login/home/register.view?" class="external-link">Register</a></li>
 <li>Create a netrc file with your ImmuneSpace credetntials using <code><a href="reference/interactive_netrc.html">interactive_netrc()</a></code> function in R:</li>
 </ol>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
@@ -196,7 +197,7 @@
 <div class="section level2">
 <h2 id="examples--documentation">Examples &amp; Documentation<a class="anchor" aria-label="anchor" href="#examples--documentation"></a>
 </h2>
-<p>For more advanced examples and detailed documentation, see <a href="http://rglab.github.io/ImmuneSpaceR/articles/" class="external-link">the package vignettes</a> and the reports available on <a href="https://www.immunespace.org/" class="external-link">ImmuneSpace</a>.</p>
+<p>For more advanced examples and detailed documentation, see <a href="http://rglab.github.io/ImmuneSpaceR/articles/" class="external-link">the package vignettes</a> and the reports available on <a href="https://datatools.immunespace.org/" class="external-link">ImmuneSpace</a>.</p>
 </div>
 <div class="section level2">
 <h2 id="contributing">Contributing<a class="anchor" aria-label="anchor" href="#contributing"></a>

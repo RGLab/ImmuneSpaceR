@@ -46,7 +46,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ImmuneSpaceR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.25.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.25.2</span>
       </span>
     </div>
 
@@ -91,7 +91,7 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://www.immunespace.org/" class="external-link">
+  <a href="https://datatools.immunespace.org/" class="external-link">
     <span class="fa fa-globe"></span>
      
   </a>
@@ -124,7 +124,7 @@
       <h1 data-toc-skip>An Introduction to the ImmuneSpaceR Package</h1>
                         <h4 data-toc-skip class="author">Renan Sauteraud</h4>
             
-            <h4 data-toc-skip class="date">2022-09-07</h4>
+            <h4 data-toc-skip class="date">2022-12-13</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/RGLab/ImmuneSpaceR/blob/HEAD/vignettes/Intro_to_ImmuneSpaceR.Rmd" class="external-link"><code>vignettes/Intro_to_ImmuneSpaceR.Rmd</code></a></small>
       <div class="hidden name"><code>Intro_to_ImmuneSpaceR.Rmd</code></div>
@@ -133,7 +133,7 @@
 
     
     
-<p>This package provides a <em>thin</em> wrapper around <a href="https://cran.r-project.org/web/packages/Rlabkey/index.html" class="external-link"><code>Rlabkey</code></a> and connects to the <a href="https://www.immunespace.org" class="external-link">ImmuneSpace</a> database, making it easier to fetch datasets, including gene expression data, HAI, and so forth, from specific studies.</p>
+<p>This package provides a <em>thin</em> wrapper around <a href="https://cran.r-project.org/web/packages/Rlabkey/index.html" class="external-link"><code>Rlabkey</code></a> and connects to the <a href="https://datatools.immunespace.org" class="external-link">ImmuneSpace</a> database, making it easier to fetch datasets, including gene expression data, HAI, and so forth, from specific studies.</p>
 <div class="section level2">
 <h2 id="configuration">Configuration<a class="anchor" aria-label="anchor" href="#configuration"></a>
 </h2>
@@ -151,10 +151,10 @@
 <li>The permissions on this file should be unreadable for everybody except the owner</li>
 </ul>
 <p>The following three lines must be included in the <code>.netrc</code> or <code>_netrc</code> file either separated by white space (spaces, tabs, or newlines) or commas.</p>
-<pre><code>machine www.immunespace.org
+<pre><code>machine datatools.immunespace.org
 login myUser@mySite.com
 password superSecretPassword</code></pre>
-<p>Multiple such blocks can exist in one file. Please ensure that the machine name in the netrc file contains the “www” prefix as that is how the package connects to immunespace by default. A mismatch will lead to connection failures.</p>
+<p>Multiple such blocks can exist in one file. Please ensure that the machine name in the netrc file contains the “datatools” subdomain as that is how the package connects to immunespace by default. A mismatch will lead to connection failures.</p>
 <p>See <a href="https://www.labkey.org/wiki/home/Documentation/page.view?name=netrc" class="external-link">the official LabKey documentation</a> for more information.</p>
 </div>
 <div class="section level2">
@@ -167,7 +167,7 @@ password superSecretPassword</code></pre>
 <span><span class="va">sdy269</span></span></code></pre></div>
 <pre><code><span><span class="co">## &lt;ImmuneSpaceConnection&gt;</span></span>
 <span><span class="co">##   Study: SDY269</span></span>
-<span><span class="co">##   URL: https://www.immunespace.org/Studies/SDY269</span></span>
+<span><span class="co">##   URL: https://datatools.immunespace.org/Studies/SDY269</span></span>
 <span><span class="co">##   User: unknown_user at not_a_domain.com</span></span>
 <span><span class="co">##   9 Available Datasets</span></span>
 <span><span class="co">##     - cohort_membership</span></span>
@@ -311,7 +311,7 @@ password superSecretPassword</code></pre>
 <code class="sourceCode R"><span><span class="va">con</span></span></code></pre></div>
 <pre><code><span><span class="co">## &lt;ImmuneSpaceConnection&gt;</span></span>
 <span><span class="co">##   Study: Studies</span></span>
-<span><span class="co">##   URL: https://www.immunespace.org/Studies/</span></span>
+<span><span class="co">##   URL: https://datatools.immunespace.org/Studies/</span></span>
 <span><span class="co">##   User: unknown_user at not_a_domain.com</span></span>
 <span><span class="co">##   13 Available Datasets</span></span>
 <span><span class="co">##     - cohort_membership</span></span>
@@ -344,7 +344,7 @@ password superSecretPassword</code></pre>
 </h2>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## R version 4.2.1 (2022-06-23)</span></span>
+<pre><code><span><span class="co">## R version 4.2.2 (2022-10-31)</span></span>
 <span><span class="co">## Platform: x86_64-apple-darwin17.0 (64-bit)</span></span>
 <span><span class="co">## Running under: macOS Big Sur ... 10.16</span></span>
 <span><span class="co">## </span></span>
@@ -359,44 +359,41 @@ password superSecretPassword</code></pre>
 <span><span class="co">## [1] stats     graphics  grDevices utils     datasets  methods   base     </span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## other attached packages:</span></span>
-<span><span class="co">## [1] Rlabkey_2.8.4       jsonlite_1.8.0      httr_1.4.4         </span></span>
-<span><span class="co">## [4] ImmuneSpaceR_1.25.1 rmarkdown_2.16      knitr_1.40         </span></span>
+<span><span class="co">## [1] Rlabkey_2.9.0       jsonlite_1.8.4      httr_1.4.4         </span></span>
+<span><span class="co">## [4] ImmuneSpaceR_1.25.2 rmarkdown_2.18      knitr_1.41         </span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## loaded via a namespace (and not attached):</span></span>
-<span><span class="co">##   [1] ncdfFlow_2.42.1       bitops_1.0-7          matrixStats_0.62.0   </span></span>
-<span><span class="co">##   [4] fs_1.5.2              webshot_0.5.3         RColorBrewer_1.1-3   </span></span>
-<span><span class="co">##   [7] rprojroot_2.0.3       Rgraphviz_2.40.0      tools_4.2.1          </span></span>
-<span><span class="co">##  [10] bslib_0.4.0           utf8_1.2.2            R6_2.5.1             </span></span>
-<span><span class="co">##  [13] KernSmooth_2.23-20    lazyeval_0.2.2        BiocGenerics_0.42.0  </span></span>
-<span><span class="co">##  [16] colorspace_2.0-3      flowWorkspace_4.8.0   withr_2.5.0          </span></span>
-<span><span class="co">##  [19] tidyselect_1.1.2      gridExtra_2.3         preprocessCore_1.58.0</span></span>
-<span><span class="co">##  [22] curl_4.3.2            compiler_4.2.1        textshaping_0.3.6    </span></span>
-<span><span class="co">##  [25] graph_1.74.0          cli_3.3.0             Biobase_2.56.0       </span></span>
-<span><span class="co">##  [28] TSP_1.2-1             xml2_1.3.3            desc_1.4.1           </span></span>
-<span><span class="co">##  [31] plotly_4.10.0         labeling_0.4.2        sass_0.4.2           </span></span>
-<span><span class="co">##  [34] caTools_1.18.2        scales_1.2.1          pkgdown_2.0.6        </span></span>
-<span><span class="co">##  [37] systemfonts_1.0.4     stringr_1.4.1         digest_0.6.29        </span></span>
-<span><span class="co">##  [40] base64enc_0.1-3       jpeg_0.1-9            pkgconfig_2.0.3      </span></span>
-<span><span class="co">##  [43] htmltools_0.5.3       highr_0.9             fastmap_1.1.0        </span></span>
-<span><span class="co">##  [46] htmlwidgets_1.5.4     rlang_1.0.5           flowCore_2.8.0       </span></span>
-<span><span class="co">##  [49] farver_2.1.1          jquerylib_0.1.4       generics_0.1.3       </span></span>
-<span><span class="co">##  [52] gtools_3.9.3          dendextend_1.16.0     dplyr_1.0.10         </span></span>
-<span><span class="co">##  [55] magrittr_2.0.3        RProtoBufLib_2.8.0    interp_1.1-3         </span></span>
-<span><span class="co">##  [58] Rcpp_1.0.9            munsell_0.5.0         S4Vectors_0.34.0     </span></span>
-<span><span class="co">##  [61] fansi_1.0.3           viridis_0.6.2         lifecycle_1.0.1      </span></span>
-<span><span class="co">##  [64] stringi_1.7.8         yaml_2.3.5            zlibbioc_1.42.0      </span></span>
-<span><span class="co">##  [67] gplots_3.1.3          grid_4.2.1            deldir_1.0-6         </span></span>
-<span><span class="co">##  [70] lattice_0.20-45       pillar_1.8.1          codetools_0.2-18     </span></span>
-<span><span class="co">##  [73] stats4_4.2.1          XML_3.99-0.10         glue_1.6.2           </span></span>
-<span><span class="co">##  [76] evaluate_0.16         latticeExtra_0.6-30   data.table_1.14.2    </span></span>
-<span><span class="co">##  [79] RcppParallel_5.1.5    foreach_1.5.2         png_0.1-7            </span></span>
-<span><span class="co">##  [82] vctrs_0.4.1           tidyr_1.2.0           gtable_0.3.1         </span></span>
-<span><span class="co">##  [85] aws.s3_0.3.21         purrr_0.3.4           heatmaply_1.3.0      </span></span>
-<span><span class="co">##  [88] assertthat_0.2.1      cachem_1.0.6          ggplot2_3.3.6        </span></span>
-<span><span class="co">##  [91] xfun_0.32             ragg_1.2.2            viridisLite_0.4.1    </span></span>
-<span><span class="co">##  [94] pheatmap_1.0.12       seriation_1.3.6       tibble_3.1.8         </span></span>
-<span><span class="co">##  [97] iterators_1.0.14      registry_0.5-1        cytolib_2.8.0        </span></span>
-<span><span class="co">## [100] aws.signature_0.6.0   memoise_2.0.1</span></span></code></pre>
+<span><span class="co">##  [1] ncdfFlow_2.44.0       bitops_1.0-7          matrixStats_0.63.0   </span></span>
+<span><span class="co">##  [4] fs_1.5.2              webshot_0.5.4         RColorBrewer_1.1-3   </span></span>
+<span><span class="co">##  [7] rprojroot_2.0.3       Rgraphviz_2.42.0      tools_4.2.2          </span></span>
+<span><span class="co">## [10] bslib_0.4.1           utf8_1.2.2            R6_2.5.1             </span></span>
+<span><span class="co">## [13] KernSmooth_2.23-20    BiocGenerics_0.44.0   lazyeval_0.2.2       </span></span>
+<span><span class="co">## [16] colorspace_2.0-3      flowWorkspace_4.10.0  withr_2.5.0          </span></span>
+<span><span class="co">## [19] tidyselect_1.2.0      gridExtra_2.3         preprocessCore_1.60.0</span></span>
+<span><span class="co">## [22] curl_4.3.3            compiler_4.2.2        textshaping_0.3.6    </span></span>
+<span><span class="co">## [25] graph_1.76.0          cli_3.4.1             Biobase_2.58.0       </span></span>
+<span><span class="co">## [28] TSP_1.2-1             desc_1.4.2            plotly_4.10.1        </span></span>
+<span><span class="co">## [31] labeling_0.4.2        sass_0.4.4            caTools_1.18.2       </span></span>
+<span><span class="co">## [34] scales_1.2.1          pkgdown_2.0.6         systemfonts_1.0.4    </span></span>
+<span><span class="co">## [37] stringr_1.5.0         digest_0.6.31         ca_0.71.1            </span></span>
+<span><span class="co">## [40] pkgconfig_2.0.3       htmltools_0.5.4       highr_0.9            </span></span>
+<span><span class="co">## [43] fastmap_1.1.0         htmlwidgets_1.5.4     rlang_1.0.6          </span></span>
+<span><span class="co">## [46] flowCore_2.10.0       farver_2.1.1          jquerylib_0.1.4      </span></span>
+<span><span class="co">## [49] generics_0.1.3        gtools_3.9.4          dendextend_1.16.0    </span></span>
+<span><span class="co">## [52] dplyr_1.0.10          magrittr_2.0.3        RProtoBufLib_2.10.0  </span></span>
+<span><span class="co">## [55] Rcpp_1.0.9            munsell_0.5.0         S4Vectors_0.36.1     </span></span>
+<span><span class="co">## [58] fansi_1.0.3           viridis_0.6.2         lifecycle_1.0.3      </span></span>
+<span><span class="co">## [61] stringi_1.7.8         yaml_2.3.6            zlibbioc_1.44.0      </span></span>
+<span><span class="co">## [64] gplots_3.1.3          grid_4.2.2            pillar_1.8.1         </span></span>
+<span><span class="co">## [67] codetools_0.2-18      stats4_4.2.2          XML_3.99-0.13        </span></span>
+<span><span class="co">## [70] glue_1.6.2            evaluate_0.19         data.table_1.14.6    </span></span>
+<span><span class="co">## [73] vctrs_0.5.1           foreach_1.5.2         gtable_0.3.1         </span></span>
+<span><span class="co">## [76] purrr_0.3.5           tidyr_1.2.1           heatmaply_1.4.0      </span></span>
+<span><span class="co">## [79] assertthat_0.2.1      cachem_1.0.6          ggplot2_3.4.0        </span></span>
+<span><span class="co">## [82] xfun_0.35             ragg_1.2.4            viridisLite_0.4.1    </span></span>
+<span><span class="co">## [85] seriation_1.4.0       tibble_3.1.8          pheatmap_1.0.12      </span></span>
+<span><span class="co">## [88] iterators_1.0.14      cytolib_2.10.0        registry_0.5-1       </span></span>
+<span><span class="co">## [91] memoise_2.0.1</span></span></code></pre>
 </div>
   </div>
 

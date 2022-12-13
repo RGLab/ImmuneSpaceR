@@ -46,7 +46,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ImmuneSpaceR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.25.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.25.2</span>
       </span>
     </div>
 
@@ -91,7 +91,7 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://www.immunespace.org/" class="external-link">
+  <a href="https://datatools.immunespace.org/" class="external-link">
     <span class="fa fa-globe"></span>
      
   </a>
@@ -124,7 +124,7 @@
       <h1 data-toc-skip>interactive_netrc() Function Walkthrough</h1>
                         <h4 data-toc-skip class="author">Lauren Wolfe</h4>
             
-            <h4 data-toc-skip class="date">2022-09-07</h4>
+            <h4 data-toc-skip class="date">2022-12-13</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/RGLab/ImmuneSpaceR/blob/HEAD/vignettes/interactiveNetrc.Rmd" class="external-link"><code>vignettes/interactiveNetrc.Rmd</code></a></small>
       <div class="hidden name"><code>interactiveNetrc.Rmd</code></div>
@@ -139,7 +139,7 @@
 </h2>
 <p>In order to connect to ImmuneSpace, you will need a <code>.netrc</code> file in your home directory that will contain a <code>machine</code> name (hostname of ImmuneSpace), and your ImmuneSpace <code>login</code> and <code>password</code>. See <a href="https://www.labkey.org/wiki/home/Documentation/page.view?name=netrc" class="external-link">here</a> for more information.</p>
 <p>A netrc file may look like this:</p>
-<pre><code>machine www.immunespace.org
+<pre><code>machine datatools.immunespace.org
 login myuser@domain.com
 password supersecretpassword</code></pre>
 </div>
@@ -164,7 +164,7 @@ password supersecretpassword</code></pre>
 <p>Below is a gif demonstrating how to use this function:</p>
 <p><img src="img/createNetrc.gif" width="675"></p>
 <p>In the case that the user did not provide login information that results in a connection to ImmuneSpace, a netrc file will not be written to the user’s home directory, and the user can try the method again checking for typos.</p>
-<p>If the user still cannot connect to ImmuneSpace via the API, they might want to double check that they are registered and that their login information works for <a href="https://immunespace.org/" class="external-link">ImmuneSpace</a>.</p>
+<p>If the user still cannot connect to ImmuneSpace via the API, they might want to double check that they are registered and that their login information works for <a href="https://datatools.immunespace.org/" class="external-link">ImmuneSpace</a>.</p>
 <p>If a netrc file already exists, <code>interactive_netrc</code> will print the existing file to the console and ask the user if they wish to overwrite that file.</p>
 <ul>
 <li>

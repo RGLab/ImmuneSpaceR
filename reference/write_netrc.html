@@ -23,7 +23,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ImmuneSpaceR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.25.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.25.2</span>
       </span>
     </div>
 
@@ -63,7 +63,7 @@
   <a href="../news/index.html">Changelog</a>
 </li>
       </ul><ul class="nav navbar-nav navbar-right"><li>
-  <a href="https://www.immunespace.org/" class="external-link">
+  <a href="https://datatools.immunespace.org/" class="external-link">
     <span class="fa fa-globe"></span>
      
   </a>
@@ -99,7 +99,12 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">write_netrc</span><span class="op">(</span><span class="va">login</span>, <span class="va">password</span>, machine <span class="op">=</span> <span class="st">"www.immunespace.org"</span>, file <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">write_netrc</span><span class="op">(</span></span>
+<span>  <span class="va">login</span>,</span>
+<span>  <span class="va">password</span>,</span>
+<span>  machine <span class="op">=</span> <span class="st">"datatools.immunespace.org"</span>,</span>
+<span>  file <span class="op">=</span> <span class="cn">NULL</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -132,7 +137,7 @@ file. If left NULL, the netrc will be written into a temporary file.</p></dd>
     <div id="ref-examples">
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">write_netrc</span><span class="op">(</span><span class="st">"immunespaceuser@gmail.com"</span>, <span class="st">"mypassword"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "/var/folders/24/8k48jl6d249_n_qfxwsl6xvm0000gn/T//Rtmp1G5meG/file180f13083be3"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "/var/folders/24/8k48jl6d249_n_qfxwsl6xvm0000gn/T//RtmpNampcE/file24ce3e5a2805"</span>
 </code></pre></div>
     </div>
   </div>
