@@ -33,11 +33,11 @@
 #' \code{.netrc} file in \code{"~/"} the user's home directory. The
 #' \code{.netrc} file should contain a \code{machine}, \code{login}, and
 #' \code{password} entry to allow access to ImmuneSpace, where \code{machine} is
-#' the host name like "www.immunespace.org".
+#' the host name like "datatools.immunespace.org".
 #'
 #' It can also use global variables \code{labkey.url.base}, and
 #' \code{labkey.url.path}, to access a study. \code{labkey.url.base} should be
-#' \code{https://www.immunespace.org/}. \code{labkey.url.path} should be
+#' \code{https://datatools.immunespace.org/}. \code{labkey.url.path} should be
 #' \code{/Studies/studyname}, where 'studyname' is the accession number of the
 #' study.
 #'
@@ -355,7 +355,7 @@ ISCon$set(
     .check_portal(onTest)
 
     # fetch config variables
-    labkey.url.base <- .get_url_base(onTest)
+    labkey.url.base <- .get_url_base(onTest, verbose)
     labkey.user.email <- .get_user_email()
     labkey.url.path <- .get_url_path(study)
     curlOptions <- .set_curl_options(login, password)
@@ -403,7 +403,7 @@ ISCon$set(
 
 
 .get_host <- function(onTest = FALSE) {
-  ifelse(onTest, "test.immunespace.org", "www.immunespace.org")
+  ifelse(onTest, "datatools-dev.immunespace.org", "datatools.immunespace.org")
 }
 
 
@@ -420,7 +420,7 @@ ISCon$set(
 # which really should have been done through option()/getOption() mechanism
 # Here we do this to be compatible to labkey online report system
 # that automatically assigns these variables in global environment
-.get_url_base <- function(onTest = FALSE) {
+.get_url_base <- function(onTest = FALSE, verbose = FALSE) {
   labkey.url.base <- try(get("labkey.url.base", .GlobalEnv), silent = TRUE)
   if (inherits(labkey.url.base, "try-error")) {
     labkey.url.base <- paste0("https://", .get_host(onTest))
@@ -431,7 +431,7 @@ ISCon$set(
   }
 
   # Allow http (no SSL) for local
-  if (grepl("immunespace", labkey.url.base)) {
+  if (grepl("(immunespace|lji)", labkey.url.base)) {
     labkey.url.base <- gsub("http:", "https:", labkey.url.base)
     if (length(grep("^https://", labkey.url.base)) == 0) {
       labkey.url.base <- paste0("https://", labkey.url.base)
@@ -441,6 +441,8 @@ ISCon$set(
       labkey.url.base <- paste0(labkey.url.base, ":8080")
     }
   }
+
+  if (isTRUE(verbose)) message(sprintf("URL base: %s", labkey.url.base))
 
   labkey.url.base
 }
@@ -509,15 +511,11 @@ ISCon$set(
 
   if (!inherits(nf, "try-error") && !is.null(nf)) {
     curlOptions <- labkey.setCurlOptions(
-      ssl_verifyhost = 2,
-      sslversion = 1,
       netrc_file = nf,
       useragent = useragent
     )
   } else {
     curlOptions <- labkey.setCurlOptions(
-      ssl_verifyhost = 2,
-      sslversion = 1,
       useragent = useragent
     )
   }

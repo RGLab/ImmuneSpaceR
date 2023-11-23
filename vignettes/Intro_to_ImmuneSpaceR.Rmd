@@ -26,7 +26,7 @@ if (!any(file.exists("~/.netrc", "~/_netrc"))) {
 ```
 
 
-This package provides a *thin* wrapper around [`Rlabkey`](https://cran.r-project.org/web/packages/Rlabkey/index.html) and connects to the [ImmuneSpace](https://www.immunespace.org) database, making it easier to fetch datasets, including gene expression data, HAI, and so forth, from specific studies. 
+This package provides a *thin* wrapper around [`Rlabkey`](https://cran.r-project.org/web/packages/Rlabkey/index.html) and connects to the [ImmuneSpace](https://datatools.immunespace.org) database, making it easier to fetch datasets, including gene expression data, HAI, and so forth, from specific studies. 
 
 
 
@@ -49,12 +49,12 @@ Or create netrc file in the computer running R:
 The following three lines must be included in the `.netrc` or `_netrc` file either separated by white space (spaces, tabs, or newlines) or commas.
 
 ```
-machine www.immunespace.org
+machine datatools.immunespace.org
 login myUser@mySite.com
 password superSecretPassword
 ```
 
-Multiple such blocks can exist in one file. Please ensure that the machine name in the netrc file contains the "www" prefix as that is how the package connects to immunespace by default. A mismatch will lead to connection failures.
+Multiple such blocks can exist in one file. Please ensure that the machine name in the netrc file contains the "datatools" subdomain as that is how the package connects to immunespace by default. A mismatch will lead to connection failures.
 
 See [the official LabKey documentation](https://www.labkey.org/wiki/home/Documentation/page.view?name=netrc) for more information.
 

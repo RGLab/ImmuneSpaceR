@@ -31,7 +31,7 @@ interactive_netrc <- function() {
 
     if (chk == TRUE) {
       message("writing netrc to ", filepath)
-      cat("machine www.immunespace.org\nlogin ", login, "\npassword ", password, "\n", file = filepath)
+      cat("machine datatools.immunespace.org\nlogin ", login, "\npassword ", password, "\n", file = filepath)
     }
   } else {
     # don't overwrite - validate available netrc
@@ -58,7 +58,7 @@ interactive_netrc <- function() {
 #' @export
 write_netrc <- function(login,
                         password,
-                        machine = "www.immunespace.org",
+                        machine = "datatools.immunespace.org",
                         file = NULL) {
   string <- paste0(
     "machine ", machine, "\n",
@@ -109,8 +109,8 @@ check_netrc <- function() {
   }
   lines <- readLines(netrc_file)
   lines <- gsub("http.*//", "", lines)
-  if (length(grep("machine\\swww.immunespace.org", lines)) == 0) {
-    stop("No entry found for www.immunespace.org in the netrc file.")
+  if (length(grep("machine\\sdatatools.immunespace.org", lines)) == 0) {
+    stop("No entry found for datatools.immunespace.org in the netrc file.")
   }
   print("The netrc looks valid.")
   return(netrc_file)
@@ -122,7 +122,7 @@ check_netrc <- function() {
   ISR_login <- Sys.getenv("ISR_login")
   ISR_pwd <- Sys.getenv("ISR_pwd")
   ISR_machine <- ifelse(Sys.getenv("ISR_machine") == "",
-    "www.immunespace.org",
+    "datatools.immunespace.org",
     Sys.getenv("ISR_machine")
   )
   if (ISR_login != "" & ISR_pwd != "") {
@@ -139,7 +139,7 @@ check_netrc <- function() {
   machine <- Sys.getenv("ISR_machine")
   # if blank, then use production
   if (machine == "") {
-    return("https://www.immunespace.org")
+    return("https://datatools.immunespace.org")
   }
 
   if (grepl("immunespace", machine)) {

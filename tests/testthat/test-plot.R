@@ -4,7 +4,7 @@ context("ISCon$plot()")
 # Helper Functions ---------------------------------------------
 testPlot <- function(con, dataset, ...) {
   res <- tryCatch(
-    con$plot(dataset, ...),
+    withr::with_dir(tempdir(), con$plot(dataset, ...)),
     error = function(e) {
       return(e)
     }
