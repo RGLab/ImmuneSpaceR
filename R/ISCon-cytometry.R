@@ -51,6 +51,14 @@ ISCon$set(
   which = "public",
   name = "summarizeCyto",
   value = function() {
+
+    # set Waf encoding FALSE for Rlabkey versions greater or equal to 3.0.0
+    # this needs to be repeated in the helper functions that make use of
+    # labkey.executeSql
+    if (packageVersion('Rlabkey') >= '3.0.0') {
+      labkey.setWafEncoding(FALSE)
+    }
+
     # retrieve stats
     nSamples <- suppressWarnings(labkey.executeSql(
       folderPath = self$config$labkey.url.path,

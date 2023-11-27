@@ -24,6 +24,12 @@ ISCon$set(
       )
     }
 
+    # set Waf encoding FALSE for Rlabkey versions greater or equal to 3.0.0
+    # this needs to be repeated in the helper functions that make use of
+    # labkey.executeSql
+    if (packageVersion('Rlabkey') >= '3.0.0') {
+      labkey.setWafEncoding(FALSE)
+    }
 
     ## MAIN
     if (is.null(self$cache[[private$.constants$matrices]]) | reload) {
@@ -622,6 +628,13 @@ ISCon$set(
     cacheinfo <- .getCacheInfo(outputType, annotation)
     cache_name <- .getMatrixCacheName(matrixName, outputType, annotation)
 
+    # set Waf encoding FALSE for Rlabkey versions greater or equal to 3.0.0
+    # this needs to be repeated in the helper functions that make use of
+    # labkey.executeSql
+    if (packageVersion('Rlabkey') >= '3.0.0') {
+      labkey.setWafEncoding(FALSE)
+    }
+    
     if (!(matrixName %in% self$cache[[private$.constants$matrices]]$name)) {
       stop("Invalid gene expression matrix name")
     }
