@@ -360,6 +360,13 @@ ISCon$set(
     labkey.url.path <- .get_url_path(study)
     curlOptions <- .set_curl_options(login, password)
 
+    # set Waf encoding FALSE for Rlabkey versions greater or equal to 3.0.0
+    # this needs to be repeated in the helper functions that make use of
+    # labkey.executeSql
+    if (packageVersion('Rlabkey') >= '3.0.0') {
+      labkey.setWafEncoding(FALSE)
+    }
+
     # set fields
     self$config <- list(
       labkey.url.base = labkey.url.base,
